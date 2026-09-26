@@ -1,14 +1,50 @@
-# Normalize line endings to LF in the repo; Git converts to CRLF on Windows checkout only for files marked text=auto (default behavior).
+# Default: normalize to LF in the repo, checkout as-is (no CRLF conversion).
 * text=auto eol=lf
 
-# Diff/merge as binary for assets
+# Source and config — force LF explicitly
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Windows batch scripts need CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Images / fonts / media — treat as binary, don't diff or convert
 *.png binary
 *.jpg binary
 *.jpeg binary
 *.gif binary
+*.webp binary
+*.avif binary
 *.ico binary
 *.svg binary
 *.woff binary
 *.woff2 binary
 *.ttf binary
 *.eot binary
+*.mp4 binary
+*.pdf binary
+
+# Generated / vendored — exclude from GitHub language stats and diffs
+website/package-lock.json linguist-generated=true
+website/dist/** linguist-generated=true
+website/node_modules/** linguist-vendored=true
+
+# Keep out of `git archive` exports (release tarballs)
+.github export-ignore
+.claude export-ignore
+scripts export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+.editorconfig export-ignore
