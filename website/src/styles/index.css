@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* dark theme (default) */
+  --color-bg: #08080c;
+  --color-surface: #111117;
+  --color-surface-2: #17171f;
+  --color-border: #26262f;
+  --color-accent: #7cf5c4;
+  --color-accent-2: #8b8cf6;
+  --color-text: #e7e7ec;
+  --color-muted: #8a8a96;
+
+  --grid-line: rgba(255, 255, 255, 0.045);
+  --glow-accent: rgba(124, 245, 196, 0.16);
+  --glow-accent-2: rgba(139, 140, 246, 0.16);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --color-bg: #f7f7fa;
+    --color-surface: #ffffff;
+    --color-surface-2: #f0f0f5;
+    --color-border: #e1e1e8;
+    --color-accent: #047857;
+    --color-accent-2: #4f46e5;
+    --color-text: #14141a;
+    --color-muted: #62626d;
+
+    --grid-line: rgba(10, 10, 15, 0.05);
+    --glow-accent: rgba(4, 120, 87, 0.1);
+    --glow-accent-2: rgba(79, 70, 229, 0.1);
+  }
+}
+
+:root[data-theme="light"] {
+  --color-bg: #f7f7fa;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0f0f5;
+  --color-border: #e1e1e8;
+  --color-accent: #047857;
+  --color-accent-2: #4f46e5;
+  --color-text: #14141a;
+  --color-muted: #62626d;
+
+  --grid-line: rgba(10, 10, 15, 0.05);
+  --glow-accent: rgba(4, 120, 87, 0.1);
+  --glow-accent-2: rgba(79, 70, 229, 0.1);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #05130d;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-2);
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Base "card" surface shared by project/skill/blog tiles — a faint inner
+   highlight plus a soft accent glow that ramps in on hover instead of a
+   hard color swap, so hover feels like the surface lighting up. */
+.card-surface {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
+  transition:
+    border-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.card-surface:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
+    0 12px 32px -16px var(--glow-accent);
+}
+
+/* Traffic-light window chrome for the "code editor" motif used on the hero
+   panel and project cards. */
+.window-dots span {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+
+.window-dots span:nth-child(1) {
+  background: #ef6961;
+}
+.window-dots span:nth-child(2) {
+  background: #f4bf50;
+}
+.window-dots span:nth-child(3) {
+  background: #61c554;
+}
+
+:root[data-theme="light"] .window-dots span:nth-child(1),
+:root[data-theme="light"] .window-dots span:nth-child(2),
+:root[data-theme="light"] .window-dots span:nth-child(3) {
+  filter: saturate(0.85);
+}
+
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.caret {
+  display: inline-block;
+  width: 0.55ch;
+  height: 1em;
+  vertical-align: -0.15em;
+  background: var(--color-accent);
+  animation: caret-blink 1s step-end infinite;
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-popover-in {
+  animation: popover-in 120ms ease-out;
+  transform-origin: var(--radix-select-content-transform-origin);
+}
