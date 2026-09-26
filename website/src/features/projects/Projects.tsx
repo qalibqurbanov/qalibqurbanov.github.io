@@ -1,4 +1,5 @@
 import { Container } from "@/components/ui/Container";
+import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { useContent } from "@/i18n/context";
 
@@ -17,6 +18,8 @@ export function Projects() {
             <ProjectCard key={project.title} project={project} index={index} delayMs={index * 75} />
           ))}
         </div>
+
+        <SectionClosing />
       </Container>
     </section>
   );

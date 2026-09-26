@@ -1,5 +1,6 @@
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Tag } from "@/components/ui/Tag";
 import { useContent } from "@/i18n/context";
@@ -38,6 +39,8 @@ export function Experience() {
             </li>
           ))}
         </ol>
+
+        <SectionClosing />
       </Container>
     </section>
   );

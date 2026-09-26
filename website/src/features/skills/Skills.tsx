@@ -3,6 +3,7 @@ import type { ComponentType } from "react";
 
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { useContent } from "@/i18n/context";
 import type { SkillCategory } from "@/types/content";
@@ -46,6 +47,8 @@ export function Skills() {
             </Reveal>
           ))}
         </div>
+
+        <SectionClosing />
       </Container>
     </section>
   );

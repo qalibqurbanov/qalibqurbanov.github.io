@@ -1,5 +1,6 @@
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { useContent } from "@/i18n/context";
 
@@ -37,6 +38,8 @@ export function About() {
             </dl>
           </Reveal>
         </div>
+
+        <SectionClosing />
       </Container>
     </section>
   );

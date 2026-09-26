@@ -2,6 +2,7 @@ import { ArrowUpRight } from "lucide-react";
 
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
@@ -43,6 +44,8 @@ export function Blog() {
             </Reveal>
           ))}
         </div>
+
+        <SectionClosing />
       </Container>
     </section>
   );
