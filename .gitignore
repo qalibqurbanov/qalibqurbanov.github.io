@@ -1,3 +1,15 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Build output
+dist
+dist-ssr
+build
+*.tsbuildinfo
+
 # Logs
 logs
 *.log
@@ -7,18 +19,33 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Testing / coverage
+coverage
+*.lcov
+
+# Cache
+.cache
+.eslintcache
+.oxlintcache
+.vite
 *.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
