@@ -34,4 +34,5 @@ export const ui: UiStrings = {
     toggleMenu: "Toggle menu",
     scrollToAbout: "Scroll to About",
   },
+  backToTop: "Back to top",
 };

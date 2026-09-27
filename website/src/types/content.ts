@@ -92,6 +92,7 @@ export interface UiStrings {
     toggleMenu: string;
     scrollToAbout: string;
   };
+  backToTop: string;
 }
 
 /** Everything the site renders, for a single locale. */

@@ -17,7 +17,7 @@ export function Contact() {
           <p className="text-muted leading-relaxed mb-10">{ui.contact.body}</p>
           <a
             href={socials.email}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-md border border-accent text-accent font-mono text-sm hover:bg-accent/10 transition"
+            className="btn-pulse inline-flex items-center gap-2 px-8 py-4 rounded-md border border-accent text-accent font-mono text-sm hover:bg-accent/10 transition"
           >
             <span className="text-muted">$</span> {ui.contact.ctaPrefix} {profile.email}
           </a>

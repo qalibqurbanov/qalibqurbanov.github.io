@@ -1,7 +1,9 @@
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
+import { AmbientBackground } from "@/components/ui/AmbientBackground";
+import { BackToTop } from "@/components/ui/BackToTop";
 import { About } from "@/features/about/About";
-import { Blog } from "@/features/blog/Blog";
+// import { Blog } from "@/features/blog/Blog";
 import { Contact } from "@/features/contact/Contact";
 import { Experience } from "@/features/experience/Experience";
 import { Hero } from "@/features/hero/Hero";
@@ -11,6 +13,7 @@ import { Skills } from "@/features/skills/Skills";
 export function App() {
   return (
     <div className="min-h-screen">
+      <AmbientBackground />
       <Navbar />
       <main>
         <Hero />
@@ -18,10 +21,11 @@ export function App() {
         <Experience />
         <Projects />
         <Skills />
-        <Blog />
+        {/* <Blog /> */}
         <Contact />
       </main>
       <Footer />
+      <BackToTop />
     </div>
   );
 }

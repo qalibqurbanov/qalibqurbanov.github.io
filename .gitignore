@@ -52,7 +52,7 @@ playwright-report
 .firebase
 
 # Claude Code local settings
-.claude/settings.local.json
+.claude/
 
 # Editor directories and files
 .vscode/*

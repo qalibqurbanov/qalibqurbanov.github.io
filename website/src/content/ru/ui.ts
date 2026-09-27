@@ -34,4 +34,5 @@ export const ui: UiStrings = {
     toggleMenu: "Открыть/закрыть меню",
     scrollToAbout: "Перейти к разделу «Обо мне»",
   },
+  backToTop: "Наверх",
 };

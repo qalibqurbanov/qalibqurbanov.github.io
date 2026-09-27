@@ -35,7 +35,12 @@ export function Skills() {
               delayMs={index * 75}
               className="card-surface p-6 rounded-xl"
             >
-              <Icon className="text-accent mb-4" size={24} />
+              <div
+                className="inline-block mb-4 animate-float-slow"
+                style={{ animationDelay: `${index * 400}ms` }}
+              >
+                <Icon className="text-accent" size={24} />
+              </div>
               <h3 className="font-semibold text-text mb-4">{ui.skillGroups[category]}</h3>
               <ul className="space-y-2">
                 {skills[category].map((skill) => (

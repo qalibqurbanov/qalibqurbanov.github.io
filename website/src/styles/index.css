@@ -53,6 +53,25 @@
 
 html {
   scroll-behavior: smooth;
+  /* Keeps the scrollbar gutter reserved at all times, so the viewport
+     doesn't widen when something (e.g. the Radix Select in the nav) locks
+     body scroll and hides the scrollbar — without this the fixed, centered
+     header visibly jumps sideways for as long as the popover is open. */
+  scrollbar-gutter: stable;
+}
+
+/* Firefox (and any other browser without ::-webkit-scrollbar support) has no
+   way to draw the pill-shaped thumb below, so give it the closest thing its
+   standard scrollbar properties can express. Browsers that understand
+   ::-webkit-scrollbar get the fully custom treatment instead — Chromium
+   prefers the standard properties over the pseudo-elements when both are
+   set on the same element, which flattened the scrollbar back to default. */
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-muted) 65%, var(--color-accent) 10%)
+      var(--color-surface);
+  }
 }
 
 body {
@@ -71,17 +90,37 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 14px;
+  height: 14px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-bg);
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background-color: color-mix(in srgb, var(--color-muted) 65%, var(--color-accent) 10%);
+  background-clip: padding-box;
+  border: 3px solid var(--color-surface);
   border-radius: 999px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-bg) 30%, transparent);
+  transition:
+    background-color 0.2s ease,
+    background-image 0.2s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent-2);
+  background-color: color-mix(in srgb, var(--color-muted) 40%, var(--color-accent) 35%);
+  background-image: linear-gradient(180deg, var(--color-accent), var(--color-accent-2));
+}
+::-webkit-scrollbar-thumb:active {
+  background-image: linear-gradient(180deg, var(--color-accent-2), var(--color-accent));
+}
+::-webkit-scrollbar-corner {
+  background: var(--color-surface);
+}
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .bg-grid {
@@ -119,30 +158,29 @@ body {
     0 12px 32px -16px var(--glow-accent);
 }
 
-/* Traffic-light window chrome for the "code editor" motif used on the hero
-   panel and project cards. */
-.window-dots span {
-  display: inline-block;
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 999px;
+/* Windows-style window chrome (minimize/maximize/close) for the "code
+   editor" motif used on the hero panel and project cards. */
+.window-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 0.25rem;
+  color: var(--color-muted);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.window-control:hover {
   background: var(--color-border);
+  color: var(--color-text);
 }
 
-.window-dots span:nth-child(1) {
-  background: #ef6961;
-}
-.window-dots span:nth-child(2) {
-  background: #f4bf50;
-}
-.window-dots span:nth-child(3) {
-  background: #61c554;
-}
-
-:root[data-theme="light"] .window-dots span:nth-child(1),
-:root[data-theme="light"] .window-dots span:nth-child(2),
-:root[data-theme="light"] .window-dots span:nth-child(3) {
-  filter: saturate(0.85);
+.window-control-close:hover {
+  background: #e81123;
+  color: #fff;
 }
 
 @keyframes caret-blink {
@@ -193,4 +231,181 @@ body {
 .animate-popover-in {
   animation: popover-in 120ms ease-out;
   transform-origin: var(--radix-select-content-transform-origin);
+}
+
+/* Slow diagonal crawl of the hero's dot grid, so the backdrop never sits
+   perfectly still even when nothing else on screen is moving. */
+@keyframes grid-pan {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 44px 44px;
+  }
+}
+
+.bg-grid {
+  animation: grid-pan 7s linear infinite;
+}
+
+/* Shifts the two-stop gradient used by `.text-gradient` across itself for a
+   slow shimmer, instead of a static color. */
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.text-gradient {
+  background-size: 200% auto;
+  animation: gradient-shift 6s ease-in-out infinite;
+}
+
+/* Ambient background blobs drift along loose, irregular paths so the glow
+   behind the content reads as alive rather than a static vignette. */
+@keyframes blob-drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(4%, 6%) scale(1.08);
+  }
+  66% {
+    transform: translate(-5%, 2%) scale(0.95);
+  }
+}
+
+@keyframes blob-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-6%, -4%) scale(1.1);
+  }
+}
+
+.blob-drift-a {
+  animation: blob-drift-a 18s ease-in-out infinite;
+}
+
+.blob-drift-b {
+  animation: blob-drift-b 22s ease-in-out infinite;
+}
+
+/* An expanding, fading ring around primary CTAs — draws the eye without
+   ever demanding it. */
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--color-accent) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 0%, transparent);
+  }
+}
+
+.btn-pulse {
+  animation: pulse-ring 2.6s ease-out infinite;
+}
+
+/* A moving highlight along the section-heading rule and the `{`/`}`
+   code-block punctuation, so the "code" motif feels like it's still running. */
+@keyframes scan-line {
+  0% {
+    background-position: -120% 0;
+  }
+  100% {
+    background-position: 220% 0;
+  }
+}
+
+.scan-line {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-border) 40%,
+    var(--color-accent) 50%,
+    var(--color-border) 60%
+  );
+  background-size: 300% 100%;
+  animation: scan-line 5s linear infinite;
+}
+
+@keyframes bracket-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.bracket-pulse {
+  display: inline-block;
+  animation: bracket-pulse 2.4s ease-in-out infinite;
+}
+
+/* Card surfaces get a thin gradient sweep travelling around the full
+   border on hover, layered on top of the existing glow/lift treatment. */
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes border-spin {
+  to {
+    --border-angle: 360deg;
+  }
+}
+
+.card-surface {
+  overflow: hidden;
+}
+
+.card-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent,
+    var(--color-accent),
+    var(--color-accent-2),
+    transparent 30%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: border-spin 3.2s linear infinite;
+}
+
+.card-surface:hover::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
