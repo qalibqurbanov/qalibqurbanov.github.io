@@ -60,6 +60,17 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Radix's Select/Dialog/etc. wrap their open content in `react-remove-scroll`
+   unconditionally (it ignores `modal={false}`), which locks body scroll by
+   forcing `overflow: hidden` + a compensating `margin-right` on `<body>` via
+   its own injected stylesheet. The margin-right lands on top of the gutter
+   we already reserve above, so it shifts the page sideways all over again —
+   neutralize it here with higher specificity than the library's rule. */
+html body[data-scroll-locked] {
+  overflow: visible !important;
+  margin-right: 0 !important;
+}
+
 /* Firefox (and any other browser without ::-webkit-scrollbar support) has no
    way to draw the pill-shaped thumb below, so give it the closest thing its
    standard scrollbar properties can express. Browsers that understand
@@ -69,7 +80,24 @@ html {
 @supports not selector(::-webkit-scrollbar) {
   html {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--color-muted) 65%, var(--color-accent) 10%)
+    scrollbar-color: color-mix(in srgb, var(--color-muted) 45%, transparent)
+      var(--color-surface);
+    /* Same scroll-tied accent/accent-2 blend as the Chromium thumb below —
+       `sin()` turns the unbounded --scroll-y into a value that oscillates
+       forever instead of maxing out partway down a long page. Browsers
+       without trig-in-calc() support just keep the flat color above. */
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--color-accent) calc(35% + sin(var(--scroll-y, 0) * 1deg) * 25%),
+        var(--color-accent-2) calc(65% - sin(var(--scroll-y, 0) * 1deg) * 25%)
+      )
+      var(--color-surface);
+  }
+
+  /* Firefox can't animate the thumb itself, so just swap it to the accent
+     color while `useScrollbarActivity` marks the page as scrolling. */
+  html.is-scrolling {
+    scrollbar-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-muted) 15%)
       var(--color-surface);
   }
 }
@@ -82,6 +110,19 @@ body {
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
+  /* Most copy on the site is decorative/UI text, not content someone needs
+     to select or copy — keep it inert by default. Opt individual elements
+     back in with `.selectable` (e.g. email addresses, code snippets). */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.selectable,
+input,
+textarea,
+[contenteditable="true"] {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 ::selection {
@@ -90,29 +131,68 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-surface);
   border-left: 1px solid var(--color-border);
 }
+/* Breathes at rest via `border-width` (never `opacity` — a running animation
+   sits above normal author rules in the cascade and would silently block
+   the :hover/:active/is-scrolling opacity overrides below). Thicker border
+   means less of the thumb shows through the padding-box clip, so the visible
+   pill quietly grows and shrinks forever without touching anything the
+   scroll states also need to control. */
+@keyframes scrollbar-breathe {
+  0%,
+  100% {
+    border-width: 3px;
+  }
+  50% {
+    border-width: 1.5px;
+  }
+}
+
 ::-webkit-scrollbar-thumb {
   background-color: color-mix(in srgb, var(--color-muted) 65%, var(--color-accent) 10%);
+  /* A repeating band cycling through the site's own accent/accent-2/muted
+     tones — "rainbow" motion built only from theme colors, never arbitrary
+     hues. `background-position-y` is driven straight off `--scroll-y` in
+     px, and `repeat-y` tiles it, so the band keeps cycling forever no
+     matter how far down the page you go (no bounds/wraparound math needed,
+     unlike a plain percentage position). */
+  background-image: linear-gradient(
+    180deg,
+    var(--color-accent),
+    var(--color-accent-2),
+    var(--color-muted),
+    var(--color-accent-2),
+    var(--color-accent)
+  );
+  background-size: 100% 120px;
+  background-repeat: repeat-y;
+  background-position-y: calc(var(--scroll-y, 0) * 0.4px);
   background-clip: padding-box;
-  border: 3px solid var(--color-surface);
+  border: 2px solid var(--color-surface);
   border-radius: 999px;
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-bg) 30%, transparent);
+  /* Recedes into the track when idle, so it reads as ambient chrome rather
+     than a permanent bar — `useScrollbarActivity` toggles `is-scrolling` on
+     <html> to light it back up the moment the page actually moves. */
+  opacity: 0.55;
+  animation: scrollbar-breathe 4.5s ease-in-out infinite;
   transition:
-    background-color 0.2s ease,
-    background-image 0.2s ease;
+    opacity 0.45s ease,
+    background-position-y 0.2s ease;
 }
-::-webkit-scrollbar-thumb:hover {
-  background-color: color-mix(in srgb, var(--color-muted) 40%, var(--color-accent) 35%);
-  background-image: linear-gradient(180deg, var(--color-accent), var(--color-accent-2));
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active,
+html.is-scrolling ::-webkit-scrollbar-thumb {
+  opacity: 1;
 }
-::-webkit-scrollbar-thumb:active {
-  background-image: linear-gradient(180deg, var(--color-accent-2), var(--color-accent));
+html.is-scrolling ::-webkit-scrollbar-thumb {
+  transition-duration: 0.15s;
 }
 ::-webkit-scrollbar-corner {
   background: var(--color-surface);
@@ -399,10 +479,79 @@ body {
   opacity: 1;
 }
 
+/* Generic scroll-reactive layer for anything living in the fixed ambient
+   background (dots, blobs, whatever gets added later). `--scroll-y` is kept
+   up to date on <html> by useScrollParallax(); a layer just declares how
+   strongly it should respond via `--depth` (negative = drifts up as the page
+   scrolls down, i.e. reads as farther away; 0 = ignores scroll entirely).
+   Consumers set only `--depth` inline — no JS wiring needed per element.
+   The offset is clamped so a long page can't drift a layer far enough to
+   expose empty space past the edge of its fixed, viewport-sized parent. */
+.parallax-layer {
+  transform: translateY(clamp(-64px, calc(var(--scroll-y, 0) * var(--depth, 0) * 1px), 64px));
+}
+
+/* A sparse field of tiny dots behind the whole page, dark theme only — stars
+   only make sense once the background actually goes dark. Each dot is its own
+   element carrying randomized --op-a/--op-b (opacity range), --scale-a/-b,
+   and --dx/--dy (drift distance) custom properties, so a single shared
+   keyframe still produces a unique, non-repeating brightness/motion curve per
+   dot instead of the whole field blinking or drifting in lockstep. */
+@keyframes dot-life {
+  0%,
+  100% {
+    opacity: var(--op-a);
+    transform: translate(0, 0) scale(var(--scale-a));
+  }
+  50% {
+    opacity: var(--op-b);
+    transform: translate(var(--dx), var(--dy)) scale(var(--scale-b));
+  }
+}
+
+.star-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  animation-name: dot-life;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* Sequential "typing" reveal for the hero's code block — a stepped
+   left-to-right wipe that reads as a monospace typewriter without having to
+   re-tokenize partially-typed syntax-highlighted spans. */
+@keyframes type-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.typewriter-line {
+  clip-path: inset(0 100% 0 0);
+}
+
+.typewriter-line.is-revealed {
+  animation: type-wipe 420ms steps(20, end) forwards;
+}
+
+.command-dialog-overlay {
+  animation: popover-in 150ms ease-out;
+}
+
+.command-dialog-content {
+  animation: popover-in 150ms ease-out;
+  transform-origin: top center;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
-  *::after {
+  *::after,
+  ::-webkit-scrollbar-thumb {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;

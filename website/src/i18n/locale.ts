@@ -11,9 +11,9 @@ export interface LocaleMeta {
 }
 
 export const SUPPORTED_LOCALES: LocaleMeta[] = [
-  { code: "en", label: "English", nativeLabel: "EN", bcp47: "en-US" },
   { code: "az", label: "Azerbaijani", nativeLabel: "AZ", bcp47: "az-Latn-AZ" },
   { code: "ru", label: "Russian", nativeLabel: "RU", bcp47: "ru-RU" },
+  { code: "en", label: "English", nativeLabel: "EN", bcp47: "en-US" },
 ];
 
 export const DEFAULT_LOCALE: Locale = "en";

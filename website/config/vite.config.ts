@@ -13,6 +13,9 @@ export default defineConfig({
   // root site (username.github.io/).
   base: "./",
   plugins: [react()],
+  server: {
+    port: 1337,
+  },
   resolve: {
     alias: {
       "@": path.resolve(dirname, "../src"),

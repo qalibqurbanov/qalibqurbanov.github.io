@@ -1,10 +1,12 @@
-import { ExternalLink } from "lucide-react";
+import { ArrowUpRight, ExternalLink } from "lucide-react";
 
 import { GithubIcon } from "@/components/icons/BrandIcons";
 import { FileIcon } from "@/components/ui/FileIcon";
 import { Reveal } from "@/components/ui/Reveal";
 import { Tag } from "@/components/ui/Tag";
 import { WindowControls } from "@/components/ui/WindowControls";
+import { projectHref } from "@/hooks/useProjectRoute";
+import { useContent } from "@/i18n/context";
 import type { Project } from "@/types/content";
 
 interface ProjectCardProps {
@@ -25,6 +27,8 @@ function filenameFor(project: Project, index: number) {
 }
 
 export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
+  const { ui } = useContent();
+
   return (
     <Reveal delayMs={delayMs}>
       <article className="card-surface group flex flex-col justify-between h-full rounded-xl overflow-hidden hover:-translate-y-1">
@@ -39,9 +43,11 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
         <div className="p-6 flex flex-col justify-between flex-1">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-text group-hover:text-accent transition-colors">
-                {project.title}
-              </h3>
+              <a href={projectHref(project.slug)}>
+                <h3 className="text-lg font-semibold text-text group-hover:text-accent transition-colors">
+                  {project.title}
+                </h3>
+              </a>
               <div className="flex items-center gap-3 text-muted shrink-0">
                 <a
                   href={project.repoUrl}
@@ -66,10 +72,19 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
             <p className="text-muted text-sm leading-relaxed">{project.description}</p>
           </div>
 
-          <div className="flex flex-wrap gap-2 mt-6">
-            {project.tags.map((tag) => (
-              <Tag key={tag}>{tag}</Tag>
-            ))}
+          <div className="flex flex-wrap items-center justify-between gap-2 mt-6">
+            <div className="flex flex-wrap gap-2">
+              {project.tags.map((tag) => (
+                <Tag key={tag}>{tag}</Tag>
+              ))}
+            </div>
+            <a
+              href={projectHref(project.slug)}
+              className="inline-flex items-center gap-1 font-mono text-xs text-muted group-hover:text-accent transition-colors shrink-0"
+            >
+              {ui.commandPalette.openCaseStudy}
+              <ArrowUpRight size={14} />
+            </a>
           </div>
         </div>
       </article>

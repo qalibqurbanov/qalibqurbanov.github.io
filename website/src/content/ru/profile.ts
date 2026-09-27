@@ -1,18 +1,21 @@
 import type { Profile, SocialLinks } from "@/types/content";
 
 export const profile: Profile = {
-  name: "Qalib Qurbanov",
-  role: "Full Stack, Backend, Frontend и Mobile разработчик",
+  name: "Галиб Гурбанов",
+  role: "Разработчик программного обеспечения",
   location: "Баку, Азербайджан",
   summary:
     "Я разрабатываю программное обеспечение полного цикла — от backend API и баз данных до отточенных веб-интерфейсов и мобильных приложений. Мне нравится превращать идеи в быстрые, надёжные и хорошо продуманные продукты.",
-  email: "your.email@example.com",
-  resumeUrl: "#",
-  avatarInitials: "QQ",
+  email: "qalibqurbanow@gmail.com",
+  resumeUrl: "/resume.pdf",
+  avatarInitials: "ГГ",
 };
 
 export const socials: SocialLinks = {
-  github: "https://github.com/your-username",
-  linkedin: "https://www.linkedin.com/in/your-username",
-  email: "mailto:your.email@example.com",
+  github: "https://github.com/qalibqurbanov",
+  stackoverflow: "https://stackoverflow.com/users/13249741/qalibqurbanov",
+  medium: "https://medium.com/@qalibqurbanov",
+  linkedin: "https://www.linkedin.com/in/qalibqurbanov/",
+  email: "mailto:qalibqurbanow@gmail.com",
+  telegram: "https://t.me/inde_irae",
 };
