@@ -2,9 +2,9 @@ import type { AboutContent } from "@/types/content";
 
 export const about: AboutContent = {
   paragraphs: [
-    "Mən **3+ illik təcrübəyə** malik developerəm və ==.NET== mənim üçün ən rahat olduğum sahədir — vaxtımın çoxunu real yükə davam gətirən backend xidmətlərini ==ASP.NET Core== üzərində yazmağa sərf edirəm. Əsas işim və freelance təcrübəm birlikdə müştərilər və şirkətlər üçün **20+ layihə** həyata keçirmişəm və boş bir repodan insanların real istifadə etdiyi məhsula qədər olan yolu izləməyi hələ də sevirəm.",
+    "Mən **3+ illik təcrübəyə** malik backend developerəm və əsasən ==.NET== ekosistemində işləyirəm. Əsas işim və freelance təcrübəm birlikdə kiçik daxili alətlərdən tutmuş insanların real etibar etdiyi müştəri platformalarına qədər **20+ layihə** həyata keçirmişəm.",
     "Amma yalnız backend ilə məhdudlaşmıram. ==Verilənlər bazaları== ilə rahat işləyirəm, sadə ==DevOps== və ==Linux== server qurmağı bacarıram, layihə tələb etdikdə ==frontend== və ==mobil== tərəfdə də öhdəmdən gəlirəm. Bir stack-ə bağlı qalmaqdansa, məsələyə real uyğun olan aləti seçməyi üstün tuturam.",
-    "Kod yazmadığım vaxtlarda məni adətən **yol velosipedimin** üstündə tapmaq olar. Velosiped sürmək kefimi düzəltməyin əsas yolu olub, bəzən bir sürüş ekranın qarşısında keçirdiyim əlavə saatdan daha yaxşı bug həll edib.",
+    "Vaxt tapdıqca **şosse velosipedimə** minib qrup sürüşlərinə qoşuluram. Tək sürəndə isə məsafəni bir az da uzatmağı, yeni və gözəl mənzərəli yerlər kəşf etməyi, yolun özündən zövq almağı və yolda gözlənilməz maraqlı anlar yaşamağı sevirəm. Velosiped sürmədiyim vaxtlarda isə ağlımdakı dünyaları virtual aləmdə yaratmağı xoşlayıram. Bu məqsədlə ==Half-Life== və ==Counter-Strike==-in arxasında duran ==GoldSrc== engine üzərində **level dizaynı** ilə məşğul oluram. Bəzən isə pluginlər yazaraq serverə yeni mexanikalar əlavə edir, oyunu oynayanlar üçün daha maraqlı və əyləncəli hala gətirirəm.",
   ],
   highlights: [
     { label: "Fokus sahələri", value: ".NET / ASP.NET Core" },

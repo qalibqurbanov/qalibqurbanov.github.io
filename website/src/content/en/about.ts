@@ -2,9 +2,9 @@ import type { AboutContent } from "@/types/content";
 
 export const about: AboutContent = {
   paragraphs: [
-    "I'm a software developer with **3+ years of experience**, and ==.NET== is where I feel most at home — I spend most of my time building backend services with ==ASP.NET Core== that hold up once real traffic hits them. Between my day job and freelance work, I've shipped **20+ projects** for clients and companies, and I still enjoy watching something go from an empty repo to a product people actually use.",
+    "I'm a backend developer with **3+ years of experience**, working mostly in the ==.NET ecosystem==. I've shipped **20+ projects** between my day job and freelance work, ranging from small internal tools to client-facing platforms that people actually depend on.",
     "I don't stay boxed into backend, though. I'm comfortable working with ==databases==, setting up basic ==DevOps== and ==Linux== server stuff, and can hold my own on the ==frontend== and ==mobile== side when a project calls for it. I'd rather reach for whatever tool actually fits the problem than force everything through one stack.",
-    "Outside of code, you'll usually find me out on my **road bike**. Cycling's become my go-to way to clear my head, and more than once a ride has sorted out a bug better than another hour staring at the screen. I also mess around with **level design** in ==GoldSrc== — the engine behind ==Half-Life== and ==Counter-Strike== — and write plugins for online servers running on it — old-school, but I still enjoy it.",
+    "Whenever I find the time, I hop on my **road bike** and join group rides. Riding solo, though, I like to push the distance a bit further, discover new and scenic places, enjoy the ride itself, and see what interesting, unexpected moments the road throws at me. When I'm not out riding, I like bringing the worlds in my head to life in a virtual one. That's what draws me to **level design** in ==GoldSrc==, the engine behind ==Half-Life== and ==Counter-Strike==. I also write plugins from time to time, adding new mechanics to make the server more fun for whoever's playing.",
   ],
   highlights: [
     { label: "Focus areas", value: ".NET / ASP.NET Core" },

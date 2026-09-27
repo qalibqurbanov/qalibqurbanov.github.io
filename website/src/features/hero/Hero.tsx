@@ -1,6 +1,6 @@
 import { ArrowDown, Mail, SquareTerminal } from "lucide-react";
 import type { ReactNode } from "react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
 import {
   GithubIcon,
@@ -13,6 +13,7 @@ import { FileIcon } from "@/components/ui/FileIcon";
 import { Knockable } from "@/components/ui/Knockable";
 import { Reveal } from "@/components/ui/Reveal";
 import { WindowControls } from "@/components/ui/WindowControls";
+import { HeroMinimizedEasterEgg } from "@/features/hero/HeroMinimizedEasterEgg";
 import { HeroTerminal } from "@/features/hero/HeroTerminal";
 import { useContent } from "@/i18n/context";
 import { useDraggableWindow } from "@/hooks/useDraggableWindow";
@@ -25,7 +26,15 @@ const LINE_STEP_MS = 220;
 /** Splits text into words, each independently knockable, while leaving the
  * whitespace between them as plain text so the browser still wraps lines
  * normally. */
-function BreakableWords({ text, seedBase }: { text: string; seedBase: number }) {
+function BreakableWords({
+  text,
+  seedBase,
+  wordClassName,
+}: {
+  text: string;
+  seedBase: number;
+  wordClassName?: string;
+}) {
   const tokens = text.split(/(\s+)/);
   let wordIndex = 0;
 
@@ -38,7 +47,11 @@ function BreakableWords({ text, seedBase }: { text: string; seedBase: number }) 
         const seed = seedBase + wordIndex;
         wordIndex += 1;
         return (
-          <Knockable key={index} seed={seed}>
+          <Knockable
+            key={index}
+            seed={seed}
+            className={wordClassName ? `inline-block ${wordClassName}` : undefined}
+          >
             {token}
           </Knockable>
         );
@@ -125,6 +138,11 @@ export function Hero() {
   const [taglineBefore, taglineAfter] = ui.hero.tagline.split("{highlight}");
   const { ref: tiltRef, handleMouseMove, handleMouseLeave } = useTilt<HTMLDivElement>();
   const [tab, setTab] = useState<"code" | "terminal">("code");
+  const [minimized, setMinimized] = useState(false);
+  const [shaking, setShaking] = useState(false);
+  const [closeToast, setCloseToast] = useState(false);
+  const shakeTimeout = useRef<number | undefined>(undefined);
+  const toastTimeout = useRef<number | undefined>(undefined);
   const { windowRef, dragging, windowStyle, dragHandleProps } = useDraggableWindow<HTMLDivElement>("#top");
 
   // The tilt effect rotates toward the cursor relative to the card's own small
@@ -134,12 +152,32 @@ export function Hero() {
     if (dragging) handleMouseLeave();
   }, [dragging, handleMouseLeave]);
 
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(shakeTimeout.current);
+      window.clearTimeout(toastTimeout.current);
+    };
+  }, []);
+
+  // Close refuses to close — it just wiggles the window and pokes fun at the
+  // attempt, restarting the shake even if it's already mid-animation.
+  function handleCloseAttempt() {
+    setShaking(false);
+    requestAnimationFrame(() => setShaking(true));
+    window.clearTimeout(shakeTimeout.current);
+    shakeTimeout.current = window.setTimeout(() => setShaking(false), 500);
+
+    setCloseToast(true);
+    window.clearTimeout(toastTimeout.current);
+    toastTimeout.current = window.setTimeout(() => setCloseToast(false), 2200);
+  }
+
   return (
     <section id="top" className="relative min-h-screen flex items-center bg-grid overflow-hidden">
       <div className="pointer-events-none absolute -top-40 left-1/4 -translate-x-1/2 w-[640px] h-[640px] rounded-full bg-accent-2/15 blur-3xl blob-drift-a" />
       <div className="pointer-events-none absolute top-1/3 right-0 w-[420px] h-[420px] rounded-full bg-accent/10 blur-3xl blob-drift-b" />
 
-      <div className="relative max-w-6xl mx-auto px-6 py-32 w-full grid lg:grid-cols-[1.05fr_1fr] gap-16 items-center">
+      <div className="relative max-w-6xl mx-auto px-6 py-32 w-full grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-16 items-center">
         <div>
           <Reveal>
             <p className="font-mono text-accent text-sm mb-4">
@@ -149,16 +187,14 @@ export function Hero() {
 
           <Reveal delayMs={100}>
             <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight">
-              <BreakableWords text={profile.name} seedBase={220} />
+              <BreakableWords text={profile.name} seedBase={220} wordClassName="text-gradient" />
             </h1>
           </Reveal>
 
           <Reveal delayMs={200}>
             <h2 className="text-2xl sm:text-4xl font-semibold text-muted mt-2">
               <BreakableWords text={taglineBefore} seedBase={240} />
-              <Knockable seed={260}>
-                <span className="text-gradient">{ui.hero.highlightWord}</span>
-              </Knockable>
+              <Knockable seed={260}>{ui.hero.highlightWord}</Knockable>
               <BreakableWords text={taglineAfter} seedBase={261} />
             </h2>
           </Reveal>
@@ -272,54 +308,70 @@ export function Hero() {
             ref={tiltRef}
             onMouseMove={dragging ? undefined : handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="transition-transform duration-300 ease-out will-change-transform"
+            className="relative transition-transform duration-300 ease-out will-change-transform"
           >
+            <HeroMinimizedEasterEgg visible={minimized} onRestore={() => setMinimized(false)} />
+            {closeToast && (
+              <div
+                role="status"
+                className="animate-popover-in absolute -top-3 right-4 z-10 -translate-y-full rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs text-text shadow-xl shadow-black/30"
+              >
+                {ui.hero.closeAttempt}
+                <span className="absolute -bottom-1.5 right-5 h-3 w-3 rotate-45 border-b border-r border-border bg-surface" />
+              </div>
+            )}
             <div
-              ref={windowRef}
-              style={windowStyle}
-              className="rounded-xl overflow-hidden border border-border bg-surface shadow-2xl shadow-black/40"
+              className={`transition-all duration-500 ease-in-out ${shaking ? "animate-window-shake" : ""} ${
+                minimized ? "pointer-events-none -translate-y-3 scale-90 opacity-0" : "translate-y-0 scale-100 opacity-100"
+              }`}
             >
               <div
-                {...dragHandleProps}
-                className={`flex items-stretch justify-between gap-4 pl-2 pr-1.5 bg-surface-2 border-b border-border touch-none ${
-                  dragging ? "cursor-grabbing" : "cursor-grab"
-                }`}
+                ref={windowRef}
+                style={windowStyle}
+                className="rounded-xl overflow-hidden border border-border bg-surface shadow-2xl shadow-black/40"
               >
-                <div className="flex items-stretch -mb-px" role="tablist">
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={tab === "code"}
-                    onClick={() => setTab("code")}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-t-lg font-mono text-xs border-b-2 transition-colors ${
-                      tab === "code"
-                        ? "bg-surface text-text border-accent"
-                        : "text-muted border-transparent hover:text-text hover:bg-surface/50"
-                    }`}
-                  >
-                    <FileIcon />
-                    Developer.cs
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={tab === "terminal"}
-                    onClick={() => setTab("terminal")}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-t-lg font-mono text-xs border-b-2 transition-colors ${
-                      tab === "terminal"
-                        ? "bg-surface text-text border-accent"
-                        : "text-muted border-transparent hover:text-text hover:bg-surface/50"
-                    }`}
-                  >
-                    <SquareTerminal size={12} className="shrink-0" />
-                    {ui.hero.terminalTabLabel}
-                  </button>
+                <div
+                  {...dragHandleProps}
+                  className={`flex items-stretch justify-between gap-4 pl-2 pr-1.5 bg-surface-2 border-b border-border touch-none ${
+                    dragging ? "cursor-grabbing" : "cursor-grab"
+                  }`}
+                >
+                  <div className="flex items-stretch -mb-px" role="tablist">
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={tab === "code"}
+                      onClick={() => setTab("code")}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-t-lg font-mono text-xs border-b-2 transition-colors ${
+                        tab === "code"
+                          ? "bg-surface text-text border-accent"
+                          : "text-muted border-transparent hover:text-text hover:bg-surface/50"
+                      }`}
+                    >
+                      <FileIcon />
+                      Developer.cs
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={tab === "terminal"}
+                      onClick={() => setTab("terminal")}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-t-lg font-mono text-xs border-b-2 transition-colors ${
+                        tab === "terminal"
+                          ? "bg-surface text-text border-accent"
+                          : "text-muted border-transparent hover:text-text hover:bg-surface/50"
+                      }`}
+                    >
+                      <SquareTerminal size={12} className="shrink-0" />
+                      {ui.hero.terminalTabLabel}
+                    </button>
+                  </div>
+                  <div className="flex items-center py-1.5">
+                    <WindowControls onMinimize={() => setMinimized(true)} onClose={handleCloseAttempt} />
+                  </div>
                 </div>
-                <div className="flex items-center py-1.5">
-                  <WindowControls />
-                </div>
+                {tab === "code" ? <HeroCode /> : <HeroTerminal />}
               </div>
-              {tab === "code" ? <HeroCode /> : <HeroTerminal />}
             </div>
           </div>
         </Reveal>
