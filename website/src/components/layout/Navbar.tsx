@@ -2,7 +2,7 @@ import { Menu, Moon, Sun, X } from "lucide-react";
 import { useState } from "react";
 
 import { useContent } from "@/i18n/context";
-import { useScrolledPast } from "@/hooks/useScrollPosition";
+import { useScrolledPast, useScrollProgress } from "@/hooks/useScrollPosition";
 import { useTheme } from "@/hooks/useTheme";
 
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -10,6 +10,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const scrolled = useScrolledPast();
+  const progress = useScrollProgress();
   const { theme, toggleTheme } = useTheme();
   const { profile, navigation, ui } = useContent();
 
@@ -21,9 +22,24 @@ export function Navbar() {
           : "bg-transparent border-b border-transparent"
       }`}
     >
+      <div className="h-[2px] w-full bg-transparent">
+        <div
+          className="h-full bg-gradient-to-r from-accent to-accent-2 transition-[width] duration-150 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
       <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-        <a href="#top" className="font-mono text-sm text-text tracking-tight">
-          <span className="text-accent">&gt;</span> {profile.avatarInitials}
+        <a
+          href="#"
+          onClick={(event) => event.preventDefault()}
+          className="font-mono text-sm text-text tracking-tight inline-flex items-center gap-2.5"
+        >
+          <span className="relative flex h-2 w-2" aria-hidden="true">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+          </span>
+          <span className="text-accent">&gt;</span> {profile.name}
         </a>
 
         <ul className="hidden md:flex items-center gap-8 font-mono text-sm text-muted">

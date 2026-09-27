@@ -34,4 +34,5 @@ export const ui: UiStrings = {
     toggleMenu: "Menyunu aç/bağla",
     scrollToAbout: "Haqqımda bölməsinə keç",
   },
+  backToTop: "Yuxarı qayıt",
 };

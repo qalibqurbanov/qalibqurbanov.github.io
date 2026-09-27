@@ -5,6 +5,6 @@ export const navigation: NavItem[] = [
   { label: "Təcrübə", href: "#experience" },
   { label: "Layihələr", href: "#projects" },
   { label: "Bacarıqlar", href: "#skills" },
-  { label: "Yazılar", href: "#blog" },
+  // { label: "Yazılar", href: "#blog" },
   { label: "Əlaqə", href: "#contact" },
 ];

@@ -5,6 +5,6 @@ export const navigation: NavItem[] = [
   { label: "Опыт", href: "#experience" },
   { label: "Проекты", href: "#projects" },
   { label: "Навыки", href: "#skills" },
-  { label: "Блог", href: "#blog" },
+  // { label: "Блог", href: "#blog" },
   { label: "Контакты", href: "#contact" },
 ];

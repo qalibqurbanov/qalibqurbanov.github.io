@@ -17,8 +17,10 @@ export function SectionHeading({ index, title }: SectionHeadingProps) {
           {title}
           <span className="text-accent-2">()</span>
         </h2>
-        <span className="h-px bg-border flex-1" />
-        <span className="hidden sm:inline font-mono text-muted/60 text-2xl leading-none">{"{"}</span>
+        <span className="h-px flex-1 scan-line" />
+        <span className="hidden sm:inline font-mono text-muted/60 text-2xl leading-none bracket-pulse">
+          {"{"}
+        </span>
       </div>
     </Reveal>
   );

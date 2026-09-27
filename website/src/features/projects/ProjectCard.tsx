@@ -1,8 +1,10 @@
 import { ExternalLink } from "lucide-react";
 
 import { GithubIcon } from "@/components/icons/BrandIcons";
+import { FileIcon } from "@/components/ui/FileIcon";
 import { Reveal } from "@/components/ui/Reveal";
 import { Tag } from "@/components/ui/Tag";
+import { WindowControls } from "@/components/ui/WindowControls";
 import type { Project } from "@/types/content";
 
 interface ProjectCardProps {
@@ -26,13 +28,12 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
   return (
     <Reveal delayMs={delayMs}>
       <article className="card-surface group flex flex-col justify-between h-full rounded-xl overflow-hidden hover:-translate-y-1">
-        <div className="flex items-center gap-4 px-5 py-3 bg-surface-2 border-b border-border">
-          <div className="window-dots flex items-center gap-1.5">
-            <span />
-            <span />
-            <span />
-          </div>
-          <span className="font-mono text-xs text-muted truncate">{filenameFor(project, index)}</span>
+        <div className="flex items-center justify-between gap-4 pl-5 pr-1.5 py-1.5 bg-surface-2 border-b border-border">
+          <span className="flex items-center gap-2 font-mono text-xs text-muted truncate">
+            <FileIcon />
+            {filenameFor(project, index)}
+          </span>
+          <WindowControls />
         </div>
 
         <div className="p-6 flex flex-col justify-between flex-1">
