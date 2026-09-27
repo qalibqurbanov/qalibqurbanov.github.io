@@ -1,9 +1,12 @@
 import { Menu, Moon, Sun, X } from "lucide-react";
 import { useState } from "react";
 
+import { CommandPaletteTrigger } from "@/components/command-palette/CommandPalette";
+import { Knockable } from "@/components/ui/Knockable";
 import { useContent } from "@/i18n/context";
 import { useScrolledPast, useScrollProgress } from "@/hooks/useScrollPosition";
-import { useTheme } from "@/hooks/useTheme";
+import { scrollToTop } from "@/lib/scroll";
+import { useTheme } from "@/theme/context";
 
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
@@ -30,54 +33,69 @@ export function Navbar() {
       </div>
 
       <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-        <a
-          href="#"
-          onClick={(event) => event.preventDefault()}
-          className="font-mono text-sm text-text tracking-tight inline-flex items-center gap-2.5"
-        >
-          <span className="relative flex h-2 w-2" aria-hidden="true">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-          </span>
-          <span className="text-accent">&gt;</span> {profile.name}
-        </a>
+        <Knockable seed={0} className="inline-flex items-center">
+          <a
+            href="#"
+            onClick={(event) => {
+              event.preventDefault();
+              scrollToTop();
+            }}
+            className="font-mono text-sm text-text tracking-tight inline-flex items-center gap-2.5"
+          >
+            <span className="relative flex h-2 w-2" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+            </span>
+            <span className="text-accent">&gt;</span> {profile.name}
+          </a>
+        </Knockable>
 
         <ul className="hidden md:flex items-center gap-8 font-mono text-sm text-muted">
           {navigation.map((item, index) => (
             <li key={item.href}>
-              <a href={item.href} className="group relative py-1 hover:text-accent transition-colors">
-                <span className="text-accent/70 mr-0.5">{String(index + 1).padStart(2, "0")}.</span>
-                {item.label}
-                <span className="absolute left-0 -bottom-0.5 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full" />
-              </a>
+              <Knockable seed={index + 1} className="inline-flex items-center">
+                <a href={item.href} className="group relative py-1 hover:text-accent transition-colors">
+                  <span className="text-accent/70 mr-0.5">{String(index + 1).padStart(2, "0")}.</span>
+                  {item.label}
+                  <span className="absolute left-0 -bottom-0.5 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full" />
+                </a>
+              </Knockable>
             </li>
           ))}
         </ul>
 
         <div className="flex items-center gap-4">
-          <div className="hidden md:block">
+          <Knockable seed={90} className="inline-flex items-center">
+            <CommandPaletteTrigger label={ui.nav.commandPaletteHint} />
+          </Knockable>
+
+          <Knockable seed={91} className="hidden md:inline-flex items-center">
             <LanguageSwitcher />
-          </div>
+          </Knockable>
 
-          <button
-            type="button"
-            className="text-muted hover:text-accent transition-colors"
-            onClick={toggleTheme}
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-            title={`Toggle theme (Ctrl+Shift+L)`}
-          >
-            {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
-          </button>
+          <Knockable seed={92} className="inline-flex items-center">
+            <button
+              type="button"
+              className="inline-flex items-center justify-center text-muted hover:text-accent transition-colors"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              title={`Toggle theme (Ctrl+Shift+L)`}
+            >
+              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
+            </button>
+          </Knockable>
 
-          <button
-            type="button"
-            className="md:hidden text-text"
-            onClick={() => setOpen((value) => !value)}
-            aria-label={ui.nav.toggleMenu}
-            aria-expanded={open}
-          >
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
+          <Knockable seed={93} className="md:hidden inline-flex items-center">
+            <button
+              type="button"
+              className="inline-flex items-center justify-center text-text"
+              onClick={() => setOpen((value) => !value)}
+              aria-label={ui.nav.toggleMenu}
+              aria-expanded={open}
+            >
+              {open ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </Knockable>
         </div>
       </nav>
 

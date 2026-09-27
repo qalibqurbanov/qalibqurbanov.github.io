@@ -35,3 +35,59 @@ export function LinkedinIcon({ size = 20, className = "" }: BrandIconProps) {
     </svg>
   );
 }
+
+export function TelegramIcon({ size = 20, className = "" }: BrandIconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      className={className}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M23.5 2.5 20 21.4c-.26 1.16-.96 1.44-1.94.9l-5.36-3.95-2.59 2.49c-.29.29-.53.53-1.08.53l.38-5.46L19.3 6.3c.42-.37-.1-.58-.65-.21L6.4 13.9l-5.32-1.66c-1.16-.36-1.18-1.16.24-1.72L22.05.98c.96-.36 1.8.22 1.45 1.52Z" />
+    </svg>
+  );
+}
+
+/** Medium's mark is a large circle plus two narrowing vertical ellipses —
+ * the classic three-shape "M" glyph, simple enough to draw with primitives
+ * instead of an approximated path. */
+export function MediumIcon({ size = 20, className = "" }: BrandIconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      className={className}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <circle cx="6.5" cy="12" r="5.5" />
+      <ellipse cx="15.8" cy="12" rx="3" ry="5.5" />
+      <ellipse cx="21.5" cy="12" rx="1.3" ry="5.2" />
+    </svg>
+  );
+}
+
+/** Stack Overflow's mark is a stack of widening slanted bars over a base —
+ * approximated here with polygons rather than a traced path. */
+export function StackOverflowIcon({ size = 20, className = "" }: BrandIconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      className={className}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <rect x="5" y="18" width="14" height="2.3" rx="0.3" />
+      <polygon points="9,4.6 16,10.7 14.8,12.1 7.8,6" />
+      <polygon points="7.7,8 17,12.6 16.2,14.2 6.9,9.6" />
+      <polygon points="6.6,11.6 17.9,14.4 17.4,16.2 6.1,13.4" />
+      <polygon points="6,15.3 18.3,17.1 18,18.9 5.7,17.1" />
+    </svg>
+  );
+}

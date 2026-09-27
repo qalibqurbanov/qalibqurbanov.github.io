@@ -1,20 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-export type Theme = "light" | "dark";
+import { getInitialTheme, STORAGE_KEY, ThemeContext, type Theme, type ThemeContextValue } from "./context";
 
-const STORAGE_KEY = "theme";
-
-function getSystemTheme(): Theme {
-  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-}
-
-function getInitialTheme(): Theme {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "light" || stored === "dark") return stored;
-  return getSystemTheme();
-}
-
-export function useTheme() {
+/**
+ * Owns the theme state, the Ctrl+Shift+L shortcut, and syncing to the DOM +
+ * localStorage — all exactly once, no matter how many components read or
+ * toggle the theme via `useTheme()`. Mount this once near the app root, the
+ * same way LocaleProvider is mounted for i18n.
+ */
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
@@ -47,5 +42,7 @@ export function useTheme() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleTheme]);
 
-  return { theme, toggleTheme };
+  const value = useMemo<ThemeContextValue>(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+
+  return <ThemeContext value={value}>{children}</ThemeContext>;
 }

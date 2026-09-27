@@ -1,26 +1,138 @@
-import { ArrowDown, Mail } from "lucide-react";
+import { ArrowDown, Mail, SquareTerminal } from "lucide-react";
 import type { ReactNode } from "react";
+import { Fragment, useEffect, useState } from "react";
 
-import { GithubIcon, LinkedinIcon } from "@/components/icons/BrandIcons";
-import { CodeWindow } from "@/components/ui/CodeWindow";
+import {
+  GithubIcon,
+  LinkedinIcon,
+  MediumIcon,
+  StackOverflowIcon,
+  TelegramIcon,
+} from "@/components/icons/BrandIcons";
+import { FileIcon } from "@/components/ui/FileIcon";
+import { Knockable } from "@/components/ui/Knockable";
 import { Reveal } from "@/components/ui/Reveal";
+import { WindowControls } from "@/components/ui/WindowControls";
+import { HeroTerminal } from "@/features/hero/HeroTerminal";
 import { useContent } from "@/i18n/context";
+import { useDraggableWindow } from "@/hooks/useDraggableWindow";
+import { useInView } from "@/hooks/useInView";
 import { useTilt } from "@/hooks/useTilt";
 
-function CodeLine({ n, children }: { n: number; children: ReactNode }) {
+const TOTAL_CODE_LINES = 8;
+const LINE_STEP_MS = 220;
+
+/** Splits text into words, each independently knockable, while leaving the
+ * whitespace between them as plain text so the browser still wraps lines
+ * normally. */
+function BreakableWords({ text, seedBase }: { text: string; seedBase: number }) {
+  const tokens = text.split(/(\s+)/);
+  let wordIndex = 0;
+
+  return (
+    <>
+      {tokens.map((token, index) => {
+        if (token === "") return null;
+        if (/^\s+$/.test(token)) return <Fragment key={index}>{token}</Fragment>;
+
+        const seed = seedBase + wordIndex;
+        wordIndex += 1;
+        return (
+          <Knockable key={index} seed={seed}>
+            {token}
+          </Knockable>
+        );
+      })}
+    </>
+  );
+}
+
+function CodeLine({ n, revealed, children }: { n: number; revealed: boolean; children: ReactNode }) {
   return (
     <div className="flex px-5">
       <span className="w-5 shrink-0 text-muted/50 select-none">{n}</span>
-      <span className="whitespace-pre-wrap">{children}</span>
+      <span
+        className={`whitespace-pre-wrap inline-block typewriter-line ${revealed ? "is-revealed" : ""}`}
+      >
+        {children}
+      </span>
+    </div>
+  );
+}
+
+function HeroCode() {
+  const { profile, skills } = useContent();
+  const stack = [...skills.backend.slice(0, 3), ...skills.frontend.slice(0, 1)];
+  const { ref, isInView } = useInView<HTMLDivElement>({ threshold: 0.4 });
+  const [revealedCount, setRevealedCount] = useState(0);
+
+  useEffect(() => {
+    if (!isInView || revealedCount >= TOTAL_CODE_LINES) return;
+    const timer = window.setTimeout(() => setRevealedCount((count) => count + 1), LINE_STEP_MS);
+    return () => window.clearTimeout(timer);
+  }, [isInView, revealedCount]);
+
+  return (
+    <div ref={ref} className="font-mono text-[13px] leading-7 py-5">
+      <CodeLine n={1} revealed={revealedCount > 0}>
+        <span className="text-accent-2">public class</span> <span className="text-text">Developer</span>
+      </CodeLine>
+      <CodeLine n={2} revealed={revealedCount > 1}>
+        <span className="text-muted">{"{"}</span>
+      </CodeLine>
+      <CodeLine n={3} revealed={revealedCount > 2}>
+        <span className="text-accent-2 pl-4">public string</span> <span className="text-text">Name</span>{" "}
+        <span className="text-muted">=</span> <span className="text-accent">"{profile.name}"</span>
+        <span className="text-muted">;</span>
+      </CodeLine>
+      <CodeLine n={4} revealed={revealedCount > 3}>
+        <span className="text-accent-2 pl-4">public string</span> <span className="text-text">Role</span>{" "}
+        <span className="text-muted">=</span> <span className="text-accent">"{profile.role}"</span>
+        <span className="text-muted">;</span>
+      </CodeLine>
+      <CodeLine n={5} revealed={revealedCount > 4}>
+        <span className="text-accent-2 pl-4">public string</span>{" "}
+        <span className="text-text">Location</span> <span className="text-muted">=</span>{" "}
+        <span className="text-accent">"{profile.location}"</span>
+        <span className="text-muted">;</span>
+      </CodeLine>
+      <CodeLine n={6} revealed={revealedCount > 5}>
+        <span className="text-accent-2 pl-4">public string[]</span> <span className="text-text">Stack</span>{" "}
+        <span className="text-muted">= {"{"}</span>{" "}
+        {stack.map((item, index) => (
+          <span key={item}>
+            <span className="text-accent">"{item}"</span>
+            {index < stack.length - 1 && <span className="text-muted">, </span>}
+          </span>
+        ))}
+        <span className="text-muted"> {"}"};</span>
+      </CodeLine>
+      <CodeLine n={7} revealed={revealedCount > 6}>
+        <span className="text-accent-2 pl-4">public bool</span> <span className="text-text">Hireable</span>{" "}
+        <span className="text-muted">=</span> <span className="text-accent-2">true</span>
+        <span className="text-muted">;</span>
+      </CodeLine>
+      <CodeLine n={8} revealed={revealedCount > 7}>
+        <span className="text-muted">{"}"}</span>
+        {revealedCount >= TOTAL_CODE_LINES && <span className="caret ml-1" />}
+      </CodeLine>
     </div>
   );
 }
 
 export function Hero() {
-  const { profile, socials, skills, ui } = useContent();
+  const { profile, socials, ui } = useContent();
   const [taglineBefore, taglineAfter] = ui.hero.tagline.split("{highlight}");
-  const stack = [...skills.frontend.slice(0, 2), ...skills.backend.slice(0, 2)];
   const { ref: tiltRef, handleMouseMove, handleMouseLeave } = useTilt<HTMLDivElement>();
+  const [tab, setTab] = useState<"code" | "terminal">("code");
+  const { windowRef, dragging, windowStyle, dragHandleProps } = useDraggableWindow<HTMLDivElement>("#top");
+
+  // The tilt effect rotates toward the cursor relative to the card's own small
+  // rect; while dragging, the cursor roams the whole section, which would send
+  // that rotation to wild angles. Hold it neutral for the duration of the drag.
+  useEffect(() => {
+    if (dragging) handleMouseLeave();
+  }, [dragging, handleMouseLeave]);
 
   return (
     <section id="top" className="relative min-h-screen flex items-center bg-grid overflow-hidden">
@@ -30,123 +142,185 @@ export function Hero() {
       <div className="relative max-w-6xl mx-auto px-6 py-32 w-full grid lg:grid-cols-[1.05fr_1fr] gap-16 items-center">
         <div>
           <Reveal>
-            <p className="font-mono text-accent text-sm mb-4">{ui.hero.greeting}</p>
+            <p className="font-mono text-accent text-sm mb-4">
+              <BreakableWords text={ui.hero.greeting} seedBase={200} />
+            </p>
           </Reveal>
 
           <Reveal delayMs={100}>
             <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight">
-              {profile.name}
+              <BreakableWords text={profile.name} seedBase={220} />
             </h1>
           </Reveal>
 
           <Reveal delayMs={200}>
             <h2 className="text-2xl sm:text-4xl font-semibold text-muted mt-2">
-              {taglineBefore}
-              <span className="text-gradient">{ui.hero.highlightWord}</span>
-              {taglineAfter}
+              <BreakableWords text={taglineBefore} seedBase={240} />
+              <Knockable seed={260}>
+                <span className="text-gradient">{ui.hero.highlightWord}</span>
+              </Knockable>
+              <BreakableWords text={taglineAfter} seedBase={261} />
             </h2>
           </Reveal>
 
           <Reveal delayMs={300}>
-            <p className="max-w-xl text-muted mt-6 leading-relaxed">{profile.summary}</p>
+            <p className="max-w-xl text-muted mt-6 leading-relaxed">
+              <BreakableWords text={profile.summary} seedBase={280} />
+            </p>
           </Reveal>
 
           <Reveal delayMs={400} className="flex flex-wrap items-center gap-4 mt-10">
-            <a
-              href="#projects"
-              className="btn-pulse rounded-md px-6 py-3 bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
-            >
-              {ui.hero.ctaViewWork}
-            </a>
-            <a
-              href="#contact"
-              className="px-6 py-3 rounded-md border border-border font-mono text-sm text-text hover:border-accent hover:text-accent transition"
-            >
-              {ui.hero.ctaGetInTouch}
-            </a>
+            <Knockable seed={103} className="inline-flex items-center">
+              <a
+                href="#projects"
+                className="inline-flex items-center justify-center btn-pulse rounded-md px-6 py-3 bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
+              >
+                {ui.hero.ctaViewWork}
+              </a>
+            </Knockable>
+            <Knockable seed={104} className="inline-flex items-center">
+              <a
+                href="#contact"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-md border border-border font-mono text-sm text-text hover:border-accent hover:text-accent transition"
+              >
+                {ui.hero.ctaGetInTouch}
+              </a>
+            </Knockable>
           </Reveal>
 
-          <Reveal delayMs={500} className="flex items-center gap-5 mt-12">
-            <a
-              href={socials.github}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="GitHub"
-              className="text-muted hover:text-accent transition"
-            >
-              <GithubIcon size={20} />
-            </a>
-            <a
-              href={socials.linkedin}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="LinkedIn"
-              className="text-muted hover:text-accent transition"
-            >
-              <LinkedinIcon size={20} />
-            </a>
-            <a href={socials.email} aria-label="Email" className="text-muted hover:text-accent transition">
-              <Mail size={20} />
-            </a>
+          <Reveal delayMs={500} className="mt-12">
+            <Knockable seed={116} className="inline-block">
+              <div className="inline-flex items-center gap-0.5 rounded-full border border-border bg-surface/70 backdrop-blur-sm p-1.5 shadow-inner shadow-black/5">
+                <Knockable seed={110} className="inline-flex items-center">
+                  <a
+                    href={socials.github}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="GitHub"
+                    className="inline-flex items-center justify-center p-2 rounded-full text-muted hover:text-accent hover:bg-surface-2 transition"
+                  >
+                    <GithubIcon size={19} />
+                  </a>
+                </Knockable>
+                {socials.stackoverflow && (
+                  <Knockable seed={111} className="inline-flex items-center">
+                    <a
+                      href={socials.stackoverflow}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Stack Overflow"
+                      className="inline-flex items-center justify-center p-2 rounded-full text-muted hover:text-accent hover:bg-surface-2 transition"
+                    >
+                      <StackOverflowIcon size={19} />
+                    </a>
+                  </Knockable>
+                )}
+                {socials.medium && (
+                  <Knockable seed={112} className="inline-flex items-center">
+                    <a
+                      href={socials.medium}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Medium"
+                      className="inline-flex items-center justify-center p-2 rounded-full text-muted hover:text-accent hover:bg-surface-2 transition"
+                    >
+                      <MediumIcon size={19} />
+                    </a>
+                  </Knockable>
+                )}
+                <Knockable seed={113} className="inline-flex items-center">
+                  <a
+                    href={socials.linkedin}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="LinkedIn"
+                    className="inline-flex items-center justify-center p-2 rounded-full text-muted hover:text-accent hover:bg-surface-2 transition"
+                  >
+                    <LinkedinIcon size={19} />
+                  </a>
+                </Knockable>
+                {socials.telegram && (
+                  <Knockable seed={114} className="inline-flex items-center">
+                    <a
+                      href={socials.telegram}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Telegram"
+                      className="inline-flex items-center justify-center p-2 rounded-full text-muted hover:text-accent hover:bg-surface-2 transition"
+                    >
+                      <TelegramIcon size={19} />
+                    </a>
+                  </Knockable>
+                )}
+                <span className="h-4 w-px bg-border mx-1" aria-hidden="true" />
+                <Knockable seed={115} className="inline-flex items-center">
+                  <a
+                    href={socials.email}
+                    aria-label="Email"
+                    className="inline-flex items-center justify-center p-2 rounded-full text-muted hover:text-accent hover:bg-surface-2 transition"
+                  >
+                    <Mail size={19} />
+                  </a>
+                </Knockable>
+              </div>
+            </Knockable>
           </Reveal>
         </div>
 
         <Reveal delayMs={250} className="hidden lg:block animate-float-slow">
           <div
             ref={tiltRef}
-            onMouseMove={handleMouseMove}
+            onMouseMove={dragging ? undefined : handleMouseMove}
             onMouseLeave={handleMouseLeave}
             className="transition-transform duration-300 ease-out will-change-transform"
           >
-            <CodeWindow filename="Developer.cs">
-              <div className="font-mono text-[13px] leading-7 py-5">
-                <CodeLine n={1}>
-                  <span className="text-accent-2">public class</span> <span className="text-text">Developer</span>
-                </CodeLine>
-                <CodeLine n={2}>
-                  <span className="text-muted">{"{"}</span>
-                </CodeLine>
-                <CodeLine n={3}>
-                  <span className="text-accent-2 pl-4">public string</span>{" "}
-                  <span className="text-text">Name</span> <span className="text-muted">=</span>{" "}
-                  <span className="text-accent">"{profile.name}"</span>
-                  <span className="text-muted">;</span>
-                </CodeLine>
-                <CodeLine n={4}>
-                  <span className="text-accent-2 pl-4">public string</span>{" "}
-                  <span className="text-text">Role</span> <span className="text-muted">=</span>{" "}
-                  <span className="text-accent">"{profile.role}"</span>
-                  <span className="text-muted">;</span>
-                </CodeLine>
-                <CodeLine n={5}>
-                  <span className="text-accent-2 pl-4">public string</span>{" "}
-                  <span className="text-text">Location</span> <span className="text-muted">=</span>{" "}
-                  <span className="text-accent">"{profile.location}"</span>
-                  <span className="text-muted">;</span>
-                </CodeLine>
-                <CodeLine n={6}>
-                  <span className="text-accent-2 pl-4">public string[]</span>{" "}
-                  <span className="text-text">Stack</span> <span className="text-muted">= {"{"}</span>{" "}
-                  {stack.map((item, index) => (
-                    <span key={item}>
-                      <span className="text-accent">"{item}"</span>
-                      {index < stack.length - 1 && <span className="text-muted">, </span>}
-                    </span>
-                  ))}
-                  <span className="text-muted"> {"}"};</span>
-                </CodeLine>
-                <CodeLine n={7}>
-                  <span className="text-accent-2 pl-4">public bool</span>{" "}
-                  <span className="text-text">Hireable</span> <span className="text-muted">=</span>{" "}
-                  <span className="text-accent-2">true</span>
-                  <span className="text-muted">;</span>
-                </CodeLine>
-                <CodeLine n={8}>
-                  <span className="text-muted">{"}"}</span>
-                  <span className="caret ml-1" />
-                </CodeLine>
+            <div
+              ref={windowRef}
+              style={windowStyle}
+              className="rounded-xl overflow-hidden border border-border bg-surface shadow-2xl shadow-black/40"
+            >
+              <div
+                {...dragHandleProps}
+                className={`flex items-stretch justify-between gap-4 pl-2 pr-1.5 bg-surface-2 border-b border-border touch-none ${
+                  dragging ? "cursor-grabbing" : "cursor-grab"
+                }`}
+              >
+                <div className="flex items-stretch -mb-px" role="tablist">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={tab === "code"}
+                    onClick={() => setTab("code")}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-t-lg font-mono text-xs border-b-2 transition-colors ${
+                      tab === "code"
+                        ? "bg-surface text-text border-accent"
+                        : "text-muted border-transparent hover:text-text hover:bg-surface/50"
+                    }`}
+                  >
+                    <FileIcon />
+                    Developer.cs
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={tab === "terminal"}
+                    onClick={() => setTab("terminal")}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-t-lg font-mono text-xs border-b-2 transition-colors ${
+                      tab === "terminal"
+                        ? "bg-surface text-text border-accent"
+                        : "text-muted border-transparent hover:text-text hover:bg-surface/50"
+                    }`}
+                  >
+                    <SquareTerminal size={12} className="shrink-0" />
+                    {ui.hero.terminalTabLabel}
+                  </button>
+                </div>
+                <div className="flex items-center py-1.5">
+                  <WindowControls />
+                </div>
               </div>
-            </CodeWindow>
+              {tab === "code" ? <HeroCode /> : <HeroTerminal />}
+            </div>
           </div>
         </Reveal>
       </div>

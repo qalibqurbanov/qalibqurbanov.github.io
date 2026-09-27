@@ -12,7 +12,7 @@ export function LanguageSwitcher() {
   }
 
   return (
-    <Select.Root value={locale} onValueChange={handleValueChange}>
+    <Select.Root value={locale} onValueChange={handleValueChange} modal={false}>
       <Select.Trigger
         aria-label="Language"
         className="inline-flex items-center gap-1.5 rounded border border-border px-2 py-1 font-mono text-xs text-muted outline-none transition-colors hover:border-accent/60 hover:text-accent focus-visible:border-accent focus-visible:text-accent data-[state=open]:border-accent data-[state=open]:text-accent"

@@ -1,5 +1,7 @@
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { SectionClosing } from "@/components/ui/SectionClosing";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { useContent } from "@/i18n/context";
 
 export function Contact() {
@@ -7,13 +9,11 @@ export function Contact() {
 
   return (
     <section id="contact" className="py-28">
-      <Container className="max-w-2xl text-center">
-        <Reveal>
-          <p className="font-mono text-sm mb-4">
-            <span className="text-muted">{"// "}</span>
-            <span className="text-accent">{ui.sections.contact.index}</span>
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-text mb-6">{ui.contact.heading}</h2>
+      <Container>
+        <SectionHeading index={ui.sections.contact.index} title={ui.sections.contact.title} />
+
+        <Reveal className="max-w-2xl mx-auto text-center">
+          <h3 className="text-3xl sm:text-4xl font-bold text-text mb-6">{ui.contact.heading}</h3>
           <p className="text-muted leading-relaxed mb-10">{ui.contact.body}</p>
           <a
             href={socials.email}
@@ -22,6 +22,8 @@ export function Contact() {
             <span className="text-muted">$</span> {ui.contact.ctaPrefix} {profile.email}
           </a>
         </Reveal>
+
+        <SectionClosing />
       </Container>
     </section>
   );
