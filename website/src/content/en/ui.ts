@@ -3,11 +3,17 @@ import type { UiStrings } from "@/types/content";
 export const ui: UiStrings = {
   hero: {
     greeting: "Hi, my name is",
-    tagline: "I build {highlight} that works end to end.",
+    tagline: "I turn ideas into working {highlight}.",
     highlightWord: "software",
     ctaViewWork: "View my work",
     ctaGetInTouch: "Get in touch",
     terminalTabLabel: "terminal",
+    minimized: {
+      title: "Window minimized",
+      hint: "Still running in the background.",
+      restore: "Restore",
+    },
+    closeAttempt: "Nice try — this window isn't going anywhere.",
   },
   sections: {
     about: { index: "01", title: "About Me" },

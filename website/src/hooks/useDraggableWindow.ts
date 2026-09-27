@@ -39,7 +39,7 @@ export function useDraggableWindow<T extends HTMLElement>(boundsSelector: string
   }, []);
 
   function handlePointerDown(event: ReactPointerEvent<HTMLElement>) {
-    if (event.target instanceof HTMLElement && event.target.closest(INTERACTIVE_SELECTOR)) return;
+    if (event.target instanceof Element && event.target.closest(INTERACTIVE_SELECTOR)) return;
 
     const el = windowRef.current;
     const bounds = el?.closest<HTMLElement>(boundsSelector);

@@ -36,7 +36,7 @@ export function useSmoothScroll(): void {
     const maxScroll = () => Math.max(document.documentElement.scrollHeight - window.innerHeight, 0);
 
     const step = () => {
-      current += (target - current) * 0.35;
+      current += (target - current) * 0.6;
       if (Math.abs(target - current) < 0.5) {
         current = target;
         window.scrollTo(0, current);

@@ -110,17 +110,6 @@ body {
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
-  /* Most copy on the site is decorative/UI text, not content someone needs
-     to select or copy — keep it inert by default. Opt individual elements
-     back in with `.selectable` (e.g. email addresses, code snippets). */
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.selectable,
-input,
-textarea,
-[contenteditable="true"] {
   user-select: text;
   -webkit-user-select: text;
 }
@@ -261,6 +250,43 @@ html.is-scrolling ::-webkit-scrollbar-thumb {
 .window-control-close:hover {
   background: #e81123;
   color: #fff;
+}
+
+/* Decorative window controls never do anything, so they're visibly
+   inert rather than pretending to be working buttons. */
+.window-control-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.window-control-disabled:hover {
+  background: transparent;
+  color: var(--color-muted);
+}
+
+/* A little refusal wiggle for the close button's easter egg. */
+@keyframes window-shake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-window-shake {
+  animation: window-shake 0.5s both;
 }
 
 @keyframes caret-blink {

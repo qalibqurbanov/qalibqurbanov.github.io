@@ -102,6 +102,12 @@ export interface UiStrings {
     ctaViewWork: string;
     ctaGetInTouch: string;
     terminalTabLabel: string;
+    minimized: {
+      title: string;
+      hint: string;
+      restore: string;
+    };
+    closeAttempt: string;
   };
   sections: {
     about: SectionHeadingText;
