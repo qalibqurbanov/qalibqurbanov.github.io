@@ -9,7 +9,7 @@ export const ui: UiStrings = {
     ctaGetInTouch: "Əlaqə saxlayın",
     terminalTabLabel: "terminal",
     minimized: {
-      title: "Şşşt! Bunu tapmamalıydın.",
+      title: "Şşşt! Səs çıxarma — bunu tapmamalıydın.",
       joke: "Bacarıqlar siyahısını görən kimi FBI onun üzərində iş açıb — heç kim doğrudan da hər şeydə bu qədər yaxşı olmur. {name} onu izlədiyimizdən xəbərsizdir.",
       restore: "Bərpa et",
     },
