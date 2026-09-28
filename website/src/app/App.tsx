@@ -13,12 +13,10 @@ import { Projects } from "@/features/projects/Projects";
 import { Skills } from "@/features/skills/Skills";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useScrollbarActivity } from "@/hooks/useScrollPosition";
-import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 import { useContent } from "@/i18n/context";
 
 export function App() {
   useScrollbarActivity();
-  useSmoothScroll();
   const { projects } = useContent();
   const { activeSlug, closeProject } = useProjectRoute();
   const activeProject = activeSlug ? (projects.find((project) => project.slug === activeSlug) ?? null) : undefined;
