@@ -104,8 +104,7 @@ export interface UiStrings {
     terminalTabLabel: string;
     minimized: {
       title: string;
-      /** Random one shown each time the window is minimized. */
-      jokes: string[];
+      joke: string;
       restore: string;
     };
     closeAttempt: string;

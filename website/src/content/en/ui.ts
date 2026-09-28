@@ -10,14 +10,7 @@ export const ui: UiStrings = {
     terminalTabLabel: "terminal",
     minimized: {
       title: "Boo. Still here.",
-      jokes: [
-        "Stepped out for çay — back before the deploy finishes.",
-        "Currently losing an argument with an EF Core migration.",
-        "Somewhere in Baku traffic. ETA: eventually.",
-        "Debugging a NullReferenceException, not my life. Probably.",
-        "On a mandatory tea break. It's a Baku thing.",
-        "Recompiling my life choices, please hold.",
-      ],
+      joke: "There are 2 hard problems in programming: cache invalidation, naming things, and remembering why I minimized this.",
       restore: "Restore",
     },
     closeAttempt: "Nice try — this window isn't going anywhere.",
