@@ -139,6 +139,7 @@ export function Hero() {
   const { ref: tiltRef, handleMouseMove, handleMouseLeave } = useTilt<HTMLDivElement>();
   const [tab, setTab] = useState<"code" | "terminal">("code");
   const [minimized, setMinimized] = useState(false);
+  const [minimizedJokeIndex, setMinimizedJokeIndex] = useState(0);
   const [shaking, setShaking] = useState(false);
   const [closeToast, setCloseToast] = useState(false);
   const shakeTimeout = useRef<number | undefined>(undefined);
@@ -170,6 +171,11 @@ export function Hero() {
     setCloseToast(true);
     window.clearTimeout(toastTimeout.current);
     toastTimeout.current = window.setTimeout(() => setCloseToast(false), 2200);
+  }
+
+  function handleMinimize() {
+    setMinimizedJokeIndex(Math.floor(Math.random() * ui.hero.minimized.jokes.length));
+    setMinimized(true);
   }
 
   return (
@@ -310,7 +316,11 @@ export function Hero() {
             onMouseLeave={handleMouseLeave}
             className="relative transition-transform duration-300 ease-out will-change-transform"
           >
-            <HeroMinimizedEasterEgg visible={minimized} onRestore={() => setMinimized(false)} />
+            <HeroMinimizedEasterEgg
+              visible={minimized}
+              joke={ui.hero.minimized.jokes[minimizedJokeIndex]}
+              onRestore={() => setMinimized(false)}
+            />
             {closeToast && (
               <div
                 role="status"
@@ -367,7 +377,7 @@ export function Hero() {
                     </button>
                   </div>
                   <div className="flex items-center py-1.5">
-                    <WindowControls onMinimize={() => setMinimized(true)} onClose={handleCloseAttempt} />
+                    <WindowControls onMinimize={handleMinimize} onClose={handleCloseAttempt} />
                   </div>
                 </div>
                 {tab === "code" ? <HeroCode /> : <HeroTerminal />}

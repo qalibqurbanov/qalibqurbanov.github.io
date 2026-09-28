@@ -9,8 +9,15 @@ export const ui: UiStrings = {
     ctaGetInTouch: "Əlaqə saxlayın",
     terminalTabLabel: "terminal",
     minimized: {
-      title: "Pəncərə kiçildildi",
-      hint: "Arxa fonda işləməyə davam edir.",
+      title: "Bu! Hələ buradayam.",
+      jokes: [
+        "Sənin DOM-unda gizlicə dolaşıram.",
+        "Texniki cəhətdən sağam. Emosional vəziyyət barədə danışmayaq.",
+        "0 tapşırıq, CPU 100% — düzünü desəm, təsirlidir.",
+        "Bu pəncərə artıq şahid mühafizə proqramındadır.",
+        "42% yükləndi. Bir daha soruşma.",
+        "Kiçildildi, yox olmadı — idman zalı abunəliyin kimi.",
+      ],
       restore: "Bərpa et",
     },
     closeAttempt: "Cəhd yaxşıdır — bu pəncərə heç yerə getmir.",

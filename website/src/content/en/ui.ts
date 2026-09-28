@@ -9,8 +9,15 @@ export const ui: UiStrings = {
     ctaGetInTouch: "Get in touch",
     terminalTabLabel: "terminal",
     minimized: {
-      title: "Window minimized",
-      hint: "Still running in the background.",
+      title: "Boo. Still here.",
+      jokes: [
+        "Haunting your DOM in the background.",
+        "Technically alive. Emotionally, we don't talk about it.",
+        "Running 0 tasks at 100% CPU. Impressive, honestly.",
+        "This window has entered witness protection.",
+        "42% loaded. Ask again never.",
+        "Minimized, not gone — like your gym membership.",
+      ],
       restore: "Restore",
     },
     closeAttempt: "Nice try — this window isn't going anywhere.",
