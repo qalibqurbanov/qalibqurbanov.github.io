@@ -10,14 +10,7 @@ export const ui: UiStrings = {
     terminalTabLabel: "terminal",
     minimized: {
       title: "Bu! Hələ buradayam.",
-      jokes: [
-        "Çay içməyə çıxdım — deploy bitənə kimi qayıdaram.",
-        "Hazırda EF Core migrasiyası ilə mübahisə edib uduram.",
-        "Bakı tıxacındayam. ETA: nə vaxtsa.",
-        "NullReferenceException-ı debug edirəm, həyatımı yox. Deyəsən.",
-        "Məcburi çay fasiləsindəyəm. Bu, Bakı adətidir.",
-        "Həyat qərarlarımı yenidən kompilyasiya edirəm, gözləyin.",
-      ],
+      joke: "Proqramlaşdırmada 2 çətin problem var: keşin etibarsızlaşdırılması, adların seçilməsi və bunu niyə kiçiltdiyimi xatırlamaq.",
       restore: "Bərpa et",
     },
     closeAttempt: "Cəhd yaxşıdır — bu pəncərə heç yerə getmir.",

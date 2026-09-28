@@ -4,17 +4,13 @@ import { useContent } from "@/i18n/context";
 
 interface HeroMinimizedEasterEggProps {
   visible: boolean;
-  /** Which of `ui.hero.minimized.jokes` to show — rolled by the caller at
-   * the moment the window gets minimized, so knocking it down repeatedly
-   * is its own small reward instead of the same line every time. */
-  joke: string;
   onRestore: () => void;
 }
 
 /** Sits behind the hero window, invisible until the minimize button shrinks
  * the window away — kept fully transparent (not just covered) the rest of
  * the time so dragging the window doesn't uncover it. */
-export function HeroMinimizedEasterEgg({ visible, joke, onRestore }: HeroMinimizedEasterEggProps) {
+export function HeroMinimizedEasterEgg({ visible, onRestore }: HeroMinimizedEasterEggProps) {
   const { ui } = useContent();
 
   return (
@@ -27,7 +23,7 @@ export function HeroMinimizedEasterEgg({ visible, joke, onRestore }: HeroMinimiz
       <div className="flex flex-col items-center gap-3 px-6 text-center font-mono">
         <span className="animate-float-slow select-none text-3xl">👻</span>
         <p className="text-sm text-text">{ui.hero.minimized.title}</p>
-        <p className="text-xs text-muted">{joke}</p>
+        <p className="text-xs text-muted">{ui.hero.minimized.joke}</p>
         <button
           type="button"
           onClick={onRestore}
