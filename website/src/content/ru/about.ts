@@ -1,5 +1,7 @@
 import type { AboutContent } from "@/types/content";
 
+import { profile } from "./profile";
+
 export const about: AboutContent = {
   paragraphs: [
     "Я backend-разработчик с опытом **3+ года**, работаю в основном в экосистеме ==.NET==. Между основной работой и фрилансом я выпустил **20+ проектов** — от небольших внутренних инструментов до клиентских платформ, на которые люди реально полагаются.",
@@ -10,7 +12,7 @@ export const about: AboutContent = {
     { label: "Направления", value: ".NET / ASP.NET Core" },
     { label: "Опыт", value: "3+ года" },
     { label: "Проекты", value: "20+" },
-    { label: "Живу в", value: "Баку, Азербайджан" },
+    { label: "Живу в", value: profile.location },
     { label: "Открыт к", value: "Штатной работе, фрилансу, удалёнке" },
   ],
 };

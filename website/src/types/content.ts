@@ -104,6 +104,7 @@ export interface UiStrings {
     terminalTabLabel: string;
     minimized: {
       title: string;
+      /** Contains the literal token "{name}", replaced with `profile.name` via `format()`. */
       joke: string;
       restore: string;
     };
