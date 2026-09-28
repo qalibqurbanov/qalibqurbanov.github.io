@@ -12,7 +12,6 @@ export const profile: Profile = {
     "I build software end-to-end — from backend APIs and databases to polished web frontends and mobile apps. I like turning ideas into fast, reliable, well-designed products.",
   email,
   resumeUrl,
-  avatarInitials: "GG",
 };
 
 export { socials } from "../shared";

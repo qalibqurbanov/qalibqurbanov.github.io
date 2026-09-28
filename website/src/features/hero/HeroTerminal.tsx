@@ -13,6 +13,15 @@ interface LogEntry {
   text: string;
 }
 
+function TerminalPrompt() {
+  return (
+    <>
+      <span className="text-accent">guest</span>
+      <span className="text-muted">@portfolio:~$</span>
+    </>
+  );
+}
+
 /** A fake shell dropped into the hero's code window — reuses the site's real
  * content (profile, skills, projects) so its answers stay correct without a
  * second copy of that data living in command responses. */
@@ -190,9 +199,7 @@ export function HeroTerminal() {
         >
           {entry.type === "input" ? (
             <span>
-              <span className="text-accent">guest</span>
-              <span className="text-muted">@portfolio:~$ </span>
-              {entry.text}
+              <TerminalPrompt /> {entry.text}
             </span>
           ) : (
             <pre className="whitespace-pre-wrap font-mono">{entry.text}</pre>
@@ -200,8 +207,7 @@ export function HeroTerminal() {
         </div>
       ))}
       <div className="flex items-center gap-2 mt-1">
-        <span className="text-accent">guest</span>
-        <span className="text-muted">@portfolio:~$</span>
+        <TerminalPrompt />
         <input
           ref={inputRef}
           value={value}

@@ -5,7 +5,6 @@ export interface Profile {
   summary: string;
   email: string;
   resumeUrl: string;
-  avatarInitials: string;
 }
 
 export interface SocialLinks {
