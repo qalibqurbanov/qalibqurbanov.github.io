@@ -1,4 +1,5 @@
 import { CheckCircle2, Clock, FileText, GitBranch, Mail } from "lucide-react";
+import type { ReactNode } from "react";
 
 import {
   GithubIcon,
@@ -10,6 +11,35 @@ import {
 import { useClock } from "@/hooks/useClock";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
+
+function FooterIconLink({
+  href,
+  label,
+  external = true,
+  children,
+}: {
+  href: string;
+  label: string;
+  external?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+      aria-label={label}
+      className="group relative hover:text-accent transition"
+    >
+      {children}
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 scale-95 whitespace-nowrap rounded border border-border bg-surface px-2 py-1 text-[11px] text-text opacity-0 transition group-hover:opacity-100 group-hover:scale-100 group-focus-visible:opacity-100 group-focus-visible:scale-100"
+      >
+        {label}
+      </span>
+    </a>
+  );
+}
 
 export function Footer() {
   const { profile, socials } = useContent();
@@ -48,72 +78,36 @@ export function Footer() {
           </span>
         </div>
         <div className="flex items-center gap-5 text-muted">
-          <a
-            href={socials.github}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="GitHub"
-            className="hover:text-accent transition"
-          >
+          <FooterIconLink href={socials.github} label="GitHub">
             <GithubIcon size={18} />
-          </a>
+          </FooterIconLink>
           {socials.stackoverflow && (
-            <a
-              href={socials.stackoverflow}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Stack Overflow"
-              className="hover:text-accent transition"
-            >
+            <FooterIconLink href={socials.stackoverflow} label="Stack Overflow">
               <StackOverflowIcon size={18} />
-            </a>
+            </FooterIconLink>
           )}
           {socials.medium && (
-            <a
-              href={socials.medium}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Medium"
-              className="hover:text-accent transition"
-            >
+            <FooterIconLink href={socials.medium} label="Medium">
               <MediumIcon size={18} />
-            </a>
+            </FooterIconLink>
           )}
-          <a
-            href={socials.linkedin}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="LinkedIn"
-            className="hover:text-accent transition"
-          >
+          <FooterIconLink href={socials.linkedin} label="LinkedIn">
             <LinkedinIcon size={18} />
-          </a>
+          </FooterIconLink>
           {socials.telegram && (
-            <a
-              href={socials.telegram}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Telegram"
-              className="hover:text-accent transition"
-            >
+            <FooterIconLink href={socials.telegram} label="Telegram">
               <TelegramIcon size={18} />
-            </a>
+            </FooterIconLink>
           )}
-          <a href={socials.email} aria-label="Email" className="hover:text-accent transition">
+          <FooterIconLink href={socials.email} label="Email" external={false}>
             <Mail size={18} />
-          </a>
+          </FooterIconLink>
           {hasResume && (
             <>
               <span className="h-4 w-px bg-border" aria-hidden="true" />
-              <a
-                href={profile.resumeUrl}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Resume"
-                className="hover:text-accent transition"
-              >
+              <FooterIconLink href={profile.resumeUrl} label="Resume">
                 <FileText size={18} />
-              </a>
+              </FooterIconLink>
             </>
           )}
         </div>
