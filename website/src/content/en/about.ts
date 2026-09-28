@@ -1,5 +1,7 @@
 import type { AboutContent } from "@/types/content";
 
+import { profile } from "./profile";
+
 export const about: AboutContent = {
   paragraphs: [
     "I'm a backend developer with **3+ years of experience**, working mostly in the ==.NET ecosystem==. I've shipped **20+ projects** between my day job and freelance work, ranging from small internal tools to client-facing platforms that people actually depend on.",
@@ -10,7 +12,7 @@ export const about: AboutContent = {
     { label: "Focus areas", value: ".NET / ASP.NET Core" },
     { label: "Experience", value: "3+ years" },
     { label: "Projects shipped", value: "20+" },
-    { label: "Based in", value: "Baku, Azerbaijan" },
+    { label: "Based in", value: profile.location },
     { label: "Open to", value: "Full-time, freelance, remote" },
   ],
 };

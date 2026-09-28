@@ -1,6 +1,7 @@
 import { RotateCcw } from "lucide-react";
 
 import { useContent } from "@/i18n/context";
+import { format } from "@/lib/format";
 
 interface HeroMinimizedEasterEggProps {
   visible: boolean;
@@ -11,7 +12,7 @@ interface HeroMinimizedEasterEggProps {
  * the window away — kept fully transparent (not just covered) the rest of
  * the time so dragging the window doesn't uncover it. */
 export function HeroMinimizedEasterEgg({ visible, onRestore }: HeroMinimizedEasterEggProps) {
-  const { ui } = useContent();
+  const { ui, profile } = useContent();
 
   return (
     <div
@@ -23,7 +24,7 @@ export function HeroMinimizedEasterEgg({ visible, onRestore }: HeroMinimizedEast
       <div className="flex flex-col items-center gap-3 px-6 text-center font-mono">
         <span className="animate-float-slow select-none text-3xl">🕵️</span>
         <p className="text-sm text-text">{ui.hero.minimized.title}</p>
-        <p className="text-xs text-muted">{ui.hero.minimized.joke}</p>
+        <p className="text-xs text-muted">{format(ui.hero.minimized.joke, { name: profile.name })}</p>
         <button
           type="button"
           onClick={onRestore}

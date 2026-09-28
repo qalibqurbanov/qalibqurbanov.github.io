@@ -10,7 +10,7 @@ export const ui: UiStrings = {
     terminalTabLabel: "terminal",
     minimized: {
       title: "Ssshh! You weren't meant to find this.",
-      joke: "FBI's had a file open on him since they saw his skills list — nobody's genuinely this good at everything. Galib Gurbanov has no idea we're tracking him.",
+      joke: "FBI's had a file open on him since they saw his skills list — nobody's genuinely this good at everything. {name} has no idea we're tracking him.",
       restore: "Restore",
     },
     closeAttempt: "Nice try — this window isn't going anywhere.",

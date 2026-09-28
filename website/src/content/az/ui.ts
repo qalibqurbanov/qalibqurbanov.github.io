@@ -10,7 +10,7 @@ export const ui: UiStrings = {
     terminalTabLabel: "terminal",
     minimized: {
       title: "Şşşt! Bunu tapmamalıydın.",
-      joke: "Bacarıqlar siyahısını görən kimi FBI onun üzərində iş açıb — heç kim doğrudan da hər şeydə bu qədər yaxşı olmur. Qalib Qurbanov onu izlədiyimizdən xəbərsizdir.",
+      joke: "Bacarıqlar siyahısını görən kimi FBI onun üzərində iş açıb — heç kim doğrudan da hər şeydə bu qədər yaxşı olmur. {name} onu izlədiyimizdən xəbərsizdir.",
       restore: "Bərpa et",
     },
     closeAttempt: "Cəhd yaxşıdır — bu pəncərə heç yerə getmir.",
