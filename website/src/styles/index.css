@@ -80,8 +80,14 @@ html body[data-scroll-locked] {
 @supports not selector(::-webkit-scrollbar) {
   html {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--color-muted) 45%, transparent)
+    scrollbar-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-accent-2) 45%)
       var(--color-surface);
+  }
+
+  .terminal-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-accent-2) 45%)
+      var(--color-surface-2);
   }
 }
 
@@ -102,11 +108,15 @@ body {
   color: #05130d;
 }
 
-/* Scoped to `html` (the page scrollbar) only — an unscoped `::-webkit-scrollbar`
-   selector styles every scrollable element on the page, including things like
-   the hero terminal's own internal scroll, where this scroll-position-linked
-   styling doesn't make sense (it tracks page scroll, not the terminal's). */
-html::-webkit-scrollbar {
+/* Custom scrollbar for the page (`html`) and for the hero terminal's own
+   internal scroll (`.terminal-scroll`, applied directly to its scrollable
+   div) — same color treatment, sized for their own track. Both thumbs use
+   one flat, static color blended from the site's own accent/accent-2
+   tokens — no gradient, no animation, no scroll-position read, so there is
+   nothing here that changes shade on its own or costs anything extra to
+   paint. */
+html::-webkit-scrollbar,
+.terminal-scroll::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
@@ -114,23 +124,26 @@ html::-webkit-scrollbar-track {
   background: var(--color-surface);
   border-left: 1px solid var(--color-border);
 }
-html::-webkit-scrollbar-thumb {
-  background-color: color-mix(in srgb, var(--color-muted) 65%, var(--color-accent) 10%);
-  background-clip: padding-box;
+.terminal-scroll::-webkit-scrollbar-track {
+  background: var(--color-surface-2);
+  border-left: 1px solid var(--color-border);
+}
+html::-webkit-scrollbar-thumb,
+.terminal-scroll::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-accent-2) 45%);
   border: 2px solid var(--color-surface);
   border-radius: 999px;
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-bg) 30%, transparent);
-  opacity: 0.55;
-  transition: opacity 0.15s ease;
 }
-html::-webkit-scrollbar-thumb:hover,
-html::-webkit-scrollbar-thumb:active {
-  opacity: 1;
+.terminal-scroll::-webkit-scrollbar-thumb {
+  border-color: var(--color-surface-2);
 }
-html::-webkit-scrollbar-corner {
+html::-webkit-scrollbar-corner,
+.terminal-scroll::-webkit-scrollbar-corner {
   background: var(--color-surface);
 }
-html::-webkit-scrollbar-button {
+html::-webkit-scrollbar-button,
+.terminal-scroll::-webkit-scrollbar-button {
   display: none;
   width: 0;
   height: 0;
