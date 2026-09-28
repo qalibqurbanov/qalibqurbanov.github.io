@@ -78,28 +78,3 @@ export function useScrollParallax(): void {
     };
   }, []);
 }
-
-/**
- * Toggles an `is-scrolling` class on <html> while the page is actively
- * scrolling, so the scrollbar's pseudo-elements can animate in CSS without
- * a React re-render on every scroll frame.
- */
-export function useScrollbarActivity(idleMs = 300): void {
-  useEffect(() => {
-    const root = document.documentElement;
-    let timeout: number | undefined;
-
-    const onScroll = () => {
-      root.classList.add("is-scrolling");
-      window.clearTimeout(timeout);
-      timeout = window.setTimeout(() => root.classList.remove("is-scrolling"), idleMs);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.clearTimeout(timeout);
-      root.classList.remove("is-scrolling");
-    };
-  }, [idleMs]);
-}
