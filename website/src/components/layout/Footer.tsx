@@ -12,28 +12,28 @@ import { useClock } from "@/hooks/useClock";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
 
-function FooterIconLink({
-  href,
-  label,
-  external = true,
-  children,
-}: {
+interface FooterIconLinkProps {
   href: string;
   label: string;
   external?: boolean;
   children: ReactNode;
-}) {
+}
+
+// Pure-CSS hover/focus popup naming whichever footer icon is under the
+// cursor — `group` on the anchor drives the tooltip's opacity/scale so no
+// hover-state JS is needed.
+function FooterIconLink({ href, label, external = true, children }: FooterIconLinkProps) {
   return (
     <a
       href={href}
       {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
       aria-label={label}
-      className="group relative hover:text-accent transition"
+      className="group relative inline-flex items-center hover:text-accent transition"
     >
       {children}
       <span
         role="tooltip"
-        className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 scale-95 whitespace-nowrap rounded border border-border bg-surface px-2 py-1 text-[11px] text-text opacity-0 transition group-hover:opacity-100 group-hover:scale-100 group-focus-visible:opacity-100 group-focus-visible:scale-100"
+        className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 scale-95 whitespace-nowrap rounded-md border border-border bg-surface px-2 py-1 text-[11px] font-sans text-text opacity-0 shadow-lg transition duration-150 group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100"
       >
         {label}
       </span>
