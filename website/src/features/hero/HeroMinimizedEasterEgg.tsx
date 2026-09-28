@@ -21,7 +21,7 @@ export function HeroMinimizedEasterEgg({ visible, onRestore }: HeroMinimizedEast
       aria-hidden={!visible}
     >
       <div className="flex flex-col items-center gap-3 px-6 text-center font-mono">
-        <span className="animate-float-slow select-none text-3xl">👻</span>
+        <span className="animate-float-slow select-none text-3xl">🕵️</span>
         <p className="text-sm text-text">{ui.hero.minimized.title}</p>
         <p className="text-xs text-muted">{ui.hero.minimized.joke}</p>
         <button
