@@ -9,8 +9,8 @@ export const ui: UiStrings = {
     ctaGetInTouch: "Əlaqə saxlayın",
     terminalTabLabel: "terminal",
     minimized: {
-      title: "Bu! Hələ buradayam.",
-      joke: "Proqramlaşdırmada 2 çətin problem var: keşin etibarsızlaşdırılması, adların seçilməsi və bunu niyə kiçiltdiyimi xatırlamaq.",
+      title: "Şşşt! Bunu tapmamalıydın.",
+      joke: "Bacarıqlar siyahısını görən kimi FBI onun üzərində iş açıb — heç kim doğrudan da hər şeydə bu qədər yaxşı olmur. Qalib Qurbanov onu izlədiyimizdən xəbərsizdir.",
       restore: "Bərpa et",
     },
     closeAttempt: "Cəhd yaxşıdır — bu pəncərə heç yerə getmir.",

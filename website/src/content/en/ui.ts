@@ -9,8 +9,8 @@ export const ui: UiStrings = {
     ctaGetInTouch: "Get in touch",
     terminalTabLabel: "terminal",
     minimized: {
-      title: "Boo. Still here.",
-      joke: "There are 2 hard problems in programming: cache invalidation, naming things, and remembering why I minimized this.",
+      title: "Ssshh! You weren't meant to find this.",
+      joke: "FBI's had a file open on him since they saw his skills list — nobody's genuinely this good at everything. Qalib Qurbanov has no idea we're tracking him.",
       restore: "Restore",
     },
     closeAttempt: "Nice try — this window isn't going anywhere.",
