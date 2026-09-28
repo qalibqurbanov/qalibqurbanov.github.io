@@ -8,9 +8,10 @@ interface HeroMinimizedEasterEggProps {
   onRestore: () => void;
 }
 
-/** Sits behind the hero window, invisible until the minimize button shrinks
- * the window away — kept fully transparent (not just covered) the rest of
- * the time so dragging the window doesn't uncover it. */
+/** Sits behind the hero window, invisible until the close button shrinks
+ * the window away instead of actually closing it — kept fully transparent
+ * (not just covered) the rest of the time so dragging the window doesn't
+ * uncover it. */
 export function HeroMinimizedEasterEgg({ visible, onRestore }: HeroMinimizedEasterEggProps) {
   const { ui, profile } = useContent();
 
