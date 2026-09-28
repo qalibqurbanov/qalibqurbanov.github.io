@@ -11,12 +11,12 @@ export const ui: UiStrings = {
     minimized: {
       title: "Bu! Hələ buradayam.",
       jokes: [
-        "Sənin DOM-unda gizlicə dolaşıram.",
-        "Texniki cəhətdən sağam. Emosional vəziyyət barədə danışmayaq.",
-        "0 tapşırıq, CPU 100% — düzünü desəm, təsirlidir.",
-        "Bu pəncərə artıq şahid mühafizə proqramındadır.",
-        "42% yükləndi. Bir daha soruşma.",
-        "Kiçildildi, yox olmadı — idman zalı abunəliyin kimi.",
+        "Çay içməyə çıxdım — deploy bitənə kimi qayıdaram.",
+        "Hazırda EF Core migrasiyası ilə mübahisə edib uduram.",
+        "Bakı tıxacındayam. ETA: nə vaxtsa.",
+        "NullReferenceException-ı debug edirəm, həyatımı yox. Deyəsən.",
+        "Məcburi çay fasiləsindəyəm. Bu, Bakı adətidir.",
+        "Həyat qərarlarımı yenidən kompilyasiya edirəm, gözləyin.",
       ],
       restore: "Bərpa et",
     },

@@ -11,12 +11,12 @@ export const ui: UiStrings = {
     minimized: {
       title: "Boo. Still here.",
       jokes: [
-        "Haunting your DOM in the background.",
-        "Technically alive. Emotionally, we don't talk about it.",
-        "Running 0 tasks at 100% CPU. Impressive, honestly.",
-        "This window has entered witness protection.",
-        "42% loaded. Ask again never.",
-        "Minimized, not gone — like your gym membership.",
+        "Stepped out for çay — back before the deploy finishes.",
+        "Currently losing an argument with an EF Core migration.",
+        "Somewhere in Baku traffic. ETA: eventually.",
+        "Debugging a NullReferenceException, not my life. Probably.",
+        "On a mandatory tea break. It's a Baku thing.",
+        "Recompiling my life choices, please hold.",
       ],
       restore: "Restore",
     },
