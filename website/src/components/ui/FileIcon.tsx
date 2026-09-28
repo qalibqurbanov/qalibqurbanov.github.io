@@ -1,4 +1,5 @@
 import { useContent } from "@/i18n/context";
+import { getInitials } from "@/lib/initials";
 
 interface FileIconProps {
   className?: string;
@@ -13,7 +14,7 @@ export function FileIcon({ className = "" }: FileIconProps) {
       className={`inline-flex items-center justify-center w-4 h-4 rounded-[4px] bg-surface-2 border border-border text-[8px] font-mono font-bold leading-none text-gradient shrink-0 ${className}`}
       aria-hidden="true"
     >
-      {profile.avatarInitials}
+      {getInitials(profile.name)}
     </span>
   );
 }
