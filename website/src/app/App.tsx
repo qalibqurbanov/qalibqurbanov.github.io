@@ -11,12 +11,10 @@ import { Hero } from "@/features/hero/Hero";
 import { ProjectDetail } from "@/features/projects/ProjectDetail";
 import { Projects } from "@/features/projects/Projects";
 import { Skills } from "@/features/skills/Skills";
-import { useConsoleEasterEgg } from "@/hooks/useConsoleEasterEgg";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent } from "@/i18n/context";
 
 export function App() {
-  useConsoleEasterEgg();
   const { projects } = useContent();
   const { activeSlug, closeProject } = useProjectRoute();
   const activeProject = activeSlug ? (projects.find((project) => project.slug === activeSlug) ?? null) : undefined;
