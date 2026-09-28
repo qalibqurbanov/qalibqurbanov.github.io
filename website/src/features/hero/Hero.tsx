@@ -159,8 +159,10 @@ export function Hero() {
     };
   }, []);
 
-  // Close refuses to close — it just wiggles the window and pokes fun at the
-  // attempt, restarting the shake even if it's already mid-animation.
+  // Wired to the minimize button — it refuses to minimize and just wiggles
+  // the window instead, restarting the shake even if it's already
+  // mid-animation. (Close is wired to the actual minimize/reveal behavior;
+  // see the WindowControls call below.)
   function handleCloseAttempt() {
     setShaking(false);
     requestAnimationFrame(() => setShaking(true));
@@ -368,7 +370,7 @@ export function Hero() {
                     </button>
                   </div>
                   <div className="flex items-center py-1.5">
-                    <WindowControls onMinimize={() => setMinimized(true)} onClose={handleCloseAttempt} />
+                    <WindowControls onMinimize={handleCloseAttempt} onClose={() => setMinimized(true)} />
                   </div>
                 </div>
                 {tab === "code" ? <HeroCode /> : <HeroTerminal />}
