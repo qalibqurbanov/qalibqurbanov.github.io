@@ -9,7 +9,7 @@ export const ui: UiStrings = {
     ctaGetInTouch: "Get in touch",
     terminalTabLabel: "terminal",
     minimized: {
-      title: "Ssshh! You weren't meant to find this.",
+      title: "Ssshh! Don't make a sound — you weren't meant to find this.",
       joke: "FBI's had a file open on him since they saw his skills list — nobody's genuinely this good at everything. {name} has no idea we're tracking him.",
       restore: "Restore",
     },
