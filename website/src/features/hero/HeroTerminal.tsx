@@ -181,7 +181,7 @@ export function HeroTerminal() {
     <div
       ref={scrollRef}
       onClick={() => inputRef.current?.focus()}
-      className="font-mono text-[13px] leading-6 p-5 h-[292px] overflow-y-auto selectable"
+      className="terminal-scroll font-mono text-[13px] leading-6 p-5 h-[292px] overflow-y-auto selectable"
     >
       {log.map((entry, index) => (
         <div
