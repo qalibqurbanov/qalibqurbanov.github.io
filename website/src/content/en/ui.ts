@@ -11,7 +11,7 @@ export const ui: UiStrings = {
     minimized: {
       title: "Ssshh! Don't make a sound — you weren't meant to find this.",
       joke: "FBI's had a file open on him since they saw his skills list — nobody's genuinely this good at everything. {name} has no idea we're tracking him.",
-      restoreWarning: "This page will restore in {seconds} seconds — don't say a word to anyone about what you saw here.",
+      restoreWarning: "This terminal will restore in {seconds} seconds — don't say a word to anyone about what you saw here.",
     },
     closeAttempt: "Nice try — this window isn't going anywhere.",
     tinkerWarning: "Okay, that's enough tinkering — there's nothing here.",

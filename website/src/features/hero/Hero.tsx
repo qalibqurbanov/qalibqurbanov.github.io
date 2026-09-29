@@ -135,7 +135,7 @@ function HeroCode() {
 
 /** How long the FBI reveal stays up before it restores itself — also shown
  * in the reveal's own warning message, so the two can't drift apart. */
-const FBI_RESTORE_SECONDS = 10;
+const FBI_RESTORE_SECONDS = 20;
 
 export function Hero() {
   const { profile, socials, ui } = useContent();
