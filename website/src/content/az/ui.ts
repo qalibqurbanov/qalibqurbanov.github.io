@@ -12,7 +12,6 @@ export const ui: UiStrings = {
       title: "Şşşt! Səs çıxarma — bunu tapmamalıydın.",
       joke: "Bacarıqlar siyahısını görən kimi FBI onun üzərində iş açıb — heç kim doğrudan da hər şeydə bu qədər yaxşı olmur. {name} onu izlədiyimizdən xəbərsizdir.",
       restoreWarning: "Bu səhifə {seconds} saniyə sonra bərpa olunacaq — burada gördüklərin haqqında heç kimə bir söz demə.",
-      restore: "Bərpa et",
     },
     closeAttempt: "Cəhd yaxşıdır — bu pəncərə heç yerə getmir.",
   },
