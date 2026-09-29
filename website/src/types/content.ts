@@ -159,6 +159,7 @@ export interface UiStrings {
     actionOpenTelegram: string;
     actionOpenMedium: string;
     actionOpenStackOverflow: string;
+    actionReportBug: string;
     openCaseStudy: string;
   };
   contextMenu: {
@@ -169,6 +170,7 @@ export interface UiStrings {
     openCommandPalette: string;
     downloadResume: string;
     viewSourceOnGithub: string;
+    reportBug: string;
   };
   projectDetail: {
     back: string;

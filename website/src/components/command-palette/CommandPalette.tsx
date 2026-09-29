@@ -1,6 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   Briefcase,
+  Bug,
   Code2,
   CornerDownLeft,
   FileText,
@@ -25,6 +26,7 @@ import {
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
+import { reportBugUrl } from "@/lib/githubIssue";
 import { scrollToTop } from "@/lib/scroll";
 import { useTheme } from "@/theme/context";
 
@@ -196,6 +198,12 @@ export function CommandPalette() {
         label: ui.commandPalette.actionOpenLinkedin,
         icon: <LinkedinIcon size={16} />,
         onSelect: () => window.open(socials.linkedin, "_blank", "noreferrer"),
+      },
+      {
+        id: "action-report-bug",
+        label: ui.commandPalette.actionReportBug,
+        icon: <Bug size={16} />,
+        onSelect: () => window.open(reportBugUrl(), "_blank", "noreferrer"),
       },
     ];
 
