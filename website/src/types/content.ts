@@ -105,9 +105,8 @@ export interface UiStrings {
       title: string;
       /** Contains the literal token "{name}", replaced with `profile.name` via `format()`. */
       joke: string;
-      /** Contains the literal token "{seconds}", replaced with the auto-restore delay via `format()`. */
+      /** Contains the literal token "{seconds}", replaced with the live countdown via `format()`. */
       restoreWarning: string;
-      restore: string;
     };
     closeAttempt: string;
   };

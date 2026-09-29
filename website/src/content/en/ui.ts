@@ -12,7 +12,6 @@ export const ui: UiStrings = {
       title: "Ssshh! Don't make a sound — you weren't meant to find this.",
       joke: "FBI's had a file open on him since they saw his skills list — nobody's genuinely this good at everything. {name} has no idea we're tracking him.",
       restoreWarning: "This page will restore in {seconds} seconds — don't say a word to anyone about what you saw here.",
-      restore: "Restore",
     },
     closeAttempt: "Nice try — this window isn't going anywhere.",
   },
