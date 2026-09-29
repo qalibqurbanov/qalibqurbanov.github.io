@@ -47,16 +47,18 @@ interface MenuItemProps {
 }
 
 function MenuItem({ icon: Icon, label, active, accent, danger, onSelect }: MenuItemProps) {
+  const tone = danger
+    ? "text-danger font-medium hover:bg-danger/10"
+    : accent
+      ? "text-accent font-medium hover:bg-accent/10"
+      : `hover:bg-surface-2 hover:text-accent ${active ? "text-accent" : "text-text"}`;
+
   return (
     <button
       type="button"
       role="menuitem"
       onClick={onSelect}
-      className={`group relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left transition-colors ${
-        danger
-          ? "text-danger font-medium hover:bg-danger/10"
-          : `hover:bg-surface-2 hover:text-accent ${active ? "text-accent" : accent ? "text-accent font-medium" : "text-text"}`
-      }`}
+      className={`group relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left transition-colors ${tone}`}
     >
       <span
         aria-hidden="true"
