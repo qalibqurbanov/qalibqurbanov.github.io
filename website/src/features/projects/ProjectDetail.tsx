@@ -80,7 +80,29 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                   when it's taller than that, so the header stays put. */}
               <CodeWindow filename={filenameFor(project, 0)} className="flex flex-col min-h-0 max-h-full">
                 <div className="custom-scrollbar p-8 flex-1 overflow-y-auto min-h-0">
-                  <h1 className="text-3xl font-bold tracking-tight">{project.title}</h1>
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <h1 className="min-w-0 flex-1 text-3xl font-bold tracking-tight">{project.title}</h1>
+                    <div className="flex flex-wrap gap-3 shrink-0">
+                      <a
+                        href={project.repoUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-border font-mono text-sm hover:border-accent hover:text-accent transition"
+                      >
+                        <GithubIcon size={16} />
+                        {ui.projectDetail.viewRepo}
+                      </a>
+                      <a
+                        href={project.liveUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
+                      >
+                        <ExternalLink size={16} />
+                        {ui.projectDetail.viewLive}
+                      </a>
+                    </div>
+                  </div>
                   <p className="text-muted mt-4 leading-relaxed">{project.description}</p>
 
                   {project.stack && project.stack.length > 0 && (
@@ -102,27 +124,6 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                   {project.outcome && (
                     <DetailSection label={ui.projectDetail.outcomeLabel} text={project.outcome} />
                   )}
-
-                  <div className="flex flex-wrap gap-4 mt-10">
-                    <a
-                      href={project.repoUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md border border-border font-mono text-sm hover:border-accent hover:text-accent transition"
-                    >
-                      <GithubIcon size={16} />
-                      {ui.projectDetail.viewRepo}
-                    </a>
-                    <a
-                      href={project.liveUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
-                    >
-                      <ExternalLink size={16} />
-                      {ui.projectDetail.viewLive}
-                    </a>
-                  </div>
                 </div>
               </CodeWindow>
             </Reveal>
