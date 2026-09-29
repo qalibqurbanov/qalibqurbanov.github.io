@@ -551,6 +551,14 @@ html::-webkit-scrollbar-button,
   animation: type-wipe 420ms steps(20, end) forwards;
 }
 
+/* Applied once a line's wipe-in has finished (see HeroCode's `settledCount`)
+   — the animation's own end state, set directly with no `animation`
+   property attached, so remounting this block (e.g. a `display: none`
+   tab switch) has nothing to replay. */
+.typewriter-line.is-done {
+  clip-path: inset(0 0 0 0);
+}
+
 .command-dialog-overlay {
   animation: popover-in 150ms ease-out;
 }
