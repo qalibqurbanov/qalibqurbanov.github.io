@@ -143,7 +143,11 @@ export function Hero() {
   const { ref: tiltRef, handleMouseMove, handleMouseLeave } = useTilt<HTMLDivElement>();
   const [tab, setTab] = useState<"code" | "terminal">("code");
   const [shaking, setShaking] = useState(false);
-  const [closeToast, setCloseToast] = useState(false);
+  // Holds which message to show — null while hidden, so the same shake/toast
+  // machinery can display different text for the minimize button (a generic
+  // "can't close it" joke) vs. the close button once the FBI reveal has
+  // already been shown once (a "stop tinkering" callback instead).
+  const [closeToast, setCloseToast] = useState<string | null>(null);
   // Once the FBI reveal has been triggered and auto-restored, the close
   // button stops re-triggering it and just does the same shake/toast as
   // the minimize button instead — the "secret" only gets shown once.
@@ -182,27 +186,27 @@ export function Hero() {
     return () => window.clearTimeout(id);
   }, [minimized, countdown]);
 
-  // Wired to the minimize button — it refuses to minimize and just wiggles
-  // the window instead, restarting the shake even if it's already
-  // mid-animation. Also what the close button falls back to once the FBI
-  // reveal has already been shown once.
-  function handleCloseAttempt() {
+  // Shakes the window and pops up `message`, restarting the shake even if
+  // it's already mid-animation. Used both by the minimize button (a generic
+  // "can't close it" joke) and by the close button once the FBI reveal has
+  // already been shown once (a different, "stop tinkering" message).
+  function shakeWithMessage(message: string) {
     setShaking(false);
     requestAnimationFrame(() => setShaking(true));
     window.clearTimeout(shakeTimeout.current);
     shakeTimeout.current = window.setTimeout(() => setShaking(false), 500);
 
-    setCloseToast(true);
+    setCloseToast(message);
     window.clearTimeout(toastTimeout.current);
-    toastTimeout.current = window.setTimeout(() => setCloseToast(false), 2200);
+    toastTimeout.current = window.setTimeout(() => setCloseToast(null), 2200);
   }
 
   // First close click reveals the FBI easter egg and starts its countdown
   // (the effect above ticks it down and auto-restores at zero); every click
-  // after that just shakes the window like the minimize button does.
+  // after that just shakes the window with a "stop tinkering" message.
   function handleCloseClick() {
     if (fbiRevealed) {
-      handleCloseAttempt();
+      shakeWithMessage(ui.hero.tinkerWarning);
       return;
     }
     setFbiRevealed(true);
@@ -355,7 +359,7 @@ export function Hero() {
                 role="status"
                 className="animate-popover-in absolute -top-3 right-4 z-10 -translate-y-full rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs text-text shadow-xl shadow-black/30"
               >
-                {ui.hero.closeAttempt}
+                {closeToast}
                 <span className="absolute -bottom-1.5 right-5 h-3 w-3 rotate-45 border-b border-r border-border bg-surface" />
               </div>
             )}
@@ -406,7 +410,10 @@ export function Hero() {
                     </button>
                   </div>
                   <div className="flex items-center py-1.5">
-                    <WindowControls onMinimize={handleCloseAttempt} onClose={handleCloseClick} />
+                    <WindowControls
+                      onMinimize={() => shakeWithMessage(ui.hero.closeAttempt)}
+                      onClose={handleCloseClick}
+                    />
                   </div>
                 </div>
                 {tab === "code" ? <HeroCode /> : <HeroTerminal />}

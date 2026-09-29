@@ -109,6 +109,8 @@ export interface UiStrings {
       restoreWarning: string;
     };
     closeAttempt: string;
+    /** Shown instead of `closeAttempt` once the FBI reveal has already been shown once. */
+    tinkerWarning: string;
   };
   sections: {
     about: SectionHeadingText;
