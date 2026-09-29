@@ -11,7 +11,7 @@ import {
 import { useClock } from "@/hooks/useClock";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
-import { reportBugUrl } from "@/lib/githubIssue";
+import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
 
 interface FooterIconLinkProps {
   href: string;
@@ -121,6 +121,9 @@ export function Footer() {
           )}
           <FooterIconLink href={reportBugUrl()} label="Report a bug" tone="danger">
             <Bug size={16} />
+          </FooterIconLink>
+          <FooterIconLink href={SITE_REPO_URL} label="View source on GitHub">
+            <GithubIcon size={18} />
           </FooterIconLink>
         </div>
       </div>
