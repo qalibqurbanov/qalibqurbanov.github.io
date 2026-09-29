@@ -17,12 +17,20 @@ interface FooterIconLinkProps {
   href: string;
   label: string;
   external?: boolean;
-  /** "danger" gives the icon its own soft red badge instead of the row's
-   * plain muted-to-accent hover, so it reads as a distinct kind of action
-   * (not another social link) without needing a divider next to it. */
-  tone?: "default" | "danger";
+  /** "danger" and "accent2" give the icon its own soft badge instead of the
+   * row's plain muted-to-accent hover, so it reads as a distinct kind of
+   * action (not another social link) without needing a divider next to it. */
+  tone?: "default" | "danger" | "accent2";
   children: ReactNode;
 }
+
+const TONE_CLASSES: Record<NonNullable<FooterIconLinkProps["tone"]>, string> = {
+  default: "group relative inline-flex items-center hover:text-accent transition",
+  danger:
+    "group relative inline-flex items-center justify-center rounded-full bg-danger/10 p-1.5 text-danger transition hover:bg-danger/20",
+  accent2:
+    "group relative inline-flex items-center justify-center rounded-full bg-accent-2/10 p-1.5 text-accent-2 transition hover:bg-accent-2/20",
+};
 
 // Pure-CSS hover/focus popup naming whichever footer icon is under the
 // cursor — `group` on the anchor drives the tooltip's opacity/scale so no
@@ -33,11 +41,7 @@ function FooterIconLink({ href, label, external = true, tone = "default", childr
       href={href}
       {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
       aria-label={label}
-      className={
-        tone === "danger"
-          ? "group relative inline-flex items-center justify-center rounded-full bg-danger/10 p-1.5 text-danger transition hover:bg-danger/20"
-          : "group relative inline-flex items-center hover:text-accent transition"
-      }
+      className={TONE_CLASSES[tone]}
     >
       {children}
       <span
@@ -122,8 +126,8 @@ export function Footer() {
           <FooterIconLink href={reportBugUrl()} label="Report a bug" tone="danger">
             <Bug size={16} />
           </FooterIconLink>
-          <FooterIconLink href={SITE_REPO_URL} label="View source on GitHub">
-            <GithubIcon size={18} />
+          <FooterIconLink href={SITE_REPO_URL} label="View source on GitHub" tone="accent2">
+            <GithubIcon size={16} />
           </FooterIconLink>
         </div>
       </div>
