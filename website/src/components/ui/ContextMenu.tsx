@@ -52,12 +52,18 @@ function MenuItem({ icon: Icon, label, active, accent, danger, onSelect }: MenuI
       type="button"
       role="menuitem"
       onClick={onSelect}
-      className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left transition-colors ${
+      className={`group relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left transition-colors ${
         danger
           ? "text-danger font-medium hover:bg-danger/10"
           : `hover:bg-surface-2 hover:text-accent ${active ? "text-accent" : accent ? "text-accent font-medium" : "text-text"}`
       }`}
     >
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full opacity-0 transition-opacity group-hover:opacity-100 ${
+          danger ? "bg-danger" : "bg-accent"
+        }`}
+      />
       {Icon && <Icon size={14} />}
       <span className="flex-1 truncate">{label}</span>
       {active && <Check size={12} />}
