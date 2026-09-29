@@ -7,10 +7,13 @@ interface CodeWindowProps {
   filename: string;
   children: ReactNode;
   className?: string;
+  /** Wires up the close button; when omitted, it renders visibly disabled
+   * (see WindowControls). */
+  onClose?: () => void;
 }
 
 /** A small "code editor" chrome — Windows-style title bar + a filename tab — wrapped around arbitrary content. */
-export function CodeWindow({ filename, children, className = "" }: CodeWindowProps) {
+export function CodeWindow({ filename, children, className = "", onClose }: CodeWindowProps) {
   return (
     <div
       className={`rounded-xl overflow-hidden border border-border bg-surface shadow-2xl shadow-black/40 ${className}`}
@@ -20,7 +23,7 @@ export function CodeWindow({ filename, children, className = "" }: CodeWindowPro
           <FileIcon />
           {filename}
         </span>
-        <WindowControls />
+        <WindowControls onClose={onClose} />
       </div>
       {children}
     </div>

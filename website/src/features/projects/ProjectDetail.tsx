@@ -78,7 +78,11 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                   (via the h-full chain above) instead of letting the page
                   itself grow — the content below scrolls inside the window
                   when it's taller than that, so the header stays put. */}
-              <CodeWindow filename={filenameFor(project, 0)} className="flex flex-col min-h-0 max-h-full">
+              <CodeWindow
+                filename={filenameFor(project, 0)}
+                className="flex flex-col min-h-0 max-h-full"
+                onClose={onBack}
+              >
                 <div className="custom-scrollbar p-8 flex-1 overflow-y-auto min-h-0">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <h1 className="min-w-0 flex-1 text-3xl font-bold tracking-tight">{project.title}</h1>
