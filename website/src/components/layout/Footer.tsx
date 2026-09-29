@@ -17,15 +17,18 @@ interface FooterIconLinkProps {
   href: string;
   label: string;
   external?: boolean;
-  /** "danger" and "accent2" give the icon its own soft badge instead of the
-   * row's plain muted-to-accent hover, so it reads as a distinct kind of
-   * action (not another social link) without needing a divider next to it. */
-  tone?: "default" | "danger" | "accent2";
+  /** "accent", "danger", and "accent2" give the icon its own soft badge
+   * instead of the row's plain muted-to-accent hover, so it reads as a
+   * distinct kind of action (not another social link) without needing a
+   * divider next to it. */
+  tone?: "default" | "accent" | "danger" | "accent2";
   children: ReactNode;
 }
 
 const TONE_CLASSES: Record<NonNullable<FooterIconLinkProps["tone"]>, string> = {
   default: "group relative inline-flex items-center hover:text-accent transition",
+  accent:
+    "group relative inline-flex items-center justify-center rounded-full bg-accent/10 p-1.5 text-accent transition hover:bg-accent/20",
   danger:
     "group relative inline-flex items-center justify-center rounded-full bg-danger/10 p-1.5 text-danger transition hover:bg-danger/20",
   accent2:
@@ -119,8 +122,8 @@ export function Footer() {
           </div>
 
           {hasResume && (
-            <FooterIconLink href={profile.resumeUrl} label="Resume">
-              <FileText size={18} />
+            <FooterIconLink href={profile.resumeUrl} label="Resume" tone="accent">
+              <FileText size={16} />
             </FooterIconLink>
           )}
 
