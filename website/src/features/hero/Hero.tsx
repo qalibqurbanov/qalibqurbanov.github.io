@@ -409,7 +409,16 @@ export function Hero() {
                     />
                   </div>
                 </div>
-                {tab === "code" ? <HeroCode /> : <HeroTerminal />}
+                {/* Both stay mounted so switching tabs doesn't unmount/remount
+                    either one — HeroCode's typewriter reveal would otherwise
+                    replay from scratch every time you come back to it, and
+                    HeroTerminal's command history would reset too. */}
+                <div className={tab === "code" ? undefined : "hidden"}>
+                  <HeroCode />
+                </div>
+                <div className={tab === "terminal" ? undefined : "hidden"}>
+                  <HeroTerminal />
+                </div>
               </div>
             </div>
           </div>
