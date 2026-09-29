@@ -43,15 +43,20 @@ interface MenuItemProps {
   accent?: boolean;
   /** Red instead of accent-green — reserved for "Report a bug". */
   danger?: boolean;
+  /** Violet instead of accent-green — reserved for "View source on GitHub",
+   * matching its footer badge. */
+  accent2?: boolean;
   onSelect: () => void;
 }
 
-function MenuItem({ icon: Icon, label, active, accent, danger, onSelect }: MenuItemProps) {
+function MenuItem({ icon: Icon, label, active, accent, danger, accent2, onSelect }: MenuItemProps) {
   const tone = danger
     ? "text-danger font-medium hover:bg-danger/10"
     : accent
       ? "text-accent font-medium hover:bg-accent/10"
-      : `hover:bg-surface-2 hover:text-accent ${active ? "text-accent" : "text-text"}`;
+      : accent2
+        ? "text-accent-2 font-medium hover:bg-accent-2/10"
+        : `hover:bg-surface-2 hover:text-accent ${active ? "text-accent" : "text-text"}`;
 
   return (
     <button
@@ -63,7 +68,7 @@ function MenuItem({ icon: Icon, label, active, accent, danger, onSelect }: MenuI
       <span
         aria-hidden="true"
         className={`pointer-events-none absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full opacity-0 transition-opacity group-hover:opacity-100 ${
-          danger ? "bg-danger" : "bg-accent"
+          danger ? "bg-danger" : accent2 ? "bg-accent-2" : "bg-accent"
         }`}
       />
       {Icon && <Icon size={14} />}
@@ -285,6 +290,7 @@ export function ContextMenu() {
       <MenuItem
         icon={GithubIcon}
         label={ui.contextMenu.viewSourceOnGithub}
+        accent2
         onSelect={() => {
           window.open(SITE_REPO_URL, "_blank", "noreferrer");
           close();
