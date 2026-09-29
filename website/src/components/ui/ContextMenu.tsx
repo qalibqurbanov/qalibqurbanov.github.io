@@ -264,6 +264,7 @@ export function ContextMenu() {
       <MenuItem
         icon={Bug}
         label={ui.contextMenu.reportBug}
+        accent
         onSelect={() => {
           window.open(reportBugUrl(), "_blank", "noreferrer");
           close();

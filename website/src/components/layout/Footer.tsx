@@ -17,19 +17,22 @@ interface FooterIconLinkProps {
   href: string;
   label: string;
   external?: boolean;
+  /** Overrides the icon's idle color — otherwise it inherits the row's
+   * muted default. */
+  className?: string;
   children: ReactNode;
 }
 
 // Pure-CSS hover/focus popup naming whichever footer icon is under the
 // cursor — `group` on the anchor drives the tooltip's opacity/scale so no
 // hover-state JS is needed.
-function FooterIconLink({ href, label, external = true, children }: FooterIconLinkProps) {
+function FooterIconLink({ href, label, external = true, className, children }: FooterIconLinkProps) {
   return (
     <a
       href={href}
       {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
       aria-label={label}
-      className="group relative inline-flex items-center hover:text-accent transition"
+      className={`group relative inline-flex items-center hover:text-accent transition ${className ?? ""}`}
     >
       {children}
       <span
@@ -111,8 +114,8 @@ export function Footer() {
               </FooterIconLink>
             </>
           )}
-          <span className="h-4 w-px bg-border" aria-hidden="true" />
-          <FooterIconLink href={reportBugUrl()} label="Report a bug">
+          <span className="h-4 w-px bg-border ml-2" aria-hidden="true" />
+          <FooterIconLink href={reportBugUrl()} label="Report a bug" className="ml-1 text-accent/70">
             <Bug size={18} />
           </FooterIconLink>
         </div>
