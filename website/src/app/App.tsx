@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { AmbientBackground } from "@/components/ui/AmbientBackground";
 import { BackToTop } from "@/components/ui/BackToTop";
+import { ContextMenu } from "@/components/ui/ContextMenu";
 import { About } from "@/features/about/About";
 // import { Blog } from "@/features/blog/Blog";
 import { Contact } from "@/features/contact/Contact";
@@ -11,6 +12,7 @@ import { Hero } from "@/features/hero/Hero";
 import { ProjectDetail } from "@/features/projects/ProjectDetail";
 import { Projects } from "@/features/projects/Projects";
 import { Skills } from "@/features/skills/Skills";
+import { useHashSectionFocus } from "@/hooks/useHashSectionFocus";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent } from "@/i18n/context";
 
@@ -18,11 +20,13 @@ export function App() {
   const { projects } = useContent();
   const { activeSlug, closeProject } = useProjectRoute();
   const activeProject = activeSlug ? (projects.find((project) => project.slug === activeSlug) ?? null) : undefined;
+  useHashSectionFocus();
 
   return (
     <div className="min-h-screen">
       <AmbientBackground />
       <CommandPalette />
+      <ContextMenu />
 
       {activeProject !== undefined ? (
         <ProjectDetail project={activeProject} onBack={closeProject} />

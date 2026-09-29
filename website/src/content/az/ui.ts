@@ -61,6 +61,15 @@ export const ui: UiStrings = {
     actionOpenStackOverflow: "Stack Overflow profilini aç",
     openCaseStudy: "Layihəyə bax",
   },
+  contextMenu: {
+    copyRepoLink: "Repo linkini kopyala",
+    repoLinkCopied: "Repo linki kopyalandı",
+    copyPageLink: "Səhifə linkini kopyala",
+    pageLinkCopied: "Səhifə linki kopyalandı",
+    openCommandPalette: "Əmr Paneli",
+    downloadResume: "Rezümeni yüklə",
+    viewSourceOnGithub: "GitHub-da mənbə kodu",
+  },
   projectDetail: {
     back: "Layihələrə qayıt",
     problemLabel: "Problem",
