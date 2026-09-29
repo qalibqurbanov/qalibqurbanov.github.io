@@ -21,8 +21,8 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
 
   return (
     <Reveal delayMs={delayMs}>
-      <article className="card-surface group flex flex-col justify-between h-full rounded-xl overflow-hidden hover:-translate-y-1">
-        <div className="flex items-center justify-between gap-4 pl-5 pr-1.5 py-1.5 bg-surface-2 border-b border-border">
+      <article className="card-surface group flex flex-col justify-between h-full rounded-xl overflow-hidden hover:-translate-y-1.5 hover:scale-[1.015]">
+        <div className="flex items-center justify-between gap-4 pl-5 pr-1.5 py-1.5 bg-surface-2 border-b border-border transition-colors duration-300 group-hover:border-accent/40">
           <span className="flex items-center gap-2 font-mono text-xs text-muted truncate">
             <FileIcon />
             {filenameFor(project, index)}

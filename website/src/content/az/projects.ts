@@ -3,7 +3,7 @@ import type { Project } from "@/types/content";
 export const projects: Project[] = [
   {
     slug: "soundcloud-artwork-downloader",
-    filename: "FormMain.cs",
+    filename: "README.md",
     title: "SoundCloud Artwork Downloader",
     description:
       "SoundCloud trek səhifəsini parse edərək üz qabığı şəklini orijinal ölçüdə yükləyən Windows desktop tətbiqi — SoundCloud API açarı tələb olunmur.",
@@ -20,7 +20,7 @@ export const projects: Project[] = [
   },
   {
     slug: "imager",
-    filename: "MainForm.cs",
+    filename: "README.md",
     title: "Imager",
     description:
       "Şəkilləri toplu şəkildə ImgBB-yə yükləyən və dərhal paylaşıla bilən linklər verən Windows desktop tətbiqi.",
