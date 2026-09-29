@@ -22,6 +22,9 @@ import { useTilt } from "@/hooks/useTilt";
 
 const TOTAL_CODE_LINES = 8;
 const LINE_STEP_MS = 220;
+/** Matches `.typewriter-line.is-revealed`'s CSS animation duration — once a
+ * line has had time to finish wiping in, it's marked "settled" below. */
+const TYPEWRITER_ANIMATION_MS = 420;
 
 /** Splits text into words, each independently knockable, while leaving the
  * whitespace between them as plain text so the browser still wraps lines
@@ -60,12 +63,24 @@ function BreakableWords({
   );
 }
 
-function CodeLine({ n, revealed, children }: { n: number; revealed: boolean; children: ReactNode }) {
+function CodeLine({
+  n,
+  revealed,
+  settled,
+  children,
+}: {
+  n: number;
+  revealed: boolean;
+  settled: boolean;
+  children: ReactNode;
+}) {
   return (
     <div className="flex px-5">
       <span className="w-5 shrink-0 text-muted/50 select-none">{n}</span>
       <span
-        className={`whitespace-pre-wrap inline-block typewriter-line ${revealed ? "is-revealed" : ""}`}
+        className={`whitespace-pre-wrap inline-block typewriter-line ${
+          settled ? "is-done" : revealed ? "is-revealed" : ""
+        }`}
       >
         {children}
       </span>
@@ -77,6 +92,14 @@ function HeroCode() {
   const { profile, ui } = useContent();
   const { ref, isInView } = useInView<HTMLDivElement>({ threshold: 0.4 });
   const [revealedCount, setRevealedCount] = useState(0);
+  // Lags one animation-length behind `revealedCount`: a line stays on the
+  // animated `is-revealed` class only long enough to actually play its wipe,
+  // then switches to the static `is-done` end state. Without this, every
+  // already-revealed line would still carry `is-revealed` indefinitely, and
+  // switching tabs (which toggles this whole block to `display: none` and
+  // back) restarts CSS animations on remount — replaying the entire
+  // typewriter effect every time you tab back to it instead of just once.
+  const [settledCount, setSettledCount] = useState(0);
 
   useEffect(() => {
     if (!isInView || revealedCount >= TOTAL_CODE_LINES) return;
@@ -84,41 +107,47 @@ function HeroCode() {
     return () => window.clearTimeout(timer);
   }, [isInView, revealedCount]);
 
+  useEffect(() => {
+    if (settledCount >= revealedCount) return;
+    const timer = window.setTimeout(() => setSettledCount(revealedCount), TYPEWRITER_ANIMATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [revealedCount, settledCount]);
+
   return (
     <div ref={ref} className="font-mono text-[13px] leading-7 py-5">
-      <CodeLine n={1} revealed={revealedCount > 0}>
+      <CodeLine n={1} revealed={revealedCount > 0} settled={settledCount > 0}>
         <span className="text-accent-2">public class</span> <span className="text-text">Developer</span>
       </CodeLine>
-      <CodeLine n={2} revealed={revealedCount > 1}>
+      <CodeLine n={2} revealed={revealedCount > 1} settled={settledCount > 1}>
         <span className="text-muted">{"{"}</span>
       </CodeLine>
-      <CodeLine n={3} revealed={revealedCount > 2}>
+      <CodeLine n={3} revealed={revealedCount > 2} settled={settledCount > 2}>
         <span className="text-accent-2 pl-4">public string</span> <span className="text-text">Name</span>{" "}
         <span className="text-muted">=</span> <span className="text-accent">"{profile.name}"</span>
         <span className="text-muted">;</span>
       </CodeLine>
-      <CodeLine n={4} revealed={revealedCount > 3}>
+      <CodeLine n={4} revealed={revealedCount > 3} settled={settledCount > 3}>
         <span className="text-accent-2 pl-4">public string</span> <span className="text-text">Role</span>{" "}
         <span className="text-muted">=</span> <span className="text-accent">"{profile.role}"</span>
         <span className="text-muted">;</span>
       </CodeLine>
-      <CodeLine n={5} revealed={revealedCount > 4}>
+      <CodeLine n={5} revealed={revealedCount > 4} settled={settledCount > 4}>
         <span className="text-accent-2 pl-4">public string</span>{" "}
         <span className="text-text">Location</span> <span className="text-muted">=</span>{" "}
         <span className="text-accent">"{profile.location}"</span>
         <span className="text-muted">;</span>
       </CodeLine>
-      <CodeLine n={6} revealed={revealedCount > 5}>
+      <CodeLine n={6} revealed={revealedCount > 5} settled={settledCount > 5}>
         <span className="text-accent-2 pl-4">public string[]</span> <span className="text-text">Stack</span>{" "}
         <span className="text-muted">= {"{"}</span> <span className="text-accent">"{ui.hero.stackValue}"</span>
         <span className="text-muted"> {"}"};</span>
       </CodeLine>
-      <CodeLine n={7} revealed={revealedCount > 6}>
+      <CodeLine n={7} revealed={revealedCount > 6} settled={settledCount > 6}>
         <span className="text-accent-2 pl-4">public bool</span> <span className="text-text">Hireable</span>{" "}
         <span className="text-muted">=</span> <span className="text-accent-2">true</span>
         <span className="text-muted">;</span>
       </CodeLine>
-      <CodeLine n={8} revealed={revealedCount > 7}>
+      <CodeLine n={8} revealed={revealedCount > 7} settled={settledCount > 7}>
         <span className="text-muted">{"}"}</span>
         {revealedCount >= TOTAL_CODE_LINES && <span className="caret ml-1" />}
       </CodeLine>
