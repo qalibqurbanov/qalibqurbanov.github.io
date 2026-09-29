@@ -119,12 +119,9 @@ export function Footer() {
           </div>
 
           {hasResume && (
-            <>
-              <span className="h-4 w-px bg-border" aria-hidden="true" />
-              <FooterIconLink href={profile.resumeUrl} label="Resume">
-                <FileText size={18} />
-              </FooterIconLink>
-            </>
+            <FooterIconLink href={profile.resumeUrl} label="Resume">
+              <FileText size={18} />
+            </FooterIconLink>
           )}
 
           <span className="h-4 w-px bg-border" aria-hidden="true" />
