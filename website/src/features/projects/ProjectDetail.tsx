@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { Tag } from "@/components/ui/Tag";
 import { useContent } from "@/i18n/context";
+import { filenameFor } from "@/lib/projectFilename";
 import { useTheme } from "@/theme/context";
 import type { Project } from "@/types/content";
 
@@ -73,7 +74,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
             </div>
           ) : (
             <Reveal>
-              <CodeWindow filename={`${project.slug}.tsx`}>
+              <CodeWindow filename={filenameFor(project, 0)}>
                 <div className="p-8">
                   <h1 className="text-3xl font-bold tracking-tight">{project.title}</h1>
                   <p className="text-muted mt-4 leading-relaxed">{project.description}</p>
