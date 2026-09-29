@@ -133,6 +133,10 @@ function HeroCode() {
   );
 }
 
+/** How long the FBI reveal stays up before it restores itself — also shown
+ * in the reveal's own warning message, so the two can't drift apart. */
+const FBI_RESTORE_SECONDS = 10;
+
 export function Hero() {
   const { profile, socials, ui } = useContent();
   const [taglineBefore, taglineAfter] = ui.hero.tagline.split("{highlight}");
@@ -141,8 +145,13 @@ export function Hero() {
   const [minimized, setMinimized] = useState(false);
   const [shaking, setShaking] = useState(false);
   const [closeToast, setCloseToast] = useState(false);
+  // Once the FBI reveal has been triggered and auto-restored, the close
+  // button stops re-triggering it and just does the same shake/toast as
+  // the minimize button instead — the "secret" only gets shown once.
+  const [fbiRevealed, setFbiRevealed] = useState(false);
   const shakeTimeout = useRef<number | undefined>(undefined);
   const toastTimeout = useRef<number | undefined>(undefined);
+  const restoreTimeout = useRef<number | undefined>(undefined);
   const { windowRef, dragging, windowStyle, dragHandleProps } = useDraggableWindow<HTMLDivElement>("#top");
 
   // The tilt effect rotates toward the cursor relative to the card's own small
@@ -156,13 +165,14 @@ export function Hero() {
     return () => {
       window.clearTimeout(shakeTimeout.current);
       window.clearTimeout(toastTimeout.current);
+      window.clearTimeout(restoreTimeout.current);
     };
   }, []);
 
   // Wired to the minimize button — it refuses to minimize and just wiggles
   // the window instead, restarting the shake even if it's already
-  // mid-animation. (Close is wired to the actual minimize/reveal behavior;
-  // see the WindowControls call below.)
+  // mid-animation. Also what the close button falls back to once the FBI
+  // reveal has already been shown once.
   function handleCloseAttempt() {
     setShaking(false);
     requestAnimationFrame(() => setShaking(true));
@@ -172,6 +182,25 @@ export function Hero() {
     setCloseToast(true);
     window.clearTimeout(toastTimeout.current);
     toastTimeout.current = window.setTimeout(() => setCloseToast(false), 2200);
+  }
+
+  function restoreFromFbiReveal() {
+    window.clearTimeout(restoreTimeout.current);
+    setMinimized(false);
+  }
+
+  // First close click reveals the FBI easter egg and auto-restores itself
+  // after FBI_RESTORE_SECONDS; every click after that just shakes the
+  // window like the minimize button does.
+  function handleCloseClick() {
+    if (fbiRevealed) {
+      handleCloseAttempt();
+      return;
+    }
+    setFbiRevealed(true);
+    setMinimized(true);
+    window.clearTimeout(restoreTimeout.current);
+    restoreTimeout.current = window.setTimeout(restoreFromFbiReveal, FBI_RESTORE_SECONDS * 1000);
   }
 
 
@@ -313,7 +342,11 @@ export function Hero() {
             onMouseLeave={handleMouseLeave}
             className="relative transition-transform duration-300 ease-out will-change-transform"
           >
-            <HeroMinimizedEasterEgg visible={minimized} onRestore={() => setMinimized(false)} />
+            <HeroMinimizedEasterEgg
+              visible={minimized}
+              restoreSeconds={FBI_RESTORE_SECONDS}
+              onRestore={restoreFromFbiReveal}
+            />
             {closeToast && (
               <div
                 role="status"
@@ -370,7 +403,7 @@ export function Hero() {
                     </button>
                   </div>
                   <div className="flex items-center py-1.5">
-                    <WindowControls onMinimize={handleCloseAttempt} onClose={() => setMinimized(true)} />
+                    <WindowControls onMinimize={handleCloseAttempt} onClose={handleCloseClick} />
                   </div>
                 </div>
                 {tab === "code" ? <HeroCode /> : <HeroTerminal />}
