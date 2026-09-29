@@ -8,6 +8,7 @@ export const ui: UiStrings = {
     ctaViewWork: "View my work",
     ctaGetInTouch: "Get in touch",
     terminalTabLabel: "terminal",
+    stackValue: "Whatever the project needs",
     minimized: {
       title: "Ssshh! Don't make a sound — you weren't meant to find this.",
       joke: "FBI's had a file open on him since they saw his skills list — nobody's genuinely this good at everything. {name} has no idea we're tracking him.",

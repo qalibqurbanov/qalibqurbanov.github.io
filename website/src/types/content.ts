@@ -107,6 +107,9 @@ export interface UiStrings {
     ctaViewWork: string;
     ctaGetInTouch: string;
     terminalTabLabel: string;
+    /** The Developer.cs snippet's `Stack` array value — deliberately not a
+     * tech list, so it never looks outdated or narrow. */
+    stackValue: string;
     minimized: {
       title: string;
       /** Contains the literal token "{name}", replaced with `profile.name` via `format()`. */

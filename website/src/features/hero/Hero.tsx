@@ -74,8 +74,7 @@ function CodeLine({ n, revealed, children }: { n: number; revealed: boolean; chi
 }
 
 function HeroCode() {
-  const { profile, skills } = useContent();
-  const stack = [...skills.backend.slice(0, 3), ...skills.frontend.slice(0, 1)];
+  const { profile, ui } = useContent();
   const { ref, isInView } = useInView<HTMLDivElement>({ threshold: 0.4 });
   const [revealedCount, setRevealedCount] = useState(0);
 
@@ -111,13 +110,7 @@ function HeroCode() {
       </CodeLine>
       <CodeLine n={6} revealed={revealedCount > 5}>
         <span className="text-accent-2 pl-4">public string[]</span> <span className="text-text">Stack</span>{" "}
-        <span className="text-muted">= {"{"}</span>{" "}
-        {stack.map((item, index) => (
-          <span key={item}>
-            <span className="text-accent">"{item}"</span>
-            {index < stack.length - 1 && <span className="text-muted">, </span>}
-          </span>
-        ))}
+        <span className="text-muted">= {"{"}</span> <span className="text-accent">"{ui.hero.stackValue}"</span>
         <span className="text-muted"> {"}"};</span>
       </CodeLine>
       <CodeLine n={7} revealed={revealedCount > 6}>
