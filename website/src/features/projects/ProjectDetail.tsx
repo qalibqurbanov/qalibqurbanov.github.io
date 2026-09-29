@@ -29,8 +29,8 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b border-border">
+    <div className="h-screen flex flex-col overflow-hidden">
+      <header className="shrink-0 border-b border-border">
         <Container className="flex items-center justify-between py-4">
           <a
             href="#"
@@ -55,8 +55,8 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
         </Container>
       </header>
 
-      <main className="flex-1 py-16">
-        <Container className="max-w-3xl">
+      <main className="flex-1 min-h-0 py-8">
+        <Container className="max-w-3xl h-full">
           {!project ? (
             <div className="text-center py-24">
               <h1 className="text-2xl font-semibold">{ui.projectDetail.notFoundTitle}</h1>
@@ -73,9 +73,13 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
               </a>
             </div>
           ) : (
-            <Reveal>
-              <CodeWindow filename={filenameFor(project, 0)}>
-                <div className="p-8">
+            <Reveal className="h-full flex flex-col min-h-0">
+              {/* Capped to the space between the header and viewport bottom
+                  (via the h-full chain above) instead of letting the page
+                  itself grow — the content below scrolls inside the window
+                  when it's taller than that, so the header stays put. */}
+              <CodeWindow filename={filenameFor(project, 0)} className="flex flex-col min-h-0 max-h-full">
+                <div className="p-8 flex-1 overflow-y-auto min-h-0">
                   <h1 className="text-3xl font-bold tracking-tight">{project.title}</h1>
                   <p className="text-muted mt-4 leading-relaxed">{project.description}</p>
 
