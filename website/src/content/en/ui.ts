@@ -67,7 +67,7 @@ export const ui: UiStrings = {
     copyPageLink: "Copy page link",
     pageLinkCopied: "Page link copied to clipboard",
     openCommandPalette: "Command Palette",
-    downloadResume: "Download Résumé",
+    downloadResume: "Download Resume",
     viewSourceOnGithub: "View source on GitHub",
   },
   projectDetail: {

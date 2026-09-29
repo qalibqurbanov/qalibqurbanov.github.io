@@ -69,7 +69,7 @@ function MenuSeparator() {
  * native menu — styled to match the rest of the site's "code editor" chrome
  * (same panel treatment as the command palette). Contextual items (only
  * when the click landed on a project card) come first, then site utilities,
- * then the standalone résumé download, then "View source" last. */
+ * then the standalone resume download, then "View source" last. */
 export function ContextMenu() {
   const { ui, profile, projects } = useContent();
   const { theme, toggleTheme } = useTheme();
