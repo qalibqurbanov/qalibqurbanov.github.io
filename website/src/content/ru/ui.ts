@@ -61,6 +61,15 @@ export const ui: UiStrings = {
     actionOpenStackOverflow: "Открыть профиль на Stack Overflow",
     openCaseStudy: "Открыть кейс",
   },
+  contextMenu: {
+    copyRepoLink: "Скопировать ссылку на репозиторий",
+    repoLinkCopied: "Ссылка на репозиторий скопирована",
+    copyPageLink: "Скопировать ссылку на страницу",
+    pageLinkCopied: "Ссылка на страницу скопирована",
+    openCommandPalette: "Панель команд",
+    downloadResume: "Скачать резюме",
+    viewSourceOnGithub: "Исходный код на GitHub",
+  },
   projectDetail: {
     back: "Назад к проектам",
     problemLabel: "Проблема",

@@ -158,6 +158,15 @@ export interface UiStrings {
     actionOpenStackOverflow: string;
     openCaseStudy: string;
   };
+  contextMenu: {
+    copyRepoLink: string;
+    repoLinkCopied: string;
+    copyPageLink: string;
+    pageLinkCopied: string;
+    openCommandPalette: string;
+    downloadResume: string;
+    viewSourceOnGithub: string;
+  };
   projectDetail: {
     back: string;
     problemLabel: string;
