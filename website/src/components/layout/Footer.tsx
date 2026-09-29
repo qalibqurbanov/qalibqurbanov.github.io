@@ -90,31 +90,34 @@ export function Footer() {
             © {new Date().getFullYear()} {profile.name}
           </span>
         </div>
-        <div className="flex items-center gap-5 text-muted">
-          <FooterIconLink href={socials.github} label="GitHub">
-            <GithubIcon size={18} />
-          </FooterIconLink>
-          {socials.stackoverflow && (
-            <FooterIconLink href={socials.stackoverflow} label="Stack Overflow">
-              <StackOverflowIcon size={18} />
+        <div className="flex items-center gap-4 text-muted">
+          <div className="flex items-center gap-5">
+            <FooterIconLink href={socials.github} label="GitHub">
+              <GithubIcon size={18} />
             </FooterIconLink>
-          )}
-          {socials.medium && (
-            <FooterIconLink href={socials.medium} label="Medium">
-              <MediumIcon size={18} />
+            {socials.stackoverflow && (
+              <FooterIconLink href={socials.stackoverflow} label="Stack Overflow">
+                <StackOverflowIcon size={18} />
+              </FooterIconLink>
+            )}
+            {socials.medium && (
+              <FooterIconLink href={socials.medium} label="Medium">
+                <MediumIcon size={18} />
+              </FooterIconLink>
+            )}
+            <FooterIconLink href={socials.linkedin} label="LinkedIn">
+              <LinkedinIcon size={18} />
             </FooterIconLink>
-          )}
-          <FooterIconLink href={socials.linkedin} label="LinkedIn">
-            <LinkedinIcon size={18} />
-          </FooterIconLink>
-          {socials.telegram && (
-            <FooterIconLink href={socials.telegram} label="Telegram">
-              <TelegramIcon size={18} />
+            {socials.telegram && (
+              <FooterIconLink href={socials.telegram} label="Telegram">
+                <TelegramIcon size={18} />
+              </FooterIconLink>
+            )}
+            <FooterIconLink href={socials.email} label="Email" external={false}>
+              <Mail size={18} />
             </FooterIconLink>
-          )}
-          <FooterIconLink href={socials.email} label="Email" external={false}>
-            <Mail size={18} />
-          </FooterIconLink>
+          </div>
+
           {hasResume && (
             <>
               <span className="h-4 w-px bg-border" aria-hidden="true" />
@@ -123,12 +126,16 @@ export function Footer() {
               </FooterIconLink>
             </>
           )}
-          <FooterIconLink href={reportBugUrl()} label="Report a bug" tone="danger">
-            <Bug size={16} />
-          </FooterIconLink>
-          <FooterIconLink href={SITE_REPO_URL} label="View source on GitHub" tone="accent2">
-            <GithubIcon size={16} />
-          </FooterIconLink>
+
+          <span className="h-4 w-px bg-border" aria-hidden="true" />
+          <div className="flex items-center gap-2">
+            <FooterIconLink href={reportBugUrl()} label="Report a bug" tone="danger">
+              <Bug size={16} />
+            </FooterIconLink>
+            <FooterIconLink href={SITE_REPO_URL} label="View source on GitHub" tone="accent2">
+              <GithubIcon size={16} />
+            </FooterIconLink>
+          </div>
         </div>
       </div>
     </footer>
