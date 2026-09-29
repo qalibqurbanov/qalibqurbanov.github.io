@@ -8,6 +8,7 @@ export const ui: UiStrings = {
     ctaViewWork: "İşlərimə baxın",
     ctaGetInTouch: "Əlaqə saxlayın",
     terminalTabLabel: "terminal",
+    stackValue: "Layihə nə tələb edirsə",
     minimized: {
       title: "Şşşt! Səs çıxarma — bunu tapmamalıydın.",
       joke: "Bacarıqlar siyahısını görən kimi FBI onun üzərində iş açıb — heç kim doğrudan da hər şeydə bu qədər yaxşı olmur. {name} onu izlədiyimizdən xəbərsizdir.",
