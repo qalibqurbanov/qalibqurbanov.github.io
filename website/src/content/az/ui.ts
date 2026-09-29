@@ -60,6 +60,7 @@ export const ui: UiStrings = {
     actionOpenTelegram: "Telegram-ı aç",
     actionOpenMedium: "Medium bloqunu aç",
     actionOpenStackOverflow: "Stack Overflow profilini aç",
+    actionReportBug: "Xəta bildir",
     openCaseStudy: "Layihəyə bax",
   },
   contextMenu: {
@@ -70,6 +71,7 @@ export const ui: UiStrings = {
     openCommandPalette: "Əmr Paneli",
     downloadResume: "Rezümeni yüklə",
     viewSourceOnGithub: "GitHub-da mənbə kodu",
+    reportBug: "Xəta bildir",
   },
   projectDetail: {
     back: "Layihələrə qayıt",

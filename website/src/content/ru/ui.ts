@@ -60,6 +60,7 @@ export const ui: UiStrings = {
     actionOpenTelegram: "Открыть Telegram",
     actionOpenMedium: "Открыть блог на Medium",
     actionOpenStackOverflow: "Открыть профиль на Stack Overflow",
+    actionReportBug: "Сообщить об ошибке",
     openCaseStudy: "Открыть кейс",
   },
   contextMenu: {
@@ -70,6 +71,7 @@ export const ui: UiStrings = {
     openCommandPalette: "Панель команд",
     downloadResume: "Скачать резюме",
     viewSourceOnGithub: "Исходный код на GitHub",
+    reportBug: "Сообщить об ошибке",
   },
   projectDetail: {
     back: "Назад к проектам",

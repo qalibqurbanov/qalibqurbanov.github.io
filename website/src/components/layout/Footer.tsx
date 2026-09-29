@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, FileText, GitBranch, Mail } from "lucide-react";
+import { Bug, CheckCircle2, Clock, FileText, GitBranch, Mail } from "lucide-react";
 import type { ReactNode } from "react";
 
 import {
@@ -11,6 +11,7 @@ import {
 import { useClock } from "@/hooks/useClock";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
+import { reportBugUrl } from "@/lib/githubIssue";
 
 interface FooterIconLinkProps {
   href: string;
@@ -110,6 +111,10 @@ export function Footer() {
               </FooterIconLink>
             </>
           )}
+          <span className="h-4 w-px bg-border" aria-hidden="true" />
+          <FooterIconLink href={reportBugUrl()} label="Report a bug">
+            <Bug size={18} />
+          </FooterIconLink>
         </div>
       </div>
     </footer>

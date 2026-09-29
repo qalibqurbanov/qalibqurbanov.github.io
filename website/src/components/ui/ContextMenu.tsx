@@ -1,6 +1,7 @@
 import {
   ArrowUp,
   ArrowUpRight,
+  Bug,
   Check,
   ChevronRight,
   FileText,
@@ -18,10 +19,10 @@ import { GithubIcon } from "@/components/icons/BrandIcons";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
+import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
 import { scrollToTop } from "@/lib/scroll";
 import { useTheme } from "@/theme/context";
 
-const SITE_REPO_URL = "https://github.com/qalibqurbanov/qalibqurbanov.github.io";
 /** How long the "Copied!" swap stays up before the menu auto-closes. */
 const COPY_FEEDBACK_MS = 900;
 
@@ -260,6 +261,14 @@ export function ContextMenu() {
       <MenuItem icon={FileText} label={ui.contextMenu.downloadResume} accent onSelect={downloadResume} />
       <MenuSeparator />
 
+      <MenuItem
+        icon={Bug}
+        label={ui.contextMenu.reportBug}
+        onSelect={() => {
+          window.open(reportBugUrl(), "_blank", "noreferrer");
+          close();
+        }}
+      />
       <MenuItem
         icon={GithubIcon}
         label={ui.contextMenu.viewSourceOnGithub}
