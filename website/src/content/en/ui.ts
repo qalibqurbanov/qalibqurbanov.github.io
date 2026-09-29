@@ -14,6 +14,7 @@ export const ui: UiStrings = {
       restoreWarning: "This page will restore in {seconds} seconds — don't say a word to anyone about what you saw here.",
     },
     closeAttempt: "Nice try — this window isn't going anywhere.",
+    tinkerWarning: "Okay, that's enough tinkering — there's nothing here.",
   },
   sections: {
     about: { index: "01", title: "About Me" },

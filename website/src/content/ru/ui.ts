@@ -14,6 +14,7 @@ export const ui: UiStrings = {
       restoreWarning: "Эта страница восстановится через {seconds} сек. — никому ни слова о том, что ты здесь видел.",
     },
     closeAttempt: "Хорошая попытка — это окно никуда не денется.",
+    tinkerWarning: "Так, хватит тут ковыряться — здесь ничего нет.",
   },
   sections: {
     about: { index: "01", title: "Обо мне" },

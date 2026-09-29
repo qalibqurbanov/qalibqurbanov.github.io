@@ -14,6 +14,7 @@ export const ui: UiStrings = {
       restoreWarning: "Bu səhifə {seconds} saniyə sonra bərpa olunacaq — burada gördüklərin haqqında heç kimə bir söz demə.",
     },
     closeAttempt: "Cəhd yaxşıdır — bu pəncərə heç yerə getmir.",
+    tinkerWarning: "Yaxşı, bəsdir eşələnmə — burada heç nə yoxdur.",
   },
   sections: {
     about: { index: "01", title: "Haqqımda" },
