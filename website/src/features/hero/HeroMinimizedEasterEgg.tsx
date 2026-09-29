@@ -5,6 +5,9 @@ import { format } from "@/lib/format";
 
 interface HeroMinimizedEasterEggProps {
   visible: boolean;
+  /** How many seconds until the caller auto-restores this — purely for
+   * display; the actual timer lives in the parent. */
+  restoreSeconds: number;
   onRestore: () => void;
 }
 
@@ -12,7 +15,7 @@ interface HeroMinimizedEasterEggProps {
  * the window away instead of actually closing it — kept fully transparent
  * (not just covered) the rest of the time so dragging the window doesn't
  * uncover it. */
-export function HeroMinimizedEasterEgg({ visible, onRestore }: HeroMinimizedEasterEggProps) {
+export function HeroMinimizedEasterEgg({ visible, restoreSeconds, onRestore }: HeroMinimizedEasterEggProps) {
   const { ui, profile } = useContent();
 
   return (
@@ -26,6 +29,9 @@ export function HeroMinimizedEasterEgg({ visible, onRestore }: HeroMinimizedEast
         <span className="animate-float-slow select-none text-3xl">🕵️</span>
         <p className="text-sm text-text">{ui.hero.minimized.title}</p>
         <p className="text-xs text-muted">{format(ui.hero.minimized.joke, { name: profile.name })}</p>
+        <p className="text-xs text-muted/70">
+          {format(ui.hero.minimized.restoreWarning, { seconds: String(restoreSeconds) })}
+        </p>
         <button
           type="button"
           onClick={onRestore}
