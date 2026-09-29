@@ -3,6 +3,7 @@ import {
   ArrowUpRight,
   Check,
   ChevronRight,
+  FileText,
   Languages,
   Link2,
   Moon,
@@ -37,13 +38,12 @@ interface MenuState {
 interface MenuItemProps {
   icon?: ComponentType<{ size?: number }>;
   label: string;
-  hint?: string;
   active?: boolean;
   accent?: boolean;
   onSelect: () => void;
 }
 
-function MenuItem({ icon: Icon, label, hint, active, accent, onSelect }: MenuItemProps) {
+function MenuItem({ icon: Icon, label, active, accent, onSelect }: MenuItemProps) {
   return (
     <button
       type="button"
@@ -55,7 +55,6 @@ function MenuItem({ icon: Icon, label, hint, active, accent, onSelect }: MenuIte
     >
       {Icon && <Icon size={14} />}
       <span className="flex-1 truncate">{label}</span>
-      {hint && <span className="text-muted text-[10px]">{hint}</span>}
       {active && <Check size={12} />}
     </button>
   );
@@ -206,7 +205,6 @@ export function ContextMenu() {
       <MenuItem
         icon={Search}
         label={ui.contextMenu.openCommandPalette}
-        hint="⌘K"
         onSelect={() => {
           window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE_EVENT));
           close();
@@ -259,7 +257,7 @@ export function ContextMenu() {
       />
 
       <MenuSeparator />
-      <MenuItem label={ui.contextMenu.downloadResume} accent onSelect={downloadResume} />
+      <MenuItem icon={FileText} label={ui.contextMenu.downloadResume} accent onSelect={downloadResume} />
       <MenuSeparator />
 
       <MenuItem
