@@ -58,6 +58,12 @@ export interface ExperienceItem {
 export interface Project {
   /** Stable, untranslated identifier used in case-study URLs — keep it the same across locales. */
   slug: string;
+  /** Filename shown in the fake code-editor window chrome (card + case study).
+   * Falls back to a derived name from tags[0]/title when omitted — set this
+   * explicitly whenever that derivation would produce something misleading,
+   * e.g. a non-JS/TS project whose first tag doesn't slugify into anything
+   * readable (a "C#" tag alone becomes just "c"). */
+  filename?: string;
   title: string;
   description: string;
   tags: string[];
