@@ -83,18 +83,6 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                   <h1 className="text-3xl font-bold tracking-tight">{project.title}</h1>
                   <p className="text-muted mt-4 leading-relaxed">{project.description}</p>
 
-                  <div className="flex flex-wrap gap-2 mt-6">
-                    {project.tags.map((tag) => (
-                      <Tag key={tag}>{tag}</Tag>
-                    ))}
-                  </div>
-
-                  {project.problem && (
-                    <DetailSection label={ui.projectDetail.problemLabel} text={project.problem} />
-                  )}
-                  {project.approach && (
-                    <DetailSection label={ui.projectDetail.approachLabel} text={project.approach} />
-                  )}
                   {project.stack && project.stack.length > 0 && (
                     <div className="mt-6">
                       <p className="font-mono text-xs text-accent mb-2">{ui.projectDetail.stackLabel}</p>
@@ -104,6 +92,12 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                         ))}
                       </div>
                     </div>
+                  )}
+                  {project.problem && (
+                    <DetailSection label={ui.projectDetail.problemLabel} text={project.problem} />
+                  )}
+                  {project.approach && (
+                    <DetailSection label={ui.projectDetail.approachLabel} text={project.approach} />
                   )}
                   {project.outcome && (
                     <DetailSection label={ui.projectDetail.outcomeLabel} text={project.outcome} />
