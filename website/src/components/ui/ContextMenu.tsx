@@ -41,17 +41,21 @@ interface MenuItemProps {
   label: string;
   active?: boolean;
   accent?: boolean;
+  /** Red instead of accent-green — reserved for "Report a bug". */
+  danger?: boolean;
   onSelect: () => void;
 }
 
-function MenuItem({ icon: Icon, label, active, accent, onSelect }: MenuItemProps) {
+function MenuItem({ icon: Icon, label, active, accent, danger, onSelect }: MenuItemProps) {
   return (
     <button
       type="button"
       role="menuitem"
       onClick={onSelect}
-      className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left transition-colors hover:bg-surface-2 hover:text-accent ${
-        active ? "text-accent" : accent ? "text-accent font-medium" : "text-text"
+      className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left transition-colors ${
+        danger
+          ? "text-danger font-medium hover:bg-danger/10"
+          : `hover:bg-surface-2 hover:text-accent ${active ? "text-accent" : accent ? "text-accent font-medium" : "text-text"}`
       }`}
     >
       {Icon && <Icon size={14} />}
@@ -264,7 +268,7 @@ export function ContextMenu() {
       <MenuItem
         icon={Bug}
         label={ui.contextMenu.reportBug}
-        accent
+        danger
         onSelect={() => {
           window.open(reportBugUrl(), "_blank", "noreferrer");
           close();

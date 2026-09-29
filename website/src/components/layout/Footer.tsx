@@ -17,22 +17,27 @@ interface FooterIconLinkProps {
   href: string;
   label: string;
   external?: boolean;
-  /** Overrides the icon's idle color — otherwise it inherits the row's
-   * muted default. */
-  className?: string;
+  /** "danger" gives the icon its own soft red badge instead of the row's
+   * plain muted-to-accent hover, so it reads as a distinct kind of action
+   * (not another social link) without needing a divider next to it. */
+  tone?: "default" | "danger";
   children: ReactNode;
 }
 
 // Pure-CSS hover/focus popup naming whichever footer icon is under the
 // cursor — `group` on the anchor drives the tooltip's opacity/scale so no
 // hover-state JS is needed.
-function FooterIconLink({ href, label, external = true, className, children }: FooterIconLinkProps) {
+function FooterIconLink({ href, label, external = true, tone = "default", children }: FooterIconLinkProps) {
   return (
     <a
       href={href}
       {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
       aria-label={label}
-      className={`group relative inline-flex items-center hover:text-accent transition ${className ?? ""}`}
+      className={
+        tone === "danger"
+          ? "group relative inline-flex items-center justify-center rounded-full bg-danger/10 p-1.5 text-danger transition hover:bg-danger/20"
+          : "group relative inline-flex items-center hover:text-accent transition"
+      }
     >
       {children}
       <span
@@ -114,9 +119,8 @@ export function Footer() {
               </FooterIconLink>
             </>
           )}
-          <span className="h-4 w-px bg-border ml-2" aria-hidden="true" />
-          <FooterIconLink href={reportBugUrl()} label="Report a bug" className="ml-1 text-accent/70">
-            <Bug size={18} />
+          <FooterIconLink href={reportBugUrl()} label="Report a bug" tone="danger">
+            <Bug size={16} />
           </FooterIconLink>
         </div>
       </div>

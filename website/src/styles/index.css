@@ -13,6 +13,10 @@
   --color-accent-2: #8b8cf6;
   --color-text: #e7e7ec;
   --color-muted: #8a8a96;
+  /** Reserved for destructive/attention actions (e.g. "Report a bug") —
+   * everything else on the site uses accent/accent-2, so this stays a
+   * distinct, rarely-used signal. */
+  --color-danger: #f87171;
 
   --grid-line: rgba(255, 255, 255, 0.045);
   --glow-accent: rgba(124, 245, 196, 0.16);
@@ -29,6 +33,7 @@
     --color-accent-2: #4f46e5;
     --color-text: #14141a;
     --color-muted: #62626d;
+    --color-danger: #dc2626;
 
     --grid-line: rgba(10, 10, 15, 0.05);
     --glow-accent: rgba(4, 120, 87, 0.1);
@@ -45,6 +50,7 @@
   --color-accent-2: #4f46e5;
   --color-text: #14141a;
   --color-muted: #62626d;
+  --color-danger: #dc2626;
 
   --grid-line: rgba(10, 10, 15, 0.05);
   --glow-accent: rgba(4, 120, 87, 0.1);
