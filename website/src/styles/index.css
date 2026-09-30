@@ -376,24 +376,6 @@ html::-webkit-scrollbar-button,
   animation: blob-drift-b 22s ease-in-out infinite;
 }
 
-/* An expanding, fading ring around primary CTAs — draws the eye without
-   ever demanding it. */
-@keyframes pulse-ring {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 45%, transparent);
-  }
-  70% {
-    box-shadow: 0 0 0 10px color-mix(in srgb, var(--color-accent) 0%, transparent);
-  }
-  100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 0%, transparent);
-  }
-}
-
-.btn-pulse {
-  animation: pulse-ring 2.6s ease-out infinite;
-}
-
 /* One-shot "you landed here" cue for a section opened via a deep link (e.g.
    the context menu's "Copy page link") — an inset ring plus a faint tint
    that both fade out, rather than the infinite pulse-ring above which is
@@ -420,21 +402,24 @@ html::-webkit-scrollbar-button,
    code-block punctuation, so the "code" motif feels like it's still running. */
 @keyframes scan-line {
   0% {
-    background-position: -120% 0;
+    background-position: 0 0;
   }
   100% {
-    background-position: 220% 0;
+    background-position: 200% 0;
   }
 }
 
 .scan-line {
   background-image: linear-gradient(
     90deg,
+    var(--color-border) 0%,
     var(--color-border) 40%,
     var(--color-accent) 50%,
-    var(--color-border) 60%
+    var(--color-border) 60%,
+    var(--color-border) 100%
   );
-  background-size: 300% 100%;
+  background-size: 200% 100%;
+  background-repeat: repeat-x;
   animation: scan-line 5s linear infinite;
 }
 
@@ -453,51 +438,49 @@ html::-webkit-scrollbar-button,
   animation: bracket-pulse 2.4s ease-in-out infinite;
 }
 
-/* Card surfaces get a thin gradient sweep travelling around the full
-   border on hover, layered on top of the existing glow/lift treatment. */
-@property --border-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes border-spin {
-  to {
-    --border-angle: 360deg;
-  }
-}
-
-.card-surface {
+/* Hover glitch: while the cursor is over a bordered surface, its border
+   randomly "tears" — two RGB-split ghost copies of the border (the theme's accent and
+   accent-2 colours) shift sideways and are cut into random horizontal slices. The
+   timing, slice shapes (--cp-a/--cp-b) and offsets (--dx-a/--dx-b) come from
+   borderGlitch.ts; CSS only draws the ghost rings. */
+.card-surface,
+.btn-pulse {
+  position: relative;
   overflow: hidden;
 }
 
-.card-surface::before {
+.card-surface::before,
+.card-surface::after,
+.btn-pulse::before,
+.btn-pulse::after {
   content: "";
+  display: none;
   position: absolute;
+  /* A real border (rather than a masked fill) keeps the rounded corners
+     natively anti-aliased; it sits just inside the element's own border. */
   inset: 0;
+  border: 1px solid transparent;
   border-radius: inherit;
-  padding: 1.5px;
   pointer-events: none;
-  background: conic-gradient(
-    from var(--border-angle),
-    transparent,
-    var(--color-accent),
-    var(--color-accent-2),
-    transparent 30%
-  );
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  animation: border-spin 3.2s linear infinite;
 }
 
-.card-surface:hover::before,
-.card-hit:hover > .card-surface::before {
-  opacity: 1;
+.card-surface::before,
+.btn-pulse::before {
+  border-color: var(--col-a, var(--color-accent));
+  clip-path: var(--cp-a, inset(0));
+  transform: translate(var(--dx-a, 0px), var(--dy-a, 0px));
+}
+
+.card-surface::after,
+.btn-pulse::after {
+  border-color: var(--col-b, var(--color-accent-2));
+  clip-path: var(--cp-b, inset(0));
+  transform: translate(var(--dx-b, 0px), var(--dy-b, 0px));
+}
+
+.is-glitching::before,
+.is-glitching::after {
+  display: block;
 }
 
 /* Generic scroll-reactive layer for anything living in the fixed ambient
