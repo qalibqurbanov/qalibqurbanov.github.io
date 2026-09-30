@@ -1,10 +1,7 @@
-import { ArrowLeft, Download, Moon, Sun } from "lucide-react";
-
 import { CodeWindow } from "@/components/ui/CodeWindow";
-import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { ViewModal } from "@/components/ui/ViewModal";
 import { useContent } from "@/i18n/context";
-import { useTheme } from "@/theme/context";
 
 interface ResumeViewerProps {
   onBack: () => void;
@@ -14,49 +11,17 @@ interface ResumeViewerProps {
  * a back link, and the PDF shown inline inside the site's code-window chrome. */
 export function ResumeViewer({ onBack }: ResumeViewerProps) {
   const { profile, ui } = useContent();
-  const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <header className="shrink-0 border-b border-border">
-        <Container className="flex items-center justify-between py-4">
-          <a
-            href="#"
-            onClick={(event) => {
-              event.preventDefault();
-              onBack();
-            }}
-            className="inline-flex items-center gap-2 font-mono text-sm text-muted hover:text-accent transition"
-          >
-            <ArrowLeft size={16} />
-            {ui.resumeView.back}
-          </a>
-
-          <div className="flex items-center gap-5">
-            <a
-              href={profile.resumeUrl}
-              download
-              className="inline-flex items-center gap-2 font-mono text-sm text-muted hover:text-accent transition"
-            >
-              <Download size={16} />
-              {ui.contextMenu.downloadResume}
-            </a>
-            <button
-              type="button"
-              className="text-muted hover:text-accent transition-colors"
-              onClick={toggleTheme}
-              aria-label={theme === "dark" ? ui.labels.switchToLight : ui.labels.switchToDark}
-            >
-              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
-            </button>
-          </div>
-        </Container>
-      </header>
-
-      <main className="flex-1 min-h-0 py-8">
-        <Container className="max-w-4xl h-full">
+    <ViewModal title={ui.labels.resume} widthClass="max-w-4xl" onClose={onBack}>
+      <main className="flex-1 min-h-0">
+        <div className="h-full">
           <Reveal className="h-full flex flex-col min-h-0">
-            <CodeWindow filename="resume.pdf" className="flex flex-col h-full min-h-0" onClose={onBack}>
+            <CodeWindow
+              filename="resume.pdf"
+              className="flex flex-col h-full min-h-0"
+              onClose={onBack}
+            >
               <object
                 data={`${profile.resumeUrl}#view=FitH`}
                 type="application/pdf"
@@ -76,8 +41,8 @@ export function ResumeViewer({ onBack }: ResumeViewerProps) {
               </object>
             </CodeWindow>
           </Reveal>
-        </Container>
+        </div>
       </main>
-    </div>
+    </ViewModal>
   );
 }

@@ -195,6 +195,11 @@ const az: Content = {
       nameLabel: "Ad",
       emailLabel: "E-poçtunuz",
       messageLabel: "Mesaj",
+      attachLabel: "Qoşmalar (könüllü)",
+      dropHint: "Faylları bura sürüşdürün və ya seçmək üçün klikləyin",
+      dropActive: "Qoşmaq üçün faylları buraxın",
+      filesTooLarge: "Fayllar cəmi {max}-dan çox olmamalı, ən çoxu {count} fayl.",
+      removeFile: "Faylı sil",
       send: "Mesajı göndər",
       sending: "Göndərilir…",
       successTitle: "Mesaj göndərildi",
@@ -220,7 +225,7 @@ const az: Content = {
     },
     backToTop: "Yuxarı qayıt",
     resumeView: {
-      back: "Sayta qayıt",
+      back: "Geri",
       fallback: "Brauzeriniz PDF-i bu səhifədə göstərə bilmir.",
     },
     labels: {

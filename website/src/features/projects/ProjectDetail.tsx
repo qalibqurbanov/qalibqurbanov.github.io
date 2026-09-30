@@ -1,13 +1,12 @@
-import { ArrowLeft, ExternalLink, Moon, Sun } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 import { GithubIcon } from "@/components/icons/BrandIcons";
 import { CodeWindow } from "@/components/ui/CodeWindow";
-import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { Tag } from "@/components/ui/Tag";
+import { ViewModal } from "@/components/ui/ViewModal";
 import { useContent } from "@/i18n/context";
 import { filenameFor } from "@/lib/projectFilename";
-import { useTheme } from "@/theme/context";
 import type { Project } from "@/types/content";
 
 interface ProjectDetailProps {
@@ -26,40 +25,21 @@ function DetailSection({ label, text }: { label: string; text: string }) {
 
 export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
   const { ui } = useContent();
-  const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <header className="shrink-0 border-b border-border">
-        <Container className="flex items-center justify-between py-4">
-          <a
-            href="#"
-            onClick={(event) => {
-              event.preventDefault();
-              onBack();
-            }}
-            className="inline-flex items-center gap-2 font-mono text-sm text-muted hover:text-accent transition"
-          >
-            <ArrowLeft size={16} />
-            {ui.projectDetail.back}
-          </a>
-
-          <button
-            type="button"
-            className="text-muted hover:text-accent transition-colors"
-            onClick={toggleTheme}
-            aria-label={theme === "dark" ? ui.labels.switchToLight : ui.labels.switchToDark}
-          >
-            {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
-          </button>
-        </Container>
-      </header>
-
-      <main className="flex-1 min-h-0 py-8">
-        <Container className="max-w-3xl h-full">
+    <ViewModal
+      backLabel={ui.projectDetail.back}
+      title={project?.title ?? ui.projectDetail.notFoundTitle}
+      widthClass="max-w-3xl"
+      onClose={onBack}
+    >
+      <main className="flex-1 min-h-0">
+        <div className="h-full">
           {!project ? (
             <div className="text-center py-24">
-              <h1 className="text-2xl font-semibold">{ui.projectDetail.notFoundTitle}</h1>
+              <h1 className="text-2xl font-semibold">
+                {ui.projectDetail.notFoundTitle}
+              </h1>
               <p className="text-muted mt-3">{ui.projectDetail.notFoundBody}</p>
               <a
                 href="#"
@@ -85,7 +65,9 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
               >
                 <div className="custom-scrollbar p-8 flex-1 overflow-y-auto min-h-0">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                    <h1 className="min-w-0 flex-1 text-3xl font-bold tracking-tight">{project.title}</h1>
+                    <h1 className="min-w-0 flex-1 text-3xl font-bold tracking-tight">
+                      {project.title}
+                    </h1>
                     <div className="flex flex-wrap gap-3 shrink-0">
                       <a
                         href={project.repoUrl}
@@ -107,11 +89,15 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                       </a>
                     </div>
                   </div>
-                  <p className="text-muted mt-4 leading-relaxed">{project.description}</p>
+                  <p className="text-muted mt-4 leading-relaxed">
+                    {project.description}
+                  </p>
 
                   {project.stack && project.stack.length > 0 && (
                     <div className="mt-6">
-                      <p className="font-mono text-xs text-accent mb-2">{ui.projectDetail.stackLabel}</p>
+                      <p className="font-mono text-xs text-accent mb-2">
+                        {ui.projectDetail.stackLabel}
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         {project.stack.map((item) => (
                           <Tag key={item}>{item}</Tag>
@@ -120,20 +106,29 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                     </div>
                   )}
                   {project.problem && (
-                    <DetailSection label={ui.projectDetail.problemLabel} text={project.problem} />
+                    <DetailSection
+                      label={ui.projectDetail.problemLabel}
+                      text={project.problem}
+                    />
                   )}
                   {project.approach && (
-                    <DetailSection label={ui.projectDetail.approachLabel} text={project.approach} />
+                    <DetailSection
+                      label={ui.projectDetail.approachLabel}
+                      text={project.approach}
+                    />
                   )}
                   {project.outcome && (
-                    <DetailSection label={ui.projectDetail.outcomeLabel} text={project.outcome} />
+                    <DetailSection
+                      label={ui.projectDetail.outcomeLabel}
+                      text={project.outcome}
+                    />
                   )}
                 </div>
               </CodeWindow>
             </Reveal>
           )}
-        </Container>
+        </div>
       </main>
-    </div>
+    </ViewModal>
   );
 }
