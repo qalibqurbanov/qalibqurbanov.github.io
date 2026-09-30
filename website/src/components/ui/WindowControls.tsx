@@ -1,5 +1,7 @@
 import { Minus, Square, X } from "lucide-react";
 
+import { useContent } from "@/i18n/context";
+
 interface WindowControlsProps {
   /** Wires up the minimize button; when omitted, it renders visibly disabled. */
   onMinimize?: () => void;
@@ -12,10 +14,11 @@ interface WindowControlsProps {
  * Minimize/close are inert too unless wired up via props — either way, they're
  * styled to visibly look disabled rather than pretending to work. */
 export function WindowControls({ onMinimize, onClose }: WindowControlsProps = {}) {
+  const { ui } = useContent();
   return (
     <div className="flex items-center gap-0.5">
       {onMinimize ? (
-        <button type="button" onClick={onMinimize} aria-label="Minimize" className="window-control">
+        <button type="button" onClick={onMinimize} aria-label={ui.labels.minimize} className="window-control">
           <Minus size={12} />
         </button>
       ) : (
@@ -30,7 +33,7 @@ export function WindowControls({ onMinimize, onClose }: WindowControlsProps = {}
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={ui.labels.close}
           className="window-control window-control-close"
         >
           <X size={13} />

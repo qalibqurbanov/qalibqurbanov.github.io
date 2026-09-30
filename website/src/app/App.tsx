@@ -11,16 +11,19 @@ import { Experience } from "@/features/experience/Experience";
 import { Hero } from "@/features/hero/Hero";
 import { ProjectDetail } from "@/features/projects/ProjectDetail";
 import { Projects } from "@/features/projects/Projects";
+import { ResumeViewer } from "@/features/resume/ResumeViewer";
 import { Skills } from "@/features/skills/Skills";
 import { useHashSectionFocus } from "@/hooks/useHashSectionFocus";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
+import { useScrollRestore } from "@/hooks/useScrollRestore";
 import { useContent } from "@/i18n/context";
 
 export function App() {
   const { projects } = useContent();
-  const { activeSlug, closeProject } = useProjectRoute();
+  const { activeSlug, resumeOpen, closeProject } = useProjectRoute();
   const activeProject = activeSlug ? (projects.find((project) => project.slug === activeSlug) ?? null) : undefined;
   useHashSectionFocus();
+  useScrollRestore(resumeOpen || activeProject !== undefined);
 
   return (
     <div className="min-h-screen">
@@ -28,7 +31,9 @@ export function App() {
       <CommandPalette />
       <ContextMenu />
 
-      {activeProject !== undefined ? (
+      {resumeOpen ? (
+        <ResumeViewer onBack={closeProject} />
+      ) : activeProject !== undefined ? (
         <ProjectDetail project={activeProject} onBack={closeProject} />
       ) : (
         <>

@@ -9,6 +9,7 @@ import {
   TelegramIcon,
 } from "@/components/icons/BrandIcons";
 import { useClock } from "@/hooks/useClock";
+import { RESUME_HREF } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
@@ -35,6 +36,10 @@ const TONE_CLASSES: Record<NonNullable<FooterIconLinkProps["tone"]>, string> = {
     "group relative inline-flex items-center justify-center rounded-full bg-accent-2/10 p-1.5 text-accent-2 transition hover:bg-accent-2/20",
 };
 
+// `card-surface` supplies the hover border sweep used elsewhere on the site;
+// its `overflow: hidden` is overridden so the icon tooltips can escape the pill.
+const GROUP_CLASS = "card-surface !overflow-visible flex items-center rounded-full px-3 h-9";
+
 // Pure-CSS hover/focus popup naming whichever footer icon is under the
 // cursor — `group` on the anchor drives the tooltip's opacity/scale so no
 // hover-state JS is needed.
@@ -58,7 +63,7 @@ function FooterIconLink({ href, label, external = true, tone = "default", childr
 }
 
 export function Footer() {
-  const { profile, socials } = useContent();
+  const { profile, socials, ui } = useContent();
   const { locale } = useLocale();
   const now = useClock();
   const hasResume = profile.resumeUrl && profile.resumeUrl !== "#";
@@ -94,7 +99,7 @@ export function Footer() {
           </span>
         </div>
         <div className="flex items-center gap-4 text-muted">
-          <div className="flex items-center gap-5">
+          <div role="group" aria-label={ui.labels.socialMedia} className={`${GROUP_CLASS} gap-4`}>
             <FooterIconLink href={socials.github} label="GitHub">
               <GithubIcon size={18} />
             </FooterIconLink>
@@ -116,23 +121,24 @@ export function Footer() {
                 <TelegramIcon size={18} />
               </FooterIconLink>
             )}
-            <FooterIconLink href={socials.email} label="Email" external={false}>
+            <FooterIconLink href={socials.email} label={ui.labels.email} external={false}>
               <Mail size={18} />
             </FooterIconLink>
           </div>
 
           {hasResume && (
-            <FooterIconLink href={profile.resumeUrl} label="Resume" tone="accent">
-              <FileText size={16} />
-            </FooterIconLink>
+            <div role="group" aria-label={ui.labels.resume} className={GROUP_CLASS}>
+              <FooterIconLink href={RESUME_HREF} label={ui.labels.resume} tone="accent" external={false}>
+                <FileText size={16} />
+              </FooterIconLink>
+            </div>
           )}
 
-          <span className="h-4 w-px bg-border" aria-hidden="true" />
-          <div className="flex items-center gap-2">
-            <FooterIconLink href={reportBugUrl()} label="Report a bug" tone="danger">
+          <div role="group" aria-label={ui.labels.projectLinks} className={`${GROUP_CLASS} gap-2`}>
+            <FooterIconLink href={reportBugUrl()} label={ui.labels.reportBug} tone="danger">
               <Bug size={16} />
             </FooterIconLink>
-            <FooterIconLink href={SITE_REPO_URL} label="View source on GitHub" tone="accent2">
+            <FooterIconLink href={SITE_REPO_URL} label={ui.labels.viewSource} tone="accent2">
               <GithubIcon size={16} />
             </FooterIconLink>
           </div>

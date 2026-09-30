@@ -9,7 +9,7 @@ import { scrollToTop } from "@/lib/scroll";
 import { useTheme } from "@/theme/context";
 
 interface LogEntry {
-  type: "input" | "output" | "error";
+  type: "input" | "output" | "error" | "welcome";
   text: string;
 }
 
@@ -29,9 +29,9 @@ export function HeroTerminal() {
   const { profile, skills, experience, projects, socials, ui } = useContent();
   const { setLocale } = useLocale();
   const { theme, toggleTheme } = useTheme();
-  const { openProject } = useProjectRoute();
+  const { openProject, openResume } = useProjectRoute();
 
-  const [log, setLog] = useState<LogEntry[]>([{ type: "output", text: ui.terminal.welcome }]);
+  const [log, setLog] = useState<LogEntry[]>([{ type: "welcome", text: "" }]);
   const [value, setValue] = useState("");
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
@@ -102,7 +102,7 @@ export function HeroTerminal() {
         break;
       case "resume":
         if (profile.resumeUrl && profile.resumeUrl !== "#") {
-          window.open(profile.resumeUrl, "_blank", "noreferrer");
+          openResume();
         } else {
           print(format(ui.terminal.notFound, { cmd }), "error");
         }
@@ -135,13 +135,13 @@ export function HeroTerminal() {
         }
         break;
       case "theme":
-        print(format(ui.terminal.themeSwitched, { mode: theme === "dark" ? "light" : "dark" }));
+        print(format(ui.terminal.themeSwitched, { mode: theme === "dark" ? ui.labels.modeLight : ui.labels.modeDark }));
         toggleTheme();
         break;
       case "lang": {
         if (isLocale(arg)) {
           const meta = SUPPORTED_LOCALES.find((item) => item.code === arg);
-          print(format(ui.terminal.langSwitched, { label: meta?.label ?? arg }));
+          print(format(ui.terminal.langSwitched, { label: meta?.nativeName ?? arg }));
           setLocale(arg);
         } else {
           print(format(ui.terminal.langInvalid, { code: arg || "" }), "error");
@@ -202,7 +202,7 @@ export function HeroTerminal() {
               <TerminalPrompt /> {entry.text}
             </span>
           ) : (
-            <pre className="whitespace-pre-wrap font-mono">{entry.text}</pre>
+            <pre className="whitespace-pre-wrap font-mono">{entry.type === "welcome" ? ui.terminal.welcome : entry.text}</pre>
           )}
         </div>
       ))}
@@ -215,7 +215,7 @@ export function HeroTerminal() {
           onKeyDown={handleKeyDown}
           spellCheck={false}
           autoComplete="off"
-          aria-label="Terminal input"
+          aria-label={ui.labels.terminalInput}
           className="flex-1 bg-transparent outline-none text-text"
         />
       </div>

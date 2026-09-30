@@ -48,7 +48,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
             type="button"
             className="text-muted hover:text-accent transition-colors"
             onClick={toggleTheme}
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            aria-label={theme === "dark" ? ui.labels.switchToLight : ui.labels.switchToDark}
           >
             {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
           </button>

@@ -1,0 +1,290 @@
+import type { Content, Profile } from "@/types/content";
+
+import { email, resumeUrl, socials } from "./shared";
+
+const enProfile: Profile = {
+  name: "Galib Gurbanov",
+  role: "Software Developer",
+  location: "Baku, Azerbaijan",
+  summary:
+    "I build software end-to-end — from backend APIs and databases to polished web frontends and mobile apps. I like turning ideas into fast, reliable, well-designed products.",
+  email,
+  resumeUrl,
+};
+
+const en: Content = {
+  profile: enProfile,
+  socials,
+  about: {
+    paragraphs: [
+      "I'm a backend developer with **3+ years of experience**, working mostly in the ==.NET ecosystem==. I've shipped **20+ projects** between my day job and freelance work, ranging from small internal tools to client-facing platforms that people actually depend on.",
+      "I don't stay boxed into backend, though. I'm comfortable working with ==databases==, setting up basic ==DevOps== and ==Linux== server stuff, and can hold my own on the ==frontend== and ==mobile== side when a project calls for it. I'd rather reach for whatever tool actually fits the problem than force everything through one stack.",
+      "Whenever I find the time, I hop on my **road bike** and join group rides. Riding solo, though, I like to push the distance a bit further, discover new and scenic places, enjoy the ride itself, and see what interesting, unexpected moments the road throws at me. When I'm not out riding, I like bringing the worlds in my head to life in a virtual one. That's what draws me to **level design** in ==GoldSrc==, the engine behind ==Half-Life== and ==Counter-Strike==. I also write plugins from time to time, adding new mechanics to make the server more fun for whoever's playing.",
+    ],
+    highlights: [
+      { label: "Focus areas", value: ".NET / ASP.NET Core" },
+      { label: "Experience", value: "3+ years" },
+      { label: "Projects shipped", value: "20+" },
+      { label: "Based in", value: enProfile.location },
+      { label: "Open to", value: "Full-time, freelance, remote" },
+    ],
+  },
+  experience: [
+    {
+      role: "Backend Developer",
+      org: "Crocusoft",
+      period: "Dec 2023 — Present",
+      current: true,
+      description:
+        "At Crocusoft, I develop and maintain backend solutions with the modern .NET stack for both public and internal systems.",
+      projectsIntro: "Some of the public projects I have worked on here include:",
+      projects: [
+        { label: "Crocusoft Website", url: "https://crocusoft.com" },
+        {
+          label: "Kapital Bank HR Platform",
+          url: "https://crocusoft.com/en/Project/Details/hr.kapitalbank.az",
+        },
+        {
+          label: "SANAT Art Center",
+          url: "https://crocusoft.com/en/Project/Details/sanat-art-center",
+        },
+      ],
+      highlightsIntro: "In these projects, I worked with the following:",
+      highlights: [
+        "Designed, developed and maintained scalable backend services using modern architectural patterns.",
+        "Implemented and optimized data access using relational and NoSQL databases to improve application performance.",
+        "Enhanced application responsiveness and reliability through caching, asynchronous processing, monitoring, logging and metrics.",
+        "Containerized applications with Docker to ensure consistent and reliable deployments.",
+      ],
+      tags: ["C#", "ASP.NET Web API", "EF Core", "Dapper", "Redis", "SignalR", "Docker", "PostgreSQL"],
+    },
+  ],
+  projects: [
+    {
+      slug: "soundcloud-artwork-downloader",
+      filename: "README.md",
+      title: "SoundCloud Artwork Downloader",
+      description:
+        "A Windows desktop tool that scrapes a SoundCloud track page for its cover art and downloads the full-resolution original — no SoundCloud API key needed.",
+      tags: ["C#", "WinForms", "HtmlAgilityPack"],
+      repoUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader",
+      liveUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader/releases",
+      problem:
+        "SoundCloud doesn't expose an easy way to grab a track's full-resolution artwork — the API requires registration, and the site only serves small thumbnail sizes by default.",
+      approach:
+        "Built a WinForms app that validates the pasted track URL with a regex, loads the track page with HtmlAgilityPack, and pulls the artwork <img> tag's src — then rewrites the URL's size suffix to \"-original\" to get the uncropped, full-resolution version before downloading it in the size the user picked.",
+      stack: ["C#", ".NET Framework 4.5.2", "WinForms", "HtmlAgilityPack", "MetroModernUI", "ini-parser"],
+      outcome:
+        "A small, single-purpose utility that saves an artwork image in a few clicks, and remembers the user's last-used folder and naming preference via an INI config file.",
+    },
+    {
+      slug: "imager",
+      filename: "README.md",
+      title: "Imager",
+      description: "A Windows desktop app for uploading images to ImgBB in bulk and instantly getting shareable links back.",
+      tags: ["C#", "WinForms", "ImgBB API"],
+      repoUrl: "https://github.com/qalibqurbanov/Imager",
+      liveUrl: "https://github.com/qalibqurbanov/Imager/releases",
+      problem:
+        "Uploading a batch of images to a hosting site and collecting each one's link individually is slow and repetitive when you just want to quickly share a few screenshots.",
+      approach:
+        "A WinForms app where you drag and drop images (or whole folders) onto a drop zone. Each file is checked against the allowed extensions, uploaded to the ImgBB API in sequence, and the JSON response is parsed for its hosted URL — the finished links are copied to the clipboard in one pass. It also has a light/dark theme and can minimize to the system tray.",
+      stack: ["C#", ".NET Framework 4.7.2", "WinForms", "Newtonsoft.Json", "MaterialSkin"],
+      outcome: "Turns a multi-step manual upload-and-copy-link routine into a single drag-and-drop-and-go action.",
+    },
+  ],
+  // Tech/tool names are proper nouns and intentionally stay the same across locales.
+  skills: {
+    backend: [
+      "C#",
+      "ASP.NET MVC",
+      "ASP.NET Web API",
+      "EF Core",
+      "Dapper ORM",
+      "SignalR",
+      "Redis",
+      "Serilog",
+      "Elasticsearch",
+      "Kibana",
+      "Quartz",
+      "Hangfire",
+      "MinIO",
+      "Event-Driven Programming",
+      "Microsoft SQL Server",
+      "MySQL",
+      "PostgreSQL",
+      "MongoDB",
+    ],
+    frontend: ["React", "Next.js", "TypeScript", "Tailwind CSS", "HTML/CSS"],
+    mobile: ["React Native", "Flutter", "Android (Kotlin)", "iOS (Swift)"],
+    tools: ["Git", "GitLab", "GitHub", "Docker", "Linux"],
+  },
+  blogPosts: [
+    {
+      title: "Building my first full-stack app",
+      excerpt:
+        "A short write-up about a project I built, what I learned, and what I'd do differently next time.",
+      date: "2026-01-01",
+      url: "#",
+      codeSnippet: {
+        filename: "server.ts",
+        code: `export async function getUser(id: string) {
+    // Cache first — the DB round trip was the slowest part of this route.
+    const cached = await cache.get(\`user:\${id}\`);
+    if (cached) return cached;
+
+    const user = await db.users.findUnique({ where: { id } });
+    if (!user) throw new NotFoundError("User not found");
+
+    await cache.set(\`user:\${id}\`, user, { ttl: 60 });
+    return user;
+  }`,
+      },
+    },
+    {
+      title: "Notes on going from web to mobile development",
+      excerpt:
+        "Thoughts on picking up mobile development after working mostly on the web.",
+      date: "2026-01-01",
+      url: "#",
+    },
+    {
+      title: "Why I structure my backend APIs this way",
+      excerpt: "A look at the API architecture patterns I default to and why.",
+      date: "2026-01-01",
+      url: "#",
+    },
+  ],
+  navigation: [
+    { label: "About", href: "#about" },
+    { label: "Experience", href: "#experience" },
+    { label: "Projects", href: "#projects" },
+    { label: "Skills", href: "#skills" },
+    // { label: "Blog", href: "#blog" },
+    { label: "Contact", href: "#contact" },
+  ],
+  ui: {
+    hero: {
+      greeting: "Hi, my name is",
+      tagline: "I turn ideas into working {highlight}.",
+      highlightWord: "software",
+      ctaViewWork: "View my work",
+      ctaGetInTouch: "Get in touch",
+      terminalTabLabel: "terminal",
+      stackValue: "Whatever the project needs",
+      minimized: {
+        title: "Ssshh! Don't make a sound — you weren't meant to find this.",
+        joke: "FBI's had a file open on him since they saw his skills list — nobody's genuinely this good at everything. {name} has no idea we're tracking him.",
+        restoreWarning: "This terminal will restore in {seconds} seconds — don't say a word to anyone about what you saw here.",
+      },
+      closeAttempt: "Nice try — this window isn't going anywhere.",
+      tinkerWarning: "Okay, that's enough tinkering — there's nothing here.",
+    },
+    sections: {
+      about: { index: "01", title: "About Me" },
+      experience: { index: "02", title: "Experience" },
+      projects: { index: "03", title: "Projects" },
+      skills: { index: "04", title: "Skills" },
+      blog: { index: "05", title: "Writing" },
+      contact: { index: "06", title: "What's Next?" },
+    },
+    skillGroups: {
+      backend: "Backend",
+      frontend: "Frontend",
+      mobile: "Mobile",
+      tools: "Tools",
+    },
+    contact: {
+      heading: "Get In Touch",
+      body: "I'm currently open to new opportunities and interesting projects — backend, frontend, or mobile. Whether you have a question or just want to say hi, my inbox is always open.",
+      ctaPrefix: "Drop Me A Line —",
+    },
+    nav: {
+      toggleMenu: "Toggle menu",
+      scrollToAbout: "Scroll to About",
+      commandPaletteHint: "Search",
+    },
+    backToTop: "Back to top",
+    resumeView: {
+      back: "Back to site",
+      fallback: "Your browser can't display PDFs inline.",
+    },
+    labels: {
+      email: "Email",
+      resume: "Resume",
+      reportBug: "Report a bug",
+      viewSource: "View source on GitHub",
+      socialMedia: "Social media",
+      projectLinks: "Project",
+      language: "Language",
+      switchToLight: "Switch to light mode",
+      switchToDark: "Switch to dark mode",
+      toggleTheme: "Toggle theme ({shortcut})",
+      minimize: "Minimize",
+      close: "Close",
+      home: "Home",
+      modeLight: "light",
+      modeDark: "dark",
+      terminalInput: "Terminal input",
+      repository: "{title} repository",
+      liveDemo: "{title} live demo",
+    },
+    commandPalette: {
+      placeholder: "Type a command or search…",
+      empty: "No results found.",
+      groupNavigation: "Navigation",
+      groupExperience: "Experience",
+      groupProjects: "Projects",
+      groupSkills: "Skills",
+      groupActions: "Actions",
+      groupLanguages: "Language",
+      actionToggleTheme: "Toggle light / dark theme",
+      actionCopyEmail: "Copy email address",
+      actionEmailCopied: "Email copied to clipboard",
+      actionOpenResume: "Open resume",
+      actionOpenGithub: "Open GitHub profile",
+      actionOpenLinkedin: "Open LinkedIn profile",
+      actionOpenTelegram: "Open Telegram",
+      actionOpenMedium: "Open Medium blog",
+      actionOpenStackOverflow: "Open Stack Overflow profile",
+      actionReportBug: "Report a bug",
+      openCaseStudy: "View case study",
+    },
+    contextMenu: {
+      copyRepoLink: "Copy repo link",
+      repoLinkCopied: "Repo link copied to clipboard",
+      copyPageLink: "Copy page link",
+      pageLinkCopied: "Page link copied to clipboard",
+      openCommandPalette: "Command Palette",
+      downloadResume: "Download Resume",
+      viewSourceOnGithub: "View source on GitHub",
+      reportBug: "Report a bug",
+    },
+    projectDetail: {
+      back: "Back to projects",
+      problemLabel: "The problem",
+      approachLabel: "The approach",
+      stackLabel: "Stack",
+      outcomeLabel: "Outcome",
+      viewRepo: "View repository",
+      viewLive: "View live",
+      notFoundTitle: "Project not found",
+      notFoundBody: "That case study doesn't exist, or the link is out of date.",
+      backHome: "Back to home",
+    },
+    terminal: {
+      welcome: "Type 'help' to see available commands.",
+      helpText:
+        "help              show this list\nwhoami            who am I\nabout             short summary\nskills            tech stack\nexperience        work history\nprojects          list projects\nopen <slug>       open a project's case study\ncontact           how to reach me\nresume            open resume\ngithub            open GitHub profile\nlinkedin          open LinkedIn profile\ntelegram          open Telegram\nmedium            open Medium blog\nstackoverflow     open Stack Overflow profile\ntheme             toggle light / dark\nlang <code>       switch language (en, az, ru)\nclear             clear the terminal",
+      notFound: "command not found: {cmd} — type 'help' for a list of commands.",
+      permissionDenied: "Nice try. Permission denied.",
+      openingProject: "Opening case study for \"{title}\"…",
+      projectNotFound: "No project found for \"{slug}\". Type 'projects' to list them.",
+      themeSwitched: "Switched to {mode} mode.",
+      langSwitched: "Language switched to {label}.",
+      langInvalid: "Unknown language \"{code}\". Try: en, az, ru.",
+    },
+  },
+};
+
+export default en;

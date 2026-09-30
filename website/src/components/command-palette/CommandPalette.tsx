@@ -23,7 +23,7 @@ import {
   StackOverflowIcon,
   TelegramIcon,
 } from "@/components/icons/BrandIcons";
-import { useProjectRoute } from "@/hooks/useProjectRoute";
+import { RESUME_HREF, useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
 import { reportBugUrl } from "@/lib/githubIssue";
@@ -61,7 +61,7 @@ export function CommandPalette() {
   const { profile, socials, navigation, about, experience, skills, projects, ui } = useContent();
   const { locale, setLocale } = useLocale();
   const { theme, toggleTheme } = useTheme();
-  const { activeSlug, openProject, closeProject } = useProjectRoute();
+  const { activeSlug, resumeOpen, openProject, closeProject } = useProjectRoute();
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -105,7 +105,7 @@ export function CommandPalette() {
 
   const goToHref = useCallback(
     (href: string) => {
-      if (activeSlug) {
+      if (activeSlug || resumeOpen) {
         closeProject();
         window.setTimeout(() => {
           window.location.hash = href;
@@ -114,7 +114,7 @@ export function CommandPalette() {
         window.location.hash = href;
       }
     },
-    [activeSlug, closeProject],
+    [activeSlug, resumeOpen, closeProject],
   );
 
   const groups = useMemo<PaletteGroup[]>(() => {
@@ -126,9 +126,9 @@ export function CommandPalette() {
     const navigationItems: PaletteItem[] = [
       {
         id: "nav-home",
-        label: "Home",
+        label: ui.labels.home,
         icon: <HomeIcon size={16} />,
-        onSelect: () => (activeSlug ? closeProject() : scrollToTop()),
+        onSelect: () => (activeSlug || resumeOpen ? closeProject() : scrollToTop()),
       },
       ...navigation.map((item) => ({
         id: `nav-${item.href}`,
@@ -240,7 +240,7 @@ export function CommandPalette() {
         label: ui.commandPalette.actionOpenResume,
         keywords: "resume cv pdf",
         icon: <FileText size={16} />,
-        onSelect: () => window.open(profile.resumeUrl, "_blank", "noreferrer"),
+        onSelect: () => goToHref(RESUME_HREF),
       });
     }
 
@@ -248,7 +248,8 @@ export function CommandPalette() {
       (meta) => meta.code !== locale,
     ).map((meta) => ({
       id: `lang-${meta.code}`,
-      label: `${meta.nativeLabel} — ${meta.label}`,
+      label: `${meta.nativeLabel} — ${meta.nativeName}`,
+      keywords: meta.label,
       icon: <Globe size={16} />,
       onSelect: () => setLocale(meta.code),
     }));
@@ -264,6 +265,7 @@ export function CommandPalette() {
   }, [
     about.highlights,
     activeSlug,
+    resumeOpen,
     closeProject,
     emailCopied,
     experience,
@@ -284,6 +286,7 @@ export function CommandPalette() {
     theme,
     toggleTheme,
     ui.commandPalette,
+    ui.labels.home,
     ui.skillGroups,
   ]);
 

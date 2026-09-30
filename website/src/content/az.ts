@@ -1,0 +1,291 @@
+import type { Content, Profile } from "@/types/content";
+
+import { email, resumeUrl, socials } from "./shared";
+
+const azProfile: Profile = {
+  name: "Qalib Qurbanov",
+  role: "Proqram təminatı tərtibatçısı",
+  location: "Bakı, Azərbaycan",
+  summary:
+    "Mən proqram təminatını başdan sona hazırlayıram — backend API-lardan və verilənlər bazalarından tutmuş, zərif veb interfeyslərə və mobil tətbiqlərə qədər. Fikirləri sürətli, etibarlı və yaxşı dizayn edilmiş məhsullara çevirməyi sevirəm.",
+  email,
+  resumeUrl,
+};
+
+const az: Content = {
+  profile: azProfile,
+  socials,
+  about: {
+    paragraphs: [
+      "Mən **3+ illik təcrübəyə** malik backend developerəm və əsasən ==.NET== ekosistemində işləyirəm. Əsas işim və freelance təcrübəm birlikdə kiçik daxili alətlərdən tutmuş insanların real etibar etdiyi müştəri platformalarına qədər **20+ layihə** həyata keçirmişəm.",
+      "Amma yalnız backend ilə məhdudlaşmıram. ==Verilənlər bazaları== ilə rahat işləyirəm, sadə ==DevOps== və ==Linux== server qurmağı bacarıram, layihə tələb etdikdə ==frontend== və ==mobil== tərəfdə də öhdəmdən gəlirəm. Bir stack-ə bağlı qalmaqdansa, məsələyə real uyğun olan aləti seçməyi üstün tuturam.",
+      "Vaxt tapdıqca **şosse velosipedimə** minib qrup sürüşlərinə qoşuluram. Tək sürəndə isə məsafəni bir az da uzatmağı, yeni və gözəl mənzərəli yerlər kəşf etməyi, yolun özündən zövq almağı və yolda gözlənilməz maraqlı anlar yaşamağı sevirəm. Velosiped sürmədiyim vaxtlarda isə ağlımdakı dünyaları virtual aləmdə yaratmağı xoşlayıram. Bu məqsədlə ==Half-Life== və ==Counter-Strike==-in arxasında duran ==GoldSrc== engine üzərində **level dizaynı** ilə məşğul oluram. Bəzən isə pluginlər yazaraq serverə yeni mexanikalar əlavə edir, oyunu oynayanlar üçün daha maraqlı və əyləncəli hala gətirirəm.",
+    ],
+    highlights: [
+      { label: "Fokus sahələri", value: ".NET / ASP.NET Core" },
+      { label: "Təcrübə", value: "3+ il" },
+      { label: "Layihələr", value: "20+" },
+      { label: "Yerləşdiyi yer", value: azProfile.location },
+      { label: "Açığam", value: "Tam ştat, freelance, remote işlərə" },
+    ],
+  },
+  experience: [
+    {
+      role: "Backend Developeri",
+      org: "Crocusoft",
+      period: "Dekabr 2023 — İndiyədək",
+      current: true,
+      description:
+        "Crocusoft-da mən həm hər kəsə açıq, həm də daxili sistemlər üçün müasir .NET stack-i ilə backend həlləri qurur və dəstəkləyirəm.",
+      projectsIntro: "Burada üzərində işlədiyim, hər kəsə açıq layihələrdən bəziləri:",
+      projects: [
+        { label: "Crocusoft Veb Saytı", url: "https://crocusoft.com" },
+        {
+          label: "Kapital Bank HR Platforması",
+          url: "https://crocusoft.com/en/Project/Details/hr.kapitalbank.az",
+        },
+        {
+          label: "SANAT Art Center",
+          url: "https://crocusoft.com/en/Project/Details/sanat-art-center",
+        },
+      ],
+      highlightsIntro: "Bu layihələrdə aşağıdakılarla məşğul olmuşam:",
+      highlights: [
+        "Müasir arxitektura nümunələrindən istifadə edərək miqyaslana bilən backend xidmətləri dizayn etmiş, hazırlamış və dəstəkləmişəm.",
+        "Tətbiqin performansını artırmaq üçün relyasion və NoSQL verilənlər bazalarında məlumat girişini tətbiq etmiş və optimallaşdırmışam.",
+        "Keşləmə, asinxron emal, monitorinq, loglama və metriklər vasitəsilə tətbiqin sürətini və etibarlılığını artırmışam.",
+        "Sabit və etibarlı yerləşdirmələri təmin etmək üçün tətbiqləri Docker ilə konteynerləşdirmişəm.",
+      ],
+      tags: ["C#", "ASP.NET Web API", "EF Core", "Dapper", "Redis", "SignalR", "Docker", "PostgreSQL"],
+    },
+  ],
+  projects: [
+    {
+      slug: "soundcloud-artwork-downloader",
+      filename: "README.md",
+      title: "SoundCloud Artwork Downloader",
+      description:
+        "SoundCloud trek səhifəsini parse edərək üz qabığı şəklini orijinal ölçüdə yükləyən Windows desktop tətbiqi — SoundCloud API açarı tələb olunmur.",
+      tags: ["C#", "WinForms", "HtmlAgilityPack"],
+      repoUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader",
+      liveUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader/releases",
+      problem:
+        "SoundCloud trekin tam ölçülü üz qabığı şəklini əldə etməyin asan yolunu təklif etmir — API qeydiyyat tələb edir, sayt isə default olaraq yalnız kiçik önizləmə ölçülərini verir.",
+      approach:
+        "Yapışdırılan trek linkini regex ilə yoxlayan, HtmlAgilityPack ilə trek səhifəsini yükləyən və üz qabığı <img> teqinin src-ni çıxaran WinForms tətbiqi yazdım — sonra tam ölçülü, kəsilməmiş versiyanı almaq üçün URL-in ölçü şəkilçisini \"-original\"-a dəyişdirir və istifadəçinin seçdiyi ölçüdə yükləyir.",
+      stack: ["C#", ".NET Framework 4.5.2", "WinForms", "HtmlAgilityPack", "MetroModernUI", "ini-parser"],
+      outcome:
+        "Bir neçə klikdə şəkli yadda saxlayan, son istifadə olunan qovluğu və adlandırma seçimini INI konfiqurasiya faylı vasitəsilə yadda saxlayan kiçik, tək məqsədli alət.",
+    },
+    {
+      slug: "imager",
+      filename: "README.md",
+      title: "Imager",
+      description:
+        "Şəkilləri toplu şəkildə ImgBB-yə yükləyən və dərhal paylaşıla bilən linklər verən Windows desktop tətbiqi.",
+      tags: ["C#", "WinForms", "ImgBB API"],
+      repoUrl: "https://github.com/qalibqurbanov/Imager",
+      liveUrl: "https://github.com/qalibqurbanov/Imager/releases",
+      problem:
+        "Bir neçə şəkli hostinq saytına yükləyib hər birinin linkini ayrı-ayrı toplamaq, bir neçə skrinşotu tez paylaşmaq istəyəndə yavaş və təkrarlanandır.",
+      approach:
+        "Şəkilləri (və ya bütöv qovluqları) drop zonasına sürükləyib buraxdığın WinForms tətbiqi. Hər fayl icazə verilən uzantılara görə yoxlanılır, ImgBB API-yə ardıcıl yüklənir və JSON cavabı parse edilərək yüklənmiş şəklin linki çıxarılır — hazır linklər bir keçiddə clipboard-a kopyalanır. Həmçinin açıq/tünd tema və sistem trayına yığılma dəstəyi var.",
+      stack: ["C#", ".NET Framework 4.7.2", "WinForms", "Newtonsoft.Json", "MaterialSkin"],
+      outcome: "Çoxaddımlı əl ilə yükləmə-linki-kopyala rutinini tək bir sürükləyib-burax əməliyyatına çevirir.",
+    },
+  ],
+  // Tech/tool names are proper nouns and intentionally stay the same across locales.
+  skills: {
+    backend: [
+      "C#",
+      "ASP.NET MVC",
+      "ASP.NET Web API",
+      "EF Core",
+      "Dapper ORM",
+      "SignalR",
+      "Redis",
+      "Serilog",
+      "Elasticsearch",
+      "Kibana",
+      "Quartz",
+      "Hangfire",
+      "MinIO",
+      "Event-Driven Programming",
+      "Microsoft SQL Server",
+      "MySQL",
+      "PostgreSQL",
+      "MongoDB",
+    ],
+    frontend: ["React", "Next.js", "TypeScript", "Tailwind CSS", "HTML/CSS"],
+    mobile: ["React Native", "Flutter", "Android (Kotlin)", "iOS (Swift)"],
+    tools: ["Git", "GitLab", "GitHub", "Docker", "Linux"],
+  },
+  blogPosts: [
+    {
+      title: "İlk tam-stek tətbiqimi qurarkən",
+      excerpt:
+        "Qurduğum bir layihə, öyrəndiklərim və növbəti dəfə nəyi fərqli edəcəyim haqqında qısa yazı.",
+      date: "2026-01-01",
+      url: "#",
+      codeSnippet: {
+        filename: "server.ts",
+        code: `export async function getUser(id: string) {
+    // Cache first — the DB round trip was the slowest part of this route.
+    const cached = await cache.get(\`user:\${id}\`);
+    if (cached) return cached;
+
+    const user = await db.users.findUnique({ where: { id } });
+    if (!user) throw new NotFoundError("User not found");
+
+    await cache.set(\`user:\${id}\`, user, { ttl: 60 });
+    return user;
+  }`,
+      },
+    },
+    {
+      title: "Vebdən mobil developmentə keçid qeydlərim",
+      excerpt:
+        "Əsasən veblə işlədikdən sonra mobil developmenti mənimsəmək haqqında düşüncələr.",
+      date: "2026-01-01",
+      url: "#",
+    },
+    {
+      title: "Backend API-larımı niyə belə strukturlaşdırıram",
+      excerpt: "Standart olaraq istifadə etdiyim API arxitektura nümunələrinə və səbəbinə baxış.",
+      date: "2026-01-01",
+      url: "#",
+    },
+  ],
+  navigation: [
+    { label: "Haqqımda", href: "#about" },
+    { label: "Təcrübə", href: "#experience" },
+    { label: "Layihələr", href: "#projects" },
+    { label: "Bacarıqlar", href: "#skills" },
+    // { label: "Yazılar", href: "#blog" },
+    { label: "Əlaqə", href: "#contact" },
+  ],
+  ui: {
+    hero: {
+      greeting: "Salam, mənim adım",
+      tagline: "Mən ideyaları işləyən {highlight}na çevirirəm.",
+      highlightWord: "proqram təminatı",
+      ctaViewWork: "İşlərimə baxın",
+      ctaGetInTouch: "Əlaqə saxlayın",
+      terminalTabLabel: "terminal",
+      stackValue: "Layihə nə tələb edirsə",
+      minimized: {
+        title: "Şşşt! Səs çıxarma — bunu tapmamalıydın.",
+        joke: "Bacarıqlar siyahısını görən kimi FBI onun üzərində iş açıb — heç kim doğrudan da hər şeydə bu qədər yaxşı olmur. {name} onu izlədiyimizdən xəbərsizdir.",
+        restoreWarning: "Bu terminal {seconds} saniyə sonra bərpa olunacaq — burada gördüklərin haqqında heç kimə bir söz demə.",
+      },
+      closeAttempt: "Cəhd yaxşıdır — bu pəncərə heç yerə getmir.",
+      tinkerWarning: "Yaxşı, bəsdir eşələnmə — burada heç nə yoxdur.",
+    },
+    sections: {
+      about: { index: "01", title: "Haqqımda" },
+      experience: { index: "02", title: "Təcrübə" },
+      projects: { index: "03", title: "Layihələr" },
+      skills: { index: "04", title: "Bacarıqlar" },
+      blog: { index: "05", title: "Yazılar" },
+      contact: { index: "06", title: "Növbəti Addım" },
+    },
+    skillGroups: {
+      backend: "Backend",
+      frontend: "Frontend",
+      mobile: "Mobil",
+      tools: "Alətlər",
+    },
+    contact: {
+      heading: "Əlaqə Saxlayın",
+      body: "Hazırda yeni imkanlara və maraqlı layihələrə açığam — backend, frontend və ya mobil. Sualınız varsa və ya sadəcə salam demək istəyirsinizsə, qutum həmişə açıqdır.",
+      ctaPrefix: "Mənə yazın —",
+    },
+    nav: {
+      toggleMenu: "Menyunu aç/bağla",
+      scrollToAbout: "Haqqımda bölməsinə keç",
+      commandPaletteHint: "Axtar",
+    },
+    backToTop: "Yuxarı qayıt",
+    resumeView: {
+      back: "Sayta qayıt",
+      fallback: "Brauzeriniz PDF-i bu səhifədə göstərə bilmir.",
+    },
+    labels: {
+      email: "E-poçt",
+      resume: "CV",
+      reportBug: "Xəta bildir",
+      viewSource: "GitHub-da mənbə koduna bax",
+      socialMedia: "Sosial şəbəkələr",
+      projectLinks: "Layihə",
+      language: "Dil",
+      switchToLight: "İşıqlı rejimə keç",
+      switchToDark: "Qaranlıq rejimə keç",
+      toggleTheme: "Temanı dəyiş ({shortcut})",
+      minimize: "Kiçilt",
+      close: "Bağla",
+      home: "Ana səhifə",
+      modeLight: "İşıqlı",
+      modeDark: "Qaranlıq",
+      terminalInput: "Terminal girişi",
+      repository: "{title} repozitoriyası",
+      liveDemo: "{title} canlı demo",
+    },
+    commandPalette: {
+      placeholder: "Əmr yazın və ya axtarın…",
+      empty: "Nəticə tapılmadı.",
+      groupNavigation: "Naviqasiya",
+      groupExperience: "Təcrübə",
+      groupProjects: "Layihələr",
+      groupSkills: "Bacarıqlar",
+      groupActions: "Əməliyyatlar",
+      groupLanguages: "Dil",
+      actionToggleTheme: "İşıqlı / qaranlıq rejimi dəyiş",
+      actionCopyEmail: "Email ünvanını kopyala",
+      actionEmailCopied: "Email kopyalandı",
+      actionOpenResume: "Rezümeni aç",
+      actionOpenGithub: "GitHub profilini aç",
+      actionOpenLinkedin: "LinkedIn profilini aç",
+      actionOpenTelegram: "Telegram-ı aç",
+      actionOpenMedium: "Medium bloqunu aç",
+      actionOpenStackOverflow: "Stack Overflow profilini aç",
+      actionReportBug: "Xəta bildir",
+      openCaseStudy: "Layihəyə bax",
+    },
+    contextMenu: {
+      copyRepoLink: "Repo linkini kopyala",
+      repoLinkCopied: "Repo linki kopyalandı",
+      copyPageLink: "Səhifə linkini kopyala",
+      pageLinkCopied: "Səhifə linki kopyalandı",
+      openCommandPalette: "Əmr Paneli",
+      downloadResume: "Rezümeni yüklə",
+      viewSourceOnGithub: "GitHub-da mənbə kodu",
+      reportBug: "Xəta bildir",
+    },
+    projectDetail: {
+      back: "Layihələrə qayıt",
+      problemLabel: "Problem",
+      approachLabel: "Yanaşma",
+      stackLabel: "Texnologiyalar",
+      outcomeLabel: "Nəticə",
+      viewRepo: "Repositoriyaya bax",
+      viewLive: "Canlı versiyaya bax",
+      notFoundTitle: "Layihə tapılmadı",
+      notFoundBody: "Bu layihə mövcud deyil, ya da link köhnəlib.",
+      backHome: "Ana səhifəyə qayıt",
+    },
+    terminal: {
+      welcome: "Mövcud əmrləri görmək üçün 'help' yazın.",
+      helpText:
+        "help              bu siyahını göstər\nwhoami            mən kiməm\nabout             qısa xülasə\nskills            texnologiyalar\nexperience        iş təcrübəsi\nprojects          layihələri sadala\nopen <slug>       layihənin təfərrüatını aç\ncontact           mənimlə necə əlaqə saxlamaq olar\nresume            rezümeni aç\ngithub            GitHub profilini aç\nlinkedin          LinkedIn profilini aç\ntelegram          Telegram-ı aç\nmedium            Medium bloqunu aç\nstackoverflow     Stack Overflow profilini aç\ntheme             işıqlı / qaranlıq rejimi dəyiş\nlang <code>       dili dəyiş (en, az, ru)\nclear             terminalı təmizlə",
+      notFound: "əmr tapılmadı: {cmd} — əmrlərin siyahısı üçün 'help' yazın.",
+      permissionDenied: "Cəhd yaxşıdır. İcazə verilmədi.",
+      openingProject: "\"{title}\" layihəsi açılır…",
+      projectNotFound: "\"{slug}\" üçün layihə tapılmadı. Siyahı üçün 'projects' yazın.",
+      themeSwitched: "{mode} rejiminə keçildi.",
+      langSwitched: "Dil {label} olaraq dəyişdirildi.",
+      langInvalid: "Naməlum dil \"{code}\". Sınayın: en, az, ru.",
+    },
+  },
+};
+
+export default az;

@@ -141,6 +141,35 @@ export interface UiStrings {
     commandPaletteHint: string;
   };
   backToTop: string;
+  resumeView: {
+    back: string;
+    fallback: string;
+  };
+  /** Hover tooltips and screen-reader labels for icon-only controls. Brand names (GitHub, LinkedIn…) stay literal in the components. */
+  labels: {
+    email: string;
+    resume: string;
+    reportBug: string;
+    viewSource: string;
+    socialMedia: string;
+    projectLinks: string;
+    language: string;
+    switchToLight: string;
+    switchToDark: string;
+    /** Contains "{shortcut}". */
+    toggleTheme: string;
+    minimize: string;
+    close: string;
+    home: string;
+    /** Adjective forms fed into terminal.themeSwitched ("{mode}"). */
+    modeLight: string;
+    modeDark: string;
+    terminalInput: string;
+    /** Contains "{title}". */
+    repository: string;
+    /** Contains "{title}". */
+    liveDemo: string;
+  };
   commandPalette: {
     placeholder: string;
     empty: string;

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CommandPaletteTrigger } from "@/components/command-palette/CommandPalette";
 import { Knockable } from "@/components/ui/Knockable";
 import { useContent } from "@/i18n/context";
+import { format } from "@/lib/format";
 import { useScrolledPast, useScrollProgress } from "@/hooks/useScrollPosition";
 import { scrollToTop } from "@/lib/scroll";
 import { useTheme } from "@/theme/context";
@@ -78,8 +79,8 @@ export function Navbar() {
               type="button"
               className="inline-flex items-center justify-center text-muted hover:text-accent transition-colors"
               onClick={toggleTheme}
-              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-              title={`Toggle theme (Ctrl+Shift+L)`}
+              aria-label={theme === "dark" ? ui.labels.switchToLight : ui.labels.switchToDark}
+              title={format(ui.labels.toggleTheme, { shortcut: "Ctrl+Shift+L" })}
             >
               {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
             </button>

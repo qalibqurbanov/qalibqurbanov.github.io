@@ -4,15 +4,18 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+import { localizedHtml } from "./localized-html.ts";
+
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vite.dev/config/
 export default defineConfig({
-  // Relative base so the build works whether it's served from a GitHub
-  // Pages project site (username.github.io/repo-name/) or a user/org
-  // root site (username.github.io/).
-  base: "./",
-  plugins: [react()],
+  // Absolute base: localized pages live at /az/ and /ru/, so a relative
+  // "./assets/..." would resolve to /az/assets/... and 404. The site is a
+  // user/org root site (username.github.io), which also matches the absolute
+  // "/favicon.svg" and "/resume.pdf" references already in use.
+  base: "/",
+  plugins: [react(), localizedHtml()],
   server: {
     port: 1337,
   },
