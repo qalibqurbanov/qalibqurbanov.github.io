@@ -1,7 +1,7 @@
 /** Hover-only border glitch: while the cursor is over a `.card-surface` /
  * `.btn-pulse` (or the `.card-hit` wrapping a card), random segments of its
  * border flash at random intervals. This only sets the CSS custom properties
- * `styles/index.css` reads (--gx/--gy/--gw/--gh/--gj/--glitch-color) plus the
+ * `styles/index.css` reads (--in-*, --cp-*, --col-*) plus the
  * `is-glitching` class; the drawing itself is CSS. Installed once, via event
  * delegation, so every surface behaves identically with no per-component
  * wiring. */
@@ -20,70 +20,57 @@ function resolveSurface(target: EventTarget | null): HTMLElement | null {
   return target.closest<HTMLElement>(SURFACE);
 }
 
-const pick = <T,>(items: readonly T[]): T => items[Math.floor(Math.random() * items.length)];
-
-/** Clip shapes a ghost ring can be cut to — each keeps only a fragment of
- * the border, in a different way. */
-const SHAPES: readonly (() => string)[] = [
-  // horizontal tear
-  () => {
-    const top = rand(0, 92);
-    return `inset(${top}% 0 ${100 - Math.min(100, top + rand(3, 30))}% 0)`;
-  },
-  // vertical tear
-  () => {
-    const left = rand(0, 92);
-    return `inset(0 ${100 - Math.min(100, left + rand(3, 25))}% 0 ${left}%)`;
-  },
-  // blocky fragment
-  () => {
-    const l = rand(0, 80);
-    const t = rand(0, 80);
-    return `inset(${t}% ${100 - l - rand(8, 30)}% ${100 - t - rand(15, 50)}% ${l}%)`;
-  },
-  // slanted slice
-  () => {
-    const y = rand(0, 85);
-    const h = rand(6, 30);
-    const skew = rand(-25, 25);
-    return `polygon(0 ${y}%, 100% ${y + skew}%, 100% ${y + skew + h}%, 0 ${y + h}%)`;
-  },
-  // thin scan stripe
-  () => {
-    const y = rand(0, 98);
-    return `inset(${y}% 0 ${100 - y - rand(0.8, 3)}% 0)`;
-  },
-  // half of the border
-  () => pick(["inset(0 50% 0 0)", "inset(0 0 0 50%)", "inset(0 0 50% 0)", "inset(50% 0 0 0)"]),
-  // whole ring (a pure RGB-split flash)
-  () => "inset(0)",
-];
-
-let lastShape = -1;
-
-function shape(): string {
-  let i = Math.floor(Math.random() * SHAPES.length);
-  if (i === lastShape) i = (i + 1 + Math.floor(Math.random() * (SHAPES.length - 1))) % SHAPES.length;
-  lastShape = i;
-  return SHAPES[i]();
+/** Random fragments of a w×h ring, as a px `path()` clip. Each fragment sits
+ * at a uniformly random spot on the perimeter (so every side, corners
+ * included, is equally likely), with a random length and thickness; the odd
+ * one is a full-width/height tear instead. Nothing is reused between calls. */
+function fragments(w: number, h: number, count: number): string {
+  const perimeter = 2 * (w + h);
+  let d = "";
+  const rect = (x: number, y: number, rw: number, rh: number) => {
+    d += `M${x.toFixed(1)} ${y.toFixed(1)}h${rw.toFixed(1)}v${rh.toFixed(1)}h${(-rw).toFixed(1)}z`;
+  };
+  for (let i = 0; i < count; i++) {
+    const thick = rand(5, 18);
+    if (Math.random() < 0.15) {
+      if (Math.random() < 0.5) rect(0, rand(0, h), w, rand(2, 10));
+      else rect(rand(0, w), 0, rand(2, 10), h);
+      continue;
+    }
+    const pos = Math.random() * perimeter;
+    const len = rand(0.03, 0.25) * perimeter;
+    if (pos < w) rect(pos, 0, Math.min(len, w - pos) + thick, thick); // top
+    else if (pos < w + h) rect(w - thick, pos - w, thick, Math.min(len, w + h - pos) + thick); // right
+    else if (pos < 2 * w + h) {
+      const u = pos - w - h; // bottom, walked right to left
+      rect(Math.max(0, w - u - len), h - thick, Math.min(len, w - u) + thick, thick);
+    } else {
+      const u = pos - 2 * w - h; // left, walked bottom to top
+      rect(0, Math.max(0, h - u - len), thick, Math.min(len, h - u) + thick);
+    }
+  }
+  return d ? `path("${d}")` : 'path("M0 0")';
 }
 
-/** One frame of the glitch: independently re-rolled shapes, offsets and
- * colours for each ghost, so no two frames (or bursts) look alike. */
+/** One frame of the glitch: each ghost ring gets its own random per-side
+ * inset, fragments and colour, so no two frames (or bursts) look alike. */
 function frame(el: HTMLElement) {
   const set = (k: string, v: string) => el.style.setProperty(k, v);
-  const split = rand(1, 10);
-  const vertical = Math.random() < 0.3;
-  const both = Math.random() < 0.7; // sometimes only one ghost appears
-  set("--cp-a", shape());
-  set("--cp-b", both ? shape() : "inset(50% 50% 50% 50%)");
-  set("--dx-a", `${vertical ? rand(-2, 2) : -split}px`);
-  set("--dx-b", `${vertical ? rand(-2, 2) : split * rand(0.4, 1.4)}px`);
-  set("--dy-a", `${vertical ? -split : rand(-2, 2)}px`);
-  set("--dy-b", `${vertical ? split : rand(-2, 2)}px`);
-  const [ca, cb] = Math.random() < 0.5 ? ["var(--color-accent)", "var(--color-accent-2)"] : ["var(--color-accent-2)", "var(--color-accent)"];
-  set("--col-a", ca);
-  set("--col-b", cb);
+  const W = el.clientWidth;
+  const H = el.clientHeight;
+  const ghost = (key: "a" | "b", count: number) => {
+    const t = rand(0, 7);
+    const r = rand(0, 7);
+    const b = rand(0, 7);
+    const l = rand(0, 7);
+    set(`--in-${key}`, `${t}px ${r}px ${b}px ${l}px`);
+    set(`--cp-${key}`, fragments(Math.max(1, W - l - r), Math.max(1, H - t - b), count));
+  };
+  ghost("a", 1 + Math.floor(Math.random() * 4));
+  ghost("b", Math.floor(Math.random() * 4));
+  const swap = Math.random() < 0.5;
+  set("--col-a", swap ? "var(--color-accent-2)" : "var(--color-accent)");
+  set("--col-b", swap ? "var(--color-accent)" : "var(--color-accent-2)");
   el.classList.add("is-glitching");
 }
 
