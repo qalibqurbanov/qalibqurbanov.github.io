@@ -135,6 +135,19 @@ export interface UiStrings {
     body: string;
     ctaPrefix: string;
   };
+  contactModal: {
+    title: string;
+    description: string;
+    nameLabel: string;
+    emailLabel: string;
+    messageLabel: string;
+    send: string;
+    sending: string;
+    successTitle: string;
+    successBody: string;
+    error: string;
+    close: string;
+  };
   nav: {
     toggleMenu: string;
     scrollToAbout: string;

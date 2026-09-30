@@ -189,6 +189,19 @@ const az: Content = {
       blog: { index: "05", title: "Yazılar" },
       contact: { index: "06", title: "Növbəti Addım" },
     },
+    contactModal: {
+      title: "Mesaj göndərin",
+      description: "Məlumatlarınızı və mesajınızı yazın — sizə e-poçtla cavab verəcəyəm.",
+      nameLabel: "Ad",
+      emailLabel: "E-poçtunuz",
+      messageLabel: "Mesaj",
+      send: "Mesajı göndər",
+      sending: "Göndərilir…",
+      successTitle: "Mesaj göndərildi",
+      successBody: "Yazdığınız üçün təşəkkürlər — mümkün qədər tez cavab verəcəyəm.",
+      error: "Mesajı göndərmək mümkün olmadı. Bir azdan yenidən cəhd edin.",
+      close: "Bağla",
+    },
     skillGroups: {
       backend: "Backend",
       frontend: "Frontend",
@@ -197,7 +210,7 @@ const az: Content = {
     },
     contact: {
       heading: "Əlaqə Saxlayın",
-      body: "Hazırda yeni imkanlara və maraqlı layihələrə açığam — backend, frontend və ya mobil. Sualınız varsa və ya sadəcə salam demək istəyirsinizsə, qutum həmişə açıqdır.",
+      body: "Hazırda yeni imkanlara və maraqlı layihələrə açığam — backend, frontend və ya mobil. Sualınız varsa və ya sadəcə salam vermək istəyirsinizsə, qutum həmişə açıqdır.",
       ctaPrefix: "Mənə yazın —",
     },
     nav: {

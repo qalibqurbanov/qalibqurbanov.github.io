@@ -1,3 +1,4 @@
+import { ContactModal } from "@/components/contact/ContactModal";
 import { CommandPalette } from "@/components/command-palette/CommandPalette";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
@@ -30,6 +31,7 @@ export function App() {
       <AmbientBackground />
       <CommandPalette />
       <ContextMenu />
+      <ContactModal />
 
       {resumeOpen ? (
         <ResumeViewer onBack={closeProject} />

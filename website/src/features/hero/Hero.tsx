@@ -9,6 +9,7 @@ import {
   StackOverflowIcon,
   TelegramIcon,
 } from "@/components/icons/BrandIcons";
+import { openContactModal } from "@/components/contact/ContactModal";
 import { FileIcon } from "@/components/ui/FileIcon";
 import { Knockable } from "@/components/ui/Knockable";
 import { Reveal } from "@/components/ui/Reveal";
@@ -355,13 +356,14 @@ export function Hero() {
                   </Knockable>
                 )}
                 <Knockable seed={115} className="inline-flex items-center">
-                  <a
-                    href={socials.email}
+                  <button
+                    type="button"
+                    onClick={openContactModal}
                     aria-label={ui.labels.email}
                     className="inline-flex items-center justify-center p-2 rounded-full text-muted hover:text-accent hover:bg-surface-2 transition"
                   >
                     <Mail size={19} />
-                  </a>
+                  </button>
                 </Knockable>
               </div>
             </Knockable>
