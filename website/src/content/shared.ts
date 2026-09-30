@@ -1,9 +1,6 @@
 import type { SocialLinks } from "@/types/content";
 
-// Contact info and external profile links don't vary by locale — defined
-// once here instead of copy-pasted into every locale's profile.ts, so
-// updating a handle or the email address can't drift out of sync between
-// languages the way the name once did.
+// Contact info and external profile links don't vary by locale.
 export const email = "qalibqurbanow@gmail.com";
 export const resumeUrl = "/resume.pdf";
 

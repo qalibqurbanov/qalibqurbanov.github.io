@@ -1,4 +1,4 @@
-import { ArrowDown, Mail, SquareTerminal } from "lucide-react";
+import { ArrowDown, FileText, Mail, SquareTerminal } from "lucide-react";
 import type { ReactNode } from "react";
 import { Fragment, useEffect, useRef, useState } from "react";
 
@@ -17,6 +17,7 @@ import { HeroMinimizedEasterEgg } from "@/features/hero/HeroMinimizedEasterEgg";
 import { HeroTerminal } from "@/features/hero/HeroTerminal";
 import { useContent } from "@/i18n/context";
 import { useDraggableWindow } from "@/hooks/useDraggableWindow";
+import { RESUME_HREF } from "@/hooks/useProjectRoute";
 import { useInView } from "@/hooks/useInView";
 import { useTilt } from "@/hooks/useTilt";
 
@@ -289,9 +290,9 @@ export function Hero() {
             </Knockable>
           </Reveal>
 
-          <Reveal delayMs={500} className="mt-12">
+          <Reveal delayMs={500} className="mt-12 flex flex-wrap items-center gap-3">
             <Knockable seed={116} className="inline-block">
-              <div className="inline-flex items-center gap-0.5 rounded-full border border-border bg-surface/70 backdrop-blur-sm p-1.5 shadow-inner shadow-black/5">
+              <div className="card-surface !overflow-visible inline-flex items-center gap-0.5 rounded-full p-1.5">
                 <Knockable seed={110} className="inline-flex items-center">
                   <a
                     href={socials.github}
@@ -353,11 +354,10 @@ export function Hero() {
                     </a>
                   </Knockable>
                 )}
-                <span className="h-4 w-px bg-border mx-1" aria-hidden="true" />
                 <Knockable seed={115} className="inline-flex items-center">
                   <a
                     href={socials.email}
-                    aria-label="Email"
+                    aria-label={ui.labels.email}
                     className="inline-flex items-center justify-center p-2 rounded-full text-muted hover:text-accent hover:bg-surface-2 transition"
                   >
                     <Mail size={19} />
@@ -365,6 +365,19 @@ export function Hero() {
                 </Knockable>
               </div>
             </Knockable>
+            {profile.resumeUrl && profile.resumeUrl !== "#" && (
+              <Knockable seed={117} className="inline-block">
+                <div className="card-surface !overflow-visible inline-flex items-center rounded-full p-1.5">
+                  <a
+                    href={RESUME_HREF}
+                    aria-label={ui.labels.resume}
+                    className="inline-flex items-center justify-center p-2 rounded-full text-accent bg-accent/10 hover:bg-accent/20 transition"
+                  >
+                    <FileText size={19} />
+                  </a>
+                </div>
+              </Knockable>
+            )}
           </Reveal>
         </div>
 
@@ -442,11 +455,22 @@ export function Hero() {
                     either one — HeroCode's typewriter reveal would otherwise
                     replay from scratch every time you come back to it, and
                     HeroTerminal's command history would reset too. */}
-                <div className={tab === "code" ? undefined : "hidden"}>
-                  <HeroCode />
-                </div>
-                <div className={tab === "terminal" ? undefined : "hidden"}>
-                  <HeroTerminal />
+                {/* Stacked in one grid cell (hidden one is `invisible`, not
+                    `display: none`) so the window is always as tall as the
+                    taller pane and never resizes or shifts on tab switch. */}
+                <div className="grid">
+                  <div
+                    className={`col-start-1 row-start-1 ${tab === "code" ? "" : "invisible pointer-events-none"}`}
+                    aria-hidden={tab !== "code"}
+                  >
+                    <HeroCode />
+                  </div>
+                  <div
+                    className={`col-start-1 row-start-1 ${tab === "terminal" ? "" : "invisible pointer-events-none"}`}
+                    aria-hidden={tab !== "terminal"}
+                  >
+                    <HeroTerminal />
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,11 +1,12 @@
 import * as Select from "@radix-ui/react-select";
 import { Check, ChevronDown } from "lucide-react";
 
-import { useLocale } from "@/i18n/context";
+import { useContent, useLocale } from "@/i18n/context";
 import { isLocale, SUPPORTED_LOCALES } from "@/i18n/locale";
 
 export function LanguageSwitcher() {
   const { locale, setLocale } = useLocale();
+  const { ui } = useContent();
 
   function handleValueChange(value: string) {
     if (isLocale(value)) setLocale(value);
@@ -14,7 +15,7 @@ export function LanguageSwitcher() {
   return (
     <Select.Root value={locale} onValueChange={handleValueChange}>
       <Select.Trigger
-        aria-label="Language"
+        aria-label={ui.labels.language}
         className="inline-flex items-center gap-1.5 rounded border border-border px-2 py-1 font-mono text-xs text-muted outline-none transition-colors hover:border-accent/60 hover:text-accent focus-visible:border-accent focus-visible:text-accent data-[state=open]:border-accent data-[state=open]:text-accent"
       >
         <Select.Value />
