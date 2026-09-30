@@ -394,8 +394,33 @@ html::-webkit-scrollbar-button,
   }
 }
 
+/* A quick vertical jolt (vertical so it can't trigger a horizontal scrollbar). */
+@keyframes section-focus-shake {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  15% {
+    transform: translateY(-4px);
+  }
+  30% {
+    transform: translateY(3px);
+  }
+  45% {
+    transform: translateY(-2px);
+  }
+  60% {
+    transform: translateY(1.5px);
+  }
+  75% {
+    transform: translateY(-1px);
+  }
+}
+
 .section-focus-highlight {
-  animation: section-focus-pulse 1.4s ease-out;
+  animation:
+    section-focus-pulse 1.4s ease-out,
+    section-focus-shake 0.5s ease-out;
 }
 
 /* A moving highlight along the section-heading rule and the `{`/`}`
@@ -569,4 +594,26 @@ html::-webkit-scrollbar-button,
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Heading glow that accompanies the section-focus ring: the heading is what's
+   actually on screen after a jump, so it lights up in the accent colour and
+   eases back. */
+@keyframes heading-focus-glow {
+  0% {
+    text-shadow: 0 0 0 transparent;
+  }
+  30% {
+    color: var(--color-accent);
+    text-shadow:
+      0 0 28px color-mix(in srgb, var(--color-accent) 70%, transparent),
+      0 0 8px color-mix(in srgb, var(--color-accent) 50%, transparent);
+  }
+  100% {
+    text-shadow: 0 0 0 transparent;
+  }
+}
+
+.heading-focus-highlight {
+  animation: heading-focus-glow 1.8s ease-out;
 }
