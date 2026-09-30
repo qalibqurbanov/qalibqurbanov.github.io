@@ -194,6 +194,11 @@ const en: Content = {
       nameLabel: "Name",
       emailLabel: "Your email",
       messageLabel: "Message",
+      attachLabel: "Attachments (optional)",
+      dropHint: "Drag files here or click to browse",
+      dropActive: "Drop files to attach",
+      filesTooLarge: "Files can total {max} at most, up to {count} files.",
+      removeFile: "Remove file",
       send: "Send message",
       sending: "Sending…",
       successTitle: "Message sent",
@@ -219,7 +224,7 @@ const en: Content = {
     },
     backToTop: "Back to top",
     resumeView: {
-      back: "Back to site",
+      back: "Back",
       fallback: "Your browser can't display PDFs inline.",
     },
     labels: {

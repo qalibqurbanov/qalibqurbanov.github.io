@@ -141,6 +141,12 @@ export interface UiStrings {
     nameLabel: string;
     emailLabel: string;
     messageLabel: string;
+    attachLabel: string;
+    dropHint: string;
+    dropActive: string;
+    /** `{max}` and `{count}` are filled in. */
+    filesTooLarge: string;
+    removeFile: string;
     send: string;
     sending: string;
     successTitle: string;

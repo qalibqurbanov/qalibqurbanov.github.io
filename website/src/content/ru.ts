@@ -195,6 +195,11 @@ const ru: Content = {
       nameLabel: "Имя",
       emailLabel: "Ваш e-mail",
       messageLabel: "Сообщение",
+      attachLabel: "Вложения (необязательно)",
+      dropHint: "Перетащите файлы сюда или нажмите для выбора",
+      dropActive: "Отпустите файлы, чтобы прикрепить",
+      filesTooLarge: "Суммарный размер файлов — не более {max}, не более {count} файлов.",
+      removeFile: "Удалить файл",
       send: "Отправить",
       sending: "Отправка…",
       successTitle: "Сообщение отправлено",
@@ -220,7 +225,7 @@ const ru: Content = {
     },
     backToTop: "Наверх",
     resumeView: {
-      back: "Назад на сайт",
+      back: "Назад",
       fallback: "Ваш браузер не может показать PDF на этой странице.",
     },
     labels: {
