@@ -438,10 +438,12 @@ html::-webkit-scrollbar-button,
   animation: bracket-pulse 2.4s ease-in-out infinite;
 }
 
-/* Hover glitch: while the cursor is over a bordered surface, its border
-   randomly "tears" — two RGB-split ghost copies of the border (the theme's accent and
-   accent-2 colours) shift sideways and are cut into random horizontal slices. The
-   timing, slice shapes (--cp-a/--cp-b) and offsets (--dx-a/--dx-b) come from
+/* Hover glitch: while the cursor is over a bordered surface, random fragments
+   of its border flash in two ghost colours (the theme's accent and accent-2).
+   Each ghost is a 2px ring pulled inward by a random amount per side (so it is
+   always inside the element's own overflow clip and therefore always visible)
+   and cut down to a few random segments along the perimeter. Timing, segment
+   positions (--cp-a/--cp-b) and insets (--in-a/--in-b) all come from
    borderGlitch.ts; CSS only draws the ghost rings. */
 .card-surface,
 .btn-pulse {
@@ -456,10 +458,8 @@ html::-webkit-scrollbar-button,
   content: "";
   display: none;
   position: absolute;
-  /* A real border (rather than a masked fill) keeps the rounded corners
-     natively anti-aliased; it sits just inside the element's own border. */
   inset: 0;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   border-radius: inherit;
   pointer-events: none;
 }
@@ -467,15 +467,15 @@ html::-webkit-scrollbar-button,
 .card-surface::before,
 .btn-pulse::before {
   border-color: var(--col-a, var(--color-accent));
-  clip-path: var(--cp-a, inset(0));
-  transform: translate(var(--dx-a, 0px), var(--dy-a, 0px));
+  inset: var(--in-a, 0px);
+  clip-path: var(--cp-a, none);
 }
 
 .card-surface::after,
 .btn-pulse::after {
   border-color: var(--col-b, var(--color-accent-2));
-  clip-path: var(--cp-b, inset(0));
-  transform: translate(var(--dx-b, 0px), var(--dy-b, 0px));
+  inset: var(--in-b, 0px);
+  clip-path: var(--cp-b, none);
 }
 
 .is-glitching::before,
