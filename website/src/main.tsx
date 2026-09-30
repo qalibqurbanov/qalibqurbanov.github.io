@@ -7,7 +7,10 @@ import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { resolveInitialLocale } from "@/i18n/locale";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
+import { installBorderGlitch } from "@/hooks/borderGlitch";
 import "@/styles/index.css";
+
+installBorderGlitch();
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

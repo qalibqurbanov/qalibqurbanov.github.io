@@ -283,7 +283,7 @@ export function Hero() {
             <Knockable seed={104} className="inline-flex items-center">
               <a
                 href="#contact"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-md border border-border font-mono text-sm text-text hover:border-accent hover:text-accent transition"
+                className="btn-pulse inline-flex items-center justify-center px-6 py-3 rounded-md border border-border font-mono text-sm text-text hover:border-accent hover:text-accent transition"
               >
                 {ui.hero.ctaGetInTouch}
               </a>
