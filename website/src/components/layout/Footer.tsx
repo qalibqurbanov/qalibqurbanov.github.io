@@ -8,6 +8,7 @@ import {
   StackOverflowIcon,
   TelegramIcon,
 } from "@/components/icons/BrandIcons";
+import { openContactModal } from "@/components/contact/ContactModal";
 import { useClock } from "@/hooks/useClock";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
@@ -15,7 +16,9 @@ import { getLocaleMeta } from "@/i18n/locale";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
 
 interface FooterIconLinkProps {
-  href: string;
+  /** Omit for a button (uses `onClick`) instead of a link. */
+  href?: string;
+  onClick?: () => void;
   label: string;
   external?: boolean;
   /** "accent", "danger", and "accent2" give the icon its own soft badge
@@ -43,14 +46,13 @@ const GROUP_CLASS = "card-surface !overflow-visible flex items-center rounded-fu
 // Pure-CSS hover/focus popup naming whichever footer icon is under the
 // cursor — `group` on the anchor drives the tooltip's opacity/scale so no
 // hover-state JS is needed.
-function FooterIconLink({ href, label, external = true, tone = "default", children }: FooterIconLinkProps) {
+function FooterIconLink({ href, onClick, label, external = true, tone = "default", children }: FooterIconLinkProps) {
+  const Tag = href ? "a" : "button";
+  const props = href
+    ? { href, ...(external ? { target: "_blank", rel: "noreferrer" } : {}) }
+    : { type: "button" as const, onClick };
   return (
-    <a
-      href={href}
-      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-      aria-label={label}
-      className={TONE_CLASSES[tone]}
-    >
+    <Tag {...props} aria-label={label} className={TONE_CLASSES[tone]}>
       {children}
       <span
         role="tooltip"
@@ -58,7 +60,7 @@ function FooterIconLink({ href, label, external = true, tone = "default", childr
       >
         {label}
       </span>
-    </a>
+    </Tag>
   );
 }
 
@@ -121,7 +123,7 @@ export function Footer() {
                 <TelegramIcon size={18} />
               </FooterIconLink>
             )}
-            <FooterIconLink href={socials.email} label={ui.labels.email} external={false}>
+            <FooterIconLink onClick={openContactModal} label={ui.labels.email}>
               <Mail size={18} />
             </FooterIconLink>
           </div>
