@@ -472,8 +472,17 @@ html::-webkit-scrollbar-button,
    borderGlitch.ts; CSS only draws the ghost rings. */
 .card-surface,
 .btn-pulse {
+  --glitch-1: var(--color-accent);
+  --glitch-2: var(--color-accent-2);
   position: relative;
   overflow: hidden;
+}
+
+/* Surfaces filled with the accent colour would swallow accent-coloured ghosts,
+   so they glitch in the page background and text colours instead. */
+.btn-solid {
+  --glitch-1: var(--color-bg);
+  --glitch-2: color-mix(in srgb, var(--color-bg) 45%, var(--color-accent-2));
 }
 
 .card-surface::before,

@@ -276,7 +276,7 @@ export function Hero() {
             <Knockable seed={103} className="inline-flex items-center">
               <a
                 href="#projects"
-                className="inline-flex items-center justify-center btn-pulse rounded-md px-6 py-3 bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
+                className="inline-flex items-center justify-center btn-pulse btn-solid rounded-md px-6 py-3 bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
               >
                 {ui.hero.ctaViewWork}
               </a>

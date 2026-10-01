@@ -69,8 +69,8 @@ function frame(el: HTMLElement) {
   ghost("a", 1 + Math.floor(Math.random() * 4));
   ghost("b", Math.floor(Math.random() * 4));
   const swap = Math.random() < 0.5;
-  set("--col-a", swap ? "var(--color-accent-2)" : "var(--color-accent)");
-  set("--col-b", swap ? "var(--color-accent)" : "var(--color-accent-2)");
+  set("--col-a", swap ? "var(--glitch-2)" : "var(--glitch-1)");
+  set("--col-b", swap ? "var(--glitch-1)" : "var(--glitch-2)");
   el.classList.add("is-glitching");
 }
 
