@@ -41,7 +41,7 @@ export function About() {
   return (
     <section id="about" className="py-28">
       <Container>
-        <SectionHeading index={ui.sections.about.index} title={ui.sections.about.title} />
+        <SectionHeading id="about" index={ui.sections.about.index} title={ui.sections.about.title} />
 
         <div className="space-y-10">
           <Reveal className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6">

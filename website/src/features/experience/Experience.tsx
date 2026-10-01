@@ -14,6 +14,7 @@ export function Experience() {
     <section id="experience" className="py-28">
       <Container>
         <SectionHeading
+          id="experience"
           index={ui.sections.experience.index}
           title={ui.sections.experience.title}
         />
