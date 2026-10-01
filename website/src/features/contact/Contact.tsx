@@ -11,7 +11,7 @@ export function Contact() {
   return (
     <section id="contact" className="py-28">
       <Container>
-        <SectionHeading index={ui.sections.contact.index} title={ui.sections.contact.title} />
+        <SectionHeading id="contact" index={ui.sections.contact.index} title={ui.sections.contact.title} />
 
         <Reveal className="max-w-2xl mx-auto text-center">
           <h3 className="text-3xl sm:text-4xl font-bold text-text mb-6">{ui.contact.heading}</h3>

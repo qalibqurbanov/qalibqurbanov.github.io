@@ -17,7 +17,7 @@ export function Blog() {
   return (
     <section id="blog" className="py-28">
       <Container>
-        <SectionHeading index={ui.sections.blog.index} title={ui.sections.blog.title} />
+        <SectionHeading id="blog" index={ui.sections.blog.index} title={ui.sections.blog.title} />
 
         <div className="space-y-4">
           {blogPosts.map((post, index) => (

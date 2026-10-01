@@ -11,7 +11,7 @@ export function Projects() {
   return (
     <section id="projects" className="py-28">
       <Container>
-        <SectionHeading index={ui.sections.projects.index} title={ui.sections.projects.title} />
+        <SectionHeading id="projects" index={ui.sections.projects.index} title={ui.sections.projects.title} />
 
         <div className="grid sm:grid-cols-2 gap-6">
           {projects.map((project, index) => (

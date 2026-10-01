@@ -26,7 +26,7 @@ export function Skills() {
   return (
     <section id="skills" className="py-28">
       <Container>
-        <SectionHeading index={ui.sections.skills.index} title={ui.sections.skills.title} />
+        <SectionHeading id="skills" index={ui.sections.skills.index} title={ui.sections.skills.title} />
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {groups.map(({ category, icon: Icon }, index) => (
