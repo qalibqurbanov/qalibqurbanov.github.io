@@ -5,10 +5,12 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Tag } from "@/components/ui/Tag";
-import { useContent } from "@/i18n/context";
+import { useContent, useLocale } from "@/i18n/context";
+import { formatDuration } from "@/lib/duration";
 
 export function Experience() {
   const { experience, ui } = useContent();
+  const { locale } = useLocale();
 
   return (
     <section id="experience" className="py-28">
@@ -23,7 +25,10 @@ export function Experience() {
           {experience.map((item, index) => {
             return (
               <li key={item.role} className="mb-12 ml-8 last:mb-0">
-                <span className="absolute -left-[7px] mt-1.5 flex w-3.5 h-3.5" aria-hidden="true">
+                <span
+                  className="absolute -left-[7px] mt-1.5 flex w-3.5 h-3.5"
+                  aria-hidden="true"
+                >
                   {item.current && (
                     <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />
                   )}
@@ -32,9 +37,10 @@ export function Experience() {
                 <Reveal delayMs={index * 100}>
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h3 className="text-lg font-semibold text-text">
-                      {item.role} <span className="text-muted">· {item.org}</span>
+                      {item.role}{" "}
+                      <span className="text-muted">· {item.org}</span>
                     </h3>
-                    <span className="font-mono text-xs text-accent whitespace-nowrap bg-surface-2 border border-border rounded-md px-2 py-0.5">
+                    <span className="font-mono text-xs text-accent sm:whitespace-nowrap bg-surface-2 border border-border rounded-md px-2 py-0.5">
                       {/* The ∞ glyph's thin loop reads much smaller than digits
                           at the same font-size, so bump just that character
                           up rather than the whole (otherwise-tiny) badge. */}
@@ -42,17 +48,27 @@ export function Experience() {
                         <Fragment key={partIndex}>
                           {part}
                           {partIndex < parts.length - 1 && (
-                            <span className="text-base font-bold leading-none align-[-2px]">∞</span>
+                            <span className="text-base font-bold leading-none align-[-2px]">
+                              ∞
+                            </span>
                           )}
                         </Fragment>
                       ))}
+                      <span className="text-muted">
+                        {" "}
+                        ({formatDuration(item.start, item.end, locale)})
+                      </span>
                     </span>
                   </div>
-                  <p className="text-muted mt-2 leading-relaxed">{item.description}</p>
+                  <p className="text-muted mt-2 leading-relaxed">
+                    {item.description}
+                  </p>
                   {item.projects && item.projects.length > 0 && (
                     <>
                       {item.projectsIntro && (
-                        <p className="text-muted mt-3 leading-relaxed">{item.projectsIntro}</p>
+                        <p className="text-muted mt-3 leading-relaxed">
+                          {item.projectsIntro}
+                        </p>
                       )}
                       <ul className="mt-2 list-disc list-inside space-y-1 text-muted">
                         {item.projects.map((project) => (
@@ -73,7 +89,9 @@ export function Experience() {
                   {item.highlights && item.highlights.length > 0 && (
                     <>
                       {item.highlightsIntro && (
-                        <p className="text-muted mt-3 leading-relaxed">{item.highlightsIntro}</p>
+                        <p className="text-muted mt-3 leading-relaxed">
+                          {item.highlightsIntro}
+                        </p>
                       )}
                       <ul className="mt-2 list-disc list-inside space-y-1 text-muted">
                         {item.highlights.map((highlight) => (

@@ -34,6 +34,7 @@ const en: Content = {
       role: "Backend Developer",
       org: "Crocusoft",
       period: "Dec 2023 — Present",
+      start: "2023-12",
       current: true,
       description:
         "At Crocusoft, I develop and maintain backend solutions with the modern .NET stack for both public and internal systems.",
