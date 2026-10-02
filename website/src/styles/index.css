@@ -1356,3 +1356,11 @@ html.glitch-storm footer {
 .matrix-rain.is-leaving {
   opacity: 0;
 }
+
+/* The project filter animates through the View Transitions API: the cards
+   glide to their new places while the rest of the page stays put. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

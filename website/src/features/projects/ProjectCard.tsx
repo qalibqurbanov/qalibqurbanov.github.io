@@ -1,4 +1,4 @@
-import { ArrowUpRight, ExternalLink } from "lucide-react";
+import { ArrowUpRight, Download, ExternalLink } from "lucide-react";
 
 import { GithubIcon } from "@/components/icons/BrandIcons";
 import { FileIcon } from "@/components/ui/FileIcon";
@@ -8,8 +8,11 @@ import { WindowControls } from "@/components/ui/WindowControls";
 import { projectHref } from "@/hooks/useProjectRoute";
 import { useContent } from "@/i18n/context";
 import { format } from "@/lib/format";
+import { isDownloadUrl } from "@/lib/projectLinks";
 import { filenameFor } from "@/lib/projectFilename";
 import type { Project } from "@/types/content";
+
+import { ProjectStatusBar } from "./ProjectStatusBar";
 
 interface ProjectCardProps {
   project: Project;
@@ -19,9 +22,10 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
   const { ui } = useContent();
+  const download = isDownloadUrl(project.liveUrl);
 
   return (
-    <Reveal delayMs={delayMs}>
+    <Reveal delayMs={delayMs} style={{ viewTransitionName: `project-${project.slug}` }}>
       <div className="card-hit group h-full">
         <article
           data-project-slug={project.slug}
@@ -57,10 +61,10 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
                     href={project.liveUrl}
                     target="_blank"
                     rel="noreferrer"
-                    aria-label={format(ui.labels.liveDemo, { title: project.title })}
+                    aria-label={format(download ? ui.labels.download : ui.labels.liveDemo, { title: project.title })}
                     className="hover:text-accent transition"
                   >
-                    <ExternalLink size={18} />
+                    {download ? <Download size={18} /> : <ExternalLink size={18} />}
                   </a>
                 </div>
               </div>
@@ -84,6 +88,8 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
               </a>
             </div>
           </div>
+
+          <ProjectStatusBar repoUrl={project.repoUrl} />
         </article>
       </div>
     </Reveal>

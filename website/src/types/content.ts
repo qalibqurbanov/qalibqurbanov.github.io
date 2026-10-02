@@ -210,6 +210,14 @@ export interface UiStrings {
     repository: string;
     /** Contains "{title}". */
     liveDemo: string;
+    /** Contains "{title}". */
+    download: string;
+    stars: string;
+    downloads: string;
+    /** Tooltip of the dot beside a project's stats while they are being kept up to date from GitHub. */
+    liveData: string;
+    /** Tooltip of that dot while GitHub cannot be reached and a saved copy is shown. */
+    cachedData: string;
   };
   commandPalette: {
     placeholder: string;
@@ -250,9 +258,25 @@ export interface UiStrings {
     outcomeLabel: string;
     viewRepo: string;
     viewLive: string;
+    /** Label of the primary link when it points at a release or download, not a live site. */
+    viewDownload: string;
     notFoundTitle: string;
     notFoundBody: string;
     backHome: string;
+    prev: string;
+    next: string;
+    copyLink: string;
+    linkCopied: string;
+  };
+  projectList: {
+    filterLabel: string;
+    /** The "no filter" chip. */
+    filterAll: string;
+    /** Filename in the closing "more projects" card's window bar. */
+    moreFile: string;
+    moreTitle: string;
+    moreBody: string;
+    moreCta: string;
   };
   terminal: {
     welcome: string;
