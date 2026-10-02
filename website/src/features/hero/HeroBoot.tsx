@@ -4,11 +4,11 @@ import { useContent } from "@/i18n/context";
 import { format } from "@/lib/format";
 
 /** How long the closing "[ finishing ]" progress bar runs. */
-const PROGRESS_MS = 3000;
+const PROGRESS_MS = 1300;
 const BAR_CELLS = 24;
 /** Wait before the first line, so it lands as the window finishes cutting in. */
 const FIRST_LINE_DELAY_MS = 900;
-const FADE_MS = 300;
+const FADE_MS = 250;
 
 const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 
@@ -18,7 +18,7 @@ interface HeroBootProps {
 }
 
 /** The hero window's boot screen: it covers the whole window body, prints a
- * run of status lines, then a progress bar for three seconds, and fades away
+ * run of status lines, then a progress bar for about a second, and fades away
  * to reveal the window. Any key or click skips it. */
 export function HeroBoot({ onDone }: HeroBootProps) {
   const { profile, projects, skills, blogPosts, ui } = useContent();
@@ -41,7 +41,7 @@ export function HeroBoot({ onDone }: HeroBootProps) {
   // One line per tick; each render schedules the next.
   useEffect(() => {
     if (linesDone) return;
-    const delay = shown === 0 ? FIRST_LINE_DELAY_MS : 80 + Math.random() * 70;
+    const delay = shown === 0 ? FIRST_LINE_DELAY_MS : 60 + Math.random() * 50;
     const id = window.setTimeout(() => setShown(shown + 1), delay);
     return () => window.clearTimeout(id);
   }, [shown, linesDone]);
@@ -61,7 +61,7 @@ export function HeroBoot({ onDone }: HeroBootProps) {
   // A beat on 100%, then fade out, then hand back to the window.
   useEffect(() => {
     if (progress < 1) return;
-    const id = window.setTimeout(() => setLeaving(true), 250);
+    const id = window.setTimeout(() => setLeaving(true), 200);
     return () => window.clearTimeout(id);
   }, [progress]);
 
