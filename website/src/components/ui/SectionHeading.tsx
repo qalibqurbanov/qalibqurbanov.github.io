@@ -11,7 +11,7 @@ interface SectionHeadingProps {
 
 export function SectionHeading({ id, index, title }: SectionHeadingProps) {
   return (
-    <Reveal className="mb-12">
+    <Reveal replay className="mb-12">
       <p className="font-mono text-sm mb-2">
         <span className="text-muted">{"// "}</span>
         <span className="text-accent">{index}</span>

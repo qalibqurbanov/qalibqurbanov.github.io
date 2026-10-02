@@ -10,13 +10,15 @@ interface GlitchTextProps {
   decode?: boolean;
   /** Glitch at random while it is on screen. */
   idle?: boolean;
+  /** Shortest and longest wait, in ms, between idle glitches (default 4–10 s). */
+  idleRange?: readonly [number, number];
 }
 
 /** Text that glitches (RGB-splits) while hovered — hovering the link, button
  * or `data-glitch-host` element it sits in counts too — and optionally on
  * scroll-in or at random. */
-export function GlitchText({ text, className = "", onEnter, decode, idle }: GlitchTextProps) {
-  const ref = useGlitchText<HTMLSpanElement>({ onEnter, decode, idle });
+export function GlitchText({ text, className = "", onEnter, decode, idle, idleRange }: GlitchTextProps) {
+  const ref = useGlitchText<HTMLSpanElement>({ onEnter, decode, idle, idleRange });
 
   return (
     <span ref={ref} data-text={text} className={`glitch-text ${className}`}>
