@@ -239,8 +239,10 @@ export interface UiStrings {
   };
   terminal: {
     welcome: string;
-    /** Status lines printed one by one when the terminal is first opened, each after an "[ ok ]" marker. May contain {name}, {projects} and {skills}. */
+    /** Status lines the hero window prints while it boots, each after an "[ ok ]" marker. May contain {name}, {location}, {projects} and {skills}. */
     boot: string[];
+    /** Label of the progress row that ends the boot, shown as "[ finishing ]". */
+    finishing: string;
     helpText: string;
     notFound: string;
     permissionDenied: string;
