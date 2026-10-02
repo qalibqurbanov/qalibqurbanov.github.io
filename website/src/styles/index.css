@@ -821,7 +821,8 @@ html::-webkit-scrollbar-button,
 
 /* Hero entrance: the line cuts in through hard-edged slices with a red/blue
    style split, then settles. Held `backwards` so it is hidden until its
-   delay (--gi-delay) is over, and leaves no clip-path or filter behind. */
+   delay (--gi-delay) is over, and leaves no clip-path or filter behind.
+   --gi-duration stretches it for bigger elements such as the hero window. */
 @keyframes glitch-in {
   0% {
     clip-path: inset(0 0 100% 0);
@@ -865,7 +866,7 @@ html::-webkit-scrollbar-button,
 }
 
 .glitch-in {
-  animation: glitch-in 650ms steps(1, end) var(--gi-delay, 0ms) backwards;
+  animation: glitch-in var(--gi-duration, 650ms) steps(1, end) var(--gi-delay, 0ms) backwards;
 }
 
 /* Scan line that sweeps the screen while the page jumps to a section. */
