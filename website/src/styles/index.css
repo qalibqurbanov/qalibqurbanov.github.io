@@ -626,3 +626,62 @@ html::-webkit-scrollbar-button,
 .heading-focus-highlight {
   animation: heading-focus-glow 1.8s ease-out;
 }
+
+/* Open/close animation for the project, resume and contact views. The overlay
+   fades; the window rises and fades. Radix keeps the nodes mounted for the
+   `closed` animation to play (ViewModal waits for it before unmounting). */
+@keyframes view-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes view-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes view-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes view-rise-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+}
+
+.view-overlay {
+  animation: view-fade-in 220ms ease-out both;
+}
+
+.view-overlay[data-state="closed"] {
+  animation: view-fade-out 180ms ease-in both;
+}
+
+.view-content {
+  animation: view-rise-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.view-content[data-state="closed"] {
+  animation: view-rise-out 180ms ease-in both;
+}

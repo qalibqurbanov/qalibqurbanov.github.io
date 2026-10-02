@@ -33,102 +33,106 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
       widthClass="max-w-3xl"
       onClose={onBack}
     >
-      <main className="flex-1 min-h-0">
-        <div className="h-full">
-          {!project ? (
-            <div className="text-center py-24">
-              <h1 className="text-2xl font-semibold">
-                {ui.projectDetail.notFoundTitle}
-              </h1>
-              <p className="text-muted mt-3">{ui.projectDetail.notFoundBody}</p>
-              <a
-                href="#"
-                onClick={(event) => {
-                  event.preventDefault();
-                  onBack();
-                }}
-                className="inline-block mt-8 rounded-md px-6 py-3 bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
-              >
-                {ui.projectDetail.backHome}
-              </a>
-            </div>
-          ) : (
-            <Reveal className="h-full flex flex-col min-h-0">
-              {/* Capped to the space between the header and viewport bottom
+      {(close) => (
+        <main className="flex-1 min-h-0">
+          <div className="h-full">
+            {!project ? (
+              <div className="text-center py-24">
+                <h1 className="text-2xl font-semibold">
+                  {ui.projectDetail.notFoundTitle}
+                </h1>
+                <p className="text-muted mt-3">
+                  {ui.projectDetail.notFoundBody}
+                </p>
+                <a
+                  href="#"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    close();
+                  }}
+                  className="inline-block mt-8 rounded-md px-6 py-3 bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
+                >
+                  {ui.projectDetail.backHome}
+                </a>
+              </div>
+            ) : (
+              <Reveal className="h-full flex flex-col min-h-0">
+                {/* Capped to the space between the header and viewport bottom
                   (via the h-full chain above) instead of letting the page
                   itself grow — the content below scrolls inside the window
                   when it's taller than that, so the header stays put. */}
-              <CodeWindow
-                filename={filenameFor(project, 0)}
-                className="flex flex-col min-h-0 max-h-full"
-                onClose={onBack}
-              >
-                <div className="custom-scrollbar p-8 flex-1 overflow-y-auto min-h-0">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                    <h1 className="min-w-0 flex-1 text-3xl font-bold tracking-tight">
-                      {project.title}
-                    </h1>
-                    <div className="flex flex-wrap gap-3 shrink-0">
-                      <a
-                        href={project.repoUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-border font-mono text-sm hover:border-accent hover:text-accent transition"
-                      >
-                        <GithubIcon size={16} />
-                        {ui.projectDetail.viewRepo}
-                      </a>
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
-                      >
-                        <ExternalLink size={16} />
-                        {ui.projectDetail.viewLive}
-                      </a>
-                    </div>
-                  </div>
-                  <p className="text-muted mt-4 leading-relaxed">
-                    {project.description}
-                  </p>
-
-                  {project.stack && project.stack.length > 0 && (
-                    <div className="mt-6">
-                      <p className="font-mono text-xs text-accent mb-2">
-                        {ui.projectDetail.stackLabel}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {project.stack.map((item) => (
-                          <Tag key={item}>{item}</Tag>
-                        ))}
+                <CodeWindow
+                  filename={filenameFor(project, 0)}
+                  className="flex flex-col min-h-0 max-h-full"
+                  onClose={close}
+                >
+                  <div className="custom-scrollbar p-8 flex-1 overflow-y-auto min-h-0">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                      <h1 className="min-w-0 flex-1 text-3xl font-bold tracking-tight">
+                        {project.title}
+                      </h1>
+                      <div className="flex flex-wrap gap-3 shrink-0">
+                        <a
+                          href={project.repoUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-border font-mono text-sm hover:border-accent hover:text-accent transition"
+                        >
+                          <GithubIcon size={16} />
+                          {ui.projectDetail.viewRepo}
+                        </a>
+                        <a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
+                        >
+                          <ExternalLink size={16} />
+                          {ui.projectDetail.viewLive}
+                        </a>
                       </div>
                     </div>
-                  )}
-                  {project.problem && (
-                    <DetailSection
-                      label={ui.projectDetail.problemLabel}
-                      text={project.problem}
-                    />
-                  )}
-                  {project.approach && (
-                    <DetailSection
-                      label={ui.projectDetail.approachLabel}
-                      text={project.approach}
-                    />
-                  )}
-                  {project.outcome && (
-                    <DetailSection
-                      label={ui.projectDetail.outcomeLabel}
-                      text={project.outcome}
-                    />
-                  )}
-                </div>
-              </CodeWindow>
-            </Reveal>
-          )}
-        </div>
-      </main>
+                    <p className="text-muted mt-4 leading-relaxed">
+                      {project.description}
+                    </p>
+
+                    {project.stack && project.stack.length > 0 && (
+                      <div className="mt-6">
+                        <p className="font-mono text-xs text-accent mb-2">
+                          {ui.projectDetail.stackLabel}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {project.stack.map((item) => (
+                            <Tag key={item}>{item}</Tag>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {project.problem && (
+                      <DetailSection
+                        label={ui.projectDetail.problemLabel}
+                        text={project.problem}
+                      />
+                    )}
+                    {project.approach && (
+                      <DetailSection
+                        label={ui.projectDetail.approachLabel}
+                        text={project.approach}
+                      />
+                    )}
+                    {project.outcome && (
+                      <DetailSection
+                        label={ui.projectDetail.outcomeLabel}
+                        text={project.outcome}
+                      />
+                    )}
+                  </div>
+                </CodeWindow>
+              </Reveal>
+            )}
+          </div>
+        </main>
+      )}
     </ViewModal>
   );
 }
