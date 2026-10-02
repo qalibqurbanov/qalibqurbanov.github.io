@@ -477,7 +477,7 @@ export function Hero() {
                     className={`col-start-1 row-start-1 ${tab === "terminal" ? "" : "invisible pointer-events-none"}`}
                     aria-hidden={tab !== "terminal"}
                   >
-                    <HeroTerminal />
+                    <HeroTerminal active={tab === "terminal"} />
                   </div>
                 </div>
               </div>

@@ -239,6 +239,8 @@ export interface UiStrings {
   };
   terminal: {
     welcome: string;
+    /** Status lines printed one by one when the terminal is first opened, each after an "[ ok ]" marker. May contain {name}, {projects} and {skills}. */
+    boot: string[];
     helpText: string;
     notFound: string;
     permissionDenied: string;

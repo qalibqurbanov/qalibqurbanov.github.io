@@ -295,6 +295,14 @@ const ru: Content = {
     },
     terminal: {
       welcome: "Введите 'help', чтобы увидеть доступные команды.",
+      boot: [
+        "запуск оболочки портфолио v1.0",
+        "загрузка профиля: {name}",
+        "индексация проектов: {projects}",
+        "подключение навыков: {skills}",
+        "запуск глитч-движка",
+        "проверка уровня кофе… мало, продолжаем",
+      ],
       helpText:
         "help              показать этот список\nwhoami            кто я\nabout             краткое описание\nskills            технологии\nexperience        опыт работы\nprojects          список проектов\nopen <slug>       открыть кейс проекта\ncontact           как со мной связаться\nresume            открыть резюме\ngithub            открыть профиль на GitHub\nlinkedin          открыть профиль на LinkedIn\ntelegram          открыть Telegram\nmedium            открыть блог на Medium\nstackoverflow     открыть профиль на Stack Overflow\ntheme             переключить светлую / тёмную тему\nlang <code>       сменить язык (en, az, ru)\nclear             очистить терминал",
       notFound: "команда не найдена: {cmd} — введите 'help' для списка команд.",

@@ -295,6 +295,14 @@ const az: Content = {
     },
     terminal: {
       welcome: "Mövcud əmrləri görmək üçün 'help' yazın.",
+      boot: [
+        "portfolio shell v1.0 işə salınır",
+        "profil yüklənir: {name}",
+        "layihələr indeksləşdirilir: {projects}",
+        "bacarıqlar qoşulur: {skills}",
+        "glitch mühərriki işə düşür",
+        "qəhvə səviyyəsi yoxlanılır… azdır, davam edirik",
+      ],
       helpText:
         "help              bu siyahını göstər\nwhoami            mən kiməm\nabout             qısa xülasə\nskills            texnologiyalar\nexperience        iş təcrübəsi\nprojects          layihələri sadala\nopen <slug>       layihənin təfərrüatını aç\ncontact           mənimlə necə əlaqə saxlamaq olar\nresume            rezümeni aç\ngithub            GitHub profilini aç\nlinkedin          LinkedIn profilini aç\ntelegram          Telegram-ı aç\nmedium            Medium bloqunu aç\nstackoverflow     Stack Overflow profilini aç\ntheme             işıqlı / qaranlıq rejimi dəyiş\nlang <code>       dili dəyiş (en, az, ru)\nclear             terminalı təmizlə",
       notFound: "əmr tapılmadı: {cmd} — əmrlərin siyahısı üçün 'help' yazın.",

@@ -294,6 +294,14 @@ const en: Content = {
     },
     terminal: {
       welcome: "Type 'help' to see available commands.",
+      boot: [
+        "initializing portfolio shell v1.0",
+        "loading profile: {name}",
+        "indexing {projects} projects",
+        "mounting {skills} skills",
+        "starting glitch engine",
+        "checking coffee level… low, proceeding anyway",
+      ],
       helpText:
         "help              show this list\nwhoami            who am I\nabout             short summary\nskills            tech stack\nexperience        work history\nprojects          list projects\nopen <slug>       open a project's case study\ncontact           how to reach me\nresume            open resume\ngithub            open GitHub profile\nlinkedin          open LinkedIn profile\ntelegram          open Telegram\nmedium            open Medium blog\nstackoverflow     open Stack Overflow profile\ntheme             toggle light / dark\nlang <code>       switch language (en, az, ru)\nclear             clear the terminal",
       notFound: "command not found: {cmd} — type 'help' for a list of commands.",
