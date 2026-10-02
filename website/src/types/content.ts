@@ -277,6 +277,16 @@ export interface UiStrings {
     moreTitle: string;
     moreBody: string;
     moreCta: string;
+    /** Label of the Any/All switch that sets how several selected tags combine. */
+    matchLabel: string;
+    matchAny: string;
+    matchAll: string;
+    matchAnyHint: string;
+    matchAllHint: string;
+    /** Shown when the selected tags (in "all" mode) match no project. */
+    noMatch: string;
+    /** Contains "{count}". */
+    repoCount: string;
   };
   terminal: {
     welcome: string;

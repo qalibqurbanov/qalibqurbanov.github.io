@@ -5,6 +5,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Tag } from "@/components/ui/Tag";
+import { useClock } from "@/hooks/useClock";
 import { useTimelineProgress } from "@/hooks/useTimelineProgress";
 import { useContent, useLocale } from "@/i18n/context";
 import { formatDuration } from "@/lib/duration";
@@ -12,6 +13,7 @@ import { formatDuration } from "@/lib/duration";
 export function Experience() {
   const { experience, ui } = useContent();
   const { locale } = useLocale();
+  useClock(); // so an ongoing job's length rolls over at the turn of a month, even in a tab left open
   const timelineRef = useTimelineProgress<HTMLOListElement>();
 
   return (
