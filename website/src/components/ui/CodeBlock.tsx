@@ -14,6 +14,18 @@ const KEYWORDS = new Set([
   "default", "this", "true", "false", "null", "undefined",
 ]);
 
+const BUILTIN_TYPES = new Set([
+  "string", "number", "boolean", "void", "any", "unknown", "never", "object",
+  "int", "bool", "double", "decimal", "Promise", "Array", "Record",
+]);
+
+/** Keywords cyan, built-in and PascalCase (class/type) names amber, the rest plain. */
+function wordClass(word: string): string {
+  if (KEYWORDS.has(word)) return "text-accent-2";
+  if (BUILTIN_TYPES.has(word) || /^[A-Z][a-z]/.test(word)) return "text-syn-type";
+  return "text-text";
+}
+
 const TOKEN_REGEX =
   /(\/\/[^\n]*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)/g;
 
@@ -48,13 +60,13 @@ function highlightLine(line: string): ReactNode[] {
       );
     } else if (number) {
       nodes.push(
-        <span key={key++} className="text-accent-2">
+        <span key={key++} className="text-syn-number">
           {number}
         </span>,
       );
     } else if (word) {
       nodes.push(
-        <span key={key++} className={KEYWORDS.has(word) ? "text-accent-2" : "text-text"}>
+        <span key={key++} className={wordClass(word)}>
           {word}
         </span>,
       );

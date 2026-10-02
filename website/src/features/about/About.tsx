@@ -9,9 +9,9 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { useContent } from "@/i18n/context";
 
 /**
- * Inline markup for About paragraphs: `**text**` renders as a bright bold
- * span (stats/achievements), `==text==` as a bold accent-colored span
- * (tech/skill terms).
+ * Inline markup for About paragraphs: `**text**` renders as bright bold
+ * display-font text (stats/achievements), `==text==` as an accent-colored
+ * monospace "inline code" chip (tech/skill terms).
  */
 function renderEmphasis(text: string): ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*|==[^=]+==)/g).filter(Boolean);
@@ -20,16 +20,19 @@ function renderEmphasis(text: string): ReactNode {
   return parts.map((part, index) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
-        <strong key={index} className="text-text font-semibold">
+        <strong key={index} className="font-display text-text font-bold">
           {part.slice(2, -2)}
         </strong>
       );
     }
     if (part.startsWith("==") && part.endsWith("==")) {
       return (
-        <strong key={index} className="text-accent font-semibold">
+        <code
+          key={index}
+          className="font-mono text-[0.88em] font-medium text-accent bg-accent/10 border border-accent/20 rounded-md px-1.5 py-0.5 [box-decoration-break:clone]"
+        >
           {part.slice(2, -2)}
-        </strong>
+        </code>
       );
     }
     return <span key={index}>{part}</span>;
@@ -62,7 +65,7 @@ export function About() {
                     <span className="text-muted">{"> "}</span>
                     {highlight.label}
                   </dt>
-                  <dd className="text-text mt-0.5">
+                  <dd className="font-display text-text text-lg font-bold mt-0.5">
                     <CountUp value={highlight.value} />
                   </dd>
                 </div>
