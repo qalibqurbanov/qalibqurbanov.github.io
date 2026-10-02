@@ -5,7 +5,6 @@ import { FileIcon } from "@/components/ui/FileIcon";
 import { Reveal } from "@/components/ui/Reveal";
 import { Tag } from "@/components/ui/Tag";
 import { WindowControls } from "@/components/ui/WindowControls";
-import { useCardParallax } from "@/hooks/useCardParallax";
 import { projectHref } from "@/hooks/useProjectRoute";
 import { useContent } from "@/i18n/context";
 import { format } from "@/lib/format";
@@ -20,12 +19,10 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
   const { ui } = useContent();
-  // Neighbouring columns drift in opposite directions as the page scrolls.
-  const parallaxRef = useCardParallax<HTMLDivElement>(index % 2 === 0 ? 0.03 : -0.03);
 
   return (
     <Reveal delayMs={delayMs}>
-      <div ref={parallaxRef} className="card-hit parallax-card group h-full">
+      <div className="card-hit group h-full">
         <article
           data-project-slug={project.slug}
           className="card-surface flex flex-col justify-between h-full rounded-xl overflow-hidden group-hover:-translate-y-1.5 group-hover:scale-[1.015]"

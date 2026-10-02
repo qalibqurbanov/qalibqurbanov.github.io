@@ -1003,12 +1003,6 @@ html::-webkit-scrollbar-button,
   transform: none;
 }
 
-/* Project cards drift against each other while scrolling (useCardParallax). */
-.parallax-card {
-  transform: translate3d(0, var(--py, 0px), 0);
-  will-change: transform;
-}
-
 /* Easter-egg effects (lib/effects.ts). */
 @keyframes storm-jitter {
   0%,
