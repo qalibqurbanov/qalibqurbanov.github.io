@@ -1,6 +1,6 @@
-import { ArrowDown, FileText, Mail, SquareTerminal } from "lucide-react";
-import type { CSSProperties, ReactNode } from "react";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { ArrowDown, ArrowRight, ChevronLeft, ChevronRight, FileCode2, FileText, Mail, Plus, SquareTerminal, X } from "lucide-react";
+import type { CSSProperties, MouseEvent as ReactMouseEvent, ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import {
   GithubIcon,
@@ -40,10 +40,13 @@ function BreakableWords({
   text,
   seedBase,
   wordClassName,
+  glitchRange,
 }: {
   text: string;
   seedBase: number;
   wordClassName?: string;
+  /** Glitch each word at random on its own, this often (ms, shortest and longest). */
+  glitchRange?: readonly [number, number];
 }) {
   const tokens = text.split(/(\s+)/);
   let wordIndex = 0;
@@ -62,7 +65,7 @@ function BreakableWords({
             seed={seed}
             className={wordClassName ? `inline-block ${wordClassName}` : undefined}
           >
-            {token}
+            {glitchRange ? <GlitchText text={token} idle idleRange={glitchRange} /> : token}
           </Knockable>
         );
       })}
@@ -171,15 +174,78 @@ function HeroCode({ started }: { started: boolean }) {
  * in the reveal's own warning message, so the two can't drift apart. */
 const FBI_RESTORE_SECONDS = 20;
 
+interface TerminalTab {
+  id: number;
+  /** The command word last run in this terminal; shown in the tab's title. */
+  lastCommand: string | null;
+}
+
+/** Past what fits, the tab strip scrolls (see the arrows beside it). */
+const MAX_TERMINALS = 8;
+
+/** How often the hero name glitches by itself: far more often than the small labels. */
+const NAME_GLITCH_RANGE = [2200, 5200] as const;
+
+/** How far one click on a tab-strip arrow scrolls it. */
+const TAB_SCROLL_STEP = 140;
+
+/** How far in from the callout's left edge its arrow sits. */
+const HINT_NOTCH = 20;
+
+/** Props that make a tab close on a middle click, like in a browser (the mouse-down
+ * is cancelled too, so Windows does not start its autoscroll). */
+function closeOnMiddleClick(close: () => void) {
+  return {
+    onMouseDown: (event: ReactMouseEvent) => {
+      if (event.button === 1) event.preventDefault();
+    },
+    onAuxClick: (event: ReactMouseEvent) => {
+      if (event.button !== 1) return;
+      event.preventDefault();
+      close();
+    },
+  };
+}
+
+const TAB_BASE = "flex items-center rounded-t-lg border-b-2 font-mono text-xs transition-colors";
+const TAB_ACTIVE = "bg-surface text-text border-accent";
+const TAB_IDLE = "text-muted border-transparent hover:text-text hover:bg-surface/50";
+const EMPTY_ACTION =
+  "group flex w-[19rem] items-center gap-3 whitespace-nowrap rounded-lg border border-border bg-surface-2/60 px-3 py-2.5 text-left text-text transition duration-200 hover:-translate-y-px hover:border-accent/50 hover:bg-accent/5 hover:shadow-[0_8px_24px_-12px_var(--glow-accent)]";
+const EMPTY_ACTION_ICON =
+  "grid h-7 w-7 shrink-0 place-items-center rounded-md border border-border bg-bg text-muted transition-colors group-hover:border-accent/40 group-hover:text-accent";
+const EMPTY_ACTION_ARROW =
+  "ml-auto shrink-0 text-muted/60 transition duration-200 group-hover:translate-x-0.5 group-hover:text-accent";
+const TAB_CLOSE =
+  "mx-1 grid h-5 w-5 shrink-0 place-items-center rounded-md text-muted/70 outline-none transition duration-150 hover:bg-danger/15 hover:text-danger focus-visible:bg-danger/15 focus-visible:text-danger active:scale-90 disabled:pointer-events-none disabled:opacity-40";
+const TAB_ARROW =
+  "mx-0.5 grid h-6 w-6 shrink-0 self-center place-items-center rounded-md text-muted transition-colors hover:bg-surface/60 hover:text-text disabled:pointer-events-none disabled:opacity-30";
+
 export function Hero() {
   const { profile, socials, ui } = useContent();
   const [taglineBefore, taglineAfter] = ui.hero.tagline.split("{highlight}");
   const { ref: tiltRef, handleMouseMove, handleMouseLeave } = useTilt<HTMLDivElement>();
-  const [tab, setTab] = useState<"code" | "terminal">("code");
+  const [terminals, setTerminals] = useState<TerminalTab[]>([]);
+  const [activeTab, setActiveTab] = useState<"code" | number | null>("code");
+  // Developer.cs is a tab like any other: it can be closed, and the window can end up empty.
+  const [codeOpen, setCodeOpen] = useState(true);
+  const nextTerminalId = useRef(1);
+  // The "+" callout stays until a terminal has been opened for the first time.
+  const [hintDismissed, setHintDismissed] = useState(false);
+  const plusRef = useRef<HTMLButtonElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const [tabEdges, setTabEdges] = useState({ overflowing: false, atStart: true, atEnd: true });
+  // Where the "+" button's centre is, from the window's left edge, so the
+  // callout's arrow can point straight at it.
+  const [plusX, setPlusX] = useState<number | null>(null);
   // The window boots on first load (see HeroBoot); the code tab types itself
   // out once that is over. Reduced motion skips the boot altogether.
   const [booted, setBooted] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const handleBooted = useCallback(() => setBooted(true), []);
+  const noTabs = !codeOpen && terminals.length === 0;
+  // The "+" is pointed out until the first terminal has been opened, and again
+  // whenever the window is left with nothing open.
+  const pointAtPlus = booted && (!hintDismissed || noTabs);
   const [shaking, setShaking] = useState(false);
   // Holds which message to show — null while hidden, so the same shake/toast
   // machinery can display different text for the minimize button (a generic
@@ -199,6 +265,97 @@ export function Hero() {
   const shakeTimeout = useRef<number | undefined>(undefined);
   const toastTimeout = useRef<number | undefined>(undefined);
   const { windowRef, dragging, windowStyle, dragHandleProps } = useDraggableWindow<HTMLDivElement>("#top");
+
+  useLayoutEffect(() => {
+    const plus = plusRef.current;
+    const win = windowRef.current;
+    if (!plus || !win || !pointAtPlus) return;
+    const measure = () => {
+      // offsetLeft ignores the window's drag/tilt transforms, unlike client rects.
+      let x = plus.offsetWidth / 2;
+      for (let el: HTMLElement | null = plus; el && el !== win; el = el.offsetParent as HTMLElement | null) {
+        x += el.offsetLeft;
+      }
+      setPlusX(x);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(win);
+    return () => observer.disconnect();
+  }, [windowRef, pointAtPlus, codeOpen]);
+
+  // Tracks whether the terminal tabs overflow their strip, and which end they are scrolled to.
+  useLayoutEffect(() => {
+    const strip = tabsRef.current;
+    if (!strip) return;
+    const update = () => {
+      const overflowing = strip.scrollWidth > strip.clientWidth + 1;
+      const atStart = strip.scrollLeft <= 1;
+      const atEnd = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1;
+      setTabEdges((prev) =>
+        prev.overflowing === overflowing && prev.atStart === atStart && prev.atEnd === atEnd
+          ? prev
+          : { overflowing, atStart, atEnd },
+      );
+    };
+    update();
+    strip.addEventListener("scroll", update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(strip);
+    return () => {
+      strip.removeEventListener("scroll", update);
+      observer.disconnect();
+    };
+  }, [terminals.length]);
+
+  // Keeps the active terminal's tab in view, e.g. a new one past the right edge.
+  useEffect(() => {
+    const strip = tabsRef.current;
+    if (!strip || typeof activeTab !== "number") return;
+    const tab = strip.querySelector<HTMLElement>(`[data-tab="${activeTab}"]`);
+    if (!tab) return;
+    const right = tab.offsetLeft + tab.offsetWidth;
+    if (tab.offsetLeft < strip.scrollLeft) strip.scrollTo({ left: tab.offsetLeft, behavior: "smooth" });
+    else if (right > strip.scrollLeft + strip.clientWidth) {
+      strip.scrollTo({ left: right - strip.clientWidth, behavior: "smooth" });
+    }
+  }, [activeTab, terminals.length, tabEdges.overflowing]);
+
+  function scrollTabs(direction: -1 | 1) {
+    tabsRef.current?.scrollBy({ left: direction * TAB_SCROLL_STEP, behavior: "smooth" });
+  }
+
+  function openTerminal() {
+    if (terminals.length >= MAX_TERMINALS) return;
+    const id = nextTerminalId.current++;
+    setTerminals((current) => [...current, { id, lastCommand: null }]);
+    setActiveTab(id);
+    setHintDismissed(true);
+  }
+
+  function closeTerminal(id: number) {
+    const index = terminals.findIndex((terminal) => terminal.id === id);
+    setTerminals((current) => current.filter((terminal) => terminal.id !== id));
+    if (activeTab === id) {
+      setActiveTab(terminals[index + 1]?.id ?? terminals[index - 1]?.id ?? (codeOpen ? "code" : null));
+    }
+  }
+
+  function closeCode() {
+    setCodeOpen(false);
+    if (activeTab === "code") setActiveTab(terminals[0]?.id ?? null);
+  }
+
+  function reopenCode() {
+    setCodeOpen(true);
+    setActiveTab("code");
+  }
+
+  function setLastCommand(id: number, name: string) {
+    setTerminals((current) =>
+      current.map((terminal) => (terminal.id === id ? { ...terminal, lastCommand: name } : terminal)),
+    );
+  }
 
   // The tilt effect rotates toward the cursor relative to the card's own small
   // rect; while dragging, the cursor roams the whole section, which would send
@@ -268,7 +425,7 @@ export function Hero() {
 
           <Reveal delayMs={100}>
             <h1 className="glitch-in text-4xl sm:text-6xl font-bold tracking-tight leading-tight" style={giDelay(400)}>
-              <BreakableWords text={profile.name} seedBase={220} wordClassName="text-gradient" />
+              <BreakableWords text={profile.name} seedBase={220} wordClassName="text-gradient" glitchRange={NAME_GLITCH_RANGE} />
             </h1>
           </Reveal>
 
@@ -421,74 +578,205 @@ export function Hero() {
                 minimized ? "pointer-events-none -translate-y-3 scale-90 opacity-0" : "translate-y-0 scale-100 opacity-100"
               }`}
             >
-              <div
-                ref={windowRef}
-                style={windowStyle}
-                className="rounded-xl overflow-hidden border border-border bg-surface shadow-2xl shadow-black/40"
-              >
-                <div
-                  {...dragHandleProps}
-                  className={`flex items-stretch justify-between gap-4 pl-2 pr-1.5 bg-surface-2 border-b border-border touch-none ${
-                    dragging ? "cursor-grabbing" : "cursor-grab"
-                  }`}
-                >
-                  <div className="flex items-stretch -mb-px" role="tablist">
-                    <button
-                      type="button"
-                      role="tab"
-                      aria-selected={tab === "code"}
-                      onClick={() => setTab("code")}
-                      className={`flex items-center gap-1.5 px-3 py-2 rounded-t-lg font-mono text-xs border-b-2 transition-colors ${
-                        tab === "code"
-                          ? "bg-surface text-text border-accent"
-                          : "text-muted border-transparent hover:text-text hover:bg-surface/50"
-                      }`}
-                    >
-                      <FileIcon />
-                      Developer.cs
-                    </button>
-                    <button
-                      type="button"
-                      role="tab"
-                      aria-selected={tab === "terminal"}
-                      onClick={() => setTab("terminal")}
-                      className={`flex items-center gap-1.5 px-3 py-2 rounded-t-lg font-mono text-xs border-b-2 transition-colors ${
-                        tab === "terminal"
-                          ? "bg-surface text-text border-accent"
-                          : "text-muted border-transparent hover:text-text hover:bg-surface/50"
-                      }`}
-                    >
-                      <SquareTerminal size={12} className="shrink-0" />
-                      {ui.hero.terminalTabLabel}
-                    </button>
-                  </div>
-                  <div className="flex items-center py-1.5">
-                    <WindowControls
-                      onMinimize={() => shakeWithMessage(ui.hero.closeAttempt)}
-                      onClose={handleCloseClick}
+              <div ref={windowRef} style={windowStyle} className="relative">
+                {pointAtPlus && plusX !== null && (
+                  <div
+                    role="note"
+                    style={{ left: Math.max(0, plusX - HINT_NOTCH) }}
+                    className="animate-popover-in pointer-events-none absolute bottom-full z-20 mb-3 flex select-none items-center gap-2 whitespace-nowrap rounded-lg border border-accent/40 bg-surface px-3 py-2 font-mono text-xs text-text shadow-xl shadow-black/30"
+                  >
+                    <ArrowDown size={13} strokeWidth={2.5} className="shrink-0 animate-bounce text-accent" />
+                    {ui.hero.terminalHint}
+                    <span
+                      style={{ left: Math.min(plusX, HINT_NOTCH) - 6 }}
+                      className="absolute -bottom-1.5 h-3 w-3 rotate-45 border-b border-r border-accent/40 bg-surface"
                     />
                   </div>
-                </div>
-                {/* Both stay mounted so switching tabs doesn't unmount/remount
-                    either one — HeroCode's typewriter reveal would otherwise
-                    replay from scratch every time you come back to it, and
-                    HeroTerminal's command history would reset too. */}
-                {/* Stacked in one grid cell (hidden one is `invisible`, not
-                    `display: none`) so the window is always as tall as the
-                    taller pane and never resizes or shifts on tab switch. */}
-                <div className="relative grid">
-                  {!booted && <HeroBoot onDone={handleBooted} />}
+                )}
+                <div className="rounded-xl overflow-hidden border border-border bg-surface shadow-2xl shadow-black/40">
                   <div
-                    className={`col-start-1 row-start-1 ${tab === "code" ? "" : "invisible pointer-events-none"}`}
-                    aria-hidden={tab !== "code"}
+                    {...dragHandleProps}
+                    className={`flex items-stretch justify-between gap-4 pl-2 pr-1.5 bg-surface-2 border-b border-border touch-none ${
+                      dragging ? "cursor-grabbing" : "cursor-grab"
+                    }`}
                   >
-                    <HeroCode started={booted} />
+                    <div className="flex min-w-0 flex-1 items-stretch -mb-px" role="tablist">
+                      {codeOpen && (
+                        <div
+                          {...closeOnMiddleClick(closeCode)}
+                          className={`${TAB_BASE} shrink-0 ${activeTab === "code" ? TAB_ACTIVE : TAB_IDLE}`}
+                        >
+                          <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === "code"}
+                            onClick={() => setActiveTab("code")}
+                            disabled={!booted}
+                            className="flex items-center gap-1.5 py-2 pl-3 pr-1 disabled:pointer-events-none"
+                          >
+                            <FileIcon />
+                            Developer.cs
+                          </button>
+                          <button
+                            type="button"
+                            onClick={closeCode}
+                            disabled={!booted}
+                            aria-label={ui.hero.closeFile}
+                            title={ui.hero.closeFile}
+                            className={TAB_CLOSE}
+                          >
+                            <X size={12} strokeWidth={2.25} />
+                          </button>
+                        </div>
+                      )}
+                      {tabEdges.overflowing && (
+                        <button
+                          type="button"
+                          onClick={() => scrollTabs(-1)}
+                          disabled={tabEdges.atStart}
+                          aria-label={ui.hero.scrollTabsLeft}
+                          title={ui.hero.scrollTabsLeft}
+                          className={TAB_ARROW}
+                        >
+                          <ChevronLeft size={14} />
+                        </button>
+                      )}
+                      <div
+                        ref={tabsRef}
+                        className="relative flex min-w-0 items-stretch overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                      >
+                        {terminals.map((terminal) => {
+                          const title = terminal.lastCommand
+                            ? `${ui.hero.terminalTabLabel} - ${terminal.lastCommand}`
+                            : ui.hero.terminalTabLabel;
+                          return (
+                            <div
+                              key={terminal.id}
+                              data-tab={terminal.id}
+                              {...closeOnMiddleClick(() => closeTerminal(terminal.id))}
+                              className={`${TAB_BASE} shrink-0 ${activeTab === terminal.id ? TAB_ACTIVE : TAB_IDLE}`}
+                            >
+                              <button
+                                type="button"
+                                role="tab"
+                                aria-selected={activeTab === terminal.id}
+                                onClick={() => setActiveTab(terminal.id)}
+                                className="flex items-center gap-1.5 py-2 pl-3 pr-1"
+                              >
+                                <SquareTerminal size={12} className="shrink-0" />
+                                <span className="max-w-[10.5rem] truncate">{title}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => closeTerminal(terminal.id)}
+                                aria-label={ui.hero.closeTerminal}
+                                title={ui.hero.closeTerminal}
+                                className={TAB_CLOSE}
+                              >
+                                <X size={12} strokeWidth={2.25} />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {tabEdges.overflowing && (
+                        <button
+                          type="button"
+                          onClick={() => scrollTabs(1)}
+                          disabled={tabEdges.atEnd}
+                          aria-label={ui.hero.scrollTabsRight}
+                          title={ui.hero.scrollTabsRight}
+                          className={TAB_ARROW}
+                        >
+                          <ChevronRight size={14} />
+                        </button>
+                      )}
+                      {terminals.length < MAX_TERMINALS && (
+                        <div className="ml-1 flex shrink-0 items-center">
+                          <button
+                            ref={plusRef}
+                            type="button"
+                            onClick={openTerminal}
+                            disabled={!booted}
+                            aria-label={ui.hero.newTerminal}
+                            title={ui.hero.newTerminal}
+                            className={`grid h-6 w-6 place-items-center rounded-md transition-colors disabled:pointer-events-none disabled:opacity-30 ${
+                              pointAtPlus
+                                ? "plus-heartbeat bg-accent/10 text-accent"
+                                : "text-muted hover:bg-surface/60 hover:text-accent"
+                            }`}
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex shrink-0 items-center py-1.5">
+                      <WindowControls
+                        onMinimize={booted ? () => shakeWithMessage(ui.hero.closeAttempt) : undefined}
+                        onClose={booted ? handleCloseClick : undefined}
+                      />
+                    </div>
                   </div>
-                  <div
-                    className={`col-start-1 row-start-1 ${tab === "terminal" ? "" : "invisible pointer-events-none"}`}
-                    aria-hidden={tab !== "terminal"}
-                  >
-                    <HeroTerminal />
+                  {/* Both stay mounted so switching tabs doesn't unmount/remount
+                      either one — HeroCode's typewriter reveal would otherwise
+                      replay from scratch every time you come back to it, and
+                      HeroTerminal's command history would reset too. */}
+                  {/* Stacked in one grid cell (hidden one is `invisible`, not
+                      `display: none`) so the window is always as tall as the
+                      taller pane and never resizes or shifts on tab switch. */}
+                  <div className="relative grid">
+                    {!booted && <HeroBoot onDone={handleBooted} />}
+                    {codeOpen && (
+                      <div
+                        className={`col-start-1 row-start-1 min-h-[292px] ${activeTab === "code" ? "" : "invisible pointer-events-none"}`}
+                        aria-hidden={activeTab !== "code"}
+                      >
+                        <HeroCode started={booted} />
+                      </div>
+                    )}
+                    {noTabs && (
+                      <div className="animate-popover-in relative col-start-1 row-start-1 flex min-h-[292px] flex-col items-center justify-center gap-5 overflow-hidden px-5 font-mono">
+                        <div
+                          aria-hidden="true"
+                          className="pointer-events-none absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-3xl"
+                        />
+                        <p className="animate-float-slow relative flex items-center gap-3">
+                          <span aria-hidden="true" className="text-gradient select-none text-5xl font-light leading-none">
+                            {"{"}
+                          </span>
+                          <span className="text-sm text-text">{ui.hero.noTabs}</span>
+                          <span aria-hidden="true" className="text-gradient select-none text-5xl font-light leading-none">
+                            {"}"}
+                          </span>
+                        </p>
+                        <div className="relative flex flex-col gap-2 text-xs">
+                          <button type="button" onClick={reopenCode} className={EMPTY_ACTION}>
+                            <span className={EMPTY_ACTION_ICON}>
+                              <FileCode2 size={14} />
+                            </span>
+                            {ui.hero.reopenCode}
+                            <ArrowRight size={14} className={EMPTY_ACTION_ARROW} />
+                          </button>
+                          <button type="button" onClick={openTerminal} className={EMPTY_ACTION}>
+                            <span className={EMPTY_ACTION_ICON}>
+                              <SquareTerminal size={14} />
+                            </span>
+                            {ui.hero.emptyTerminal}
+                            <ArrowRight size={14} className={EMPTY_ACTION_ARROW} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    {terminals.map((terminal) => (
+                      <div
+                        key={terminal.id}
+                        className={`col-start-1 row-start-1 ${activeTab === terminal.id ? "" : "invisible pointer-events-none"}`}
+                        aria-hidden={activeTab !== terminal.id}
+                      >
+                        <HeroTerminal onCommand={(name) => setLastCommand(terminal.id, name)} />
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

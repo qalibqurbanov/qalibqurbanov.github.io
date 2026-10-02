@@ -77,10 +77,15 @@ function TableOutput({ text }: { text: string }) {
   );
 }
 
+interface HeroTerminalProps {
+  /** Called with the command word each time a command is run, for the tab's title. */
+  onCommand?: (name: string) => void;
+}
+
 /** A fake shell dropped into the hero's code window — reuses the site's real
  * content (profile, skills, projects) so its answers stay correct without a
  * second copy of that data living in command responses. */
-export function HeroTerminal() {
+export function HeroTerminal({ onCommand }: HeroTerminalProps) {
   const { profile, skills, experience, projects, socials, ui } = useContent();
   const { setLocale } = useLocale();
   const { theme, toggleTheme } = useTheme();
@@ -92,6 +97,11 @@ export function HeroTerminal() {
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // A terminal tab is only ever created by clicking "+", so take the focus.
+  useEffect(() => {
+    inputRef.current?.focus({ preventScroll: true });
+  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -111,6 +121,7 @@ export function HeroTerminal() {
 
     const [cmd, ...rest] = trimmed.split(/\s+/);
     const arg = rest.join(" ");
+    onCommand?.(cmd.toLowerCase());
 
     switch (cmd.toLowerCase()) {
       case "help":
