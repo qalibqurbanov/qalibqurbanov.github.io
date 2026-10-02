@@ -8,6 +8,7 @@ import {
   StackOverflowIcon,
   TelegramIcon,
 } from "@/components/icons/BrandIcons";
+import { LiveClock } from "@/components/ui/LiveClock";
 import { openContactModal } from "@/components/contact/ContactModal";
 import { useClock } from "@/hooks/useClock";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
@@ -106,15 +107,7 @@ function BranchBadge() {
 
 export function Footer() {
   const { profile, socials, ui } = useContent();
-  const { locale } = useLocale();
-  const now = useClock();
   const hasResume = profile.resumeUrl && profile.resumeUrl !== "#";
-
-  const time = new Intl.DateTimeFormat(getLocaleMeta(locale).bcp47, {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(now);
 
   return (
     <footer className="border-t border-border bg-surface-2">
@@ -131,7 +124,7 @@ export function Footer() {
           </span>
           <span className="hidden sm:inline text-border">|</span>
           <span className="inline-flex items-center gap-1.5">
-            <Clock size={12} /> {time}
+            <Clock size={12} /> <LiveClock />
           </span>
           <span className="hidden sm:inline text-border">|</span>
           <span>
