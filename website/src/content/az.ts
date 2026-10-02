@@ -34,6 +34,7 @@ const az: Content = {
       role: "Backend Developeri",
       org: "Crocusoft",
       period: "Dekabr 2023 — İndiyədək",
+      start: "2023-12",
       current: true,
       description:
         "Crocusoft-da mən həm hər kəsə açıq, həm də daxili sistemlər üçün müasir .NET stack-i ilə backend həlləri qurur və dəstəkləyirəm.",

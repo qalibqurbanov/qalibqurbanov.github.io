@@ -41,6 +41,10 @@ export interface ExperienceItem {
   role: string;
   org: string;
   period: string;
+  /** First month of the role, "YYYY-MM"; drives the "(2 years 11 months)" length. */
+  start: string;
+  /** Last month of the role, "YYYY-MM". Leave out while `current`. */
+  end?: string;
   /** True while this role is still ongoing (no end date). */
   current?: boolean;
   description: string;
