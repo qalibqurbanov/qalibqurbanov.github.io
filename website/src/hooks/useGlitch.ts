@@ -1,12 +1,17 @@
 import { useEffect, useRef } from "react";
 
 import { decodeText, prefersReducedMotion, registerGlitch, ruleBurst, textBurst } from "@/hooks/glitch";
+import { belowNavbarMargin } from "@/lib/viewport";
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
 
-/** Calls `onChange` whenever `el` crosses the visibility threshold. */
+/** Calls `onChange` whenever `el` crosses the visibility threshold; the area
+ * under the fixed navbar doesn't count as visible. */
 function watchVisible(el: Element, threshold: number, onChange: (visible: boolean) => void): () => void {
-  const observer = new IntersectionObserver(([entry]) => onChange(entry.isIntersecting), { threshold });
+  const observer = new IntersectionObserver(([entry]) => onChange(entry.intersectionRatio >= threshold - 0.01), {
+    threshold,
+    rootMargin: belowNavbarMargin(),
+  });
   observer.observe(el);
   return () => observer.disconnect();
 }
@@ -24,6 +29,8 @@ function loop(fire: () => void, min: number, max: number): () => void {
   return () => window.clearTimeout(timer);
 }
 
+const DEFAULT_IDLE_RANGE = [4000, 10000] as const;
+
 interface GlitchTextOptions {
   /** Play an entrance as the text scrolls into view. */
   onEnter?: boolean;
@@ -31,6 +38,8 @@ interface GlitchTextOptions {
   decode?: boolean;
   /** Glitch now and then, at random, while the text is on screen. */
   idle?: boolean;
+  /** Shortest and longest wait, in ms, between idle glitches. */
+  idleRange?: readonly [number, number];
 }
 
 /** Glitches the text while the pointer is over it (or over the link, button or
@@ -41,8 +50,10 @@ export function useGlitchText<T extends HTMLElement>({
   onEnter = false,
   decode = false,
   idle = false,
+  idleRange = DEFAULT_IDLE_RANGE,
 }: GlitchTextOptions = {}) {
   const ref = useRef<T>(null);
+  const [idleMin, idleMax] = idleRange;
 
   useEffect(() => {
     const el = ref.current;
@@ -71,19 +82,20 @@ export function useGlitchText<T extends HTMLElement>({
     host.addEventListener("mouseenter", handleEnter);
     host.addEventListener("mouseleave", handleLeave);
 
-    let entered = false;
     let enterTimer = 0;
     let stopIdle: (() => void) | undefined;
     const stopWatching =
       onEnter || idle
         ? watchVisible(el, onEnter ? 0.8 : 0.1, (visible) => {
             if (!visible) {
+              window.clearTimeout(enterTimer);
               stopIdle?.();
               stopIdle = undefined;
               return;
             }
-            if (onEnter && !entered) {
-              entered = true;
+            if (onEnter) {
+              // Plays on every scroll-in, not just the first.
+              window.clearTimeout(enterTimer);
               // After the section's own fade-in has mostly played.
               enterTimer = window.setTimeout(() => {
                 if (!decode) {
@@ -100,7 +112,7 @@ export function useGlitchText<T extends HTMLElement>({
                 };
               }, 350);
             }
-            if (idle && !stopIdle) stopIdle = loop(() => fire(2 + Math.floor(Math.random() * 3)), 4000, 10000);
+            if (idle && !stopIdle) stopIdle = loop(() => fire(2 + Math.floor(Math.random() * 3)), idleMin, idleMax);
           })
         : undefined;
 
@@ -114,13 +126,13 @@ export function useGlitchText<T extends HTMLElement>({
       unregister();
       cancel?.();
     };
-  }, [onEnter, decode, idle]);
+  }, [onEnter, decode, idle, idleMin, idleMax]);
 
   return ref;
 }
 
 /** Drives a `.glitch-rule` separator: a heavy burst as it scrolls into view
- * for the first time, a short one every few seconds while it stays on screen,
+ * (every time), a short one every few seconds while it stays on screen,
  * and one when the pointer crosses it. */
 export function useGlitchRule<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -138,19 +150,17 @@ export function useGlitchRule<T extends HTMLElement>() {
     const handleEnter = () => fire(5);
     el.addEventListener("mouseenter", handleEnter);
 
-    let entered = false;
     let enterTimer = 0;
     let stopIdle: (() => void) | undefined;
     const stopWatching = watchVisible(el, 0.5, (visible) => {
       if (!visible) {
+        window.clearTimeout(enterTimer);
         stopIdle?.();
         stopIdle = undefined;
         return;
       }
-      if (!entered) {
-        entered = true;
-        enterTimer = window.setTimeout(() => fire(9), 250);
-      }
+      window.clearTimeout(enterTimer);
+      enterTimer = window.setTimeout(() => fire(9), 250);
       if (!stopIdle) stopIdle = loop(() => fire(2 + Math.floor(Math.random() * 4)), 3500, 9000);
     });
 

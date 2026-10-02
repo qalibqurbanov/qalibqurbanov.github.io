@@ -4,11 +4,15 @@ import { useInView } from "@/hooks/useInView";
 
 interface RevealProps extends ComponentPropsWithoutRef<"div"> {
   delayMs?: number;
+  /** Hide again when it leaves the viewport, so it plays every time it scrolls back in. */
+  replay?: boolean;
 }
 
 /** Fades and slides its children up into place the first time they scroll into view. */
-export function Reveal({ delayMs = 0, className = "", style, ...props }: RevealProps) {
-  const { ref, isInView } = useInView<HTMLDivElement>();
+export function Reveal({ delayMs = 0, replay = false, className = "", style, ...props }: RevealProps) {
+  const { ref, isInView } = useInView<HTMLDivElement>(
+    replay ? { triggerOnce: false, belowNavbar: true, threshold: 0.95 } : {},
+  );
 
   return (
     <div
