@@ -1,4 +1,4 @@
-import { Bug, CheckCircle2, Clock, FileText, GitBranch, GitCommitHorizontal, Mail } from "lucide-react";
+import { Bug, CheckCircle2, Clock, FileText, GitBranch, Mail } from "lucide-react";
 import type { ReactNode } from "react";
 
 import {
@@ -10,10 +10,10 @@ import {
 } from "@/components/icons/BrandIcons";
 import { openContactModal } from "@/components/contact/ContactModal";
 import { useClock } from "@/hooks/useClock";
-import { useLastCommit } from "@/hooks/useLastCommit";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
+import { BUILD_INFO } from "@/lib/buildInfo";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
 import { relativeTime } from "@/lib/relativeTime";
 
@@ -66,11 +66,48 @@ function FooterIconLink({ href, onClick, label, external = true, tone = "default
   );
 }
 
+/** The deployed branch, with the commit it was built from in a hover popup
+ * (the same pure-CSS tooltip pattern as the footer icons). Both come from the
+ * build, so it always describes what is live. */
+function BranchBadge() {
+  const { ui } = useContent();
+  const { locale } = useLocale();
+  useClock(); // re-renders each minute so the commit's age stays current
+  const { branch, sha, date, message } = BUILD_INFO;
+  const label = (
+    <>
+      <GitBranch size={12} /> {branch ?? "main"}
+    </>
+  );
+  if (!sha) return <span className="inline-flex items-center gap-1.5 text-accent">{label}</span>;
+
+  return (
+    <a
+      href={`${SITE_REPO_URL}/commit/${sha}`}
+      target="_blank"
+      rel="noreferrer"
+      className="group relative inline-flex items-center gap-1.5 text-accent"
+    >
+      {label}
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-max max-w-[min(20rem,calc(100vw-3rem))] -translate-x-1/2 scale-95 rounded-md border border-border bg-surface px-2.5 py-1.5 text-left text-[11px] text-text opacity-0 shadow-lg transition duration-150 group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100 sm:left-0 sm:translate-x-0"
+      >
+        <span className="block text-muted">{ui.labels.lastCommit}</span>
+        <span className="block">
+          <span className="text-accent">{sha.slice(0, 7)}</span>
+          {date && ` · ${relativeTime(date, getLocaleMeta(locale).bcp47)}`}
+        </span>
+        {message && <span className="block truncate text-muted">{message}</span>}
+      </span>
+    </a>
+  );
+}
+
 export function Footer() {
   const { profile, socials, ui } = useContent();
   const { locale } = useLocale();
   const now = useClock();
-  const lastCommit = useLastCommit();
   const hasResume = profile.resumeUrl && profile.resumeUrl !== "#";
 
   const time = new Intl.DateTimeFormat(getLocaleMeta(locale).bcp47, {
@@ -83,24 +120,7 @@ export function Footer() {
     <footer className="border-t border-border bg-surface-2">
       <div className="max-w-6xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 font-mono text-xs text-muted">
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-          <span className="inline-flex items-center gap-1.5 text-accent">
-            <GitBranch size={12} /> main
-          </span>
-          {lastCommit && (
-            <>
-              <span className="hidden sm:inline text-border">|</span>
-              <a
-                href={lastCommit.url}
-                target="_blank"
-                rel="noreferrer"
-                title={`${ui.labels.lastCommit}: ${lastCommit.message}`}
-                className="inline-flex items-center gap-1.5 hover:text-accent transition-colors"
-              >
-                <GitCommitHorizontal size={12} />
-                {lastCommit.sha.slice(0, 7)} · {relativeTime(lastCommit.date, getLocaleMeta(locale).bcp47)}
-              </a>
-            </>
-          )}
+          <BranchBadge />
           <span className="hidden sm:inline text-border">|</span>
           <span>UTF-8</span>
           <span className="hidden sm:inline text-border">|</span>
