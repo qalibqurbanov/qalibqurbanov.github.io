@@ -1,3 +1,5 @@
+import { GlitchRule } from "@/components/ui/GlitchRule";
+import { GlitchText } from "@/components/ui/GlitchText";
 import { Reveal } from "@/components/ui/Reveal";
 
 interface SectionHeadingProps {
@@ -20,11 +22,11 @@ export function SectionHeading({ id, index, title }: SectionHeadingProps) {
             href={`#${id}`}
             className="cursor-pointer transition-colors hover:text-accent"
           >
-            {title}
+            <GlitchText text={title} onEnter />
           </a>
           <span className="text-accent-2">()</span>
         </h2>
-        <span className="h-px flex-1 scan-line" />
+        <GlitchRule />
         <span className="hidden sm:inline font-mono text-muted/60 text-2xl leading-none bracket-pulse">
           {"{"}
         </span>

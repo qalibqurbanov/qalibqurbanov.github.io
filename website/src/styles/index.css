@@ -423,29 +423,111 @@ html::-webkit-scrollbar-button,
     section-focus-shake 0.5s ease-out;
 }
 
-/* A moving highlight along the section-heading rule and the `{`/`}`
-   code-block punctuation, so the "code" motif feels like it's still running. */
-@keyframes scan-line {
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+/* Section separators: a plain 1px line that glitches. useGlitchRule drives it
+   (on scroll-in, now and then, on hover); during a burst, segments of the
+   base line are cut out (--gr-base) and redrawn a few px above or below
+   (--gr-y-a/-b) in the two accent colours, clipped to --gr-a/--gr-b. The box
+   is taller than the line so those displaced segments have room. */
+.glitch-rule {
+  position: relative;
+  flex: 1;
+  height: 13px;
 }
 
-.scan-line {
-  background-image: linear-gradient(
-    90deg,
-    var(--color-border) 0%,
-    var(--color-border) 40%,
-    var(--color-accent) 50%,
-    var(--color-border) 60%,
-    var(--color-border) 100%
-  );
-  background-size: 200% 100%;
-  background-repeat: repeat-x;
-  animation: scan-line 5s linear infinite;
+.glitch-rule-base {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.glitch-rule::before,
+.glitch-rule::after {
+  content: "";
+  display: none;
+  position: absolute;
+  inset-inline: 0;
+  pointer-events: none;
+}
+
+.glitch-rule::before {
+  top: calc(50% + var(--gr-y-a, 0px));
+  height: 2px;
+  background: var(--color-accent);
+  clip-path: var(--gr-a, none);
+}
+
+.glitch-rule::after {
+  top: calc(50% + var(--gr-y-b, 0px));
+  height: 1px;
+  background: var(--color-accent-2);
+  clip-path: var(--gr-b, none);
+}
+
+.glitch-rule.is-glitching-rule::before,
+.glitch-rule.is-glitching-rule::after {
+  display: block;
+}
+
+.glitch-rule.is-glitching-rule .glitch-rule-base {
+  clip-path: var(--gr-base, none);
+}
+
+/* Text glitch (useGlitchText): two ghost copies of the text, cut into bands
+   (--gc-a/-b) and nudged sideways (--gx-a/-b), over text that jitters (--gj). */
+.glitch-text {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  content: attr(data-text) / "";
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: inherit;
+  pointer-events: none;
+}
+
+.glitch-text::before {
+  color: var(--color-accent-2);
+  transform: translateX(var(--gx-a, 0px));
+  clip-path: var(--gc-a, none);
+}
+
+.glitch-text::after {
+  color: var(--color-accent);
+  transform: translateX(var(--gx-b, 0px));
+  clip-path: var(--gc-b, none);
+}
+
+.glitch-text.is-glitching-text {
+  transform: translateX(var(--gj, 0px));
+}
+
+.glitch-text.is-glitching-text::before,
+.glitch-text.is-glitching-text::after {
+  display: block;
+}
+
+/* Full-screen flash (glitchScreen): thin bars in the accent colours, added
+   and re-rolled by script for a third of a second. */
+.glitch-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.glitch-screen > i {
+  position: absolute;
+  inset-inline: 0;
+  opacity: 0.22;
 }
 
 @keyframes bracket-pulse {

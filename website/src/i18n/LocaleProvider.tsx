@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { loadContent } from "@/content";
+import { glitchScreen } from "@/hooks/glitch";
 import type { Content } from "@/types/content";
 
 import { LocaleContext, type LocaleContextValue } from "./context";
@@ -32,7 +33,10 @@ export function LocaleProvider({ initialLocale, initialContent, children }: Loca
     try {
       const content = await loadContent(next);
       // A newer switch (or Back/Forward) may have started while this loaded.
-      if (latestRequest.current === next) setState({ locale: next, content });
+      if (latestRequest.current === next) {
+        setState({ locale: next, content });
+        glitchScreen();
+      }
     } catch {
       // Chunk failed to load: stay on the current language; the URL is
       // reverted by the caller's next successful navigation.

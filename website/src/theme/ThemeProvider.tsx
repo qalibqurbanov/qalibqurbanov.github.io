@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { glitchScreen } from "@/hooks/glitch";
+
 import { getInitialTheme, STORAGE_KEY, ThemeContext, type Theme, type ThemeContextValue } from "./context";
 
 /**
@@ -18,6 +20,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
+    glitchScreen();
     setTheme((current) => (current === "dark" ? "light" : "dark"));
   }, []);
 
