@@ -2,6 +2,7 @@ import { ArrowLeft, Menu, Moon, Sun, X } from "lucide-react";
 import { useState } from "react";
 
 import { CommandPaletteTrigger } from "@/components/command-palette/CommandPalette";
+import { GlitchText } from "@/components/ui/GlitchText";
 import { Knockable } from "@/components/ui/Knockable";
 import { useViewBar } from "@/components/ui/viewBar";
 import { useContent } from "@/i18n/context";
@@ -60,7 +61,8 @@ export function Navbar() {
                 <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
               </span>
-              <span className="text-accent">&gt;</span> {profile.name}
+              <span className="text-accent">&gt;</span>{" "}
+              <GlitchText text={profile.name} />
             </a>
           </Knockable>
           <button
@@ -88,7 +90,7 @@ export function Navbar() {
                   <span className="text-accent/70 mr-0.5">
                     {String(index + 1).padStart(2, "0")}.
                   </span>
-                  {item.label}
+                  <GlitchText text={item.label} />
                   <span className="absolute left-0 -bottom-0.5 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full" />
                 </a>
               </Knockable>

@@ -11,6 +11,7 @@ import {
 } from "@/components/icons/BrandIcons";
 import { openContactModal } from "@/components/contact/ContactModal";
 import { FileIcon } from "@/components/ui/FileIcon";
+import { GlitchText } from "@/components/ui/GlitchText";
 import { Knockable } from "@/components/ui/Knockable";
 import { Reveal } from "@/components/ui/Reveal";
 import { WindowControls } from "@/components/ui/WindowControls";
@@ -261,7 +262,9 @@ export function Hero() {
           <Reveal delayMs={200}>
             <h2 className="text-2xl sm:text-4xl font-semibold text-muted mt-2">
               <BreakableWords text={taglineBefore} seedBase={240} />
-              <Knockable seed={260}>{ui.hero.highlightWord}</Knockable>
+              <Knockable seed={260}>
+                <GlitchText text={ui.hero.highlightWord} idle />
+              </Knockable>
               <BreakableWords text={taglineAfter} seedBase={261} />
             </h2>
           </Reveal>

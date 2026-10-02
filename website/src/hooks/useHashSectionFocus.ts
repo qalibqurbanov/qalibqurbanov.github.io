@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 
+import { triggerGlitch } from "@/hooks/glitch";
+
 /** Runs a one-shot highlight animation on `el` — restarted by removing and
  * re-adding the class, since re-adding the same class while it's already
  * present wouldn't restart a running/finished CSS animation. */
@@ -18,6 +20,7 @@ function playFocusHighlight(section: HTMLElement) {
   playHighlight(section, "section-focus-highlight");
   const heading = section.querySelector<HTMLElement>("h1, h2");
   if (heading) playHighlight(heading, "heading-focus-highlight");
+  triggerGlitch(section);
 }
 
 /** When the URL's hash names an element on the page (a navbar link, or the
