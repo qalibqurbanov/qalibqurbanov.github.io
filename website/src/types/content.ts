@@ -239,7 +239,7 @@ export interface UiStrings {
   };
   terminal: {
     welcome: string;
-    /** Status lines the hero window prints while it boots, each after an "[ ok ]" marker. May contain {name}, {location}, {projects} and {skills}. */
+    /** Status lines the hero window prints while it boots, each after an "[ ok ]" marker. Tokens: {name}, {role}, {location}, {email}, {orgs}, {backend}, {frontend}, {mobile}, {tools}, {posts}, {socials}. A line containing {title} is printed once per project. */
     boot: string[];
     /** Label of the progress row that ends the boot, shown as "[ finishing ]". */
     finishing: string;
