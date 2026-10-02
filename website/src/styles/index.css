@@ -109,6 +109,18 @@ body {
   -webkit-user-select: text;
 }
 
+/* Matched bracket pairs in the hero terminal, coloured by nesting depth
+   (see lib/brackets.tsx). Built from theme tokens so both themes work. */
+.bracket-0 {
+  color: var(--color-accent);
+}
+.bracket-1 {
+  color: var(--color-accent-2);
+}
+.bracket-2 {
+  color: color-mix(in srgb, var(--color-accent) 50%, var(--color-accent-2) 50%);
+}
+
 ::selection {
   background: var(--color-accent);
   color: #05130d;

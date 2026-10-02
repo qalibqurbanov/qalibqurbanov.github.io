@@ -5,6 +5,7 @@ import { glitchScreen } from "@/hooks/glitch";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { isLocale, SUPPORTED_LOCALES } from "@/i18n/locale";
+import { colorizeBrackets } from "@/lib/brackets";
 import { glitchStorm, matrixRain } from "@/lib/effects";
 import { format } from "@/lib/format";
 import { scrollToTop } from "@/lib/scroll";
@@ -210,10 +211,12 @@ export function HeroTerminal() {
         >
           {entry.type === "input" ? (
             <span>
-              <TerminalPrompt /> {entry.text}
+              <TerminalPrompt /> {colorizeBrackets(entry.text)}
             </span>
           ) : (
-            <pre className="whitespace-pre-wrap font-mono">{entry.type === "welcome" ? ui.terminal.welcome : entry.text}</pre>
+            <pre className="whitespace-pre-wrap font-mono">
+              {colorizeBrackets(entry.type === "welcome" ? ui.terminal.welcome : entry.text)}
+            </pre>
           )}
         </div>
       ))}
