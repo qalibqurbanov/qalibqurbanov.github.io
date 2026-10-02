@@ -66,7 +66,7 @@ export function Navbar() {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
               </span>
               <span className="text-accent">&gt;</span>{" "}
-              <GlitchText text={profile.name} />
+              <GlitchText text={profile.name} idle />
             </a>
           </Knockable>
           <button
