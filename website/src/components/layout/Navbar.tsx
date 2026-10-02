@@ -7,6 +7,7 @@ import { Knockable } from "@/components/ui/Knockable";
 import { useViewBar } from "@/components/ui/viewBar";
 import { useContent } from "@/i18n/context";
 import { format } from "@/lib/format";
+import { useGlitchBar } from "@/hooks/useGlitch";
 import { useScrolledPast, useScrollProgress } from "@/hooks/useScrollPosition";
 import { scrollToTop } from "@/lib/scroll";
 import { useTheme } from "@/theme/context";
@@ -19,6 +20,7 @@ export function Navbar() {
   const progress = useScrollProgress();
   const { theme, toggleTheme } = useTheme();
   const { profile, navigation, ui } = useContent();
+  const barRef = useGlitchBar<HTMLDivElement>();
   const viewBar = useViewBar();
   const inView = viewBar !== null;
   // While a view is open the navbar morphs into its back-bar: the logo swaps
@@ -36,11 +38,13 @@ export function Navbar() {
           : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="h-[2px] w-full bg-transparent">
-        <div
-          className="h-full bg-gradient-to-r from-accent to-accent-2 transition-[width] duration-150 ease-out"
-          style={{ width: `${progress}%` }}
-        />
+      <div ref={barRef} className="glitch-bar">
+        <div className="glitch-bar-track">
+          <div
+            className="h-full bg-gradient-to-r from-accent to-accent-2 transition-[width] duration-150 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </div>
 
       <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">

@@ -130,3 +130,21 @@ export function installBorderGlitch(): void {
     true,
   );
 }
+
+/** One short burst of border glitch on `el` without any hovering — used when
+ * a view opens. `el` needs the same markup the hover glitch draws on
+ * (`.card-surface`, `.btn-pulse` or `.glitch-border`). */
+export function borderBurst(el: HTMLElement, frames = 7): void {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let left = frames;
+  const run = () => {
+    if (left-- <= 0 || !el.isConnected) {
+      clear(el);
+      return;
+    }
+    if (Math.random() < 0.8) frame(el);
+    else clear(el);
+    window.setTimeout(run, rand(25, 140));
+  };
+  run();
+}

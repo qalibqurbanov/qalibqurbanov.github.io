@@ -22,7 +22,7 @@ export function SectionHeading({ id, index, title }: SectionHeadingProps) {
             href={`#${id}`}
             className="cursor-pointer transition-colors hover:text-accent"
           >
-            <GlitchText text={title} onEnter />
+            <GlitchText text={title} onEnter decode />
           </a>
           <span className="text-accent-2">()</span>
         </h2>

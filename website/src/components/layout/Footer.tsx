@@ -1,4 +1,4 @@
-import { Bug, CheckCircle2, Clock, FileText, GitBranch, Mail } from "lucide-react";
+import { Bug, CheckCircle2, Clock, FileText, GitBranch, GitCommitHorizontal, Mail } from "lucide-react";
 import type { ReactNode } from "react";
 
 import {
@@ -10,10 +10,12 @@ import {
 } from "@/components/icons/BrandIcons";
 import { openContactModal } from "@/components/contact/ContactModal";
 import { useClock } from "@/hooks/useClock";
+import { useLastCommit } from "@/hooks/useLastCommit";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
+import { relativeTime } from "@/lib/relativeTime";
 
 interface FooterIconLinkProps {
   /** Omit for a button (uses `onClick`) instead of a link. */
@@ -68,6 +70,7 @@ export function Footer() {
   const { profile, socials, ui } = useContent();
   const { locale } = useLocale();
   const now = useClock();
+  const lastCommit = useLastCommit();
   const hasResume = profile.resumeUrl && profile.resumeUrl !== "#";
 
   const time = new Intl.DateTimeFormat(getLocaleMeta(locale).bcp47, {
@@ -83,6 +86,21 @@ export function Footer() {
           <span className="inline-flex items-center gap-1.5 text-accent">
             <GitBranch size={12} /> main
           </span>
+          {lastCommit && (
+            <>
+              <span className="hidden sm:inline text-border">|</span>
+              <a
+                href={lastCommit.url}
+                target="_blank"
+                rel="noreferrer"
+                title={`${ui.labels.lastCommit}: ${lastCommit.message}`}
+                className="inline-flex items-center gap-1.5 hover:text-accent transition-colors"
+              >
+                <GitCommitHorizontal size={12} />
+                {lastCommit.sha.slice(0, 7)} · {relativeTime(lastCommit.date, getLocaleMeta(locale).bcp47)}
+              </a>
+            </>
+          )}
           <span className="hidden sm:inline text-border">|</span>
           <span>UTF-8</span>
           <span className="hidden sm:inline text-border">|</span>

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-import { prefersReducedMotion, registerGlitch, ruleBurst, textBurst } from "@/hooks/glitch";
+import { decodeText, prefersReducedMotion, registerGlitch, ruleBurst, textBurst } from "@/hooks/glitch";
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
 
@@ -25,16 +25,23 @@ function loop(fire: () => void, min: number, max: number): () => void {
 }
 
 interface GlitchTextOptions {
-  /** Glitch once as the text scrolls into view. */
+  /** Play an entrance as the text scrolls into view. */
   onEnter?: boolean;
+  /** Make that entrance a decode (noise settling into the text) instead of a split. */
+  decode?: boolean;
   /** Glitch now and then, at random, while the text is on screen. */
   idle?: boolean;
 }
 
-/** Glitches the text while the pointer is over it (or over the link/button it
- * sits in), keeps re-glitching at random intervals for as long as it stays
- * there, and optionally also on scroll-in and idly. Pair with `.glitch-text`. */
-export function useGlitchText<T extends HTMLElement>({ onEnter = false, idle = false }: GlitchTextOptions = {}) {
+/** Glitches the text while the pointer is over it (or over the link, button or
+ * `data-glitch-host` element it sits in), keeps re-glitching at random
+ * intervals for as long as it stays there, and optionally also on scroll-in
+ * and idly. Pair with `.glitch-text`. */
+export function useGlitchText<T extends HTMLElement>({
+  onEnter = false,
+  decode = false,
+  idle = false,
+}: GlitchTextOptions = {}) {
   const ref = useRef<T>(null);
 
   useEffect(() => {
@@ -48,7 +55,7 @@ export function useGlitchText<T extends HTMLElement>({ onEnter = false, idle = f
     };
     const unregister = registerGlitch(el, () => fire(8));
 
-    const host = el.closest<HTMLElement>("a, button") ?? el;
+    const host = el.closest<HTMLElement>("a, button, [data-glitch-host]") ?? el;
     let stopHover: (() => void) | undefined;
     const handleEnter = () => {
       fire(6);
@@ -67,22 +74,38 @@ export function useGlitchText<T extends HTMLElement>({ onEnter = false, idle = f
     let entered = false;
     let enterTimer = 0;
     let stopIdle: (() => void) | undefined;
-    const stopWatching = watchVisible(el, onEnter ? 0.8 : 0.1, (visible) => {
-      if (!visible) {
-        stopIdle?.();
-        stopIdle = undefined;
-        return;
-      }
-      if (onEnter && !entered) {
-        entered = true;
-        // After the section's own fade-in has mostly played.
-        enterTimer = window.setTimeout(() => fire(8), 350);
-      }
-      if (idle && !stopIdle) stopIdle = loop(() => fire(2 + Math.floor(Math.random() * 3)), 4000, 10000);
-    });
+    const stopWatching =
+      onEnter || idle
+        ? watchVisible(el, onEnter ? 0.8 : 0.1, (visible) => {
+            if (!visible) {
+              stopIdle?.();
+              stopIdle = undefined;
+              return;
+            }
+            if (onEnter && !entered) {
+              entered = true;
+              // After the section's own fade-in has mostly played.
+              enterTimer = window.setTimeout(() => {
+                if (!decode) {
+                  fire(8);
+                  return;
+                }
+                cancel?.();
+                const stopDecode = decodeText(el);
+                // A last flicker as the final letters lock in.
+                const kick = window.setTimeout(() => fire(3), 720);
+                cancel = () => {
+                  stopDecode();
+                  window.clearTimeout(kick);
+                };
+              }, 350);
+            }
+            if (idle && !stopIdle) stopIdle = loop(() => fire(2 + Math.floor(Math.random() * 3)), 4000, 10000);
+          })
+        : undefined;
 
     return () => {
-      stopWatching();
+      stopWatching?.();
       stopIdle?.();
       stopHover?.();
       window.clearTimeout(enterTimer);
@@ -91,7 +114,7 @@ export function useGlitchText<T extends HTMLElement>({ onEnter = false, idle = f
       unregister();
       cancel?.();
     };
-  }, [onEnter, idle]);
+  }, [onEnter, decode, idle]);
 
   return ref;
 }
@@ -137,6 +160,50 @@ export function useGlitchRule<T extends HTMLElement>() {
       window.clearTimeout(enterTimer);
       el.removeEventListener("mouseenter", handleEnter);
       unregister();
+      cancel?.();
+    };
+  }, []);
+
+  return ref;
+}
+
+/** Drives the scroll-progress bar's `.glitch-bar`: it tears when the page is
+ * scrolled fast (a section jump, a flick of the wheel) and now and then at
+ * random while the page is scrolled down. */
+export function useGlitchBar<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || prefersReducedMotion()) return;
+
+    let cancel: (() => void) | undefined;
+    const fire = (frames: number) => {
+      cancel?.();
+      cancel = ruleBurst(el, frames);
+    };
+
+    let lastY = window.scrollY;
+    let lastTime = performance.now();
+    let lastFire = 0;
+    const handleScroll = () => {
+      const now = performance.now();
+      const speed = Math.abs(window.scrollY - lastY) / Math.max(1, now - lastTime);
+      lastY = window.scrollY;
+      lastTime = now;
+      if (speed > 2.5 && now - lastFire > 800) {
+        lastFire = now;
+        fire(4 + Math.floor(Math.random() * 4));
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    const stopIdle = loop(() => {
+      if (window.scrollY > 8) fire(2 + Math.floor(Math.random() * 3));
+    }, 7000, 15000);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      stopIdle();
       cancel?.();
     };
   }, []);

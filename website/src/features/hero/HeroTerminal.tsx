@@ -1,9 +1,11 @@
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
+import { glitchScreen } from "@/hooks/glitch";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { isLocale, SUPPORTED_LOCALES } from "@/i18n/locale";
+import { glitchStorm, matrixRain } from "@/lib/effects";
 import { format } from "@/lib/format";
 import { scrollToTop } from "@/lib/scroll";
 import { useTheme } from "@/theme/context";
@@ -156,6 +158,15 @@ export function HeroTerminal() {
         break;
       case "sudo":
         print(ui.terminal.permissionDenied, "error");
+        glitchScreen();
+        break;
+      case "glitch":
+        print(ui.terminal.glitchOn);
+        glitchStorm();
+        break;
+      case "matrix":
+        print(ui.terminal.matrixOn);
+        matrixRain();
         break;
       default:
         print(format(ui.terminal.notFound, { cmd }), "error");

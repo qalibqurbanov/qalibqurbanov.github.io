@@ -151,3 +151,52 @@ export function glitchScreen(): void {
   };
   run();
 }
+
+const SCRAMBLE = "abcdefghijklmnopqrstuvwxyz0123456789#%&$@!?<>/[]{}=+*^~";
+
+/** Decodes an element's text in: every character starts as noise and locks
+ * into place left to right. The element must hold a single text node, with
+ * the real text mirrored in `data-text` (see GlitchText). Its width is held
+ * for the duration so the noise doesn't shove neighbours around. */
+export function decodeText(el: HTMLElement, duration = 700): () => void {
+  const node = el.firstChild;
+  if (!(node instanceof Text)) return () => {};
+  const finalText = () => el.dataset.text ?? node.nodeValue ?? "";
+  el.style.minWidth = `${el.offsetWidth}px`;
+
+  let raf = 0;
+  const finish = () => {
+    node.nodeValue = finalText();
+    el.style.minWidth = "";
+  };
+  const start = performance.now();
+  const tick = (now: number) => {
+    const progress = Math.min(1, (now - start) / duration);
+    const text = finalText();
+    const locked = Math.floor(progress * text.length);
+    let out = "";
+    for (let i = 0; i < text.length; i++) {
+      out += i < locked || text[i] === " " ? text[i] : SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)];
+    }
+    node.nodeValue = out;
+    if (progress < 1) raf = requestAnimationFrame(tick);
+    else finish();
+  };
+  raf = requestAnimationFrame(tick);
+  return () => {
+    cancelAnimationFrame(raf);
+    finish();
+  };
+}
+
+/** A bright scan line sweeping the screen top to bottom (or bottom to top),
+ * played while the page jumps to another section. */
+export function scanWipe(direction: "down" | "up"): void {
+  if (prefersReducedMotion()) return;
+  const el = document.createElement("div");
+  el.className = `scan-wipe scan-wipe-${direction}`;
+  el.setAttribute("aria-hidden", "true");
+  el.addEventListener("animationend", () => el.remove(), { once: true });
+  document.body.appendChild(el);
+  window.setTimeout(() => el.remove(), 1500);
+}

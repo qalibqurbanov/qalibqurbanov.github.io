@@ -8,9 +8,12 @@ import { resolveInitialLocale } from "@/i18n/locale";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
 import { installBorderGlitch } from "@/hooks/borderGlitch";
+import { glitchScreen } from "@/hooks/glitch";
+import { installMagnetic } from "@/hooks/magnetic";
 import "@/styles/index.css";
 
 installBorderGlitch();
+installMagnetic();
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -30,4 +33,6 @@ void loadContent(initialLocale).then((initialContent) => {
       </ThemeProvider>
     </StrictMode>,
   );
+  // The page boots with a glitch: one flash as the hero lines cut in.
+  window.setTimeout(glitchScreen, 250);
 });

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import avatarUrl from "@/assets/avatar.png";
 import { Container } from "@/components/ui/Container";
+import { CountUp } from "@/components/ui/CountUp";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -61,7 +62,9 @@ export function About() {
                     <span className="text-muted">{"> "}</span>
                     {highlight.label}
                   </dt>
-                  <dd className="text-text mt-0.5">{highlight.value}</dd>
+                  <dd className="text-text mt-0.5">
+                    <CountUp value={highlight.value} />
+                  </dd>
                 </div>
               ))}
             </dl>

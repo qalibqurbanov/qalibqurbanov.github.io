@@ -1,5 +1,5 @@
 import { ArrowDown, FileText, Mail, SquareTerminal } from "lucide-react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import {
@@ -22,6 +22,9 @@ import { useDraggableWindow } from "@/hooks/useDraggableWindow";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
 import { useInView } from "@/hooks/useInView";
 import { useTilt } from "@/hooks/useTilt";
+
+/** Start of a hero line's glitch-in entrance (see `.glitch-in`), timed to land as its fade-in does. */
+const giDelay = (ms: number) => ({ "--gi-delay": `${ms}ms` }) as CSSProperties;
 
 const TOTAL_CODE_LINES = 8;
 const LINE_STEP_MS = 220;
@@ -248,19 +251,19 @@ export function Hero() {
       <div className="relative max-w-6xl mx-auto px-6 py-32 w-full grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-16 items-center">
         <div>
           <Reveal>
-            <p className="font-mono text-accent text-sm mb-4">
+            <p className="glitch-in font-mono text-accent text-sm mb-4" style={giDelay(300)}>
               <BreakableWords text={ui.hero.greeting} seedBase={200} />
             </p>
           </Reveal>
 
           <Reveal delayMs={100}>
-            <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight">
+            <h1 className="glitch-in text-4xl sm:text-6xl font-bold tracking-tight leading-tight" style={giDelay(400)}>
               <BreakableWords text={profile.name} seedBase={220} wordClassName="text-gradient" />
             </h1>
           </Reveal>
 
           <Reveal delayMs={200}>
-            <h2 className="text-2xl sm:text-4xl font-semibold text-muted mt-2">
+            <h2 className="glitch-in text-2xl sm:text-4xl font-semibold text-muted mt-2" style={giDelay(500)}>
               <BreakableWords text={taglineBefore} seedBase={240} />
               <Knockable seed={260}>
                 <GlitchText text={ui.hero.highlightWord} idle />
@@ -270,7 +273,7 @@ export function Hero() {
           </Reveal>
 
           <Reveal delayMs={300}>
-            <p className="max-w-xl text-muted mt-6 leading-relaxed">
+            <p className="glitch-in max-w-xl text-muted mt-6 leading-relaxed" style={giDelay(600)}>
               <BreakableWords text={profile.summary} seedBase={280} />
             </p>
           </Reveal>
