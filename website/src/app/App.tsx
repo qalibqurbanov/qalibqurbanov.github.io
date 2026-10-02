@@ -6,6 +6,7 @@ import { AmbientBackground } from "@/components/ui/AmbientBackground";
 import { BackToTop } from "@/components/ui/BackToTop";
 import { ContextMenu } from "@/components/ui/ContextMenu";
 import { CursorGlow } from "@/components/ui/CursorGlow";
+import { CustomCursor } from "@/components/ui/CustomCursor";
 import { About } from "@/features/about/About";
 // import { Blog } from "@/features/blog/Blog";
 import { Contact } from "@/features/contact/Contact";
@@ -31,6 +32,7 @@ export function App() {
     <div className="min-h-screen">
       <AmbientBackground />
       <CursorGlow />
+      <CustomCursor />
       <CommandPalette />
       <ContextMenu />
       <ContactModal />
