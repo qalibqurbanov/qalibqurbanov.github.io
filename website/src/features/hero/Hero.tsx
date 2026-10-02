@@ -1,6 +1,6 @@
 import { ArrowDown, FileText, Mail, SquareTerminal } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
 import {
   GithubIcon,
@@ -16,6 +16,7 @@ import { Knockable } from "@/components/ui/Knockable";
 import { Reveal } from "@/components/ui/Reveal";
 import { WindowControls } from "@/components/ui/WindowControls";
 import { HeroMinimizedEasterEgg } from "@/features/hero/HeroMinimizedEasterEgg";
+import { HeroBoot } from "@/features/hero/HeroBoot";
 import { HeroTerminal } from "@/features/hero/HeroTerminal";
 import { useContent } from "@/i18n/context";
 import { useDraggableWindow } from "@/hooks/useDraggableWindow";
@@ -94,7 +95,7 @@ function CodeLine({
   );
 }
 
-function HeroCode() {
+function HeroCode({ started }: { started: boolean }) {
   const { profile, ui } = useContent();
   const { ref, isInView } = useInView<HTMLDivElement>({ threshold: 0.4 });
   const [revealedCount, setRevealedCount] = useState(0);
@@ -108,10 +109,10 @@ function HeroCode() {
   const [settledCount, setSettledCount] = useState(0);
 
   useEffect(() => {
-    if (!isInView || revealedCount >= TOTAL_CODE_LINES) return;
+    if (!started || !isInView || revealedCount >= TOTAL_CODE_LINES) return;
     const timer = window.setTimeout(() => setRevealedCount((count) => count + 1), LINE_STEP_MS);
     return () => window.clearTimeout(timer);
-  }, [isInView, revealedCount]);
+  }, [started, isInView, revealedCount]);
 
   useEffect(() => {
     if (settledCount >= revealedCount) return;
@@ -170,6 +171,10 @@ export function Hero() {
   const [taglineBefore, taglineAfter] = ui.hero.tagline.split("{highlight}");
   const { ref: tiltRef, handleMouseMove, handleMouseLeave } = useTilt<HTMLDivElement>();
   const [tab, setTab] = useState<"code" | "terminal">("code");
+  // The window boots on first load (see HeroBoot); the code tab types itself
+  // out once that is over. Reduced motion skips the boot altogether.
+  const [booted, setBooted] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const handleBooted = useCallback(() => setBooted(true), []);
   const [shaking, setShaking] = useState(false);
   // Holds which message to show — null while hidden, so the same shake/toast
   // machinery can display different text for the minimize button (a generic
@@ -466,18 +471,19 @@ export function Hero() {
                 {/* Stacked in one grid cell (hidden one is `invisible`, not
                     `display: none`) so the window is always as tall as the
                     taller pane and never resizes or shifts on tab switch. */}
-                <div className="grid">
+                <div className="relative grid">
+                  {!booted && <HeroBoot onDone={handleBooted} />}
                   <div
                     className={`col-start-1 row-start-1 ${tab === "code" ? "" : "invisible pointer-events-none"}`}
                     aria-hidden={tab !== "code"}
                   >
-                    <HeroCode />
+                    <HeroCode started={booted} />
                   </div>
                   <div
                     className={`col-start-1 row-start-1 ${tab === "terminal" ? "" : "invisible pointer-events-none"}`}
                     aria-hidden={tab !== "terminal"}
                   >
-                    <HeroTerminal active={tab === "terminal"} />
+                    <HeroTerminal />
                   </div>
                 </div>
               </div>

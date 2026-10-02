@@ -1,5 +1,5 @@
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { glitchScreen } from "@/hooks/glitch";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
@@ -11,7 +11,7 @@ import { scrollToTop } from "@/lib/scroll";
 import { useTheme } from "@/theme/context";
 
 interface LogEntry {
-  type: "input" | "output" | "error" | "welcome" | "boot";
+  type: "input" | "output" | "error" | "welcome";
   text: string;
 }
 
@@ -27,31 +27,13 @@ function TerminalPrompt() {
 /** A fake shell dropped into the hero's code window — reuses the site's real
  * content (profile, skills, projects) so its answers stay correct without a
  * second copy of that data living in command responses. */
-export function HeroTerminal({ active }: { active: boolean }) {
+export function HeroTerminal() {
   const { profile, skills, experience, projects, socials, ui } = useContent();
   const { setLocale } = useLocale();
   const { theme, toggleTheme } = useTheme();
   const { openProject, openResume } = useProjectRoute();
 
-  const [log, setLog] = useState<LogEntry[]>([]);
-  // How many intro steps have been printed: one per boot line, then the
-  // welcome hint. The intro starts the first time the terminal is on screen
-  // and the prompt only appears once it is done.
-  const [introStep, setIntroStep] = useState(0);
-  const bootLines = useMemo(
-    () =>
-      ui.terminal.boot.map((line) =>
-        format(line, {
-          name: profile.name,
-          projects: String(projects.length),
-          skills: String(Object.values(skills).flat().length),
-        }),
-      ),
-    [ui.terminal.boot, profile.name, projects.length, skills],
-  );
-  const introLength = bootLines.length + 1;
-  const ready = introStep >= introLength;
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const [log, setLog] = useState<LogEntry[]>([{ type: "welcome", text: "" }]);
   const [value, setValue] = useState("");
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
@@ -61,46 +43,6 @@ export function HeroTerminal({ active }: { active: boolean }) {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [log]);
-
-  // One intro step per tick; each render schedules the next, so there is no
-  // timer state to carry between renders.
-  useEffect(() => {
-    if (!active || ready) return;
-    const entry: LogEntry =
-      introStep < bootLines.length
-        ? { type: "boot", text: bootLines[introStep] }
-        : { type: "welcome", text: "" };
-    const delay = reducedMotion ? 0 : introStep === 0 ? 350 : 180 + Math.random() * 260;
-    const id = window.setTimeout(() => {
-      setLog((current) => [...current, entry]);
-      setIntroStep(introStep + 1);
-    }, delay);
-    return () => window.clearTimeout(id);
-  }, [active, ready, introStep, bootLines, reducedMotion]);
-
-  // Any key (or a click) skips straight to the prompt.
-  useEffect(() => {
-    if (!active || ready) return;
-    function skip() {
-      setLog((current) => [
-        ...current,
-        ...bootLines.slice(introStep).map((text) => ({ type: "boot" as const, text })),
-        ...(introStep <= bootLines.length ? [{ type: "welcome" as const, text: "" }] : []),
-      ]);
-      setIntroStep(introLength);
-    }
-    function handleKey(event: KeyboardEvent) {
-      if (event.ctrlKey || event.metaKey || event.altKey) return;
-      skip();
-    }
-    const container = scrollRef.current;
-    window.addEventListener("keydown", handleKey);
-    container?.addEventListener("click", skip);
-    return () => {
-      window.removeEventListener("keydown", handleKey);
-      container?.removeEventListener("click", skip);
-    };
-  }, [active, ready, introStep, bootLines, introLength]);
 
   function print(text: string, type: LogEntry["type"] = "output") {
     setLog((current) => [...current, { type, text }]);
@@ -270,34 +212,24 @@ export function HeroTerminal({ active }: { active: boolean }) {
             <span>
               <TerminalPrompt /> {entry.text}
             </span>
-          ) : entry.type === "boot" ? (
-            <pre className="whitespace-pre-wrap font-mono">
-              <span className="text-accent">[ ok ]</span> {entry.text}
-            </pre>
           ) : (
             <pre className="whitespace-pre-wrap font-mono">{entry.type === "welcome" ? ui.terminal.welcome : entry.text}</pre>
           )}
         </div>
       ))}
-      {ready ? (
-        <div className="flex items-center gap-2 mt-1">
-          <TerminalPrompt />
-          <input
-            ref={inputRef}
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            onKeyDown={handleKeyDown}
-            spellCheck={false}
-            autoComplete="off"
-            aria-label={ui.labels.terminalInput}
-            className="flex-1 bg-transparent outline-none text-text"
-          />
-        </div>
-      ) : (
-        <div className="mt-1" aria-hidden="true">
-          <span className="caret" />
-        </div>
-      )}
+      <div className="flex items-center gap-2 mt-1">
+        <TerminalPrompt />
+        <input
+          ref={inputRef}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          onKeyDown={handleKeyDown}
+          spellCheck={false}
+          autoComplete="off"
+          aria-label={ui.labels.terminalInput}
+          className="flex-1 bg-transparent outline-none text-text"
+        />
+      </div>
     </div>
   );
 }
