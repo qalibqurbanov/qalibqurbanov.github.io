@@ -123,35 +123,39 @@ function HeroCode({ started }: { started: boolean }) {
   return (
     <div ref={ref} className="font-mono text-[13px] leading-7 py-5">
       <CodeLine n={1} revealed={revealedCount > 0} settled={settledCount > 0}>
-        <span className="text-accent-2">public class</span> <span className="text-text">Developer</span>
+        <span className="text-accent-2">public class</span> <span className="text-syn-type">Developer</span>
       </CodeLine>
       <CodeLine n={2} revealed={revealedCount > 1} settled={settledCount > 1}>
         <span className="bracket-0">{"{"}</span>
       </CodeLine>
       <CodeLine n={3} revealed={revealedCount > 2} settled={settledCount > 2}>
-        <span className="text-accent-2 pl-4">public string</span> <span className="text-text">Name</span>{" "}
+        <span className="text-accent-2 pl-4">public</span> <span className="text-syn-type">string</span>{" "}
+        <span className="text-text">Name</span>{" "}
         <span className="text-muted">=</span> <span className="text-accent">"{profile.name}"</span>
         <span className="text-muted">;</span>
       </CodeLine>
       <CodeLine n={4} revealed={revealedCount > 3} settled={settledCount > 3}>
-        <span className="text-accent-2 pl-4">public string</span> <span className="text-text">Role</span>{" "}
+        <span className="text-accent-2 pl-4">public</span> <span className="text-syn-type">string</span>{" "}
+        <span className="text-text">Role</span>{" "}
         <span className="text-muted">=</span> <span className="text-accent">"{profile.role}"</span>
         <span className="text-muted">;</span>
       </CodeLine>
       <CodeLine n={5} revealed={revealedCount > 4} settled={settledCount > 4}>
-        <span className="text-accent-2 pl-4">public string</span>{" "}
+        <span className="text-accent-2 pl-4">public</span> <span className="text-syn-type">string</span>{" "}
         <span className="text-text">Location</span> <span className="text-muted">=</span>{" "}
         <span className="text-accent">"{profile.location}"</span>
         <span className="text-muted">;</span>
       </CodeLine>
       <CodeLine n={6} revealed={revealedCount > 5} settled={settledCount > 5}>
-        <span className="text-accent-2 pl-4">public string[]</span> <span className="text-text">Stack</span>{" "}
+        <span className="text-accent-2 pl-4">public</span> <span className="text-syn-type">string[]</span>{" "}
+        <span className="text-text">Stack</span>{" "}
         <span className="text-muted">=</span> <span className="bracket-1">{"{"}</span>{" "}
         <span className="text-accent">"{ui.hero.stackValue}"</span> <span className="bracket-1">{"}"}</span>
         <span className="text-muted">;</span>
       </CodeLine>
       <CodeLine n={7} revealed={revealedCount > 6} settled={settledCount > 6}>
-        <span className="text-accent-2 pl-4">public bool</span> <span className="text-text">Hireable</span>{" "}
+        <span className="text-accent-2 pl-4">public</span> <span className="text-syn-type">bool</span>{" "}
+        <span className="text-text">Hireable</span>{" "}
         <span className="text-muted">=</span> <span className="text-accent-2">true</span>
         <span className="text-muted">;</span>
       </CodeLine>

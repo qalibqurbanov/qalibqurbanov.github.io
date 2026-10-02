@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* Three roles, all with Latin-ext (Azerbaijani ə, ı, ş…) and Cyrillic:
+     display = headings and big numbers, sans = running text, mono = code,
+     terminal and small technical labels. */
+  --font-display: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
 
   /* dark theme (default) */
   --color-bg: #07060d;
@@ -17,6 +21,10 @@
    * everything else on the site uses accent/accent-2, so this stays a
    * distinct, rarely-used signal. */
   --color-danger: #f87171;
+  /** Code/terminal syntax colors on top of accent (strings) and accent-2
+   * (keywords): type and class names, then numbers and command arguments. */
+  --color-syn-type: #fcd34d;
+  --color-syn-number: #86efac;
 
   --grid-line: rgba(190, 170, 255, 0.05);
   --glow-accent: rgba(177, 133, 255, 0.18);
@@ -34,6 +42,8 @@
     --color-text: #16131f;
     --color-muted: #656079;
     --color-danger: #dc2626;
+    --color-syn-type: #b45309;
+    --color-syn-number: #15803d;
 
     --grid-line: rgba(30, 10, 80, 0.05);
     --glow-accent: rgba(109, 40, 217, 0.1);
@@ -51,10 +61,22 @@
   --color-text: #16131f;
   --color-muted: #656079;
   --color-danger: #dc2626;
+  --color-syn-type: #b45309;
+  --color-syn-number: #15803d;
 
   --grid-line: rgba(30, 10, 80, 0.05);
   --glow-accent: rgba(109, 40, 217, 0.1);
   --glow-accent-2: rgba(14, 116, 144, 0.1);
+}
+
+/* In the base layer so a utility like `font-mono` on a heading still wins. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+  }
 }
 
 html {
@@ -969,7 +991,7 @@ html::-webkit-scrollbar-button,
 
 .cursor-glow::before {
   background: radial-gradient(
-    460px circle at var(--cx, 50%) var(--cy, 50%),
+    340px circle at var(--cx, 50%) var(--cy, 50%),
     var(--glow-accent),
     transparent 70%
   );
@@ -980,8 +1002,34 @@ html::-webkit-scrollbar-button,
     linear-gradient(to right, color-mix(in srgb, var(--color-accent) 26%, transparent) 1px, transparent 1px),
     linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 26%, transparent) 1px, transparent 1px);
   background-size: 44px 44px;
-  -webkit-mask-image: radial-gradient(190px circle at var(--cx, 50%) var(--cy, 50%), #000, transparent);
-  mask-image: radial-gradient(190px circle at var(--cx, 50%) var(--cy, 50%), #000, transparent);
+  -webkit-mask-image: radial-gradient(140px circle at var(--cx, 50%) var(--cy, 50%), #000, transparent);
+  mask-image: radial-gradient(140px circle at var(--cx, 50%) var(--cy, 50%), #000, transparent);
+}
+
+/* Terminal-prompt cursor for mouse-like pointers: a violet ">" chevron (the
+   hotspot is its tip) and, over anything clickable, a cyan block caret. Set
+   unlayered so it beats Tailwind's `cursor-pointer`; text fields, grab and
+   not-allowed keep the native cursors, which say something different. */
+@media (hover: hover) and (pointer: fine) {
+  html,
+  body {
+    cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M10%206%20L22%2016%20L10%2026%22%20stroke%3D%22%230b0813%22%20stroke-width%3D%228%22%2F%3E%3Cpath%20d%3D%22M10%206%20L22%2016%20L10%2026%22%20stroke%3D%22%23b185ff%22%20stroke-width%3D%224%22%2F%3E%3C%2Fsvg%3E") 23 16, auto;
+  }
+
+  a,
+  button,
+  summary,
+  select,
+  label[for],
+  [role="button"],
+  [role="tab"],
+  [role="option"],
+  [role="menuitem"],
+  [role="radio"],
+  [role="checkbox"],
+  .cursor-pointer {
+    cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20x%3D%2210%22%20y%3D%225%22%20width%3D%2212%22%20height%3D%2222%22%20rx%3D%221.5%22%20fill%3D%22%2322d3ee%22%20stroke%3D%22%230b0813%22%20stroke-width%3D%222.5%22%2F%3E%3C%2Fsvg%3E") 16 16, pointer;
+  }
 }
 
 /* Experience timeline: the accent line grows down the rail with the scroll

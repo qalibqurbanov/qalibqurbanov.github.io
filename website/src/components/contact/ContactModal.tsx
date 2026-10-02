@@ -33,7 +33,7 @@ function formatSize(bytes: number): string {
 type Status = "idle" | "sending" | "sent" | "error";
 
 const FIELD =
-  "w-full rounded-md border border-border bg-surface-2 px-3 py-2 font-mono text-sm text-text placeholder:text-muted/60 outline-none transition focus:border-accent selectable";
+  "w-full rounded-md border border-border bg-surface-2 px-3 py-2 font-sans text-sm text-text placeholder:text-muted/60 outline-none transition focus:border-accent selectable";
 
 export function ContactModal() {
   const { ui } = useContent();

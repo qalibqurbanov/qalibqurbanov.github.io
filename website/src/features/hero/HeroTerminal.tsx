@@ -12,15 +12,67 @@ import { scrollToTop } from "@/lib/scroll";
 import { useTheme } from "@/theme/context";
 
 interface LogEntry {
-  type: "input" | "output" | "error" | "welcome";
+  /** `table` is output whose lines are `key  description` pairs (help,
+   * projects, skills), so the key column can be coloured. */
+  type: "input" | "output" | "error" | "welcome" | "table";
   text: string;
 }
 
+/** Every command `runCommand` understands — used to colour a typed command
+ * green when it exists and red when it doesn't, like a real shell would. */
+const KNOWN_COMMANDS = new Set([
+  "help", "whoami", "about", "skills", "experience", "projects", "open", "contact",
+  "resume", "github", "linkedin", "telegram", "medium", "stackoverflow", "theme",
+  "lang", "home", "clear", "sudo", "glitch", "matrix",
+]);
+
+/** `key  description` (two or more spaces) or `key: description`. */
+const TABLE_ROW = /^(.*?)(\s{2,}|: )(.*)$/;
+
 function TerminalPrompt() {
   return (
+    <span>
+      <span className="text-accent font-bold">guest</span>
+      <span className="text-accent-2">@portfolio</span>
+      <span className="text-muted">:</span>
+      <span className="text-syn-type">~</span>
+      <span className="text-muted">$</span>
+    </span>
+  );
+}
+
+function CommandLine({ text }: { text: string }) {
+  const [cmd, ...rest] = text.split(/\s+/);
+  const args = rest.join(" ");
+  return (
     <>
-      <span className="text-accent">guest</span>
-      <span className="text-muted">@portfolio:~$</span>
+      <span className={KNOWN_COMMANDS.has(cmd.toLowerCase()) ? "text-accent font-medium" : "text-danger font-medium"}>
+        {cmd}
+      </span>
+      {args && <span className="text-syn-number"> {colorizeBrackets(args)}</span>}
+    </>
+  );
+}
+
+function TableOutput({ text }: { text: string }) {
+  return (
+    <>
+      {text.split("\n").map((line, index) => {
+        const match = TABLE_ROW.exec(line);
+        return (
+          <div key={index} className="whitespace-pre-wrap">
+            {match ? (
+              <>
+                <span className="text-accent-2">{match[1]}</span>
+                <span>{match[2]}</span>
+                <span>{colorizeBrackets(match[3])}</span>
+              </>
+            ) : (
+              line
+            )}
+          </div>
+        );
+      })}
     </>
   );
 }
@@ -62,7 +114,7 @@ export function HeroTerminal() {
 
     switch (cmd.toLowerCase()) {
       case "help":
-        print(ui.terminal.helpText);
+        print(ui.terminal.helpText, "table");
         break;
       case "whoami":
         print(`${profile.name} — ${profile.role} — ${profile.location}`);
@@ -75,6 +127,7 @@ export function HeroTerminal() {
           (Object.keys(skills) as Array<keyof typeof skills>)
             .map((key) => `${ui.skillGroups[key]}: ${skills[key].join(", ")}`)
             .join("\n"),
+          "table",
         );
         break;
       case "experience":
@@ -88,7 +141,7 @@ export function HeroTerminal() {
         );
         break;
       case "projects":
-        print(projects.map((project) => `${project.slug.padEnd(16)} ${project.title}`).join("\n"));
+        print(projects.map((project) => `${project.slug.padEnd(16)}  ${project.title}`).join("\n"), "table");
         break;
       case "open": {
         const project = projects.find((item) => item.slug === arg);
@@ -207,12 +260,20 @@ export function HeroTerminal() {
       {log.map((entry, index) => (
         <div
           key={index}
-          className={entry.type === "error" ? "text-accent-2" : entry.type === "input" ? "text-text" : "text-muted"}
+          className={
+            entry.type === "error"
+              ? "text-danger"
+              : entry.type === "welcome"
+                ? "text-muted"
+                : "text-text/85"
+          }
         >
           {entry.type === "input" ? (
             <span>
-              <TerminalPrompt /> {colorizeBrackets(entry.text)}
+              <TerminalPrompt /> <CommandLine text={entry.text} />
             </span>
+          ) : entry.type === "table" ? (
+            <TableOutput text={entry.text} />
           ) : (
             <pre className="whitespace-pre-wrap font-mono">
               {colorizeBrackets(entry.type === "welcome" ? ui.terminal.welcome : entry.text)}
