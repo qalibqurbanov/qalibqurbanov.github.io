@@ -41,9 +41,9 @@ interface MenuItemProps {
   label: string;
   active?: boolean;
   accent?: boolean;
-  /** Red instead of accent-green — reserved for "Report a bug". */
+  /** Red instead of the accent — reserved for "Report a bug". */
   danger?: boolean;
-  /** Violet instead of accent-green — reserved for "View source on GitHub",
+  /** Cyan (accent-2) instead of the accent — reserved for "View source on GitHub",
    * matching its footer badge. */
   accent2?: boolean;
   onSelect: () => void;

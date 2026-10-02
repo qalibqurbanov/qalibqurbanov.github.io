@@ -93,13 +93,13 @@ export function AmbientBackground() {
         className="parallax-layer absolute -top-32 -left-24 w-[520px] h-[520px]"
         style={{ "--depth": -0.04 } as CSSProperties}
       >
-        <div className="w-full h-full rounded-full bg-accent-2/10 blur-3xl blob-drift-a" />
+        <div className="w-full h-full rounded-full bg-accent/10 blur-3xl blob-drift-a" />
       </div>
       <div
         className="parallax-layer absolute bottom-[-15%] -right-24 w-[560px] h-[560px]"
         style={{ "--depth": -0.02 } as CSSProperties}
       >
-        <div className="w-full h-full rounded-full bg-accent/10 blur-3xl blob-drift-b" />
+        <div className="w-full h-full rounded-full bg-accent-2/10 blur-3xl blob-drift-b" />
       </div>
       <div
         className="parallax-layer absolute top-1/2 left-1/2 -ml-[220px] -mt-[220px] w-[440px] h-[440px]"
