@@ -14,35 +14,37 @@ export function ResumeViewer({ onBack }: ResumeViewerProps) {
 
   return (
     <ViewModal title={ui.labels.resume} widthClass="max-w-4xl" onClose={onBack}>
-      <main className="flex-1 min-h-0">
-        <div className="h-full">
-          <Reveal className="h-full flex flex-col min-h-0">
-            <CodeWindow
-              filename="resume.pdf"
-              className="flex flex-col h-full min-h-0"
-              onClose={onBack}
-            >
-              <object
-                data={`${profile.resumeUrl}#view=FitH`}
-                type="application/pdf"
-                aria-label={ui.labels.resume}
-                className="flex-1 min-h-0 w-full bg-white"
+      {(close) => (
+        <main className="flex-1 min-h-0">
+          <div className="h-full">
+            <Reveal className="h-full flex flex-col min-h-0">
+              <CodeWindow
+                filename="resume.pdf"
+                className="flex flex-col h-full min-h-0"
+                onClose={close}
               >
-                <div className="p-8 text-center text-sm text-muted">
-                  <p>{ui.resumeView.fallback}</p>
-                  <a
-                    href={profile.resumeUrl}
-                    download
-                    className="inline-block mt-4 rounded-md px-5 py-2.5 bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
-                  >
-                    {ui.contextMenu.downloadResume}
-                  </a>
-                </div>
-              </object>
-            </CodeWindow>
-          </Reveal>
-        </div>
-      </main>
+                <object
+                  data={`${profile.resumeUrl}#view=FitH`}
+                  type="application/pdf"
+                  aria-label={ui.labels.resume}
+                  className="flex-1 min-h-0 w-full bg-white"
+                >
+                  <div className="p-8 text-center text-sm text-muted">
+                    <p>{ui.resumeView.fallback}</p>
+                    <a
+                      href={profile.resumeUrl}
+                      download
+                      className="inline-block mt-4 rounded-md px-5 py-2.5 bg-accent text-bg font-mono text-sm font-medium hover:brightness-110 transition"
+                    >
+                      {ui.contextMenu.downloadResume}
+                    </a>
+                  </div>
+                </object>
+              </CodeWindow>
+            </Reveal>
+          </div>
+        </main>
+      )}
     </ViewModal>
   );
 }
