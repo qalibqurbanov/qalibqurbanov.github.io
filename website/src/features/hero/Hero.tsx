@@ -11,6 +11,7 @@ import {
 } from "@/components/icons/BrandIcons";
 import { openContactModal } from "@/components/contact/ContactModal";
 import { FileIcon } from "@/components/ui/FileIcon";
+import { TAB_ACTIVE, TAB_BASE, TAB_IDLE } from "@/components/ui/tabStyles";
 import { GlitchText } from "@/components/ui/GlitchText";
 import { Knockable } from "@/components/ui/Knockable";
 import { Reveal } from "@/components/ui/Reveal";
@@ -207,9 +208,6 @@ function closeOnMiddleClick(close: () => void) {
   };
 }
 
-const TAB_BASE = "flex items-center rounded-t-lg border-b-2 font-mono text-xs transition-colors";
-const TAB_ACTIVE = "bg-surface text-text border-accent";
-const TAB_IDLE = "text-muted border-transparent hover:text-text hover:bg-surface/50";
 const EMPTY_ACTION =
   "group flex w-[19rem] items-center gap-3 whitespace-nowrap rounded-lg border border-border bg-surface-2/60 px-3 py-2.5 text-left text-text transition duration-200 hover:-translate-y-px hover:border-accent/50 hover:bg-accent/5 hover:shadow-[0_8px_24px_-12px_var(--glow-accent)]";
 const EMPTY_ACTION_ICON =
