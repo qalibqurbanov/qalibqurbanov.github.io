@@ -319,6 +319,13 @@ const az: Content = {
       moreTitle: "GitHub-da daha çoxu",
       moreBody: "Kiçik təcrübələr və qurduğum digər hər şey repozitoriyalarımdadır.",
       moreCta: "Bütün repozitoriyalara bax",
+      matchLabel: "Teq uyğunluğu",
+      matchAny: "İstənilən teq",
+      matchAll: "Bütün teqlər",
+      matchAnyHint: "Seçilmiş teqlərdən ən azı birinə sahib layihələri göstər",
+      matchAllHint: "Yalnız seçilmiş bütün teqlərə sahib layihələri göstər",
+      noMatch: "Heç bir layihədə bu teqlərin hamısı yoxdur.",
+      repoCount: "{count} repozitoriya",
     },
     terminal: {
       welcome: "Mövcud əmrləri görmək üçün 'help' yazın.",

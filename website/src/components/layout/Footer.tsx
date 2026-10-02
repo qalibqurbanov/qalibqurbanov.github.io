@@ -112,6 +112,7 @@ function BranchBadge() {
 
 export function Footer() {
   const { profile, socials, ui } = useContent();
+  const now = useClock();
   const hasResume = profile.resumeUrl && profile.resumeUrl !== "#";
 
   return (
@@ -133,7 +134,7 @@ export function Footer() {
           </span>
           <span className="hidden sm:inline text-border">|</span>
           <span>
-            © {new Date().getFullYear()} {profile.name}
+            © {now.getFullYear()} {profile.name}
           </span>
         </div>
         <div className="flex items-center gap-4 text-muted">

@@ -318,6 +318,13 @@ const en: Content = {
       moreTitle: "More on GitHub",
       moreBody: "Smaller experiments and everything else I build live in my repositories.",
       moreCta: "Browse all repositories",
+      matchLabel: "Tag matching",
+      matchAny: "Any tag",
+      matchAll: "All tags",
+      matchAnyHint: "Show projects that have at least one of the selected tags",
+      matchAllHint: "Show only projects that have every selected tag",
+      noMatch: "No project has all of these tags.",
+      repoCount: "{count} repositories",
     },
     terminal: {
       welcome: "Type 'help' to see available commands.",
