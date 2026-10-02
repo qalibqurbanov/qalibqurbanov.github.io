@@ -126,7 +126,7 @@ function HeroCode({ started }: { started: boolean }) {
         <span className="text-accent-2">public class</span> <span className="text-text">Developer</span>
       </CodeLine>
       <CodeLine n={2} revealed={revealedCount > 1} settled={settledCount > 1}>
-        <span className="text-muted">{"{"}</span>
+        <span className="bracket-0">{"{"}</span>
       </CodeLine>
       <CodeLine n={3} revealed={revealedCount > 2} settled={settledCount > 2}>
         <span className="text-accent-2 pl-4">public string</span> <span className="text-text">Name</span>{" "}
@@ -146,8 +146,9 @@ function HeroCode({ started }: { started: boolean }) {
       </CodeLine>
       <CodeLine n={6} revealed={revealedCount > 5} settled={settledCount > 5}>
         <span className="text-accent-2 pl-4">public string[]</span> <span className="text-text">Stack</span>{" "}
-        <span className="text-muted">= {"{"}</span> <span className="text-accent">"{ui.hero.stackValue}"</span>
-        <span className="text-muted"> {"}"};</span>
+        <span className="text-muted">=</span> <span className="bracket-1">{"{"}</span>{" "}
+        <span className="text-accent">"{ui.hero.stackValue}"</span> <span className="bracket-1">{"}"}</span>
+        <span className="text-muted">;</span>
       </CodeLine>
       <CodeLine n={7} revealed={revealedCount > 6} settled={settledCount > 6}>
         <span className="text-accent-2 pl-4">public bool</span> <span className="text-text">Hireable</span>{" "}
@@ -155,7 +156,7 @@ function HeroCode({ started }: { started: boolean }) {
         <span className="text-muted">;</span>
       </CodeLine>
       <CodeLine n={8} revealed={revealedCount > 7} settled={settledCount > 7}>
-        <span className="text-muted">{"}"}</span>
+        <span className="bracket-0">{"}"}</span>
         {revealedCount >= TOTAL_CODE_LINES && <span className="caret ml-1" />}
       </CodeLine>
     </div>
