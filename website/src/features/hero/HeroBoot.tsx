@@ -21,31 +21,17 @@ interface HeroBootProps {
  * run of status lines, then a progress bar for three seconds, and fades away
  * to reveal the window. Any key or click skips it. */
 export function HeroBoot({ onDone }: HeroBootProps) {
-  const { profile, experience, projects, skills, blogPosts, socials, ui } = useContent();
+  const { profile, projects, skills, blogPosts, ui } = useContent();
   const lines = useMemo(() => {
     const vars = {
       name: profile.name,
-      role: profile.role,
-      location: profile.location,
-      email: profile.email,
-      orgs: [...new Set(experience.map((item) => item.org))].join(", "),
-      backend: String(skills.backend.length),
-      frontend: String(skills.frontend.length),
-      mobile: String(skills.mobile.length),
-      tools: String(skills.tools.length),
+      projects: String(projects.length),
+      skills: String(Object.values(skills).flat().length),
       posts: String(blogPosts.length),
-      socials: Object.entries(socials)
-        .filter(([key, url]) => key !== "email" && url)
-        .map(([key]) => key)
-        .join("/"),
+      sections: String(Object.keys(ui.sections).length),
     };
-    // A line with a {title} token is printed once per project.
-    return ui.terminal.boot.flatMap((line) =>
-      line.includes("{title}")
-        ? projects.map((project) => format(line, { ...vars, title: project.title }))
-        : [format(line, vars)],
-    );
-  }, [ui.terminal.boot, profile, experience, projects, skills, blogPosts, socials]);
+    return ui.terminal.boot.map((line) => format(line, vars));
+  }, [ui.terminal.boot, ui.sections, profile.name, projects.length, skills, blogPosts.length]);
 
   const [shown, setShown] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -102,7 +88,7 @@ export function HeroBoot({ onDone }: HeroBootProps) {
       onClick={onDone}
       aria-hidden="true"
       style={{ transitionDuration: `${FADE_MS}ms` }}
-      className={`absolute inset-0 z-10 flex flex-col justify-start overflow-hidden bg-surface p-4 font-mono text-xs leading-5 text-muted transition-opacity ${
+      className={`absolute inset-0 z-10 flex flex-col justify-start overflow-hidden bg-surface p-5 font-mono text-[13px] leading-6 text-muted transition-opacity ${
         leaving ? "opacity-0" : "opacity-100"
       }`}
     >

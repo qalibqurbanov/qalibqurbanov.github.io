@@ -295,16 +295,11 @@ const en: Content = {
     terminal: {
       welcome: "Type 'help' to see available commands.",
       boot: [
-        "initializing portfolio shell v1.0",
-        "loading profile: {name} — {role}",
-        "resolving location: {location}",
-        "reading work history: {orgs}",
-        "loading project: {title}",
-        "mounting skills: {backend} backend, {frontend} frontend, {mobile} mobile",
-        "fetching {posts} blog posts",
-        "linking: {socials}",
-        "attaching resume",
-        "opening contact channel: {email}",
+        "website initialization started",
+        "data received: {projects} projects, {skills} skills, {posts} posts",
+        "profile loaded: {name}",
+        "{sections} sections created",
+        "cleanup completed",
       ],
       finishing: "finishing",
       helpText:

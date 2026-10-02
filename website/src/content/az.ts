@@ -296,16 +296,11 @@ const az: Content = {
     terminal: {
       welcome: "Mövcud əmrləri görmək üçün 'help' yazın.",
       boot: [
-        "portfolio shell v1.0 işə salınır",
-        "profil yüklənir: {name}",
-        "məkan müəyyən edilir: {location}",
-        "iş təcrübəsi oxunur: {orgs}",
-        "layihə yüklənir: {title}",
-        "bacarıqlar qoşulur: {backend} backend, {frontend} frontend, {mobile} mobil",
-        "{posts} bloq yazısı gətirilir",
-        "bağlanır: {socials}",
-        "rezümə əlavə edilir",
-        "əlaqə kanalı açılır: {email}",
+        "saytın işə salınması başladı",
+        "məlumatlar alındı: {projects} layihə, {skills} bacarıq, {posts} yazı",
+        "profil yükləndi: {name}",
+        "{sections} bölmə yaradıldı",
+        "təmizləmə tamamlandı",
       ],
       finishing: "tamamlanır",
       helpText:
