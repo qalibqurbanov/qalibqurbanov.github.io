@@ -175,7 +175,7 @@ const ru: Content = {
       terminalTabLabel: "terminal",
       newTerminal: "Новый терминал",
       closeTerminal: "Закрыть терминал",
-      terminalHint: "Нажмите +, чтобы открыть терминал",
+      terminalHint: "Нажмите +, чтобы создать новую вкладку",
       scrollTabsLeft: "Прокрутить вкладки влево",
       scrollTabsRight: "Прокрутить вкладки вправо",
       closeFile: "Закрыть файл",

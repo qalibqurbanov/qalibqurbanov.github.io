@@ -175,7 +175,7 @@ const az: Content = {
       terminalTabLabel: "terminal",
       newTerminal: "Yeni terminal",
       closeTerminal: "Terminalı bağla",
-      terminalHint: "Terminal açmaq üçün + düyməsinə basın",
+      terminalHint: "Yeni tab yaratmaq üçün + düyməsinə basın",
       scrollTabsLeft: "Tabları sola sürüşdür",
       scrollTabsRight: "Tabları sağa sürüşdür",
       closeFile: "Faylı bağla",
