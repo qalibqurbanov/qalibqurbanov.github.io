@@ -11,10 +11,12 @@ import {
 import { LiveClock } from "@/components/ui/LiveClock";
 import { openContactModal } from "@/components/contact/ContactModal";
 import { useClock } from "@/hooks/useClock";
+import { useLiveSource } from "@/hooks/useLiveSource";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
 import { BUILD_INFO } from "@/lib/buildInfo";
+import { latestCommitSource } from "@/lib/latestCommit";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
 import { relativeTime } from "@/lib/relativeTime";
 
@@ -67,14 +69,17 @@ function FooterIconLink({ href, onClick, label, external = true, tone = "default
   );
 }
 
-/** The deployed branch, with the commit it was built from in a hover popup
- * (the same pure-CSS tooltip pattern as the footer icons). Both come from the
- * build, so it always describes what is live. */
+/** The site's branch, with its latest commit in a hover popup (the same
+ * pure-CSS tooltip pattern as the footer icons). The commit is fetched from
+ * GitHub and re-checked every minute, so it follows pushes made after the deploy;
+ * until the first answer it shows the commit this build was made from. */
 function BranchBadge() {
   const { ui } = useContent();
   const { locale } = useLocale();
   useClock(); // re-renders each minute so the commit's age stays current
-  const { branch, sha, date, message } = BUILD_INFO;
+  const { branch } = BUILD_INFO;
+  const { value: commit } = useLiveSource(latestCommitSource());
+  const { sha, date, message } = commit ?? { sha: null, date: null, message: null };
   const label = (
     <>
       <GitBranch size={12} /> {branch ?? "main"}
