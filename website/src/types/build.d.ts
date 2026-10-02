@@ -9,3 +9,9 @@ declare const __BUILD_INFO__: {
   /** First line of the commit message. */
   message: string | null;
 };
+
+/** Injected at build time by `config/vite.config.ts`: a snapshot of GitHub stats per "owner/repo" (lowercase), only used until the live numbers load. Empty when the build was offline. */
+declare const __REPO_STATS__: Record<
+  string,
+  { branch: string; language: string | null; pushedAt: string; stars: number; downloads: number }
+>;
