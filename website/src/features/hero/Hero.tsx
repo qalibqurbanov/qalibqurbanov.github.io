@@ -121,7 +121,7 @@ function HeroCode({ started }: { started: boolean }) {
   }, [revealedCount, settledCount]);
 
   return (
-    <div ref={ref} className="font-mono text-[13px] leading-7 py-5">
+    <div ref={ref} data-cursor="code" className="font-mono text-[13px] leading-7 py-5">
       <CodeLine n={1} revealed={revealedCount > 0} settled={settledCount > 0}>
         <span className="text-accent-2">public class</span> <span className="text-syn-type">Developer</span>
       </CodeLine>
