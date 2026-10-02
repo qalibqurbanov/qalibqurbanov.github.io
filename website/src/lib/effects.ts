@@ -60,7 +60,7 @@ export function matrixRain(duration = 7000): void {
     return;
   }
   const size = 16;
-  const color = getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim() || "#7cf5c4";
+  const color = getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim() || "#b185ff";
   const drops = Array.from({ length: Math.ceil(canvas.width / size) }, () => Math.random() * -40);
 
   const draw = () => {

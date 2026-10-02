@@ -5,56 +5,56 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* dark theme (default) */
-  --color-bg: #08080c;
-  --color-surface: #111117;
-  --color-surface-2: #17171f;
-  --color-border: #26262f;
-  --color-accent: #7cf5c4;
-  --color-accent-2: #8b8cf6;
-  --color-text: #e7e7ec;
-  --color-muted: #8a8a96;
+  --color-bg: #07060d;
+  --color-surface: #100e19;
+  --color-surface-2: #161324;
+  --color-border: #282340;
+  --color-accent: #b185ff;
+  --color-accent-2: #22d3ee;
+  --color-text: #ebe9f5;
+  --color-muted: #8d89a6;
   /** Reserved for destructive/attention actions (e.g. "Report a bug") —
    * everything else on the site uses accent/accent-2, so this stays a
    * distinct, rarely-used signal. */
   --color-danger: #f87171;
 
-  --grid-line: rgba(255, 255, 255, 0.045);
-  --glow-accent: rgba(124, 245, 196, 0.16);
-  --glow-accent-2: rgba(139, 140, 246, 0.16);
+  --grid-line: rgba(190, 170, 255, 0.05);
+  --glow-accent: rgba(177, 133, 255, 0.18);
+  --glow-accent-2: rgba(34, 211, 238, 0.14);
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --color-bg: #f7f7fa;
+    --color-bg: #f8f7fc;
     --color-surface: #ffffff;
-    --color-surface-2: #f0f0f5;
-    --color-border: #e1e1e8;
-    --color-accent: #047857;
-    --color-accent-2: #4f46e5;
-    --color-text: #14141a;
-    --color-muted: #62626d;
+    --color-surface-2: #f1eff8;
+    --color-border: #e3e0ef;
+    --color-accent: #6d28d9;
+    --color-accent-2: #0e7490;
+    --color-text: #16131f;
+    --color-muted: #656079;
     --color-danger: #dc2626;
 
-    --grid-line: rgba(10, 10, 15, 0.05);
-    --glow-accent: rgba(4, 120, 87, 0.1);
-    --glow-accent-2: rgba(79, 70, 229, 0.1);
+    --grid-line: rgba(30, 10, 80, 0.05);
+    --glow-accent: rgba(109, 40, 217, 0.1);
+    --glow-accent-2: rgba(14, 116, 144, 0.1);
   }
 }
 
 :root[data-theme="light"] {
-  --color-bg: #f7f7fa;
+  --color-bg: #f8f7fc;
   --color-surface: #ffffff;
-  --color-surface-2: #f0f0f5;
-  --color-border: #e1e1e8;
-  --color-accent: #047857;
-  --color-accent-2: #4f46e5;
-  --color-text: #14141a;
-  --color-muted: #62626d;
+  --color-surface-2: #f1eff8;
+  --color-border: #e3e0ef;
+  --color-accent: #6d28d9;
+  --color-accent-2: #0e7490;
+  --color-text: #16131f;
+  --color-muted: #656079;
   --color-danger: #dc2626;
 
-  --grid-line: rgba(10, 10, 15, 0.05);
-  --glow-accent: rgba(4, 120, 87, 0.1);
-  --glow-accent-2: rgba(79, 70, 229, 0.1);
+  --grid-line: rgba(30, 10, 80, 0.05);
+  --glow-accent: rgba(109, 40, 217, 0.1);
+  --glow-accent-2: rgba(14, 116, 144, 0.1);
 }
 
 html {
@@ -123,7 +123,7 @@ body {
 
 ::selection {
   background: var(--color-accent);
-  color: #05130d;
+  color: var(--color-bg);
 }
 
 /* Custom scrollbar shared by the page (`html`) and every internal scroll

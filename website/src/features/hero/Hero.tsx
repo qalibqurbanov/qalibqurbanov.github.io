@@ -251,8 +251,8 @@ export function Hero() {
 
   return (
     <section id="top" className="relative min-h-screen flex items-center bg-grid overflow-hidden">
-      <div className="pointer-events-none absolute -top-40 left-1/4 -translate-x-1/2 w-[640px] h-[640px] rounded-full bg-accent-2/15 blur-3xl blob-drift-a" />
-      <div className="pointer-events-none absolute top-1/3 right-0 w-[420px] h-[420px] rounded-full bg-accent/10 blur-3xl blob-drift-b" />
+      <div className="pointer-events-none absolute -top-40 left-1/4 -translate-x-1/2 w-[640px] h-[640px] rounded-full bg-accent/15 blur-3xl blob-drift-a" />
+      <div className="pointer-events-none absolute top-1/3 right-0 w-[420px] h-[420px] rounded-full bg-accent-2/10 blur-3xl blob-drift-b" />
 
       <div className="relative max-w-6xl mx-auto px-6 py-32 w-full grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-16 items-center">
         <div>
