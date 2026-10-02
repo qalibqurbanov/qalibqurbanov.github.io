@@ -174,7 +174,7 @@ const en: Content = {
       terminalTabLabel: "terminal",
       newTerminal: "New terminal",
       closeTerminal: "Close terminal",
-      terminalHint: "Click + to open a terminal",
+      terminalHint: "Click + to create a new tab",
       scrollTabsLeft: "Scroll tabs left",
       scrollTabsRight: "Scroll tabs right",
       closeFile: "Close file",
