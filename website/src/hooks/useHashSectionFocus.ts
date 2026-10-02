@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { triggerGlitch } from "@/hooks/glitch";
+import { scanWipe, triggerGlitch } from "@/hooks/glitch";
 
 /** Runs a one-shot highlight animation on `el` — restarted by removing and
  * re-adding the class, since re-adding the same class while it's already
@@ -51,6 +51,7 @@ export function useHashSectionFocus(): void {
         playFocusHighlight(el);
         return;
       }
+      scanWipe(rect.top > targetTop ? "down" : "up");
 
       // `scrollend` isn't universal, so a timer backs it up.
       const play = () => {

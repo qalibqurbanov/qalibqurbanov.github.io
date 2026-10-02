@@ -5,6 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { AmbientBackground } from "@/components/ui/AmbientBackground";
 import { BackToTop } from "@/components/ui/BackToTop";
 import { ContextMenu } from "@/components/ui/ContextMenu";
+import { CursorGlow } from "@/components/ui/CursorGlow";
 import { About } from "@/features/about/About";
 // import { Blog } from "@/features/blog/Blog";
 import { Contact } from "@/features/contact/Contact";
@@ -14,19 +15,22 @@ import { ProjectDetail } from "@/features/projects/ProjectDetail";
 import { Projects } from "@/features/projects/Projects";
 import { ResumeViewer } from "@/features/resume/ResumeViewer";
 import { Skills } from "@/features/skills/Skills";
+import { useEasterEggs } from "@/hooks/useEasterEggs";
 import { useHashSectionFocus } from "@/hooks/useHashSectionFocus";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent } from "@/i18n/context";
 
 export function App() {
-  const { projects } = useContent();
+  const { projects, ui } = useContent();
   const { activeSlug, resumeOpen, closeProject } = useProjectRoute();
   const activeProject = activeSlug ? (projects.find((project) => project.slug === activeSlug) ?? null) : undefined;
   useHashSectionFocus();
+  useEasterEggs(ui.terminal.konami);
 
   return (
     <div className="min-h-screen">
       <AmbientBackground />
+      <CursorGlow />
       <CommandPalette />
       <ContextMenu />
       <ContactModal />

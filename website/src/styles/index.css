@@ -553,7 +553,8 @@ html::-webkit-scrollbar-button,
    positions (--cp-a/--cp-b) and insets (--in-a/--in-b) all come from
    borderGlitch.ts; CSS only draws the ghost rings. */
 .card-surface,
-.btn-pulse {
+.btn-pulse,
+.glitch-border {
   --glitch-1: var(--color-accent);
   --glitch-2: var(--color-accent-2);
   position: relative;
@@ -570,7 +571,9 @@ html::-webkit-scrollbar-button,
 .card-surface::before,
 .card-surface::after,
 .btn-pulse::before,
-.btn-pulse::after {
+.btn-pulse::after,
+.glitch-border::before,
+.glitch-border::after {
   content: "";
   display: none;
   position: absolute;
@@ -581,14 +584,16 @@ html::-webkit-scrollbar-button,
 }
 
 .card-surface::before,
-.btn-pulse::before {
+.btn-pulse::before,
+.glitch-border::before {
   border-color: var(--col-a, var(--color-accent));
   inset: var(--in-a, 0px);
   clip-path: var(--cp-a, none);
 }
 
 .card-surface::after,
-.btn-pulse::after {
+.btn-pulse::after,
+.glitch-border::after {
   border-color: var(--col-b, var(--color-accent-2));
   inset: var(--in-b, 0px);
   clip-path: var(--cp-b, none);
@@ -766,4 +771,334 @@ html::-webkit-scrollbar-button,
 
 .view-content[data-state="closed"] {
   animation: view-rise-out 180ms ease-in both;
+}
+
+/* Scroll-progress bar glitch (useGlitchBar). Same idea as `.glitch-rule`: the
+   track loses the stretches that reappear a few px lower in the accent
+   colours. Anything shifted upward lands off-screen, which reads as a flicker. */
+.glitch-bar {
+  position: relative;
+  height: 2px;
+  width: 100%;
+}
+
+.glitch-bar-track {
+  height: 100%;
+  width: 100%;
+}
+
+.glitch-bar::before,
+.glitch-bar::after {
+  content: "";
+  display: none;
+  position: absolute;
+  inset-inline: 0;
+  pointer-events: none;
+}
+
+.glitch-bar::before {
+  top: var(--gr-y-a, 0px);
+  height: 2px;
+  background: var(--color-accent);
+  clip-path: var(--gr-a, none);
+}
+
+.glitch-bar::after {
+  top: var(--gr-y-b, 0px);
+  height: 1px;
+  background: var(--color-accent-2);
+  clip-path: var(--gr-b, none);
+}
+
+.glitch-bar.is-glitching-rule::before,
+.glitch-bar.is-glitching-rule::after {
+  display: block;
+}
+
+.glitch-bar.is-glitching-rule .glitch-bar-track {
+  clip-path: var(--gr-base, none);
+}
+
+/* Hero entrance: the line cuts in through hard-edged slices with a red/blue
+   style split, then settles. Held `backwards` so it is hidden until its
+   delay (--gi-delay) is over, and leaves no clip-path or filter behind. */
+@keyframes glitch-in {
+  0% {
+    clip-path: inset(0 0 100% 0);
+    transform: translateX(-8px);
+  }
+  14% {
+    clip-path: inset(12% 0 58% 0);
+    transform: translateX(6px);
+    filter: drop-shadow(-4px 0 var(--color-accent-2)) drop-shadow(4px 0 var(--color-accent));
+  }
+  28% {
+    clip-path: inset(52% 0 18% 0);
+    transform: translateX(-5px);
+    filter: drop-shadow(4px 0 var(--color-accent-2)) drop-shadow(-4px 0 var(--color-accent));
+  }
+  42% {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(4px);
+    filter: drop-shadow(-3px 0 var(--color-accent-2)) drop-shadow(3px 0 var(--color-accent));
+  }
+  56% {
+    clip-path: inset(34% 0 38% 0);
+    transform: translateX(-3px);
+    filter: drop-shadow(3px 0 var(--color-accent-2));
+  }
+  72% {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(2px);
+    filter: drop-shadow(-2px 0 var(--color-accent));
+  }
+  88% {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(-1px);
+    filter: none;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+    filter: none;
+  }
+}
+
+.glitch-in {
+  animation: glitch-in 650ms steps(1, end) var(--gi-delay, 0ms) backwards;
+}
+
+/* Scan line that sweeps the screen while the page jumps to a section. */
+@keyframes scan-wipe-down {
+  from {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+@keyframes scan-wipe-up {
+  from {
+    transform: translateY(100vh);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+}
+
+.scan-wipe {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  z-index: 90;
+  pointer-events: none;
+  background: var(--color-accent);
+  box-shadow: 0 0 18px 3px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.scan-wipe::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: 140px;
+}
+
+.scan-wipe-down {
+  animation: scan-wipe-down 650ms cubic-bezier(0.5, 0, 0.2, 1) both;
+}
+
+.scan-wipe-down::before {
+  bottom: 100%;
+  background: linear-gradient(to top, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent);
+}
+
+.scan-wipe-up {
+  animation: scan-wipe-up 650ms cubic-bezier(0.5, 0, 0.2, 1) both;
+}
+
+.scan-wipe-up::before {
+  top: 100%;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent);
+}
+
+/* Glow that follows the cursor behind the page, lighting the grid around it. */
+.cursor-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.cursor-glow.is-active {
+  opacity: 1;
+}
+
+.cursor-glow::before,
+.cursor-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.cursor-glow::before {
+  background: radial-gradient(
+    460px circle at var(--cx, 50%) var(--cy, 50%),
+    var(--glow-accent),
+    transparent 70%
+  );
+}
+
+.cursor-glow::after {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-accent) 26%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 26%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(190px circle at var(--cx, 50%) var(--cy, 50%), #000, transparent);
+  mask-image: radial-gradient(190px circle at var(--cx, 50%) var(--cy, 50%), #000, transparent);
+}
+
+/* Experience timeline: the accent line grows down the rail with the scroll
+   (--tl, see useTimelineProgress) and each dot lights up once it is reached. */
+.timeline-rail::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 0;
+  width: 2px;
+  height: calc(var(--tl, 0) * 100%);
+  background: linear-gradient(to bottom, var(--color-accent), var(--color-accent-2));
+  box-shadow: 0 0 10px var(--glow-accent);
+  pointer-events: none;
+}
+
+.timeline-dot {
+  background: var(--color-border);
+  box-shadow: 0 0 0 4px var(--color-bg);
+  transform: scale(0.78);
+  transition:
+    background-color 0.4s ease,
+    box-shadow 0.4s ease,
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+[data-dot][data-reached] .timeline-dot {
+  background: var(--color-accent);
+  box-shadow:
+    0 0 0 4px var(--color-bg),
+    0 0 16px 5px var(--glow-accent);
+  transform: none;
+}
+
+/* Project cards drift against each other while scrolling (useCardParallax). */
+.parallax-card {
+  transform: translate3d(0, var(--py, 0px), 0);
+  will-change: transform;
+}
+
+/* Easter-egg effects (lib/effects.ts). */
+@keyframes storm-jitter {
+  0%,
+  100% {
+    translate: 0 0;
+    filter: none;
+  }
+  12% {
+    translate: -6px 2px;
+    filter: hue-rotate(40deg) saturate(1.6);
+  }
+  25% {
+    translate: 5px -3px;
+    filter: hue-rotate(-60deg);
+  }
+  40% {
+    translate: -3px 0;
+    filter: invert(0.08);
+  }
+  55% {
+    translate: 7px 1px;
+    filter: hue-rotate(90deg);
+  }
+  70% {
+    translate: -4px -2px;
+    filter: none;
+  }
+  85% {
+    translate: 3px 3px;
+    filter: hue-rotate(-30deg) saturate(1.8);
+  }
+}
+
+html.glitch-storm main,
+html.glitch-storm footer {
+  animation: storm-jitter 0.45s steps(1, end) infinite;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+}
+
+.site-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 2rem;
+  z-index: 110;
+  max-width: calc(100vw - 2rem);
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  box-shadow: 0 12px 32px -12px var(--glow-accent);
+  pointer-events: none;
+  animation: toast-in 0.25s ease-out both;
+}
+
+.site-toast.is-leaving {
+  animation: toast-out 0.25s ease-in both;
+}
+
+.matrix-rain {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.matrix-rain.is-leaving {
+  opacity: 0;
 }

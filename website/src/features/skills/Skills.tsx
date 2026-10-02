@@ -2,6 +2,7 @@ import { Layout, Server, Smartphone, Wrench } from "lucide-react";
 import type { ComponentType } from "react";
 
 import { Container } from "@/components/ui/Container";
+import { GlitchText } from "@/components/ui/GlitchText";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -44,8 +45,12 @@ export function Skills() {
               <h3 className="font-semibold text-text mb-4">{ui.skillGroups[category]}</h3>
               <ul className="space-y-2">
                 {skills[category].map((skill) => (
-                  <li key={skill} className="font-mono text-sm text-muted flex items-center gap-2">
-                    <span className="text-accent">▹</span> {skill}
+                  <li
+                    key={skill}
+                    data-glitch-host
+                    className="font-mono text-sm text-muted flex items-center gap-2 hover:text-text transition-colors"
+                  >
+                    <span className="text-accent">▹</span> <GlitchText text={skill} />
                   </li>
                 ))}
               </ul>

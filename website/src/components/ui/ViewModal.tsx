@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { setViewBar } from "@/components/ui/viewBar";
+import { borderBurst } from "@/hooks/borderGlitch";
 import { useContent } from "@/i18n/context";
 
 /** Slightly longer than the CSS exit animation (180ms) so the view is still
@@ -37,6 +38,7 @@ export function ViewModal({
   const label = backLabel ?? ui.resumeView.back;
   const [closing, setClosing] = useState(false);
   const timer = useRef<number | undefined>(undefined);
+  const contentRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   const visible = open && !closing;
 
@@ -49,6 +51,16 @@ export function ViewModal({
   }, [open]);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  // The window's border glitches once as the view opens.
+  useEffect(() => {
+    if (!visible) return;
+    const id = window.setTimeout(() => {
+      const win = contentRef.current?.querySelector<HTMLElement>(".glitch-border");
+      if (win) borderBurst(win, 8);
+    }, 160);
+    return () => window.clearTimeout(id);
+  }, [visible]);
 
   const requestClose = useCallback(() => {
     if (timer.current !== undefined) return;
@@ -73,6 +85,7 @@ export function ViewModal({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm view-overlay" />
         <Dialog.Content
+          ref={contentRef}
           {...(title ? { "aria-describedby": undefined } : {})}
           onClick={(event) => {
             if (event.target === event.currentTarget) requestClose();

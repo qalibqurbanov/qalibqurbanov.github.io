@@ -5,12 +5,14 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Tag } from "@/components/ui/Tag";
+import { useTimelineProgress } from "@/hooks/useTimelineProgress";
 import { useContent, useLocale } from "@/i18n/context";
 import { formatDuration } from "@/lib/duration";
 
 export function Experience() {
   const { experience, ui } = useContent();
   const { locale } = useLocale();
+  const timelineRef = useTimelineProgress<HTMLOListElement>();
 
   return (
     <section id="experience" className="py-28">
@@ -21,18 +23,19 @@ export function Experience() {
           title={ui.sections.experience.title}
         />
 
-        <ol className="relative border-l border-border ml-2">
+        <ol ref={timelineRef} className="timeline-rail relative border-l border-border ml-2">
           {experience.map((item, index) => {
             return (
               <li key={item.role} className="mb-12 ml-8 last:mb-0">
                 <span
+                  data-dot
                   className="absolute -left-[7px] mt-1.5 flex w-3.5 h-3.5"
                   aria-hidden="true"
                 >
                   {item.current && (
                     <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />
                   )}
-                  <span className="relative inline-flex w-3.5 h-3.5 rounded-full bg-accent ring-4 ring-bg shadow-[0_0_0_3px_var(--glow-accent)]" />
+                  <span className="timeline-dot relative inline-flex w-3.5 h-3.5 rounded-full" />
                 </span>
                 <Reveal delayMs={index * 100}>
                   <div className="flex flex-wrap items-baseline justify-between gap-2">

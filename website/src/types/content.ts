@@ -174,6 +174,7 @@ export interface UiStrings {
     resume: string;
     reportBug: string;
     viewSource: string;
+    lastCommit: string;
     socialMedia: string;
     projectLinks: string;
     language: string;
@@ -241,6 +242,10 @@ export interface UiStrings {
     helpText: string;
     notFound: string;
     permissionDenied: string;
+    glitchOn: string;
+    matrixOn: string;
+    /** Toast shown when the Konami code is entered anywhere on the page. */
+    konami: string;
     openingProject: string;
     projectNotFound: string;
     themeSwitched: string;
