@@ -1006,6 +1006,40 @@ html::-webkit-scrollbar-button,
   mask-image: radial-gradient(140px circle at var(--cx, 50%) var(--cy, 50%), #000, transparent);
 }
 
+/* The "+" button's heartbeat while it is still being pointed out: two quick
+   beats (lub-dub), a ring sent out after the second, then a rest. */
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 50%, transparent);
+  }
+  14% {
+    transform: scale(1.22);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 50%, transparent);
+  }
+  70%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 11px transparent;
+  }
+}
+
+.plus-heartbeat {
+  animation: heartbeat 1.7s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plus-heartbeat {
+    animation: none;
+  }
+}
+
 /* The site's own cursor (see CustomCursor): a dot plus a soft trailing ring
    that re-shapes with the context. The system cursor is hidden only after a
    real mouse has moved (`has-cursor`), and unlayered + !important so it beats

@@ -111,6 +111,23 @@ export interface UiStrings {
     ctaViewWork: string;
     ctaGetInTouch: string;
     terminalTabLabel: string;
+    /** Label of the "+" button that opens a new terminal tab. */
+    newTerminal: string;
+    /** Label of the "x" button on a terminal tab. */
+    closeTerminal: string;
+    /** Callout under the "+" button until the first terminal has been opened. */
+    terminalHint: string;
+    /** Labels of the arrows that scroll the tab strip once the tabs no longer fit. */
+    scrollTabsLeft: string;
+    scrollTabsRight: string;
+    /** Label of the "x" button on the Developer.cs tab. */
+    closeFile: string;
+    /** Shown between the braces of the `{ }` mark once every tab has been closed. */
+    noTabs: string;
+    /** Action card under `noTabs` that brings Developer.cs back. */
+    reopenCode: string;
+    /** Action card under `noTabs` that opens a terminal. */
+    emptyTerminal: string;
     /** The Developer.cs snippet's `Stack` array value — deliberately not a
      * tech list, so it never looks outdated or narrow. */
     stackValue: string;
