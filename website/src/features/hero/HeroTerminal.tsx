@@ -9,7 +9,10 @@ import { colorizeBrackets } from "@/lib/brackets";
 import { glitchStorm, matrixRain } from "@/lib/effects";
 import { format } from "@/lib/format";
 import { scrollToTop } from "@/lib/scroll";
-import { useTheme } from "@/theme/context";
+import type { Theme } from "@/theme/context";
+
+import type { MenuNode } from "./TerminalMenu";
+import { TerminalMenu } from "./TerminalMenu";
 
 interface LogEntry {
   /** `table` is output whose lines are `key  description` pairs (help,
@@ -23,7 +26,7 @@ interface LogEntry {
 const KNOWN_COMMANDS = new Set([
   "help", "whoami", "about", "skills", "experience", "projects", "open", "contact",
   "resume", "github", "linkedin", "telegram", "medium", "stackoverflow", "theme",
-  "lang", "home", "clear", "sudo", "glitch", "matrix",
+  "lang", "home", "clear", "sudo", "glitch", "matrix", "menu",
 ]);
 
 /** `key  description` (two or more spaces) or `key: description`. */
@@ -80,15 +83,19 @@ function TableOutput({ text }: { text: string }) {
 interface HeroTerminalProps {
   /** Called with the command word each time a command is run, for the tab's title. */
   onCommand?: (name: string) => void;
+  /** A command to run once, right after the terminal opens. */
+  initialCommand?: string;
+  /** The hero window's own theme, which the `theme` command switches. */
+  theme: Theme;
+  onToggleTheme: () => void;
 }
 
 /** A fake shell dropped into the hero's code window — reuses the site's real
  * content (profile, skills, projects) so its answers stay correct without a
  * second copy of that data living in command responses. */
-export function HeroTerminal({ onCommand }: HeroTerminalProps) {
+export function HeroTerminal({ onCommand, initialCommand, theme, onToggleTheme }: HeroTerminalProps) {
   const { profile, skills, experience, projects, socials, ui } = useContent();
   const { setLocale } = useLocale();
-  const { theme, toggleTheme } = useTheme();
   const { openProject, openResume } = useProjectRoute();
 
   const [log, setLog] = useState<LogEntry[]>([{ type: "welcome", text: "" }]);
@@ -98,10 +105,13 @@ export function HeroTerminal({ onCommand }: HeroTerminalProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // A terminal tab is only ever created by clicking "+", so take the focus.
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // A terminal tab is only ever created by clicking "+", so take the focus;
+  // the input also gets it back whenever the menu closes.
   useEffect(() => {
-    inputRef.current?.focus({ preventScroll: true });
-  }, []);
+    if (!menuOpen) inputRef.current?.focus({ preventScroll: true });
+  }, [menuOpen]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -109,6 +119,63 @@ export function HeroTerminal({ onCommand }: HeroTerminalProps) {
 
   function print(text: string, type: LogEntry["type"] = "output") {
     setLog((current) => [...current, { type, text }]);
+  }
+
+  /** The menu tree. Leaves name a command, so everything the menu does is
+   * also visible in (and repeatable from) the log. */
+  function buildMenu(): MenuNode[] {
+    const { groups, items } = ui.terminal.menu;
+    const links: MenuNode[] = [
+      { label: items.contactInfo, command: "contact" },
+      ...(profile.resumeUrl && profile.resumeUrl !== "#" ? [{ label: items.resume, command: "resume" }] : []),
+      { label: "GitHub", command: "github" },
+      { label: "LinkedIn", command: "linkedin" },
+      ...(socials.telegram ? [{ label: "Telegram", command: "telegram" }] : []),
+      ...(socials.medium ? [{ label: "Medium", command: "medium" }] : []),
+      ...(socials.stackoverflow ? [{ label: "Stack Overflow", command: "stackoverflow" }] : []),
+    ];
+
+    return [
+      {
+        label: groups.profile,
+        children: [
+          { label: items.whoami, command: "whoami" },
+          { label: items.about, command: "about" },
+          { label: items.skills, command: "skills" },
+        ],
+      },
+      {
+        label: groups.work,
+        children: [
+          { label: items.experience, command: "experience" },
+          { label: items.projects, command: "projects" },
+          ...projects.map((project) => ({ label: project.title, command: `open ${project.slug}` })),
+        ],
+      },
+      { label: groups.contact, children: links },
+      {
+        label: groups.settings,
+        children: [
+          { label: items.theme, command: "theme" },
+          {
+            label: items.language,
+            children: SUPPORTED_LOCALES.map((meta) => ({ label: meta.nativeName, command: `lang ${meta.code}` })),
+          },
+        ],
+      },
+      {
+        label: groups.fun,
+        children: [
+          { label: items.glitch, command: "glitch" },
+          { label: items.matrix, command: "matrix" },
+        ],
+      },
+    ];
+  }
+
+  function runFromMenu(command: string) {
+    setMenuOpen(false);
+    runCommand(command);
   }
 
   function runCommand(raw: string) {
@@ -203,7 +270,7 @@ export function HeroTerminal({ onCommand }: HeroTerminalProps) {
         break;
       case "theme":
         print(format(ui.terminal.themeSwitched, { mode: theme === "dark" ? ui.labels.modeLight : ui.labels.modeDark }));
-        toggleTheme();
+        onToggleTheme();
         break;
       case "lang": {
         if (isLocale(arg)) {
@@ -221,6 +288,9 @@ export function HeroTerminal({ onCommand }: HeroTerminalProps) {
       case "clear":
         setLog([]);
         break;
+      case "menu":
+        setMenuOpen(true);
+        break;
       case "sudo":
         print(ui.terminal.permissionDenied, "error");
         glitchScreen();
@@ -237,6 +307,15 @@ export function HeroTerminal({ onCommand }: HeroTerminalProps) {
         print(format(ui.terminal.notFound, { cmd }), "error");
     }
   }
+
+  // Runs once; the ref also keeps StrictMode's double effect from running it twice.
+  const ranInitialCommand = useRef(false);
+  useEffect(() => {
+    if (!initialCommand || ranInitialCommand.current) return;
+    ranInitialCommand.current = true;
+    runCommand(initialCommand);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only by design
+  }, []);
 
   function handleKeyDown(event: ReactKeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter") {
@@ -268,43 +347,57 @@ export function HeroTerminal({ onCommand }: HeroTerminalProps) {
       onClick={() => inputRef.current?.focus()}
       className="terminal-scroll font-mono text-[13px] leading-6 p-5 h-[292px] overflow-y-auto selectable"
     >
-      {log.map((entry, index) => (
-        <div
-          key={index}
-          className={
-            entry.type === "error"
-              ? "text-danger"
-              : entry.type === "welcome"
-                ? "text-muted"
-                : "text-text/85"
-          }
-        >
-          {entry.type === "input" ? (
-            <span>
-              <TerminalPrompt /> <CommandLine text={entry.text} />
-            </span>
-          ) : entry.type === "table" ? (
-            <TableOutput text={entry.text} />
-          ) : (
-            <pre className="whitespace-pre-wrap font-mono">
-              {colorizeBrackets(entry.type === "welcome" ? ui.terminal.welcome : entry.text)}
-            </pre>
-          )}
-        </div>
-      ))}
-      <div className="flex items-center gap-2 mt-1">
-        <TerminalPrompt />
-        <input
-          ref={inputRef}
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
-          onKeyDown={handleKeyDown}
-          spellCheck={false}
-          autoComplete="off"
-          aria-label={ui.labels.terminalInput}
-          className="flex-1 bg-transparent outline-none text-text"
+      {menuOpen ? (
+        <TerminalMenu
+          items={buildMenu()}
+          title="menu"
+          labels={ui.terminal.menu}
+          onRun={runFromMenu}
+          onClose={() => setMenuOpen(false)}
         />
-      </div>
+      ) : (
+        <>
+          {log.map((entry, index) => (
+            <div
+              key={index}
+              className={
+                entry.type === "error"
+                  ? "text-danger"
+                  : entry.type === "welcome"
+                    ? "text-muted"
+                    : "text-text/85"
+              }
+            >
+              {entry.type === "input" ? (
+                <span>
+                  <TerminalPrompt /> <CommandLine text={entry.text} />
+                </span>
+              ) : entry.type === "table" ? (
+                <TableOutput text={entry.text} />
+              ) : (
+                <pre className="whitespace-pre-wrap font-mono">
+                  {colorizeBrackets(entry.type === "welcome" ? ui.terminal.welcome : entry.text)}
+                </pre>
+              )}
+            </div>
+          ))}
+          {/* Active-line highlight, like an editor's current line: spans the
+              window's full width (cancelling the container padding). */}
+          <div className="-mx-5 mt-1 flex items-center gap-2 border-l-2 border-accent bg-accent/10 px-5 pl-[18px]">
+            <TerminalPrompt />
+            <input
+              ref={inputRef}
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              onKeyDown={handleKeyDown}
+              spellCheck={false}
+              autoComplete="off"
+              aria-label={ui.labels.terminalInput}
+              className="flex-1 bg-transparent outline-none text-text"
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 }

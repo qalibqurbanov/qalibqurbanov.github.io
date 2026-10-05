@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { loadContent } from "@/content";
 import { glitchScreen } from "@/hooks/glitch";
+import { useClock } from "@/hooks/useClock";
+import { careerYears, withLiveStats } from "@/lib/liveStats";
 import type { Content } from "@/types/content";
 
 import { LocaleContext, type LocaleContextValue } from "./context";
@@ -61,9 +63,17 @@ export function LocaleProvider({ initialLocale, initialContent, children }: Loca
     return () => window.removeEventListener("popstate", handlePopState);
   }, [switchTo]);
 
+  // The clock ticks, but `years` only changes once a year, so the content
+  // object (and everything reading it) stays put the rest of the time.
+  const years = careerYears(useClock());
+  const content = useMemo(
+    () => withLiveStats(state.content, state.locale, years),
+    [state, years],
+  );
+
   const value = useMemo<LocaleContextValue>(
-    () => ({ locale: state.locale, setLocale, content: state.content }),
-    [state, setLocale],
+    () => ({ locale: state.locale, setLocale, content }),
+    [state.locale, setLocale, content],
   );
 
   return <LocaleContext value={value}>{children}</LocaleContext>;

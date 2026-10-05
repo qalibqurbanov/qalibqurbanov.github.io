@@ -148,3 +148,27 @@ export function borderBurst(el: HTMLElement, frames = 7): void {
   };
   run();
 }
+
+/** Border glitch that keeps going on its own, with no hovering: bursts of
+ * rapid frames with a short quiet gap between them, until the returned
+ * function is called (which also leaves `el` clean). Same markup requirement
+ * as `borderBurst`. */
+export function borderGlitchLoop(el: HTMLElement): () => void {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return () => {};
+  let timer = 0;
+  const burst = (frames: number) => {
+    if (frames <= 0) {
+      clear(el);
+      timer = window.setTimeout(() => burst(3 + Math.floor(Math.random() * 6)), rand(90, 450));
+      return;
+    }
+    if (Math.random() < 0.85) frame(el);
+    else clear(el);
+    timer = window.setTimeout(() => burst(frames - 1), rand(25, 110));
+  };
+  burst(3 + Math.floor(Math.random() * 6));
+  return () => {
+    window.clearTimeout(timer);
+    clear(el);
+  };
+}

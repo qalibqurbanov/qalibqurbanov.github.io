@@ -4,6 +4,10 @@ import type { SocialLinks } from "@/types/content";
 export const email = "qalibqurbanow@gmail.com";
 export const resumeUrl = "/resume.pdf";
 
+/** First month of the whole career ("YYYY-MM"). The "{years}" placeholder in
+ * the About text is worked out from it, so it never needs hand-editing. */
+export const careerStart = "2023-10";
+
 export const socials: SocialLinks = {
   github: "https://github.com/qalibqurbanov",
   stackoverflow: "https://stackoverflow.com/users/13249741/qalibqurbanov",

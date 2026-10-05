@@ -141,6 +141,33 @@ export interface UiStrings {
     closeAttempt: string;
     /** Shown instead of `closeAttempt` once the FBI reveal has already been shown once. */
     tinkerWarning: string;
+    /** The Notepad-style menu bar under the window's title row. */
+    menuBar: {
+      /** Accessible name of the bar. */
+      label: string;
+      file: string;
+      view: string;
+      go: string;
+      links: string;
+      help: string;
+      closeTab: string;
+      closeAllTabs: string;
+      /** Heading above the Go menu's list of open tabs. */
+      openTabs: string;
+      /** Help item that opens a terminal and runs `help`. */
+      terminalCommands: string;
+      /** Help item that opens a terminal and runs `menu`. */
+      interactiveMenu: string;
+    };
+    /** The status bar along the window's bottom edge. */
+    statusBar: {
+      /** Accessible name of the bar. */
+      label: string;
+      ready: string;
+      /** Contains "{count}". */
+      tabs: string;
+      terminal: string;
+    };
   };
   sections: {
     about: SectionHeadingText;
@@ -295,6 +322,27 @@ export interface UiStrings {
     /** Label of the progress row that ends the boot, shown as "[ finishing ]". */
     finishing: string;
     helpText: string;
+    /** Labels of the interactive `menu` command. */
+    menu: {
+      /** Key legend shown under the menu. */
+      hint: string;
+      back: string;
+      close: string;
+      groups: { profile: string; work: string; contact: string; settings: string; fun: string };
+      items: {
+        whoami: string;
+        about: string;
+        skills: string;
+        experience: string;
+        projects: string;
+        contactInfo: string;
+        resume: string;
+        theme: string;
+        language: string;
+        glitch: string;
+        matrix: string;
+      };
+    };
     notFound: string;
     permissionDenied: string;
     glitchOn: string;
