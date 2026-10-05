@@ -11,15 +11,23 @@ import {
 } from "@/components/icons/BrandIcons";
 import { openContactModal } from "@/components/contact/ContactModal";
 import { FileIcon } from "@/components/ui/FileIcon";
-import { TAB_ACTIVE, TAB_BASE, TAB_IDLE } from "@/components/ui/tabStyles";
+import { TAB_BASE, TAB_IDLE } from "@/components/ui/tabStyles";
 import { GlitchText } from "@/components/ui/GlitchText";
 import { Knockable } from "@/components/ui/Knockable";
 import { Reveal } from "@/components/ui/Reveal";
 import { WindowControls } from "@/components/ui/WindowControls";
 import { HeroMinimizedEasterEgg } from "@/features/hero/HeroMinimizedEasterEgg";
 import { HeroBoot } from "@/features/hero/HeroBoot";
+import { HeroBootAura } from "@/features/hero/HeroBootAura";
+import type { MenuDef, MenuEntry } from "@/features/hero/HeroMenuBar";
+import { HeroMenuBar } from "@/features/hero/HeroMenuBar";
+import { HeroStatusBar } from "@/features/hero/HeroStatusBar";
 import { HeroTerminal } from "@/features/hero/HeroTerminal";
 import { useContent } from "@/i18n/context";
+import { format } from "@/lib/format";
+import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
+import { scrollToTop } from "@/lib/scroll";
+import { useTheme, type Theme } from "@/theme/context";
 import { useDraggableWindow } from "@/hooks/useDraggableWindow";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
 import { useInView } from "@/hooks/useInView";
@@ -78,15 +86,18 @@ function CodeLine({
   n,
   revealed,
   settled,
+  active = false,
   children,
 }: {
   n: number;
   revealed: boolean;
   settled: boolean;
+  /** The line the caret sits on: highlighted like an editor's current line. */
+  active?: boolean;
   children: ReactNode;
 }) {
   return (
-    <div className="flex px-5">
+    <div className={`flex border-l-2 pl-[18px] pr-5 ${active ? "border-accent bg-accent/10" : "border-transparent"}`}>
       <span className="w-5 shrink-0 text-muted/50 select-none">{n}</span>
       <span
         className={`whitespace-pre-wrap inline-block typewriter-line ${
@@ -163,7 +174,7 @@ function HeroCode({ started }: { started: boolean }) {
         <span className="text-muted">=</span> <span className="text-accent-2">true</span>
         <span className="text-muted">;</span>
       </CodeLine>
-      <CodeLine n={8} revealed={revealedCount > 7} settled={settledCount > 7}>
+      <CodeLine n={8} revealed={revealedCount > 7} settled={settledCount > 7} active={revealedCount >= TOTAL_CODE_LINES}>
         <span className="bracket-0">{"}"}</span>
         {revealedCount >= TOTAL_CODE_LINES && <span className="caret ml-1" />}
       </CodeLine>
@@ -179,16 +190,26 @@ interface TerminalTab {
   id: number;
   /** The command word last run in this terminal; shown in the tab's title. */
   lastCommand: string | null;
+  /** A command the terminal runs as soon as it opens (from the menu bar's Help menu). */
+  initialCommand?: string;
 }
 
-/** Past what fits, the tab strip scrolls (see the arrows beside it). */
-const MAX_TERMINALS = 8;
+/** Most tabs open at once, Developer.cs included. Past what fits, the tab strip scrolls (see the arrows beside it). */
+const MAX_TABS = 8;
 
 /** How often the hero name glitches by itself: far more often than the small labels. */
 const NAME_GLITCH_RANGE = [2200, 5200] as const;
 
 /** How far one click on a tab-strip arrow scrolls it. */
 const TAB_SCROLL_STEP = 140;
+/** The active tab here has no border of its own: the sliding underline draws it. */
+const HERO_TAB_ACTIVE = "bg-surface text-text border-transparent";
+/** The window's panes are stacked in one grid cell; the shown one fades and
+ * slides in while the one being left fades out (visibility flips at the end of
+ * the fade, so a hidden pane stays unclickable and out of the tab order). */
+const PANE = "col-start-1 row-start-1 transition-[opacity,transform,visibility] duration-200 ease-out";
+const PANE_SHOWN = "visible translate-y-0 opacity-100";
+const PANE_HIDDEN = "invisible translate-y-1.5 opacity-0 pointer-events-none";
 
 /** How far in from the callout's left edge its arrow sits. */
 const HINT_NOTCH = 20;
@@ -217,10 +238,16 @@ const EMPTY_ACTION_ARROW =
 const TAB_CLOSE =
   "mx-1 grid h-5 w-5 shrink-0 place-items-center rounded-md text-muted/70 outline-none transition duration-150 hover:bg-danger/15 hover:text-danger focus-visible:bg-danger/15 focus-visible:text-danger active:scale-90 disabled:pointer-events-none disabled:opacity-40";
 const TAB_ARROW =
-  "mx-0.5 grid h-6 w-6 shrink-0 self-center place-items-center rounded-md text-muted transition-colors hover:bg-surface/60 hover:text-text disabled:pointer-events-none disabled:opacity-30";
+  "mx-0.5 grid h-6 w-6 shrink-0 self-center place-items-center rounded-md text-text/75 transition-colors hover:bg-surface/60 hover:text-accent disabled:pointer-events-none disabled:opacity-25";
 
 export function Hero() {
-  const { profile, socials, ui } = useContent();
+  const { profile, socials, navigation, ui } = useContent();
+  const { theme: siteTheme } = useTheme();
+  // The hero window has its own theme, independent of the site's: it starts
+  // out matching the site, then only the View menu, the status bar and the
+  // `theme` command change it.
+  const [theme, setTheme] = useState<Theme>(siteTheme);
+  const toggleTheme = useCallback(() => setTheme((current) => (current === "dark" ? "light" : "dark")), []);
   const [taglineBefore, taglineAfter] = ui.hero.tagline.split("{highlight}");
   const { ref: tiltRef, handleMouseMove, handleMouseLeave } = useTilt<HTMLDivElement>();
   const [terminals, setTerminals] = useState<TerminalTab[]>([]);
@@ -233,6 +260,8 @@ export function Hero() {
   const plusRef = useRef<HTMLButtonElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const [tabEdges, setTabEdges] = useState({ overflowing: false, atStart: true, atEnd: true });
+  // Where the active tab sits inside the strip, for the sliding underline.
+  const [underline, setUnderline] = useState<{ left: number; width: number } | null>(null);
   // Where the "+" button's centre is, from the window's left edge, so the
   // callout's arrow can point straight at it.
   const [plusX, setPlusX] = useState<number | null>(null);
@@ -241,6 +270,8 @@ export function Hero() {
   const [booted, setBooted] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const handleBooted = useCallback(() => setBooted(true), []);
   const noTabs = !codeOpen && terminals.length === 0;
+  const tabCount = terminals.length + (codeOpen ? 1 : 0);
+  const atTabLimit = tabCount >= MAX_TABS;
   // The "+" is pointed out until the first terminal has been opened, and again
   // whenever the window is left with nothing open.
   const pointAtPlus = booted && (!hintDismissed || noTabs);
@@ -304,12 +335,12 @@ export function Hero() {
       strip.removeEventListener("scroll", update);
       observer.disconnect();
     };
-  }, [terminals.length]);
+  }, [tabCount]);
 
-  // Keeps the active terminal's tab in view, e.g. a new one past the right edge.
+  // Keeps the active tab in view, e.g. a new one past the right edge.
   useEffect(() => {
     const strip = tabsRef.current;
-    if (!strip || typeof activeTab !== "number") return;
+    if (!strip || activeTab === null) return;
     const tab = strip.querySelector<HTMLElement>(`[data-tab="${activeTab}"]`);
     if (!tab) return;
     const right = tab.offsetLeft + tab.offsetWidth;
@@ -317,16 +348,37 @@ export function Hero() {
     else if (right > strip.scrollLeft + strip.clientWidth) {
       strip.scrollTo({ left: right - strip.clientWidth, behavior: "smooth" });
     }
-  }, [activeTab, terminals.length, tabEdges.overflowing]);
+  }, [activeTab, tabCount, tabEdges.overflowing]);
+
+  // Follows the active tab: when it changes, and when its width (a new title)
+  // or its position (tabs opened or closed before it) changes.
+  useLayoutEffect(() => {
+    const strip = tabsRef.current;
+    const tab = activeTab === null ? null : strip?.querySelector<HTMLElement>(`[data-tab="${activeTab}"]`);
+    if (!strip || !tab) {
+      setUnderline(null);
+      return;
+    }
+    const measure = () =>
+      setUnderline((prev) =>
+        prev && prev.left === tab.offsetLeft && prev.width === tab.offsetWidth
+          ? prev
+          : { left: tab.offsetLeft, width: tab.offsetWidth },
+      );
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(tab);
+    return () => observer.disconnect();
+  }, [activeTab, tabCount]);
 
   function scrollTabs(direction: -1 | 1) {
     tabsRef.current?.scrollBy({ left: direction * TAB_SCROLL_STEP, behavior: "smooth" });
   }
 
-  function openTerminal() {
-    if (terminals.length >= MAX_TERMINALS) return;
+  function openTerminal(initialCommand?: string) {
+    if (atTabLimit) return;
     const id = nextTerminalId.current++;
-    setTerminals((current) => [...current, { id, lastCommand: null }]);
+    setTerminals((current) => [...current, { id, lastCommand: null, initialCommand }]);
     setActiveTab(id);
     setHintDismissed(true);
   }
@@ -349,11 +401,110 @@ export function Hero() {
     setActiveTab("code");
   }
 
+  function closeActiveTab() {
+    if (activeTab === "code") closeCode();
+    else if (activeTab !== null) closeTerminal(activeTab);
+  }
+
+  function closeAllTabs() {
+    setTerminals([]);
+    setCodeOpen(false);
+    setActiveTab(null);
+  }
+
   function setLastCommand(id: number, name: string) {
     setTerminals((current) =>
       current.map((terminal) => (terminal.id === id ? { ...terminal, lastCommand: name } : terminal)),
     );
   }
+
+  const openLink = (url: string) => window.open(url, "_blank", "noreferrer");
+  const { menuBar, statusBar } = ui.hero;
+
+  const activeTerminal = typeof activeTab === "number" ? terminals.find((terminal) => terminal.id === activeTab) : undefined;
+  const terminalTitle = (terminal: TerminalTab) =>
+    terminal.lastCommand ? `${ui.hero.terminalTabLabel} - ${terminal.lastCommand}` : ui.hero.terminalTabLabel;
+  // The Go menu lists the open tabs, in the order the tab strip shows them.
+  const openTabEntries: MenuEntry[] = noTabs
+    ? []
+    : [
+        { type: "heading", label: menuBar.openTabs },
+        ...(codeOpen
+          ? [{ type: "item" as const, label: "Developer.cs", checked: activeTab === "code", onSelect: () => setActiveTab("code") }]
+          : []),
+        ...terminals.map((terminal) => ({
+          type: "item" as const,
+          label: terminalTitle(terminal),
+          checked: activeTab === terminal.id,
+          onSelect: () => setActiveTab(terminal.id),
+        })),
+        { type: "separator" },
+      ];
+
+  const menus: MenuDef[] = [
+    {
+      id: "file",
+      label: menuBar.file,
+      entries: [
+        { type: "item", label: ui.hero.newTerminal, onSelect: () => openTerminal(), disabled: atTabLimit },
+        { type: "item", label: ui.hero.reopenCode, onSelect: reopenCode, disabled: codeOpen || atTabLimit },
+        { type: "separator" },
+        { type: "item", label: menuBar.closeTab, onSelect: closeActiveTab, disabled: activeTab === null },
+        { type: "item", label: menuBar.closeAllTabs, onSelect: closeAllTabs, disabled: noTabs },
+      ],
+    },
+    {
+      id: "view",
+      label: menuBar.view,
+      entries: [
+        { type: "item", label: ui.terminal.menu.items.theme, onSelect: toggleTheme },
+      ],
+    },
+    {
+      id: "go",
+      label: menuBar.go,
+      entries: [
+        ...openTabEntries,
+        { type: "item", label: ui.labels.home, onSelect: scrollToTop },
+        { type: "separator" },
+        ...navigation.map((item) => ({
+          type: "item" as const,
+          label: item.label,
+          onSelect: () => {
+            const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            document.querySelector(item.href)?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+          },
+        })),
+      ],
+    },
+    {
+      id: "links",
+      label: menuBar.links,
+      entries: [
+        { type: "item", label: "GitHub", onSelect: () => openLink(socials.github) },
+        { type: "item", label: "LinkedIn", onSelect: () => openLink(socials.linkedin) },
+        ...(socials.telegram ? [{ type: "item" as const, label: "Telegram", onSelect: () => openLink(socials.telegram!) }] : []),
+        ...(socials.medium ? [{ type: "item" as const, label: "Medium", onSelect: () => openLink(socials.medium!) }] : []),
+        ...(socials.stackoverflow
+          ? [{ type: "item" as const, label: "Stack Overflow", onSelect: () => openLink(socials.stackoverflow!) }]
+          : []),
+        { type: "separator" },
+        { type: "item", label: ui.labels.email, onSelect: () => (window.location.href = `mailto:${profile.email}`) },
+      ],
+    },
+    {
+      id: "help",
+      label: menuBar.help,
+      entries: [
+        { type: "item", label: menuBar.terminalCommands, onSelect: () => openTerminal("help"), disabled: atTabLimit },
+        { type: "item", label: menuBar.interactiveMenu, onSelect: () => openTerminal("menu"), disabled: atTabLimit },
+        { type: "separator" },
+        { type: "item", label: ui.labels.viewSource, onSelect: () => openLink(SITE_REPO_URL) },
+        { type: "item", label: ui.labels.reportBug, onSelect: () => openLink(reportBugUrl()) },
+      ],
+    },
+  ];
+
 
   // The tilt effect rotates toward the cursor relative to the card's own small
   // rect; while dragging, the cursor roams the whole section, which would send
@@ -557,7 +708,7 @@ export function Hero() {
         <Reveal delayMs={250} className="hidden lg:block animate-float-slow">
           <div
             ref={tiltRef}
-            onMouseMove={dragging ? undefined : handleMouseMove}
+            onMouseMove={dragging || !booted ? undefined : handleMouseMove}
             onMouseLeave={handleMouseLeave}
             className="glitch-in [--gi-delay:450ms] [--gi-duration:900ms] relative transition-transform duration-300 ease-out will-change-transform"
           >
@@ -576,7 +727,7 @@ export function Hero() {
                 minimized ? "pointer-events-none -translate-y-3 scale-90 opacity-0" : "translate-y-0 scale-100 opacity-100"
               }`}
             >
-              <div ref={windowRef} style={windowStyle} className="relative">
+              <div ref={windowRef} style={windowStyle} inert={!booted} className="relative">
                 {pointAtPlus && plusX !== null && (
                   <div
                     role="note"
@@ -591,42 +742,23 @@ export function Hero() {
                     />
                   </div>
                 )}
-                <div className="rounded-xl overflow-hidden border border-border bg-surface shadow-2xl shadow-black/40">
+                <HeroBootAura active={!booted} />
+                <div
+                  data-theme={theme}
+                  className="relative rounded-xl overflow-hidden border border-border bg-surface text-text shadow-2xl shadow-black/40"
+                >
+                  {/* The boot covers the title row too, so its text starts at the window's top edge. */}
+                  {!booted && <HeroBoot onDone={handleBooted} />}
+                  {/* While the window boots the title row (tabs and controls) keeps
+                      its space but stays hidden, then fades in. */}
                   <div
                     {...dragHandleProps}
-                    className={`flex items-stretch justify-between gap-4 pl-2 pr-1.5 bg-surface-2 border-b border-border touch-none ${
-                      dragging ? "cursor-grabbing" : "cursor-grab"
-                    }`}
+                    aria-hidden={!booted}
+                    className={`flex items-stretch justify-between gap-4 pl-2 pr-1.5 bg-surface-2 border-b border-border touch-none transition-opacity duration-500 ${
+                      booted ? "opacity-100" : "pointer-events-none opacity-0"
+                    } ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
                   >
                     <div className="flex min-w-0 flex-1 items-stretch -mb-px" role="tablist">
-                      {codeOpen && (
-                        <div
-                          {...closeOnMiddleClick(closeCode)}
-                          className={`${TAB_BASE} shrink-0 ${activeTab === "code" ? TAB_ACTIVE : TAB_IDLE}`}
-                        >
-                          <button
-                            type="button"
-                            role="tab"
-                            aria-selected={activeTab === "code"}
-                            onClick={() => setActiveTab("code")}
-                            disabled={!booted}
-                            className="flex items-center gap-1.5 py-2 pl-3 pr-1 disabled:pointer-events-none"
-                          >
-                            <FileIcon />
-                            Developer.cs
-                          </button>
-                          <button
-                            type="button"
-                            onClick={closeCode}
-                            disabled={!booted}
-                            aria-label={ui.hero.closeFile}
-                            title={ui.hero.closeFile}
-                            className={TAB_CLOSE}
-                          >
-                            <X size={12} strokeWidth={2.25} />
-                          </button>
-                        </div>
-                      )}
                       {tabEdges.overflowing && (
                         <button
                           type="button"
@@ -636,23 +768,50 @@ export function Hero() {
                           title={ui.hero.scrollTabsLeft}
                           className={TAB_ARROW}
                         >
-                          <ChevronLeft size={14} />
+                          <ChevronLeft size={16} strokeWidth={2.25} />
                         </button>
                       )}
                       <div
                         ref={tabsRef}
                         className="relative flex min-w-0 items-stretch overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                       >
+                        {codeOpen && (
+                          <div
+                            data-tab="code"
+                            {...closeOnMiddleClick(closeCode)}
+                            className={`${TAB_BASE} shrink-0 ${activeTab === "code" ? HERO_TAB_ACTIVE : TAB_IDLE}`}
+                          >
+                            <button
+                              type="button"
+                              role="tab"
+                              aria-selected={activeTab === "code"}
+                              onClick={() => setActiveTab("code")}
+                              disabled={!booted}
+                              className="flex items-center gap-1.5 py-2 pl-3 pr-1 disabled:pointer-events-none"
+                            >
+                              <FileIcon />
+                              Developer.cs
+                            </button>
+                            <button
+                              type="button"
+                              onClick={closeCode}
+                              disabled={!booted}
+                              aria-label={ui.hero.closeFile}
+                              title={ui.hero.closeFile}
+                              className={TAB_CLOSE}
+                            >
+                              <X size={12} strokeWidth={2.25} />
+                            </button>
+                          </div>
+                        )}
                         {terminals.map((terminal) => {
-                          const title = terminal.lastCommand
-                            ? `${ui.hero.terminalTabLabel} - ${terminal.lastCommand}`
-                            : ui.hero.terminalTabLabel;
+                          const title = terminalTitle(terminal);
                           return (
                             <div
                               key={terminal.id}
                               data-tab={terminal.id}
                               {...closeOnMiddleClick(() => closeTerminal(terminal.id))}
-                              className={`${TAB_BASE} shrink-0 ${activeTab === terminal.id ? TAB_ACTIVE : TAB_IDLE}`}
+                              className={`${TAB_BASE} shrink-0 ${activeTab === terminal.id ? HERO_TAB_ACTIVE : TAB_IDLE}`}
                             >
                               <button
                                 type="button"
@@ -676,6 +835,14 @@ export function Hero() {
                             </div>
                           );
                         })}
+                        {/* The accent underline is one element that glides to whichever tab is active. */}
+                        <span
+                          aria-hidden="true"
+                          style={{ left: underline?.left ?? 0, width: underline?.width ?? 0 }}
+                          className={`pointer-events-none absolute bottom-0 h-0.5 bg-accent transition-[left,width,opacity] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                            underline ? "opacity-100" : "opacity-0"
+                          }`}
+                        />
                       </div>
                       {tabEdges.overflowing && (
                         <button
@@ -686,15 +853,15 @@ export function Hero() {
                           title={ui.hero.scrollTabsRight}
                           className={TAB_ARROW}
                         >
-                          <ChevronRight size={14} />
+                          <ChevronRight size={16} strokeWidth={2.25} />
                         </button>
                       )}
-                      {terminals.length < MAX_TERMINALS && (
+                      {!atTabLimit && (
                         <div className="ml-1 flex shrink-0 items-center">
                           <button
                             ref={plusRef}
                             type="button"
-                            onClick={openTerminal}
+                            onClick={() => openTerminal()}
                             disabled={!booted}
                             aria-label={ui.hero.newTerminal}
                             title={ui.hero.newTerminal}
@@ -716,6 +883,13 @@ export function Hero() {
                       />
                     </div>
                   </div>
+                  {/* Menu bar and status bar sit out the boot like the title row. */}
+                  <div
+                    inert={!booted}
+                    className={`relative z-20 transition-opacity duration-500 ${booted ? "opacity-100" : "opacity-0"}`}
+                  >
+                    <HeroMenuBar menus={menus} label={menuBar.label} />
+                  </div>
                   {/* Both stay mounted so switching tabs doesn't unmount/remount
                       either one — HeroCode's typewriter reveal would otherwise
                       replay from scratch every time you come back to it, and
@@ -724,10 +898,9 @@ export function Hero() {
                       `display: none`) so the window is always as tall as the
                       taller pane and never resizes or shifts on tab switch. */}
                   <div className="relative grid">
-                    {!booted && <HeroBoot onDone={handleBooted} />}
                     {codeOpen && (
                       <div
-                        className={`col-start-1 row-start-1 min-h-[292px] ${activeTab === "code" ? "" : "invisible pointer-events-none"}`}
+                        className={`${PANE} animate-pane-in min-h-[292px] ${activeTab === "code" ? PANE_SHOWN : PANE_HIDDEN}`}
                         aria-hidden={activeTab !== "code"}
                       >
                         <HeroCode started={booted} />
@@ -756,7 +929,7 @@ export function Hero() {
                             {ui.hero.reopenCode}
                             <ArrowRight size={14} className={EMPTY_ACTION_ARROW} />
                           </button>
-                          <button type="button" onClick={openTerminal} className={EMPTY_ACTION}>
+                          <button type="button" onClick={() => openTerminal()} className={EMPTY_ACTION}>
                             <span className={EMPTY_ACTION_ICON}>
                               <SquareTerminal size={14} />
                             </span>
@@ -769,12 +942,31 @@ export function Hero() {
                     {terminals.map((terminal) => (
                       <div
                         key={terminal.id}
-                        className={`col-start-1 row-start-1 ${activeTab === terminal.id ? "" : "invisible pointer-events-none"}`}
+                        className={`${PANE} animate-pane-in ${activeTab === terminal.id ? PANE_SHOWN : PANE_HIDDEN}`}
                         aria-hidden={activeTab !== terminal.id}
                       >
-                        <HeroTerminal onCommand={(name) => setLastCommand(terminal.id, name)} />
+                        <HeroTerminal
+                          initialCommand={terminal.initialCommand}
+                          theme={theme}
+                          onToggleTheme={toggleTheme}
+                          onCommand={(name) => setLastCommand(terminal.id, name)}
+                        />
                       </div>
                     ))}
+                  </div>
+                  <div
+                    inert={!booted}
+                    className={`transition-opacity duration-500 ${booted ? "opacity-100" : "opacity-0"}`}
+                  >
+                    <HeroStatusBar
+                      label={statusBar.label}
+                      status={statusBar.ready}
+                      tabs={format(statusBar.tabs, { count: String(tabCount) })}
+                      mode={activeTab === "code" ? "C#" : activeTerminal ? statusBar.terminal : "—"}
+                      theme={theme}
+                      themeLabel={theme === "dark" ? ui.labels.switchToLight : ui.labels.switchToDark}
+                      onToggleTheme={toggleTheme}
+                    />
                   </div>
                 </div>
               </div>

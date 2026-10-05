@@ -51,7 +51,28 @@
   }
 }
 
-:root[data-theme="light"] {
+/* Not just on :root: the hero window carries its own data-theme, so it can
+   differ from the site's. The dark block exists for a dark window on a light
+   page (on a dark page it simply repeats the defaults). */
+[data-theme="dark"] {
+  --color-bg: #07060d;
+  --color-surface: #100e19;
+  --color-surface-2: #161324;
+  --color-border: #282340;
+  --color-accent: #b185ff;
+  --color-accent-2: #22d3ee;
+  --color-text: #ebe9f5;
+  --color-muted: #8d89a6;
+  --color-danger: #f87171;
+  --color-syn-type: #fcd34d;
+  --color-syn-number: #86efac;
+
+  --grid-line: rgba(190, 170, 255, 0.05);
+  --glow-accent: rgba(177, 133, 255, 0.18);
+  --glow-accent-2: rgba(34, 211, 238, 0.14);
+}
+
+[data-theme="light"] {
   --color-bg: #f8f7fc;
   --color-surface: #ffffff;
   --color-surface-2: #f1eff8;
@@ -343,6 +364,85 @@ html::-webkit-scrollbar-button,
 .animate-popover-in {
   animation: popover-in 120ms ease-out;
   transform-origin: var(--radix-select-content-transform-origin);
+}
+
+/* A hero-window tab's content as it is first opened; switching between open
+   tabs is a transition on the pane itself (see PANE in Hero.tsx). */
+@keyframes pane-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-pane-in {
+  animation: pane-in 220ms ease-out;
+}
+
+/* The targeting frame around the hero window while it boots (HeroBootAura):
+   corner brackets that fly in from outside and lock on, sonar rings that
+   ripple out from the window's edge, and one burst when the boot is over. */
+@keyframes hud-lock {
+  from {
+    opacity: 0;
+    transform: translate(calc(var(--hx) * 30px), calc(var(--hy) * 30px)) scale(1.5);
+  }
+  55% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hud-bracket {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-style: solid;
+  border-width: 0;
+  filter: drop-shadow(0 0 5px currentColor);
+  animation: hud-lock 1100ms cubic-bezier(0.16, 1, 0.3, 1) var(--hud-delay, 0ms) both;
+}
+
+@keyframes hud-ripple {
+  from {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.22);
+  }
+}
+
+.hud-ripple {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid var(--hud-color);
+  border-radius: 0.75rem;
+  animation: hud-ripple 3300ms cubic-bezier(0.2, 0.6, 0.3, 1) var(--hud-delay, 0ms) infinite backwards;
+}
+
+@keyframes hud-burst {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+
+.hud-burst {
+  border: 2px solid var(--color-accent-2);
+  animation: hud-burst 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Slow diagonal crawl of the hero's dot grid, so the backdrop never sits

@@ -27,9 +27,22 @@ function toMonthIndex(value: string): number {
   return year * 12 + (month - 1);
 }
 
-/** Length of a job as words, e.g. "2 years 11 months". `start`/`end` are
+/** Whole years since `start` ("YYYY-MM"), as of `now`. */
+export function wholeYearsSince(start: string, now: Date): number {
+  const monthsIn = now.getFullYear() * 12 + now.getMonth() - toMonthIndex(start);
+  return Math.max(0, Math.floor(monthsIn / 12));
+}
+
+/** The word for `count` years in `locale`, e.g. "года" for 3 in Russian. */
+export function yearWord(count: number, locale: Locale): string {
+  const forms = UNITS[locale].year;
+  return forms[new Intl.PluralRules(locale).select(count)] ?? forms.other;
+}
+
+/** Length of a job as whole years with a plus, e.g. "2+ years" (or plain
+ * months, e.g. "8 months", while it is under a year). `start`/`end` are
  * "YYYY-MM"; a missing `end` means "until now". Both the first and the last
- * month are counted, so Dec 2023 → Oct 2026 is 2 years 11 months. */
+ * month are counted, so Dec 2023 → Oct 2026 is 2 years 11 months → "2+ years". */
 export function formatDuration(
   start: string,
   end: string | undefined,
@@ -42,10 +55,7 @@ export function formatDuration(
   const total = Math.max(1, endIndex - toMonthIndex(start) + 1);
   const years = Math.floor(total / 12);
   const months = total % 12;
-  const units = UNITS[locale];
 
-  const parts: string[] = [];
-  if (years > 0) parts.push(unit(years, units.year, locale));
-  if (months > 0) parts.push(unit(months, units.month, locale));
-  return parts.join(" ");
+  if (years > 0) return `${years}+ ${yearWord(years, locale)}`;
+  return unit(months, UNITS[locale].month, locale);
 }
