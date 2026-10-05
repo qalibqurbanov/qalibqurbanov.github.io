@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import avatarUrl from "@/assets/avatar.png";
 import { Container } from "@/components/ui/Container";
 import { CountUp } from "@/components/ui/CountUp";
+import { GlitchText } from "@/components/ui/GlitchText";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -20,8 +21,8 @@ function renderEmphasis(text: string): ReactNode {
   return parts.map((part, index) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
-        <strong key={index} className="font-display text-text font-bold">
-          {part.slice(2, -2)}
+        <strong key={index} data-glitch-host className="font-display text-text font-bold">
+          <GlitchText text={part.slice(2, -2)} />
         </strong>
       );
     }
@@ -29,9 +30,10 @@ function renderEmphasis(text: string): ReactNode {
       return (
         <code
           key={index}
+          data-glitch-host
           className="font-mono text-[0.88em] font-medium text-accent bg-accent/10 border border-accent/20 rounded-md px-1.5 py-0.5 [box-decoration-break:clone]"
         >
-          {part.slice(2, -2)}
+          <GlitchText text={part.slice(2, -2)} />
         </code>
       );
     }
