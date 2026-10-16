@@ -17,9 +17,9 @@ const en: Content = {
   socials,
   about: {
     paragraphs: [
-      "I'm a backend developer with **{years} years of experience**, working mostly in the ==.NET ecosystem==. I've shipped **20+ projects** between my day job and freelance work, ranging from small internal tools to client-facing platforms that people actually depend on.",
-      "I don't stay boxed into backend, though. I'm comfortable working with ==databases==, setting up basic ==DevOps== and ==Linux== server stuff, and can hold my own on the ==frontend== and ==mobile== side when a project calls for it. I'd rather reach for whatever tool actually fits the problem than force everything through one stack.",
-      "Whenever I find the time, I hop on my **road bike** and join group rides. Riding solo, though, I like to push the distance a bit further, discover new and scenic places, enjoy the ride itself, and see what interesting, unexpected moments the road throws at me. When I'm not out riding, I like bringing the worlds in my head to life in a virtual one. That's what draws me to **level design** in ==GoldSrc==, the engine behind ==Half-Life== and ==Counter-Strike==. I also write plugins from time to time, adding new mechanics to make the server more fun for whoever's playing.",
+      "I'm a backend developer with **{years} years of experience**, focused mainly on the ==.NET ecosystem==. Between my day job and freelance work I've delivered **20+ projects**, from small internal tools to client-facing platforms that businesses rely on every day.",
+      "Alongside the backend work, I design and optimize ==databases==, automate builds and deployments through ==DevOps== pipelines, and handle basic administration tasks on ==Linux== servers. When a project requires it, I also work on the ==frontend== and ==mobile== side.",
+      "When I'm away from the keyboard, I'm usually on my **road bike**. I join group rides when I can, and I save the long solo routes for finding new places and enjoying the ride itself. The other half of my free time goes into building worlds: I do **level design** for ==GoldSrc==, the engine behind games like ==Half-Life== and ==Counter-Strike==, and write server plugins that give players new mechanics to play with.",
     ],
     highlights: [
       { label: "Focus areas", value: ".NET / ASP.NET Core" },
@@ -181,7 +181,7 @@ const en: Content = {
       noTabs: "Nothing open yet",
       reopenCode: "Bring back Developer.cs",
       emptyTerminal: "Spin up a terminal",
-      stackValue: "Whatever the project needs",
+      stackValue: ".NET / C#",
       minimized: {
         title: "Ssshh! Don't make a sound — you weren't meant to find this.",
         joke: "FBI's had a file open on him since they saw his skills list — nobody's genuinely this good at everything. {name} has no idea we're tracking him.",

@@ -17,9 +17,9 @@ const az: Content = {
   socials,
   about: {
     paragraphs: [
-      "Mən **{years} illik təcrübəyə** malik backend developerəm və əsasən ==.NET== ekosistemində işləyirəm. Əsas işim və freelance təcrübəm birlikdə kiçik daxili alətlərdən tutmuş insanların real etibar etdiyi müştəri platformalarına qədər **20+ layihə** həyata keçirmişəm.",
-      "Amma yalnız backend ilə məhdudlaşmıram. ==Verilənlər bazaları== ilə rahat işləyirəm, sadə ==DevOps== və ==Linux== server qurmağı bacarıram, layihə tələb etdikdə ==frontend== və ==mobil== tərəfdə də öhdəmdən gəlirəm. Bir stack-ə bağlı qalmaqdansa, məsələyə real uyğun olan aləti seçməyi üstün tuturam.",
-      "Vaxt tapdıqca **şosse velosipedimə** minib qrup sürüşlərinə qoşuluram. Tək sürəndə isə məsafəni bir az da uzatmağı, yeni və gözəl mənzərəli yerlər kəşf etməyi, yolun özündən zövq almağı və yolda gözlənilməz maraqlı anlar yaşamağı sevirəm. Velosiped sürmədiyim vaxtlarda isə ağlımdakı dünyaları virtual aləmdə yaratmağı xoşlayıram. Bu məqsədlə ==Half-Life== və ==Counter-Strike==-in arxasında duran ==GoldSrc== engine üzərində **level dizaynı** ilə məşğul oluram. Bəzən isə pluginlər yazaraq serverə yeni mexanikalar əlavə edir, oyunu oynayanlar üçün daha maraqlı və əyləncəli hala gətirirəm.",
+      "Mən **{years} illik təcrübəyə** malik backend developerəm və əsasən ==.NET== ekosistemində çalışıram. Əsas işim və freelance təcrübəm çərçivəsində kiçik daxili alətlərdən tutmuş biznesin hər gün istifadə etdiyi müştəri platformalarına qədər **20+ layihə** həyata keçirmişəm.",
+      "Backend işi ilə yanaşı ==verilənlər bazalarını== dizayn və optimallaşdırıram, ==DevOps== pipeline-ları ilə build və deploy proseslərini avtomatlaşdırıram, ==Linux== serverlərdə əsas administrasiya işlərini görürəm. Layihə tələb etdikdə ==frontend== və ==mobil== tərəfdə də işləyirəm.",
+      "Klaviaturadan uzaq olanda adətən **şosse velosipedimdə** oluram. Mümkün olduqda qrup sürüşlərinə qoşuluram, uzun tək marşrutları isə yeni yerlər kəşf etmək və yolun özündən zövq almaq üçün saxlayıram. Boş vaxtımın digər yarısı dünyalar yaratmağa gedir: ==Half-Life== və ==Counter-Strike== kimi oyunların əsasında duran ==GoldSrc== engine üçün **level dizaynı** ilə məşğul oluram və oyunçulara yeni mexanikalar təqdim edən server pluginləri yazıram.",
     ],
     highlights: [
       { label: "Fokus sahələri", value: ".NET / ASP.NET Core" },
@@ -182,7 +182,7 @@ const az: Content = {
       noTabs: "Açıq tab yoxdur",
       reopenCode: "Developer.cs-i geri gətir",
       emptyTerminal: "Terminal başlat",
-      stackValue: "Layihə nə tələb edirsə",
+      stackValue: ".NET / C#",
       minimized: {
         title: "Şşşt! Səs çıxarma — bunu tapmamalıydın.",
         joke: "Bacarıqlar siyahısını görən kimi FBI onun üzərində iş açıb — heç kim doğrudan da hər şeydə bu qədər yaxşı olmur. {name} onu izlədiyimizdən xəbərsizdir.",

@@ -115,7 +115,7 @@ export function HeroTerminal({ onCommand, initialCommand, theme, onToggleTheme }
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [log]);
+  }, [log, menuOpen]);
 
   function print(text: string, type: LogEntry["type"] = "output") {
     setLog((current) => [...current, { type, text }]);
@@ -222,7 +222,7 @@ export function HeroTerminal({ onCommand, initialCommand, theme, onToggleTheme }
         print(projects.map((project) => `${project.slug.padEnd(16)}  ${project.title}`).join("\n"), "table");
         break;
       case "open": {
-        const project = projects.find((item) => item.slug === arg);
+        const project = projects.find((item) => item.slug === arg.toLowerCase());
         if (project) {
           print(format(ui.terminal.openingProject, { title: project.title }));
           openProject(project.slug);
@@ -393,7 +393,7 @@ export function HeroTerminal({ onCommand, initialCommand, theme, onToggleTheme }
               spellCheck={false}
               autoComplete="off"
               aria-label={ui.labels.terminalInput}
-              className="flex-1 bg-transparent outline-none text-text"
+              className="min-w-0 flex-1 bg-transparent outline-none text-text"
             />
           </div>
         </>

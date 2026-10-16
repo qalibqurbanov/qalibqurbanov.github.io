@@ -120,6 +120,13 @@ html body[data-scroll-locked] {
   margin-right: 0 !important;
 }
 
+/* With body's own lock neutralized above, lock the page scroll on the root
+   instead while any modal is open: the gutter stays reserved (no layout
+   shift) and only scrollable areas inside the modal can scroll. */
+html:has(body[data-scroll-locked]) {
+  overflow: hidden;
+}
+
 /* Firefox (and any other browser without ::-webkit-scrollbar support) has no
    way to draw the pill-shaped thumb below, so give it the closest thing its
    standard scrollbar properties can express. Browsers that understand

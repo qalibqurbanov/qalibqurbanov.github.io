@@ -318,9 +318,9 @@ export function Hero() {
     const strip = tabsRef.current;
     if (!strip) return;
     const update = () => {
-      const overflowing = strip.scrollWidth > strip.clientWidth + 1;
-      const atStart = strip.scrollLeft <= 1;
-      const atEnd = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1;
+      const overflowing = strip.scrollWidth > strip.clientWidth + 2;
+      const atStart = strip.scrollLeft <= 2;
+      const atEnd = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 2;
       setTabEdges((prev) =>
         prev.overflowing === overflowing && prev.atStart === atStart && prev.atEnd === atEnd
           ? prev
@@ -329,9 +329,14 @@ export function Hero() {
     };
     update();
     strip.addEventListener("scroll", update, { passive: true });
+    // Observe the tabs too: closing a tab or retitling one changes the content
+    // width without resizing the strip itself.
     const observer = new ResizeObserver(update);
     observer.observe(strip);
+    for (const child of Array.from(strip.children)) observer.observe(child);
+    window.addEventListener("resize", update);
     return () => {
+      window.removeEventListener("resize", update);
       strip.removeEventListener("scroll", update);
       observer.disconnect();
     };
@@ -759,18 +764,16 @@ export function Hero() {
                     } ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
                   >
                     <div className="flex min-w-0 flex-1 items-stretch -mb-px" role="tablist">
-                      {tabEdges.overflowing && (
-                        <button
-                          type="button"
-                          onClick={() => scrollTabs(-1)}
-                          disabled={tabEdges.atStart}
-                          aria-label={ui.hero.scrollTabsLeft}
-                          title={ui.hero.scrollTabsLeft}
-                          className={TAB_ARROW}
-                        >
-                          <ChevronLeft size={16} strokeWidth={2.25} />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => scrollTabs(-1)}
+                        disabled={!tabEdges.overflowing || tabEdges.atStart}
+                        aria-label={ui.hero.scrollTabsLeft}
+                        title={ui.hero.scrollTabsLeft}
+                        className={TAB_ARROW}
+                      >
+                        <ChevronLeft size={16} strokeWidth={2.25} />
+                      </button>
                       <div
                         ref={tabsRef}
                         className="relative flex min-w-0 items-stretch overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -844,18 +847,16 @@ export function Hero() {
                           }`}
                         />
                       </div>
-                      {tabEdges.overflowing && (
-                        <button
-                          type="button"
-                          onClick={() => scrollTabs(1)}
-                          disabled={tabEdges.atEnd}
-                          aria-label={ui.hero.scrollTabsRight}
-                          title={ui.hero.scrollTabsRight}
-                          className={TAB_ARROW}
-                        >
-                          <ChevronRight size={16} strokeWidth={2.25} />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => scrollTabs(1)}
+                        disabled={!tabEdges.overflowing || tabEdges.atEnd}
+                        aria-label={ui.hero.scrollTabsRight}
+                        title={ui.hero.scrollTabsRight}
+                        className={TAB_ARROW}
+                      >
+                        <ChevronRight size={16} strokeWidth={2.25} />
+                      </button>
                       {!atTabLimit && (
                         <div className="ml-1 flex shrink-0 items-center">
                           <button
