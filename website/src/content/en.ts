@@ -194,7 +194,6 @@ const en: Content = {
         file: "File",
         view: "View",
         go: "Go",
-        links: "Links",
         help: "Help",
         closeTab: "Close tab",
         closeAllTabs: "Close all tabs",

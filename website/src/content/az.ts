@@ -195,7 +195,6 @@ const az: Content = {
         file: "Fayl",
         view: "Görünüş",
         go: "Keçid",
-        links: "Linklər",
         help: "Kömək",
         closeTab: "Vərəqi bağla",
         closeAllTabs: "Bütün vərəqləri bağla",

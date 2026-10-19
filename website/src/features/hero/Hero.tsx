@@ -26,7 +26,6 @@ import { HeroTerminal } from "@/features/hero/HeroTerminal";
 import { useContent } from "@/i18n/context";
 import { format } from "@/lib/format";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
-import { scrollToTop } from "@/lib/scroll";
 import { useTheme, type Theme } from "@/theme/context";
 import { useDraggableWindow } from "@/hooks/useDraggableWindow";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
@@ -241,7 +240,7 @@ const TAB_ARROW =
   "mx-0.5 grid h-6 w-6 shrink-0 self-center place-items-center rounded-md text-text/75 transition-colors hover:bg-surface/60 hover:text-accent disabled:pointer-events-none disabled:opacity-25";
 
 export function Hero() {
-  const { profile, socials, navigation, ui } = useContent();
+  const { profile, socials, ui } = useContent();
   const { theme: siteTheme } = useTheme();
   // The hero window has its own theme, independent of the site's: it starts
   // out matching the site, then only the View menu, the status bar and the
@@ -431,7 +430,7 @@ export function Hero() {
     terminal.lastCommand ? `${ui.hero.terminalTabLabel} - ${terminal.lastCommand}` : ui.hero.terminalTabLabel;
   // The Go menu lists the open tabs, in the order the tab strip shows them.
   const openTabEntries: MenuEntry[] = noTabs
-    ? []
+    ? [{ type: "item", label: ui.hero.noTabs, onSelect: () => {}, disabled: true }]
     : [
         { type: "heading", label: menuBar.openTabs },
         ...(codeOpen
@@ -443,7 +442,6 @@ export function Hero() {
           checked: activeTab === terminal.id,
           onSelect: () => setActiveTab(terminal.id),
         })),
-        { type: "separator" },
       ];
 
   const menus: MenuDef[] = [
@@ -470,31 +468,6 @@ export function Hero() {
       label: menuBar.go,
       entries: [
         ...openTabEntries,
-        { type: "item", label: ui.labels.home, onSelect: scrollToTop },
-        { type: "separator" },
-        ...navigation.map((item) => ({
-          type: "item" as const,
-          label: item.label,
-          onSelect: () => {
-            const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-            document.querySelector(item.href)?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
-          },
-        })),
-      ],
-    },
-    {
-      id: "links",
-      label: menuBar.links,
-      entries: [
-        { type: "item", label: "GitHub", onSelect: () => openLink(socials.github) },
-        { type: "item", label: "LinkedIn", onSelect: () => openLink(socials.linkedin) },
-        ...(socials.telegram ? [{ type: "item" as const, label: "Telegram", onSelect: () => openLink(socials.telegram!) }] : []),
-        ...(socials.medium ? [{ type: "item" as const, label: "Medium", onSelect: () => openLink(socials.medium!) }] : []),
-        ...(socials.stackoverflow
-          ? [{ type: "item" as const, label: "Stack Overflow", onSelect: () => openLink(socials.stackoverflow!) }]
-          : []),
-        { type: "separator" },
-        { type: "item", label: ui.labels.email, onSelect: () => (window.location.href = `mailto:${profile.email}`) },
       ],
     },
     {

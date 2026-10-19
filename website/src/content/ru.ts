@@ -195,7 +195,6 @@ const ru: Content = {
         file: "Файл",
         view: "Вид",
         go: "Перейти",
-        links: "Ссылки",
         help: "Справка",
         closeTab: "Закрыть вкладку",
         closeAllTabs: "Закрыть все вкладки",

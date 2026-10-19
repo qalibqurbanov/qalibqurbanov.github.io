@@ -51,11 +51,11 @@ export function About() {
 
         <div className="space-y-10">
           <Reveal className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6">
-            <div className="card-surface w-32 rounded-2xl overflow-hidden shrink-0 flex items-center justify-center">
+            <div className="card-surface w-32 h-32 sm:h-auto rounded-2xl overflow-hidden shrink-0">
               <img
                 src={avatarUrl}
                 alt={profile.name}
-                className="w-32 h-32 object-cover"
+                className="h-full w-full object-cover"
                 width={128}
                 height={128}
               />

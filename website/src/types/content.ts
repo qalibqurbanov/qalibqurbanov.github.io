@@ -148,7 +148,6 @@ export interface UiStrings {
       file: string;
       view: string;
       go: string;
-      links: string;
       help: string;
       closeTab: string;
       closeAllTabs: string;
