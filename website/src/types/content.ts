@@ -122,12 +122,12 @@ export interface UiStrings {
     scrollTabsRight: string;
     /** Label of the "x" button on the Developer.cs tab. */
     closeFile: string;
-    /** Shown between the braces of the `{ }` mark once every tab has been closed. */
+    /** Go-menu placeholder shown while no tab is open. */
     noTabs: string;
-    /** Action card under `noTabs` that brings Developer.cs back. */
+    /** Button inside the empty window that opens a terminal tab. */
+    emptyNewTab: string;
+    /** File-menu item that brings Developer.cs back. */
     reopenCode: string;
-    /** Action card under `noTabs` that opens a terminal. */
-    emptyTerminal: string;
     /** The Developer.cs snippet's `Stack` array value — deliberately not a
      * tech list, so it never looks outdated or narrow. */
     stackValue: string;

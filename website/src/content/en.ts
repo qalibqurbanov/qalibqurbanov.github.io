@@ -179,8 +179,8 @@ const en: Content = {
       scrollTabsRight: "Scroll tabs right",
       closeFile: "Close file",
       noTabs: "Nothing open yet",
+      emptyNewTab: "New tab",
       reopenCode: "Bring back Developer.cs",
-      emptyTerminal: "Spin up a terminal",
       stackValue: ".NET / C#",
       minimized: {
         title: "Ssshh! Don't make a sound — you weren't meant to find this.",

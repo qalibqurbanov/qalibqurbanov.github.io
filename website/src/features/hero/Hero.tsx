@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowRight, ChevronLeft, ChevronRight, FileCode2, FileText, Mail, Plus, SquareTerminal, X } from "lucide-react";
+import { ArrowDown, ChevronLeft, ChevronRight, FileText, Mail, Plus, SquareTerminal, X } from "lucide-react";
 import type { CSSProperties, MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -228,12 +228,6 @@ function closeOnMiddleClick(close: () => void) {
   };
 }
 
-const EMPTY_ACTION =
-  "group flex w-[19rem] items-center gap-3 whitespace-nowrap rounded-lg border border-border bg-surface-2/60 px-3 py-2.5 text-left text-text transition duration-200 hover:-translate-y-px hover:border-accent/50 hover:bg-accent/5 hover:shadow-[0_8px_24px_-12px_var(--glow-accent)]";
-const EMPTY_ACTION_ICON =
-  "grid h-7 w-7 shrink-0 place-items-center rounded-md border border-border bg-bg text-muted transition-colors group-hover:border-accent/40 group-hover:text-accent";
-const EMPTY_ACTION_ARROW =
-  "ml-auto shrink-0 text-muted/60 transition duration-200 group-hover:translate-x-0.5 group-hover:text-accent";
 const TAB_CLOSE =
   "mx-1 grid h-5 w-5 shrink-0 place-items-center rounded-md text-muted/70 outline-none transition duration-150 hover:bg-danger/15 hover:text-danger focus-visible:bg-danger/15 focus-visible:text-danger active:scale-90 disabled:pointer-events-none disabled:opacity-40";
 const TAB_ARROW =
@@ -426,8 +420,12 @@ export function Hero() {
   const { menuBar, statusBar } = ui.hero;
 
   const activeTerminal = typeof activeTab === "number" ? terminals.find((terminal) => terminal.id === activeTab) : undefined;
+  // A terminal that hasn't run anything yet is numbered by its position, so
+  // several fresh tabs can be told apart (in the strip and in the Go menu).
   const terminalTitle = (terminal: TerminalTab) =>
-    terminal.lastCommand ? `${ui.hero.terminalTabLabel} - ${terminal.lastCommand}` : ui.hero.terminalTabLabel;
+    terminal.lastCommand
+      ? `${ui.hero.terminalTabLabel} - ${terminal.lastCommand}`
+      : `${ui.hero.terminalTabLabel} ${terminals.indexOf(terminal) + 1}`;
   // The Go menu lists the open tabs, in the order the tab strip shows them.
   const openTabEntries: MenuEntry[] = noTabs
     ? [{ type: "item", label: ui.hero.noTabs, onSelect: () => {}, disabled: true }]
@@ -881,35 +879,20 @@ export function Hero() {
                       </div>
                     )}
                     {noTabs && (
-                      <div className="animate-popover-in relative col-start-1 row-start-1 flex min-h-[292px] flex-col items-center justify-center gap-5 overflow-hidden px-5 font-mono">
+                      <div className="animate-popover-in relative col-start-1 row-start-1 flex min-h-[292px] flex-col items-center justify-center overflow-hidden px-5 font-mono">
                         <div
                           aria-hidden="true"
                           className="pointer-events-none absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-3xl"
                         />
-                        <p className="animate-float-slow relative flex items-center gap-3">
-                          <span aria-hidden="true" className="text-gradient select-none text-5xl font-light leading-none">
-                            {"{"}
-                          </span>
-                          <span className="text-sm text-text">{ui.hero.noTabs}</span>
-                          <span aria-hidden="true" className="text-gradient select-none text-5xl font-light leading-none">
-                            {"}"}
-                          </span>
-                        </p>
-                        <div className="relative flex flex-col gap-2 text-xs">
-                          <button type="button" onClick={reopenCode} className={EMPTY_ACTION}>
-                            <span className={EMPTY_ACTION_ICON}>
-                              <FileCode2 size={14} />
-                            </span>
-                            {ui.hero.reopenCode}
-                            <ArrowRight size={14} className={EMPTY_ACTION_ARROW} />
-                          </button>
-                          <button type="button" onClick={() => openTerminal()} className={EMPTY_ACTION}>
-                            <span className={EMPTY_ACTION_ICON}>
-                              <SquareTerminal size={14} />
-                            </span>
-                            {ui.hero.emptyTerminal}
-                            <ArrowRight size={14} className={EMPTY_ACTION_ARROW} />
-                          </button>
+                        <div className="relative h-[140px] w-[230px]">
+                          <div aria-hidden="true" className="empty-ghost empty-ghost-a" />
+                          <div aria-hidden="true" className="empty-ghost empty-ghost-b" />
+                          <div className="empty-ghost-front">
+                            <button type="button" onClick={() => openTerminal()} className="empty-ghost-button">
+                              <Plus size={14} strokeWidth={2} />
+                              {ui.hero.emptyNewTab}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}

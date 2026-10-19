@@ -180,8 +180,8 @@ const ru: Content = {
       scrollTabsRight: "Прокрутить вкладки вправо",
       closeFile: "Закрыть файл",
       noTabs: "Пока ничего не открыто",
+      emptyNewTab: "Новая вкладка",
       reopenCode: "Вернуть Developer.cs",
-      emptyTerminal: "Запустить терминал",
       stackValue: ".NET / C#",
       minimized: {
         title: "Тссс! Ни звука — тебе не следовало это найти.",

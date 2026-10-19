@@ -180,8 +180,8 @@ const az: Content = {
       scrollTabsRight: "Tabları sağa sürüşdür",
       closeFile: "Faylı bağla",
       noTabs: "Açıq tab yoxdur",
+      emptyNewTab: "Yeni tab",
       reopenCode: "Developer.cs-i geri gətir",
-      emptyTerminal: "Terminal başlat",
       stackValue: ".NET / C#",
       minimized: {
         title: "Şşşt! Səs çıxarma — bunu tapmamalıydın.",

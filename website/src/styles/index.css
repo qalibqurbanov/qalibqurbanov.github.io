@@ -1471,3 +1471,104 @@ html.glitch-storm footer {
   animation: none;
   mix-blend-mode: normal;
 }
+
+/* Empty hero window (no tab open): two faint ghost windows behind a dashed
+   one that holds the "New tab" button. */
+.empty-ghost {
+  position: absolute;
+  width: 214px;
+  height: 130px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+}
+
+.empty-ghost-a {
+  left: -26px;
+  top: 10px;
+  opacity: 0.45;
+  animation: empty-drift-a 6s ease-in-out infinite;
+}
+
+.empty-ghost-b {
+  left: 40px;
+  top: -8px;
+  opacity: 0.7;
+  animation: empty-drift-b 7s ease-in-out infinite;
+}
+
+.empty-ghost-front {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  border: 1.5px dashed var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 7%, var(--color-surface));
+  box-shadow: 0 16px 44px -16px var(--glow-accent);
+  animation: empty-float 4.5s ease-in-out infinite;
+}
+
+.empty-ghost-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  color: var(--color-text);
+  font-size: 12px;
+  animation: empty-breathe 3.2s ease-in-out infinite;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.empty-ghost-button:hover {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  box-shadow: 0 0 22px -4px var(--glow-accent);
+}
+
+.empty-ghost-button svg {
+  color: var(--color-accent);
+}
+
+@keyframes empty-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes empty-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes empty-drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-6deg);
+  }
+  50% {
+    transform: translate(-6px, -10px) rotate(-8deg);
+  }
+}
+
+@keyframes empty-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(4deg);
+  }
+  50% {
+    transform: translate(8px, -6px) rotate(6deg);
+  }
+}
