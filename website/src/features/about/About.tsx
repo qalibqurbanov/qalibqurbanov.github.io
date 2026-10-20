@@ -50,35 +50,39 @@ export function About() {
         <SectionHeading id="about" index={ui.sections.about.index} title={ui.sections.about.title} />
 
         <div className="space-y-10">
-          <Reveal className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6">
-            <div className="card-surface w-32 h-32 sm:h-auto rounded-2xl overflow-hidden shrink-0">
-              <img
-                src={avatarUrl}
-                alt={profile.name}
-                className="h-full w-full object-cover"
-                width={128}
-                height={128}
-              />
+          <Reveal>
+            <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6">
+              <div className="card-surface w-32 h-32 sm:h-auto rounded-2xl overflow-hidden shrink-0">
+                <img
+                  src={avatarUrl}
+                  alt={profile.name}
+                  className="h-full w-full object-cover"
+                  width={128}
+                  height={128}
+                />
+              </div>
+              <dl className="card-surface rounded-xl p-5 flex-1 flex flex-wrap gap-x-8 gap-y-4">
+                {about.highlights.map((highlight) => (
+                  <div key={highlight.label}>
+                    <dt className="font-mono text-xs text-accent uppercase tracking-wide">
+                      <span className="text-muted">{"> "}</span>
+                      {highlight.label}
+                    </dt>
+                    <dd className="font-display text-text text-lg font-bold mt-0.5">
+                      <CountUp value={highlight.value} />
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </div>
-            <dl className="card-surface rounded-xl p-5 flex-1 flex flex-wrap gap-x-8 gap-y-4">
-              {about.highlights.map((highlight) => (
-                <div key={highlight.label}>
-                  <dt className="font-mono text-xs text-accent uppercase tracking-wide">
-                    <span className="text-muted">{"> "}</span>
-                    {highlight.label}
-                  </dt>
-                  <dd className="font-display text-text text-lg font-bold mt-0.5">
-                    <CountUp value={highlight.value} />
-                  </dd>
-                </div>
-              ))}
-            </dl>
           </Reveal>
 
-          <Reveal delayMs={150} className="space-y-5 text-muted leading-relaxed">
-            {about.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{renderEmphasis(paragraph)}</p>
-            ))}
+          <Reveal delayMs={150} className="text-muted leading-relaxed">
+            <div className="space-y-5">
+              {about.paragraphs.map((paragraph) => (
+                <p key={paragraph}>{renderEmphasis(paragraph)}</p>
+              ))}
+            </div>
           </Reveal>
         </div>
 

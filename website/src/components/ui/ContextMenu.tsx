@@ -29,7 +29,7 @@ interface MenuState {
 interface MenuItemProps {
   icon?: ComponentType<{ size?: number }>;
   label: string;
-  /** Right-aligned keyboard hint, e.g. "Ctrl K". */
+  /** Right-aligned keyboard hint, e.g. "Alt C". */
   hint?: string;
   /** Red instead of the accent — reserved for "Report a bug". */
   danger?: boolean;
@@ -170,7 +170,6 @@ export function ContextMenu() {
 
   const project = menu.projectSlug ? (projects.find((item) => item.slug === menu.projectSlug) ?? null) : null;
   const where = project ? `projects/${project.slug}` : (menu.sectionId ?? "home");
-  const mod = isMac ? "⌘" : "Ctrl";
 
   function copyThenClose(text: string, kind: "repo" | "page") {
     navigator.clipboard.writeText(text).catch(() => {});
@@ -250,7 +249,7 @@ export function ContextMenu() {
         <MenuItem
           icon={Search}
           label={ui.contextMenu.openCommandPalette}
-          hint={`${mod} K`}
+          hint={isMac ? "⌥ C" : "Alt C"}
           onSelect={() => {
             window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE_EVENT));
             close();
@@ -259,7 +258,7 @@ export function ContextMenu() {
         <MenuItem
           icon={theme === "dark" ? Sun : Moon}
           label={ui.commandPalette.actionToggleTheme}
-          hint="Ctrl ⇧ L"
+          hint={isMac ? "⌥ T" : "Alt T"}
           onSelect={() => {
             toggleTheme();
             close();

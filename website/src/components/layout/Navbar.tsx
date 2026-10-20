@@ -122,7 +122,7 @@ export function Navbar() {
                   : ui.labels.switchToDark
               }
               title={format(ui.labels.toggleTheme, {
-                shortcut: "Ctrl+Shift+L",
+                shortcut: "Alt+T",
               })}
             >
               {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}

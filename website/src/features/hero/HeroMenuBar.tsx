@@ -7,7 +7,7 @@ export type MenuEntry =
       type: "item";
       label: string;
       onSelect: () => void;
-      /** Shown on the right, e.g. "Ctrl+Shift+L". Display only. */
+      /** Shown on the right, e.g. "Alt+T". Display only. */
       shortcut?: string;
       /** Draws a check mark when true (and the item reads as a radio/checkbox). */
       checked?: boolean;

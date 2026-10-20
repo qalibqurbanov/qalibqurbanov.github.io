@@ -6,7 +6,7 @@ import { glitchScreen } from "@/hooks/glitch";
 import { getInitialTheme, STORAGE_KEY, ThemeContext, type Theme, type ThemeContextValue } from "./context";
 
 /**
- * Owns the theme state, the Ctrl+Shift+L shortcut, and syncing to the DOM +
+ * Owns the theme state, the Alt+T shortcut, and syncing to the DOM +
  * localStorage — all exactly once, no matter how many components read or
  * toggle the theme via `useTheme()`. Mount this once near the app root, the
  * same way LocaleProvider is mounted for i18n.
@@ -34,7 +34,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
       if (isEditable) return;
 
-      const isShortcut = event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "l";
+      const isShortcut = event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey && event.code === "KeyT";
       if (isShortcut) {
         event.preventDefault();
         toggleTheme();

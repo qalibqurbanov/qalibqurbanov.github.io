@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from "react";
 
 import { belowNavbarMargin } from "@/lib/viewport";
 
+/** How far below the show ratio a replaying element has to drop before it hides again. */
+const REPLAY_HYSTERESIS = 0.3;
+
 interface UseInViewOptions {
   threshold?: number;
   rootMargin?: string;
@@ -28,15 +31,23 @@ export function useInView<T extends HTMLElement>({
       ([entry]) => {
         // `isIntersecting` stays true while any sliver overlaps, so a replaying
         // element goes by the visible ratio to reset as it slides under the navbar.
-        const visible = triggerOnce ? entry.isIntersecting : entry.intersectionRatio >= threshold - 0.01;
-        if (visible) {
-          setIsInView(true);
-          if (triggerOnce) observer.unobserve(node);
-        } else if (!triggerOnce) {
-          setIsInView(false);
+        if (triggerOnce) {
+          if (entry.isIntersecting) {
+            setIsInView(true);
+            observer.unobserve(node);
+          }
+          return;
         }
+        // Hide and show at different ratios: the hidden state is shifted down,
+        // which by itself moves the element back over the show threshold, so a
+        // single threshold made it flicker at one exact scroll position.
+        if (entry.intersectionRatio >= threshold - 0.01) setIsInView(true);
+        else if (entry.intersectionRatio < threshold - REPLAY_HYSTERESIS) setIsInView(false);
       },
-      { threshold, rootMargin: belowNavbar ? belowNavbarMargin() : rootMargin },
+      {
+        threshold: triggerOnce ? threshold : [0, threshold - REPLAY_HYSTERESIS, threshold - 0.01, threshold, 1],
+        rootMargin: belowNavbar ? belowNavbarMargin() : rootMargin,
+      },
     );
 
     observer.observe(node);

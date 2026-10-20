@@ -30,7 +30,7 @@ import { reportBugUrl } from "@/lib/githubIssue";
 import { scrollToTop } from "@/lib/scroll";
 import { useTheme } from "@/theme/context";
 
-/** Lets any UI element (e.g. the Navbar's ⌘K pill) open the palette without
+/** Lets any UI element (e.g. the Navbar's search button) open the palette without
  * prop-drilling open state through the tree — the palette itself owns the
  * only piece of state that matters (whether it's open). */
 export const OPEN_COMMAND_PALETTE_EVENT = "portfolio:open-command-palette";
@@ -80,7 +80,7 @@ export function CommandPalette() {
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      const isShortcut = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
+      const isShortcut = event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey && event.code === "KeyC";
       if (isShortcut) {
         event.preventDefault();
         handleOpenChange(!open);
@@ -409,18 +409,17 @@ export function CommandPalette() {
   );
 }
 
-/** A small "⌘K" pill that opens the command palette from anywhere it's rendered. */
+/** A small ">_" prompt button that opens the command palette from anywhere it's rendered. */
 export function CommandPaletteTrigger({ label }: { label: string }) {
   return (
     <button
       type="button"
       onClick={() => window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE_EVENT))}
       aria-label={label}
-      title={label}
-      className="hidden md:inline-flex items-center gap-1.5 rounded border border-border px-2 py-1 font-mono text-xs text-muted transition-colors hover:border-accent/60 hover:text-accent"
+      title={`${label} (Alt+C)`}
+      className="hidden md:inline-flex h-7 w-7 items-center justify-center rounded border border-border font-mono text-xs text-muted transition-colors hover:border-accent/60 hover:text-accent"
     >
-      <Search size={12} />
-      <span className="text-[10px]">⌘K</span>
+      {">_"}
     </button>
   );
 }

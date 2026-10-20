@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { getDisturbanceRect, subscribeDisturbance } from "@/lib/dragDisturbance";
+
 interface Tip {
   text: string;
   theme: string | null;
@@ -13,6 +15,10 @@ interface Tip {
 const GAP = 10;
 const MARGIN = 8;
 const SHOW_DELAY_MS = 250;
+/** A balloon dismissed this recently is still "the one the visitor was looking at". */
+const RECENT_MS = 1500;
+/** The dragged window's snap-back takes 0.4s (useDraggableWindow); wait it out. */
+const SETTLE_MS = 450;
 
 /**
  * Replaces the browser's native `title` tooltip with the site's balloon: any
@@ -29,10 +35,15 @@ export function TooltipLayer() {
 
   useEffect(() => {
     let timer = 0;
+    let settleTimer = 0;
+    let dragging = false;
+    let resume: { target: HTMLElement; text: string } | null = null;
+    let recent: { target: HTMLElement; text: string; at: number } | null = null;
 
     const restore = () => {
       const el = active.current;
       if (el?.dataset.tip !== undefined) {
+        recent = { target: el, text: el.dataset.tip, at: performance.now() };
         el.setAttribute("title", el.dataset.tip);
         delete el.dataset.tip;
       }
@@ -46,6 +57,7 @@ export function TooltipLayer() {
       setTip(null);
     };
     const show = (event: Event, instant: boolean) => {
+      if (dragging) return;
       const target = (event.target as Element | null)?.closest?.<HTMLElement>("[title]");
       if (!target || target === active.current) return;
       const text = target.getAttribute("title")?.trim();
@@ -56,6 +68,34 @@ export function TooltipLayer() {
       active.current = target;
       timer = window.setTimeout(() => setPending({ target, text }), instant ? 0 : SHOW_DELAY_MS);
     };
+    // While a window is being dragged the balloon steps aside; once the window
+    // is back in its default place, the one that was showing comes back.
+    const onDrag = () => {
+      const isDragging = getDisturbanceRect() !== null;
+      if (isDragging === dragging) return;
+      dragging = isDragging;
+      window.clearTimeout(settleTimer);
+      if (dragging) {
+        // The press that starts a drag has already dismissed the balloon, a moment ago.
+        const was = active.current ? { target: active.current, text: active.current.dataset.tip ?? "" } : recent && performance.now() - recent.at < RECENT_MS ? recent : null;
+        resume = was && was.text ? { target: was.target, text: was.text } : null;
+        hide();
+        return;
+      }
+      const saved = resume;
+      resume = null;
+      if (!saved) return;
+      settleTimer = window.setTimeout(() => {
+        const { target, text } = saved;
+        if (!target.isConnected || active.current) return;
+        const current = target.getAttribute("title")?.trim() ?? text;
+        target.dataset.tip = current;
+        target.removeAttribute("title");
+        active.current = target;
+        setPending({ target, text: current });
+      }, SETTLE_MS);
+    };
+    const unsubscribe = subscribeDisturbance(onDrag);
     const onOver = (e: Event) => show(e, false);
     const onFocus = (e: Event) => show(e, true);
     const onOut = (e: Event) => {
@@ -73,6 +113,8 @@ export function TooltipLayer() {
     window.addEventListener("scroll", hide, true);
     window.addEventListener("resize", hide);
     return () => {
+      window.clearTimeout(settleTimer);
+      unsubscribe();
       hide();
       document.removeEventListener("mouseover", onOver);
       document.removeEventListener("mouseout", onOut);

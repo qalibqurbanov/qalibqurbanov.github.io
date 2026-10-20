@@ -137,6 +137,8 @@ const CAM_LEAD = 0.4;
 const T_REBOOT = 1100;
 const BIN = 4;
 const GRID = 8;
+/** How much wider than tall the fragments are: masonry slabs, not bubbles. */
+const SLAB = 1.8;
 
 let fontCss: string | null = null;
 
@@ -591,7 +593,7 @@ class Shatter {
           const list = hash.get(keyOf(gx + dx, gy + dy));
           if (!list) continue;
           for (const s of list) {
-            if (Math.hypot(s.x - c.x, s.y - c.y) < (s.r + c.r) * 0.5) {
+            if (Math.hypot((s.x - c.x) / SLAB, s.y - c.y) < (s.r + c.r) * 0.5) {
               ok = false;
               break;
             }
@@ -634,8 +636,10 @@ class Shatter {
         const d = Math.hypot(dx, dy);
         let far = 0;
         for (let i = 0; i < poly.length; i += 2) far = Math.max(far, Math.hypot(poly[i] - s.x, poly[i + 1] - s.y));
-        if (d / 2 > far) break;
-        poly = clipHalf(poly, (s.x + o.x) / 2, (s.y + o.y) / 2, dx, dy);
+        if (d / (2 * SLAB * SLAB) > far) break;
+        // Distances are measured with x compressed, so the cells come out wide
+        // and flat: slabs of wall and floor rather than round bubbles.
+        poly = clipHalf(poly, (s.x + o.x) / 2, (s.y + o.y) / 2, dx / (SLAB * SLAB), dy);
         if (poly.length < 6) break;
       }
       if (poly.length < 6) continue;
@@ -656,7 +660,7 @@ class Shatter {
           const ny = ((bx - ax) / len) * flip;
           const mx = (ax + bx) / 2;
           const my = (ay + by) / 2;
-          const off = nz(mx, my) * len * 0.15;
+          const off = nz(mx, my) * len * 0.05;
           rough.push(mx + nx * off, my + ny * off);
         }
       }
@@ -884,7 +888,7 @@ class Shatter {
 
     this.updateParticles(dt);
 
-    const done = this.landedCount + this.hanging.length >= this.liveCount && this.ci >= this.byCrack.length && this.cracking.length === 0 && this.falling.length === 0;
+    const done = this.landedCount + this.hanging.length >= this.liveCount && this.ci >= this.byCrack.length && this.cracking.length === 0 && this.falling.length <= Math.max(4, this.liveCount * 0.03);
     if (this.stage === "run" && ((done && t > this.demoAt) || t > this.tMax)) {
       this.stage = "after";
       for (const s of this.falling) this.land(s);
@@ -899,7 +903,7 @@ class Shatter {
       this.maxPuffs = this.mobile ? 110 : 230;
       for (const s of this.hanging) s.dropAt = t + this.rand(2500, 11000);
       // The site comes back only on a typed command, never on its own.
-      const arm = window.setTimeout(() => this.openPrompt(), 1500);
+      const arm = window.setTimeout(() => this.openPrompt(), 600);
       this.cleanup.push(() => {
         window.clearTimeout(arm);
         this.closePrompt();
@@ -1784,7 +1788,7 @@ class Shatter {
    * over the ruins. Its body is split into separate sections: header,
    * diagnostics, integrity and a terminal that waits for the reboot command. */
   private drawCrash(ctx: CanvasRenderingContext2D): void {
-    const t = this.clock - this.afterAt - 450;
+    const t = this.clock - this.afterAt - 100;
     if (t < 0) return;
     const c = this.themeColors();
     const mono = '"JetBrains Mono", ui-monospace, Consolas, monospace';

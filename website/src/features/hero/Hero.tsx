@@ -288,6 +288,18 @@ export function Hero() {
   const toastTimeout = useRef<number | undefined>(undefined);
   const { windowRef, dragging, windowStyle, dragHandleProps } = useDraggableWindow<HTMLDivElement>("#top");
 
+  // The "+" callout steps aside while the window is dragged and returns once it
+  // has snapped back to its default place (the snap-back animation is 0.4s).
+  const [hintSettled, setHintSettled] = useState(true);
+  useEffect(() => {
+    if (dragging) {
+      setHintSettled(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setHintSettled(true), 450);
+    return () => window.clearTimeout(timer);
+  }, [dragging]);
+
   useLayoutEffect(() => {
     const plus = plusRef.current;
     const win = windowRef.current;
@@ -704,7 +716,7 @@ export function Hero() {
               }`}
             >
               <div ref={windowRef} style={windowStyle} inert={!booted} className="relative">
-                {pointAtPlus && plusX !== null && (
+                {pointAtPlus && hintSettled && plusX !== null && (
                   <div
                     role="note"
                     style={{ left: Math.max(0, plusX - HINT_NOTCH) }}
