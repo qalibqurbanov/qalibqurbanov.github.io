@@ -211,6 +211,13 @@ export interface UiStrings {
     back: string;
     fallback: string;
   };
+  /** The roaming cyber butterfly easter egg. */
+  butterfly: {
+    /** Shown in the system-down window: type a command to bring the page back. */
+    hint: string;
+    /** The calmer variants (reduced motion) come back on any key. */
+    hintAny: string;
+  };
   /** Hover tooltips and screen-reader labels for icon-only controls. Brand names (GitHub, LinkedIn…) stay literal in the components. */
   labels: {
     email: string;

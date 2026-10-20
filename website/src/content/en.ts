@@ -255,6 +255,10 @@ const en: Content = {
       back: "Back",
       fallback: "Your browser can't display PDFs inline.",
     },
+    butterfly: {
+      hint: "System down. Type \"r\" or \"reboot\" and press Enter to restore the site.",
+      hintAny: "System down — click or press any key to reboot",
+    },
     labels: {
       email: "Email",
       resume: "Resume",

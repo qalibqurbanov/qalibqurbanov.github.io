@@ -57,14 +57,8 @@ function FooterIconLink({ href, onClick, label, external = true, tone = "default
     ? { href, ...(external ? { target: "_blank", rel: "noreferrer" } : {}) }
     : { type: "button" as const, onClick };
   return (
-    <Tag {...props} aria-label={label} className={TONE_CLASSES[tone]}>
+    <Tag {...props} aria-label={label} title={label} className={TONE_CLASSES[tone]}>
       {children}
-      <span
-        role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 scale-95 whitespace-nowrap rounded-md border border-border bg-surface px-2 py-1 text-[11px] font-sans text-text opacity-0 shadow-lg transition duration-150 group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100"
-      >
-        {label}
-      </span>
     </Tag>
   );
 }
@@ -97,7 +91,9 @@ function BranchBadge() {
       {label}
       <span
         role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-max max-w-[min(20rem,calc(100vw-3rem))] -translate-x-1/2 scale-95 rounded-md border border-border bg-surface px-2.5 py-1.5 text-left text-[11px] text-text opacity-0 shadow-lg transition duration-150 group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100 sm:left-0 sm:translate-x-0"
+        data-side="top"
+        style={{ ["--tip-arrow" as string]: "1.25rem" }}
+        className="tip-balloon pointer-events-none absolute bottom-full left-1/2 mb-2.5 w-max -translate-x-1/2 scale-95 text-left opacity-0 transition duration-150 group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100 sm:left-[-0.5rem] sm:translate-x-0"
       >
         <span className="block text-muted">{ui.labels.lastCommit}</span>
         <span className="block">

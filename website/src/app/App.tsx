@@ -5,6 +5,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { AmbientBackground } from "@/components/ui/AmbientBackground";
 import { BackToTop } from "@/components/ui/BackToTop";
 import { ContextMenu } from "@/components/ui/ContextMenu";
+import { CyberButterfly } from "@/components/ui/CyberButterfly";
+import { TooltipLayer } from "@/components/ui/TooltipLayer";
 import { CursorGlow } from "@/components/ui/CursorGlow";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { About } from "@/features/about/About";
@@ -35,6 +37,7 @@ export function App() {
       <CustomCursor />
       <CommandPalette />
       <ContextMenu />
+      <TooltipLayer />
       <ContactModal />
 
       <Navbar />
@@ -49,6 +52,7 @@ export function App() {
       </main>
       <Footer />
       <BackToTop />
+      <CyberButterfly />
 
       {resumeOpen ? (
         <ResumeViewer onBack={closeProject} />

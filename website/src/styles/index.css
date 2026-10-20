@@ -1572,3 +1572,252 @@ html.glitch-storm footer {
     transform: translate(8px, -6px) rotate(6deg);
   }
 }
+
+/* The roaming cyber butterfly (CyberButterfly) and the demolition it sets off
+   (lib/demolition.ts). */
+.cyber-trail {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* The butterfly's roaming area is the whole document: absolutely positioned
+   from the page's top-left, clipped at its edges (so it never adds scrolling),
+   and below the content (z-index -1 stays above the page's own background and
+   the fixed ambient layer, but under every box and piece of text). */
+.cyber-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.cyber-layer.is-fixed {
+  position: fixed;
+  height: 100%;
+}
+
+.cyber-butterfly {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--bf-hit, 76px);
+  height: var(--bf-hit, 76px);
+  padding: calc(var(--bf-hit, 76px) * 0.14);
+  will-change: transform;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.cyber-butterfly.is-gone {
+  opacity: 0;
+}
+
+.cyber-butterfly.is-hover svg {
+  filter: drop-shadow(0 0 6px var(--color-accent-2)) drop-shadow(0 0 20px var(--color-accent)) brightness(1.35);
+}
+
+.cyber-butterfly svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 0 4px var(--color-accent-2)) drop-shadow(0 0 12px var(--color-accent));
+  animation: bf-flicker 7s steps(1) infinite;
+}
+
+.bf-wings {
+  transform-origin: 60px 60px;
+  animation: bf-flap var(--bf-flap, 0.2s) ease-in-out infinite alternate;
+}
+
+.bf-core {
+  animation: bf-core 1.4s ease-in-out infinite;
+}
+
+.cyber-butterfly.is-charging {
+  --bf-flap: 0.05s;
+}
+
+.cyber-butterfly.is-charging svg {
+  animation: bf-charge 0.65s ease-in forwards;
+}
+
+@keyframes bf-flap {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0.26);
+  }
+}
+
+@keyframes bf-core {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes bf-flicker {
+  0%,
+  92%,
+  96%,
+  100% {
+    opacity: 1;
+  }
+  93% {
+    opacity: 0.55;
+  }
+  95% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes bf-charge {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px var(--color-accent-2)) drop-shadow(0 0 12px var(--color-accent));
+  }
+  70% {
+    transform: scale(1.35);
+    filter: brightness(2) drop-shadow(0 0 14px var(--color-accent-2)) drop-shadow(0 0 34px var(--color-accent));
+  }
+  100% {
+    transform: scale(1.9);
+    filter: brightness(5) drop-shadow(0 0 30px #fff) drop-shadow(0 0 60px var(--color-accent-2));
+  }
+}
+
+html.demolishing {
+  overflow: hidden;
+}
+
+.demolish-body {
+  transition: none !important;
+}
+
+.demolish-soft {
+  transition:
+    opacity 0.7s ease,
+    translate 0.7s ease !important;
+}
+
+.demolition-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.demolition-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 95;
+  max-width: calc(100% - 2rem);
+  padding: 0.55rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: center;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 28px -6px var(--glow-accent);
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  transition:
+    opacity 0.5s,
+    transform 0.5s;
+  pointer-events: none;
+}
+
+.demolition-hint.is-shown {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bf-wings,
+  .bf-core,
+  .cyber-butterfly svg {
+    animation: none;
+  }
+}
+
+/* Balloon tooltips — one look for every hover hint on the site. `--tip-arrow`
+   is the arrow's x offset inside the balloon (so it points at the control's
+   centre); `data-side` says which edge the arrow sits on. */
+.tip-balloon {
+  /* No `position` here: each user sets its own (absolute / fixed), which the
+     ::after arrow anchors to. */
+  max-width: min(20rem, calc(100vw - 1.5rem));
+  padding: 0.35rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 8px 24px -8px rgb(0 0 0 / 0.45),
+    0 0 18px -6px var(--glow-accent, transparent);
+  pointer-events: none;
+}
+
+.tip-balloon::after {
+  content: "";
+  position: absolute;
+  left: var(--tip-arrow, 50%);
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  background: color-mix(in srgb, var(--color-surface) 100%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+  transform: rotate(45deg);
+}
+
+.tip-balloon[data-side="top"]::after {
+  bottom: -5px;
+  border-top: 0;
+  border-left: 0;
+}
+
+.tip-balloon[data-side="bottom"]::after {
+  top: -5px;
+  border-bottom: 0;
+  border-right: 0;
+}
+
+.tip-floating {
+  position: fixed;
+  z-index: 100000;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.tip-floating.is-shown {
+  opacity: 1;
+}
+
+/* Fixed widgets are painted into the page capture (and break with it), so the
+   live copy must not reappear while the page is in ruins. */
+html.demolishing [data-demolish-fixed] {
+  visibility: hidden !important;
+}

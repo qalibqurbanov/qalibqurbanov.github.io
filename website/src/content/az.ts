@@ -256,6 +256,10 @@ const az: Content = {
       back: "Geri",
       fallback: "Brauzeriniz PDF-i bu səhifədə göstərə bilmir.",
     },
+    butterfly: {
+      hint: "Sistem söndü. Saytı bərpa etmək üçün \"r\" və ya \"reboot\" yazıb Enter basın.",
+      hintAny: "Sistem söndü — yenidən başlatmaq üçün klikləyin və ya istənilən düyməni basın",
+    },
     labels: {
       email: "E-poçt",
       resume: "CV",
