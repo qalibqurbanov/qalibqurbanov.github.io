@@ -154,6 +154,8 @@ function mulberry32(seed: number): Rng {
 /** Part of the page's background treatment: it is neither captured nor hidden. */
 function isBackdrop(el: Element): boolean {
   if (el.hasAttribute("data-demolish-keep")) return true;
+  // Window effects (the hero terminal's HUD) are drawn around a block and break with it.
+  if (el.closest("[data-demolish-part]")) return false;
   const cs = getComputedStyle(el);
   if (cs.position === "fixed" && cs.pointerEvents === "none") return true;
   if (el.getAttribute("aria-hidden") !== "true" || cs.pointerEvents !== "none") return false;
@@ -410,6 +412,16 @@ class Shatter {
     this.hidden.push(() => {
       root.style.visibility = prev;
     });
+    // Blocks that set `visibility: visible` themselves (the hero terminal's panes)
+    // ignore the hidden root, so they are hidden one by one.
+    for (const el of Array.from(root.querySelectorAll<HTMLElement>("*"))) {
+      if (keep.some((k) => k.contains(el)) || getComputedStyle(el).visibility !== "visible") continue;
+      const old = el.style.visibility;
+      el.style.visibility = "hidden";
+      this.hidden.push(() => {
+        el.style.visibility = old;
+      });
+    }
     for (const el of keep) {
       const old = el.style.visibility;
       el.style.visibility = "visible";
@@ -1158,12 +1170,14 @@ class Shatter {
     }
     // On a steep spot it cannot stay: it slides off the side of the heap first.
     const slope = this.heightAt(s.x + hw) - this.heightAt(s.x - hw);
-    if (Math.abs(slope) > hw * 1.5 && s.slides < 16) {
+    // A couple of gentle nudges at most: kicking it up again and again made
+    // pieces hop on the spot for seconds before they finally settled.
+    if (Math.abs(slope) > hw * 1.5 && s.slides < 3) {
       s.slides++;
       const dir = slope > 0 ? -1 : 1;
-      s.vx += dir * this.rand(70, 170);
-      s.vy = -this.rand(20, 90);
-      s.om += dir * this.rand(0.4, 1.8);
+      s.vx += dir * this.rand(90, 180);
+      s.vy = -this.rand(4, 14);
+      s.om += dir * this.rand(0.3, 1.2);
       return;
     }
     this.land(s);

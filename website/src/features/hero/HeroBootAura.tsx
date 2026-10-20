@@ -60,6 +60,7 @@ export function HeroBootAura({ active }: HeroBootAuraProps) {
     <>
       <div
         aria-hidden="true"
+        data-demolish-part=""
         style={{ transitionDuration: `${FADE_MS}ms` }}
         className={`pointer-events-none absolute -inset-3 transition-opacity ease-in-out ${
           shown && active ? "opacity-100" : "opacity-0"
@@ -89,7 +90,7 @@ export function HeroBootAura({ active }: HeroBootAuraProps) {
           />
         ))}
       </div>
-      {finished && <i aria-hidden="true" className="hud-burst pointer-events-none absolute inset-0 rounded-xl" />}
+      {finished && <i aria-hidden="true" data-demolish-part="" className="hud-burst pointer-events-none absolute inset-0 rounded-xl" />}
     </>
   );
 }
