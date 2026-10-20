@@ -1303,6 +1303,143 @@ html.has-cursor * {
   }
 }
 
+/* Idle countdown (see lib/idle), "radar": while the visitor is away the ring
+   opens up, a soft sweep turns round it and pings outward once a second, a thin
+   arc fills as the seconds pass, and a butterfly holds still in the middle.
+   When the countdown ends the butterflies come and the ring flashes. Default
+   state only. */
+.custom-cursor[data-state="default"] .custom-cursor-ring {
+  width: calc(24px + var(--idle-show, 0) * 28px);
+  height: calc(24px + var(--idle-show, 0) * 28px);
+}
+
+.custom-cursor-arc {
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  background: conic-gradient(from -90deg, var(--color-accent-2) calc(var(--idle-p, 0) * 360deg), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.7px), #000 calc(100% - 1.2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 1.7px), #000 calc(100% - 1.2px));
+  opacity: var(--idle-show, 0);
+  pointer-events: none;
+}
+
+.custom-cursor-sweep {
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 70%, color-mix(in srgb, var(--color-accent-2) 45%, transparent) 100%);
+  opacity: calc(var(--idle-show, 0) * 0.85);
+  pointer-events: none;
+}
+
+.custom-cursor-ping {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--color-accent-2);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The two loops only run while the countdown is showing. */
+.custom-cursor.is-idle .custom-cursor-sweep {
+  animation: cursor-radar-turn 1s linear infinite;
+}
+
+.custom-cursor.is-idle .custom-cursor-ping {
+  animation: cursor-radar-ping 1s ease-out infinite;
+}
+
+@keyframes cursor-radar-turn {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes cursor-radar-ping {
+  0% {
+    scale: 1;
+    opacity: calc(var(--idle-show, 0) * 0.6);
+  }
+  100% {
+    scale: 1.9;
+    opacity: 0;
+  }
+}
+
+.custom-cursor.is-idle-done .custom-cursor-ring {
+  animation: cursor-radar-flash 0.9s ease-out infinite;
+}
+
+@keyframes cursor-radar-flash {
+  0%,
+  100% {
+    box-shadow:
+      0 0 14px var(--glow-accent),
+      inset 0 0 8px var(--glow-accent);
+  }
+  40% {
+    box-shadow:
+      0 0 22px var(--color-accent-2),
+      inset 0 0 12px var(--color-accent-2);
+  }
+}
+
+.custom-cursor-bf {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 26px;
+  height: 26px;
+  translate: -50% -50%;
+  overflow: visible;
+  opacity: var(--idle-show, 0);
+  scale: calc(0.6 + var(--idle-show, 0) * 0.4);
+  pointer-events: none;
+}
+
+.custom-cursor-bf-wing path {
+  fill: color-mix(in srgb, var(--color-accent-2) 26%, transparent);
+  stroke: var(--color-accent-2);
+  stroke-width: 1.3px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+
+.custom-cursor-bf-body,
+.custom-cursor-bf-head {
+  fill: #fff;
+}
+
+.custom-cursor-bf-body {
+  opacity: 0.95;
+}
+
+.custom-cursor-bf-ant {
+  fill: none;
+  stroke: var(--color-accent-2);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+}
+
+.custom-cursor-bf-wings {
+  transform-origin: 60px 60px;
+  transform: scaleX(0.7);
+}
+
+.custom-cursor[data-state="default"] .custom-cursor-dot {
+  opacity: calc(1 - var(--idle-show, 0));
+}
+
+.custom-cursor:not([data-state="default"]) .custom-cursor-arc,
+.custom-cursor:not([data-state="default"]) .custom-cursor-sweep,
+.custom-cursor:not([data-state="default"]) .custom-cursor-ping,
+.custom-cursor:not([data-state="default"]) .custom-cursor-bf {
+  display: none;
+}
+
 /* The draggable window: the ring tightens into a grip. */
 .custom-cursor[data-state="grab"] .custom-cursor-ring {
   scale: 0.78;
@@ -1652,16 +1789,45 @@ html.glitch-storm footer {
   --bf-flap: 0.05s;
 }
 
+/* The thread a butterfly hangs from: fixed at the element's bottom edge,
+   drawn from there to the butterfly's head (see CyberButterfly). */
+.cyber-thread {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  transform-origin: 0 0;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--color-accent-2) 20%, transparent), var(--color-accent-2));
+  box-shadow: 0 0 6px var(--color-accent-2);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.cyber-thread::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-accent-2);
+  box-shadow: 0 0 8px var(--color-accent-2);
+}
+
 .cyber-butterfly.is-charging svg {
   animation: bf-charge 0.65s ease-in forwards;
 }
 
+/* --bf-fold (0 flapping .. 1 folded) is driven from script while it lands and
+   takes off, so the wings close and open smoothly. */
 @keyframes bf-flap {
   from {
-    transform: scaleX(1);
+    transform: scaleX(calc(1 - var(--bf-fold, 0) * 0.62));
   }
   to {
-    transform: scaleX(0.26);
+    transform: scaleX(calc(0.26 + var(--bf-fold, 0) * 0.12));
   }
 }
 
@@ -1757,6 +1923,25 @@ html.demolishing {
   transform: translate(-50%, 0);
 }
 
+/* Fireflies (see Fireflies.tsx): a quiet glow behind the page; while the
+   visitor is idle they come to the front to gather round the cursor. */
+.fireflies-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.fireflies-canvas.is-front {
+  z-index: 80;
+}
+
+html.demolishing .fireflies-canvas {
+  visibility: hidden;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bf-wings,
   .bf-core,
@@ -1809,6 +1994,24 @@ html.demolishing {
   top: -5px;
   border-bottom: 0;
   border-right: 0;
+}
+
+/* A butterfly's speech bubble (reuses the balloon look; see CyberButterfly). */
+.cyber-say {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 90;
+  width: max-content;
+  max-width: min(15rem, calc(100vw - 1.5rem));
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.25s;
+  will-change: transform;
+}
+
+.cyber-say.is-shown {
+  opacity: 1;
 }
 
 .tip-floating {

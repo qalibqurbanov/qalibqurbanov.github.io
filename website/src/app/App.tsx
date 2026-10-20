@@ -6,6 +6,7 @@ import { AmbientBackground } from "@/components/ui/AmbientBackground";
 import { BackToTop } from "@/components/ui/BackToTop";
 import { ContextMenu } from "@/components/ui/ContextMenu";
 import { CyberButterfly } from "@/components/ui/CyberButterfly";
+import { Fireflies } from "@/components/ui/Fireflies";
 import { TooltipLayer } from "@/components/ui/TooltipLayer";
 import { CursorGlow } from "@/components/ui/CursorGlow";
 import { CustomCursor } from "@/components/ui/CustomCursor";
@@ -31,7 +32,7 @@ export function App() {
   useEasterEggs(ui.terminal.konami);
 
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
       <AmbientBackground />
       <CursorGlow />
       <CustomCursor />
@@ -53,6 +54,7 @@ export function App() {
       <Footer />
       <BackToTop />
       <CyberButterfly />
+      <Fireflies />
 
       {resumeOpen ? (
         <ResumeViewer onBack={closeProject} />

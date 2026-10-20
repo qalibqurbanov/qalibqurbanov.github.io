@@ -1,6 +1,5 @@
-import { useMemo, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
-import { useScrollParallax } from "@/hooks/useScrollPosition";
 import { useThemeValue } from "@/theme/context";
 
 const STAR_COUNT = 34;
@@ -44,72 +43,75 @@ function generateStars(count: number): Star[] {
   });
 }
 
-/** Fixed, blurred glow blobs drifting slowly behind the whole page — the
+/** Blurred glow blobs drifting slowly behind the whole page — the
  * ambient motion that keeps the site feeling alive between sections. Dark
  * theme also gets a faint field of individually-animated stars, since stars
  * only read as "night" once the background actually goes dark.
  *
- * Every piece sits in its own `.parallax-layer` wrapper with a `--depth`, so
- * the whole background shifts with scroll instead of sitting frozen behind
- * the page — and anything added here later just needs the same wrapper to
- * join in, no extra scroll wiring required. */
+ * The field is one screen tall and repeated down the whole page, as part of the
+ * page itself, so it scrolls with the content (like the butterflies). */
 export function AmbientBackground() {
   const theme = useThemeValue();
   const stars = useMemo(() => generateStars(STAR_COUNT), []);
-  useScrollParallax();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [tiles, setTiles] = useState(3);
 
-  return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
-      {theme === "dark" && (
-        <div
-          className="parallax-layer absolute inset-0"
-          style={{ "--depth": -0.08 } as CSSProperties}
-        >
-          {stars.map((star) => (
-            <span
-              key={star.id}
-              className="star-dot"
-              style={
-                {
-                  top: `${star.top}%`,
-                  left: `${star.left}%`,
-                  width: `${star.size}px`,
-                  height: `${star.size}px`,
-                  animationDuration: `${star.duration}s`,
-                  animationDelay: `${star.delay}s`,
-                  "--op-a": star.opacityMin,
-                  "--op-b": star.opacityMax,
-                  "--scale-a": star.scaleMin,
-                  "--scale-b": star.scaleMax,
-                  "--dx": `${star.dx}px`,
-                  "--dy": `${star.dy}px`,
-                } as CSSProperties
-              }
-            />
-          ))}
-        </div>
-      )}
-      <div
-        className="parallax-layer absolute -top-32 -left-24 w-[520px] h-[520px]"
-        style={{ "--depth": -0.04 } as CSSProperties}
-      >
+  // One tile per screen height of the page; the container is part of the page, so
+  // the browser scrolls it natively (smooth, on the compositor) with no JS.
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    const measure = () => setTiles(Math.min(40, Math.max(1, Math.ceil(el.offsetHeight / Math.max(1, window.innerHeight)))));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
+  const field = (key: number) => (
+    <div key={key} className="relative w-full" style={{ height: "100vh" }}>
+      {theme === "dark" &&
+        stars.map((star) => (
+          <span
+            key={star.id}
+            className="star-dot"
+            style={
+              {
+                top: `${star.top}%`,
+                left: `${star.left}%`,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDuration: `${star.duration}s`,
+                animationDelay: `${star.delay}s`,
+                "--op-a": star.opacityMin,
+                "--op-b": star.opacityMax,
+                "--scale-a": star.scaleMin,
+                "--scale-b": star.scaleMax,
+                "--dx": `${star.dx}px`,
+                "--dy": `${star.dy}px`,
+              } as CSSProperties
+            }
+          />
+        ))}
+      <div className="absolute -top-32 -left-24 w-[520px] h-[520px]">
         <div className="w-full h-full rounded-full bg-accent/10 blur-3xl blob-drift-a" />
       </div>
-      <div
-        className="parallax-layer absolute bottom-[-15%] -right-24 w-[560px] h-[560px]"
-        style={{ "--depth": -0.02 } as CSSProperties}
-      >
+      <div className="absolute bottom-[-15%] -right-24 w-[560px] h-[560px]">
         <div className="w-full h-full rounded-full bg-accent-2/10 blur-3xl blob-drift-b" />
       </div>
-      <div
-        className="parallax-layer absolute top-1/2 left-1/2 -ml-[220px] -mt-[220px] w-[440px] h-[440px]"
-        style={{ "--depth": -0.06 } as CSSProperties}
-      >
-        <div
-          className="w-full h-full rounded-full bg-accent/5 blur-3xl blob-drift-a"
-          style={{ animationDelay: "-9s" }}
-        />
+      <div className="absolute top-1/2 left-1/2 -ml-[220px] -mt-[220px] w-[440px] h-[440px]">
+        <div className="w-full h-full rounded-full bg-accent/5 blur-3xl blob-drift-a" style={{ animationDelay: "-9s" }} />
       </div>
+    </div>
+  );
+
+  return (
+    <div ref={rootRef} className="absolute inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
+      {Array.from({ length: tiles }, (_, i) => field(i))}
     </div>
   );
 }

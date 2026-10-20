@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, type Connect, type Plugin } from "vite";
 
 import { localizedHtml } from "./localized-html.ts";
 
@@ -95,6 +95,33 @@ async function fetchRepoStats() {
 
 const repoStats = await fetchRepoStats();
 
+// GitHub Pages serves public/404.html for unknown URLs; Vite's dev and preview
+// servers would instead answer them with the SPA. This mirrors Pages locally:
+// only the real pages (/, /en/, /az/, /ru/) and file requests get through,
+// anything else is answered with 404.html and a 404 status.
+function notFoundPage(): Plugin {
+  const pages = new Set(["/", "/index.html", "/en/", "/az/", "/ru/"]);
+  const middleware: Connect.NextHandleFunction = (req, res, next) => {
+    const pathname = (req.url ?? "/").split(/[?#]/)[0];
+    // Dev-only internals (/@vite, /src/..., /node_modules/...) and anything with an extension.
+    const passthrough = pages.has(pathname) || /\.[a-z0-9]+$/i.test(pathname) || /^\/(@|src\/|node_modules\/)/.test(pathname);
+    if (passthrough) return next();
+    try {
+      const html = fs.readFileSync(path.resolve(dirname, "../public/404.html"));
+      res.statusCode = 404;
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.end(html);
+    } catch {
+      next();
+    }
+  };
+  return {
+    name: "not-found-page",
+    configureServer: (server) => void server.middlewares.use(middleware),
+    configurePreviewServer: (server) => void server.middlewares.use(middleware),
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   // Absolute base: localized pages live at /az/ and /ru/, so a relative
@@ -102,7 +129,7 @@ export default defineConfig({
   // user/org root site (username.github.io), which also matches the absolute
   // "/favicon.svg" and "/resume.pdf" references already in use.
   base: "/",
-  plugins: [react(), localizedHtml()],
+  plugins: [react(), localizedHtml(), notFoundPage()],
   define: {
     __BUILD_INFO__: JSON.stringify(buildInfo),
     __REPO_STATS__: JSON.stringify(repoStats),

@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#07060d" />
+    <title>404 | Page not found</title>
+    <script>
+      // Same theme rule as the main site, applied before first paint.
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          var theme =
+            stored === "light" || stored === "dark"
+              ? stored
+              : window.matchMedia("(prefers-color-scheme: light)").matches
+                ? "light"
+                : "dark";
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Onest:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #07060d;
+        --surface: #100e19;
+        --surface-2: #161324;
+        --border: #282340;
+        --accent: #b185ff;
+        --accent-2: #22d3ee;
+        --text: #ebe9f5;
+        --muted: #8d89a6;
+        --danger: #f87171;
+        --grid: rgba(190, 170, 255, 0.05);
+        --glow: rgba(177, 133, 255, 0.18);
+        --glow-2: rgba(34, 211, 238, 0.14);
+        --shadow: rgba(0, 0, 0, 0.55);
+        --mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+      }
+      :root[data-theme="light"] {
+        --bg: #f8f7fc;
+        --surface: #ffffff;
+        --surface-2: #f1eff8;
+        --border: #e3e0ef;
+        --accent: #6d28d9;
+        --accent-2: #0e7490;
+        --text: #16131f;
+        --muted: #656079;
+        --danger: #dc2626;
+        --grid: rgba(30, 10, 80, 0.05);
+        --glow: rgba(109, 40, 217, 0.1);
+        --glow-2: rgba(14, 116, 144, 0.1);
+        --shadow: rgba(40, 20, 90, 0.25);
+      }
+      * { box-sizing: border-box; margin: 0; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        height: 100vh;
+        height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 12px 16px;
+        overflow: hidden;
+        color: var(--text);
+        font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+        background:
+          radial-gradient(700px 460px at 12% 8%, var(--glow), transparent 70%),
+          radial-gradient(700px 460px at 88% 92%, var(--glow-2), transparent 70%),
+          linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 40px 40px,
+          linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 40px 40px,
+          var(--bg);
+      }
+
+      /* Sized by whichever is tighter, width or height, so everything fits the
+         viewport without scrolling. Type inside scales with it (container units). */
+      .pc {
+        width: min(720px, 100%, calc((100dvh - 170px) * 1.6));
+        min-width: 280px;
+        padding-top: 62px;
+        container-type: inline-size;
+      }
+      .stage { position: relative; }
+
+      /* ---------- The window (same chrome as the hero window) ---------- */
+      .win {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        aspect-ratio: 16 / 10;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--surface);
+        box-shadow: 0 30px 70px -28px var(--shadow), 0 0 70px -24px var(--glow);
+        animation: appear 0.5s ease-out both;
+      }
+      @keyframes appear { from { opacity: 0; transform: translateY(8px); } }
+      .titlebar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 5px 6px 5px 14px;
+        background: var(--surface-2);
+        border-bottom: 1px solid var(--border);
+      }
+      .file {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font: 400 11px var(--mono);
+        color: var(--muted);
+        min-width: 0;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px; height: 16px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        font: 700 8px var(--mono);
+        background-image: linear-gradient(90deg, var(--accent), var(--accent-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        flex: none;
+      }
+      .controls { display: flex; gap: 2px; flex: none; }
+      .ctl {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px; height: 22px;
+        border-radius: 4px;
+        color: var(--muted);
+        opacity: 0.45;
+        cursor: not-allowed;
+        transition: background-color 0.15s, color 0.15s;
+      }
+      .ctl:hover { background: var(--border); color: var(--text); }
+      .ctl.close:hover { background: #e81123; color: #fff; }
+      .ctl svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+      .content {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: clamp(8px, 3cqw, 26px) clamp(14px, 4.5cqw, 38px);
+      }
+      .code {
+        font: 800 clamp(40px, 14cqw, 112px) / 0.95 "Onest", ui-sans-serif, sans-serif;
+        letter-spacing: -0.04em;
+        width: fit-content;
+        color: transparent;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        animation: glitch 5s infinite steps(1);
+      }
+      @keyframes glitch {
+        0%, 92%, 100% { transform: none; filter: none; }
+        93% { transform: translate(-3px, 0) skewX(-4deg); filter: drop-shadow(3px 0 var(--danger)); }
+        95% { transform: translate(3px, 1px); filter: drop-shadow(-3px 0 var(--accent-2)); }
+        97% { transform: translate(-1px, 0); filter: none; }
+      }
+      h1 {
+        margin-top: 6px;
+        font: 700 clamp(14px, 3cqw, 22px) "Onest", ui-sans-serif, sans-serif;
+      }
+      .term {
+        margin-top: clamp(6px, 1.8cqw, 16px);
+        font: 400 clamp(9.5px, 1.7cqw, 13px) / 1.75 var(--mono);
+        color: var(--muted);
+        word-break: break-all;
+      }
+      .term div { min-height: 1.75em; }
+      .term b { color: var(--accent-2); font-weight: 500; }
+      .term .err { color: var(--danger); }
+      .term .path { color: var(--text); }
+      .term .ls a { color: var(--accent); text-decoration: none; margin-right: 12px; border-bottom: 1px dashed transparent; }
+      .term .ls a:hover, .term .ls a:focus-visible { border-color: currentColor; outline: none; }
+      .cursor {
+        display: inline-block;
+        width: 0.55em; height: 1.05em;
+        vertical-align: text-bottom;
+        background: var(--accent);
+        animation: blink 1s steps(1) infinite;
+      }
+      @keyframes blink { 50% { opacity: 0; } }
+
+      .actions { margin-top: clamp(6px, 1.8cqw, 16px); display: flex; flex-wrap: wrap; gap: 8px; opacity: 0; transform: translateY(6px); transition: opacity 0.4s, transform 0.4s; }
+      .actions.show { opacity: 1; transform: none; }
+      a.btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 14px;
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        font: 500 clamp(9.5px, 1.6cqw, 12px) var(--mono);
+        color: var(--text);
+        text-decoration: none;
+        transition: border-color 0.15s, color 0.15s, transform 0.15s, filter 0.15s;
+      }
+      a.btn:hover, a.btn:focus-visible { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); outline: none; }
+      a.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+      a.btn.primary:hover, a.btn.primary:focus-visible { color: var(--bg); filter: brightness(1.12); }
+
+      .status {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 4px 14px;
+        border-top: 1px solid var(--border);
+        background: var(--surface-2);
+        font: 400 10px var(--mono);
+        color: var(--muted);
+      }
+      .status .bad { color: var(--danger); }
+
+      .keyhint {
+        margin-top: 16px;
+        text-align: center;
+        font: 500 11px var(--mono);
+        color: var(--muted);
+      }
+      kbd {
+        font: inherit;
+        padding: 2px 7px;
+        border: 1px solid var(--border);
+        border-bottom-width: 2px;
+        border-radius: 5px;
+        background: var(--surface-2);
+        color: var(--text);
+      }
+
+      /* ---------- The sleeping butterfly (the site's cyber butterfly) ---------- */
+      .sleeper {
+        position: absolute;
+        right: 14%;
+        /* The body ends ~13px above the SVG's bottom edge, so this sits it on the title bar. */
+        bottom: calc(100% - 6px);
+        width: 80px;
+        height: 80px;
+        z-index: 3;
+        pointer-events: none;
+        transform: rotate(-5deg);
+        transform-origin: 50% 90%;
+        animation: breathe 4.5s ease-in-out infinite;
+      }
+      .sleeper svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        filter: drop-shadow(0 0 4px var(--accent-2)) drop-shadow(0 0 12px var(--accent));
+      }
+      @keyframes breathe { 50% { transform: rotate(-5deg) scale(1.035, 1.02); } }
+      .bf-wings { transform-origin: 60px 60px; animation: wings 4.5s ease-in-out infinite; }
+      @keyframes wings { 0%, 100% { transform: scaleX(0.3); } 50% { transform: scaleX(0.38); } }
+      .bf-core { animation: core 2.4s ease-in-out infinite; }
+      @keyframes core { 50% { opacity: 0.3; } }
+
+      .zzz {
+        position: absolute;
+        left: 68%;
+        top: 6%;
+        font: 700 15px var(--mono);
+        color: var(--accent-2);
+        text-shadow: 0 0 8px var(--accent-2);
+        opacity: 0;
+        animation: zzz 3.6s ease-in infinite;
+      }
+      .zzz:nth-of-type(2) { animation-delay: 1.2s; font-size: 19px; }
+      .zzz:nth-of-type(3) { animation-delay: 2.4s; font-size: 24px; }
+      @keyframes zzz {
+        0% { transform: translate(0, 4px) rotate(-8deg) scale(0.7); opacity: 0; }
+        15% { opacity: 0.95; }
+        100% { transform: translate(22px, -34px) rotate(10deg) scale(1.15); opacity: 0; }
+      }
+
+      @media (max-width: 520px) {
+        .win { aspect-ratio: 3 / 4; }
+        .keyhint { display: none; }
+        .status span:last-child { display: none; }
+        .pc { padding-top: 50px; }
+        .sleeper { width: 64px; height: 64px; bottom: calc(100% - 5px); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .win, .code, .cursor, .sleeper, .bf-wings, .bf-core { animation: none; }
+        .bf-wings { transform: scaleX(0.32); }
+        .zzz { animation: none; opacity: 0.8; }
+        .zzz:nth-of-type(2) { transform: translate(10px, -14px); }
+        .zzz:nth-of-type(3) { transform: translate(20px, -30px); }
+        .actions { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="pc">
+      <div class="stage">
+        <div class="sleeper" aria-hidden="true">
+          <svg viewBox="0 0 120 120" focusable="false">
+            <defs>
+              <linearGradient id="bf-grad" x1="0" y1="0" x2="1" y2="1" spreadMethod="reflect">
+                <stop offset="0" stop-color="var(--accent-2)" />
+                <stop offset="0.5" stop-color="var(--accent)" />
+                <stop offset="1" stop-color="var(--accent-2)" />
+                <animateTransform attributeName="gradientTransform" type="translate" from="-0.6 -0.6" to="0.6 0.6" dur="3.4s" repeatCount="indefinite" />
+              </linearGradient>
+              <pattern id="bf-scan" width="4" height="3" patternUnits="userSpaceOnUse">
+                <rect width="4" height="1" fill="#fff" fill-opacity="0.22" />
+              </pattern>
+              <g id="bf-half">
+                <polygon points="64,54 78,28 104,10 117,24 109,52 90,63 65,62" fill="url(#bf-grad)" fill-opacity="0.3" stroke="url(#bf-grad)" stroke-width="1.5" stroke-linejoin="round" />
+                <polygon points="65,66 91,71 103,93 90,111 72,98 63,78" fill="url(#bf-grad)" fill-opacity="0.22" stroke="url(#bf-grad)" stroke-width="1.5" stroke-linejoin="round" />
+                <polygon points="64,54 78,28 104,10 117,24 109,52 90,63 65,62" fill="url(#bf-scan)" />
+                <polygon points="65,66 91,71 103,93 90,111 72,98 63,78" fill="url(#bf-scan)" />
+                <path d="M66 56 L88 30 L104 17 M82 53 L99 35 L112 27 M69 68 L92 80 L99 94 M76 80 L85 99" fill="none" stroke="#fff" stroke-opacity="0.8" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="104" cy="17" r="1.9" fill="#fff" />
+                <circle cx="112" cy="27" r="1.6" fill="#fff" />
+                <circle cx="99" cy="94" r="1.8" fill="#fff" />
+                <circle cx="85" cy="99" r="1.5" fill="#fff" />
+              </g>
+            </defs>
+            <g class="bf-wings">
+              <use href="#bf-half" />
+              <use href="#bf-half" transform="translate(120 0) scale(-1 1)" />
+            </g>
+            <path d="M60 36 Q64 41 63.5 60 Q63 82 60 95 Q57 82 56.5 60 Q56 41 60 36Z" fill="#fff" fill-opacity="0.9" stroke="var(--accent-2)" stroke-width="1" />
+            <circle cx="60" cy="32.5" r="4.2" fill="#fff" stroke="var(--accent-2)" stroke-width="1" />
+            <path d="M58.6 29.5 Q52 18 44 9 M61.4 29.5 Q68 18 76 9" fill="none" stroke="var(--accent-2)" stroke-width="1.1" stroke-linecap="round" />
+            <circle cx="44" cy="9" r="1.7" fill="var(--accent)" />
+            <circle cx="76" cy="9" r="1.7" fill="var(--accent)" />
+            <circle class="bf-core" cx="60" cy="58" r="2.6" fill="var(--accent-2)" />
+          </svg>
+          <span class="zzz">z</span><span class="zzz">z</span><span class="zzz">Z</span>
+        </div>
+
+        <div class="win">
+          <div class="titlebar">
+            <span class="file"><span class="badge" aria-hidden="true">QQ</span>404.html</span>
+            <span class="controls" aria-hidden="true">
+              <span class="ctl"><svg viewBox="0 0 12 12"><path d="M2 6h8" /></svg></span>
+              <span class="ctl"><svg viewBox="0 0 12 12"><rect x="2.5" y="2.5" width="7" height="7" /></svg></span>
+              <span class="ctl close"><svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" /></svg></span>
+            </span>
+          </div>
+          <main class="content">
+            <div class="code" aria-hidden="true">404</div>
+            <h1 id="title">Page not found</h1>
+            <div class="term">
+              <div id="l1"></div>
+              <div class="err" id="l2"></div>
+              <div id="l3"></div>
+              <div class="ls" id="l4"></div>
+              <div id="l5"><b>$</b> <span class="cursor"></span></div>
+            </div>
+            <div class="actions" id="actions">
+              <a class="btn primary" id="home" href="/en/"></a>
+              <a class="btn" id="back" href="#"></a>
+            </div>
+          </main>
+          <div class="status">
+            <span class="bad">● HTTP 404</span>
+            <span id="where"></span>
+          </div>
+        </div>
+      </div>
+      <p class="keyhint"><kbd>Enter</kbd> <span id="hintText"></span></p>
+    </div>
+
+    <script>
+      (function () {
+        var T = {
+          en: {
+            title: "Page not found",
+            doc: "404 | Page not found",
+            err: "bash: no such file or directory",
+            ls: ["about", "experience", "projects", "skills", "contact"],
+            home: "cd ~ (home)",
+            back: "go back",
+            hint: "to head home",
+          },
+          az: {
+            title: "Səhifə tapılmadı",
+            doc: "404 | Səhifə tapılmadı",
+            err: "bash: belə fayl və ya qovluq yoxdur",
+            ls: ["haqqımda", "təcrübə", "layihələr", "bacarıqlar", "əlaqə"],
+            home: "cd ~ (ana səhifə)",
+            back: "geri qayıt",
+            hint: "ana səhifəyə keçmək üçün",
+          },
+          ru: {
+            title: "Страница не найдена",
+            doc: "404 | Страница не найдена",
+            err: "bash: нет такого файла или каталога",
+            ls: ["обо-мне", "опыт", "проекты", "навыки", "контакты"],
+            home: "cd ~ (на главную)",
+            back: "назад",
+            hint: "чтобы вернуться на главную",
+          },
+        };
+        var ANCHORS = ["about", "experience", "projects", "skills", "contact"];
+
+        var locale = "en";
+        var segment = (location.pathname.split("/")[1] || "").toLowerCase();
+        if (T[segment]) {
+          locale = segment;
+        } else {
+          try {
+            var stored = localStorage.getItem("portfolio:locale");
+            if (stored && T[stored]) locale = stored;
+            else {
+              var langs = navigator.languages || [navigator.language];
+              for (var i = 0; i < langs.length; i++) {
+                var code = String(langs[i]).slice(0, 2).toLowerCase();
+                if (T[code]) { locale = code; break; }
+              }
+            }
+          } catch (e) {}
+        }
+
+        var t = T[locale];
+        var homeUrl = "/" + locale + "/";
+        var path = location.pathname.replace(/^\//, "") || "index";
+        var $ = function (id) { return document.getElementById(id); };
+
+        document.documentElement.lang = locale;
+        document.title = t.doc;
+        $("title").textContent = t.title;
+        $("hintText").textContent = t.hint;
+        $("where").textContent = location.host + location.pathname;
+        var home = $("home");
+        home.textContent = t.home;
+        home.href = homeUrl;
+        var back = $("back");
+        back.textContent = t.back;
+        back.addEventListener("click", function (event) {
+          event.preventDefault();
+          if (history.length > 1) history.back();
+          else location.href = homeUrl;
+        });
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" && !event.target.closest("a")) location.href = homeUrl;
+        });
+
+        // Typed-out terminal session.
+        var prompt = "<b>$</b> ";
+        var esc = function (s) { return s.replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); };
+        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var cursor = '<span class="cursor"></span>';
+        var l5 = $("l5");
+        l5.innerHTML = prompt + cursor;
+
+        function lsHtml() {
+          return t.ls.map(function (name, i) {
+            return '<a href="' + homeUrl + "#" + ANCHORS[i] + '">' + esc(name) + "/</a>";
+          }).join("");
+        }
+
+        function type(el, text, done) {
+          if (reduce) { el.innerHTML = prompt + '<span class="path">' + esc(text) + "</span>"; done(); return; }
+          var n = 0;
+          (function step() {
+            el.innerHTML = prompt + '<span class="path">' + esc(text.slice(0, n)) + "</span>" + cursor;
+            if (n++ < text.length) setTimeout(step, 28 + Math.random() * 40);
+            else setTimeout(function () { el.innerHTML = prompt + '<span class="path">' + esc(text) + "</span>"; done(); }, 120);
+          })();
+        }
+
+        function run() {
+          l5.style.visibility = "hidden";
+          type($("l1"), "cat " + path, function () {
+            $("l2").textContent = t.err;
+            setTimeout(function () {
+              type($("l3"), "ls ~", function () {
+                $("l4").innerHTML = lsHtml();
+                l5.style.visibility = "visible";
+                $("actions").classList.add("show");
+              });
+            }, reduce ? 0 : 350);
+          });
+        }
+        setTimeout(run, reduce ? 0 : 500);
+      })();
+    </script>
+  </body>
+</html>

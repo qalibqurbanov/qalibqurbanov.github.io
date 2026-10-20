@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 
+import { idleProgress, idleShow, wake } from "@/lib/idle";
+
 type CursorState = "default" | "link" | "field" | "code" | "grab";
 
 const FIELD =
@@ -48,6 +50,44 @@ export function CustomCursor() {
     let scrollFrame = 0;
     let seen = false;
     let state: CursorState = "default";
+    // While the visitor is away, the ring fills and the dot turns into a butterfly:
+    // the countdown to the butterflies (see lib/idle). Only touched when it changes.
+    let idleFrame = 0;
+    let lastP = -1;
+    let lastShow = -1;
+    // What is drawn eases toward what the clock says: it fades in with the
+    // countdown, and when the visitor moves again it fades out over about
+    // a fifth of a second instead of snapping away (the progress holds its
+    // last value while it fades).
+    let shown = 0;
+    let heldP = 0;
+    let tickAt = 0;
+    let wasBroken = false;
+    const idleTick = (now: number) => {
+      const dt = Math.min(0.05, (now - (tickAt || now)) / 1000);
+      tickAt = now;
+      // While the page is in ruins (the butterfly demolition) the idle cursor stays away;
+      // once the site is back the countdown starts afresh.
+      const broken = document.documentElement.classList.contains("demolishing");
+      if (wasBroken && !broken) wake();
+      wasBroken = broken;
+      const target = broken ? 0 : idleShow(now);
+      shown += (target - shown) * (1 - Math.exp(-(target > shown ? 14 : 12) * dt));
+      if (target === 0 && shown < 0.003) shown = 0;
+      if (target > 0.01) heldP = idleProgress(now);
+      else if (shown === 0) heldP = 0;
+      const p = heldP;
+      const show = shown;
+      if (Math.abs(p - lastP) > 0.002 || Math.abs(show - lastShow) > 0.004) {
+        lastP = p;
+        lastShow = show;
+        root.style.setProperty("--idle-p", p.toFixed(4));
+        root.style.setProperty("--idle-show", show.toFixed(3));
+        root.classList.toggle("is-idle", show > 0.01);
+        root.classList.toggle("is-idle-done", p >= 1);
+      }
+      idleFrame = requestAnimationFrame(idleTick);
+    };
 
     const setState = (next: CursorState) => {
       if (next === state) return;
@@ -71,6 +111,7 @@ export function CustomCursor() {
         ringX = x;
         ringY = y;
         document.documentElement.classList.add("has-cursor");
+        idleFrame = requestAnimationFrame(idleTick);
       }
       root.classList.add("is-on");
       dot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
@@ -104,6 +145,7 @@ export function CustomCursor() {
     return () => {
       cancelAnimationFrame(frame);
       cancelAnimationFrame(scrollFrame);
+      cancelAnimationFrame(idleFrame);
       window.removeEventListener("pointermove", handleMove);
       window.removeEventListener("pointerdown", handleDown);
       window.removeEventListener("pointerup", handleUp);
@@ -117,10 +159,29 @@ export function CustomCursor() {
   return (
     <div ref={rootRef} className="custom-cursor" data-state="default" aria-hidden="true">
       <span ref={ringRef} className="custom-cursor-pos">
-        <span className="custom-cursor-ring" />
+        <span className="custom-cursor-ring">
+          <span className="custom-cursor-sweep" />
+          <span className="custom-cursor-arc" />
+          <span className="custom-cursor-ping" />
+        </span>
       </span>
       <span ref={dotRef} className="custom-cursor-pos">
         <span className="custom-cursor-dot" />
+        <svg className="custom-cursor-bf" viewBox="0 0 120 120" focusable="false">
+          <g className="custom-cursor-bf-wings">
+            <g className="custom-cursor-bf-wing">
+              <path d="M60 58 C54 34 30 12 12 20 C2 26 8 48 28 56 C40 60 52 60 60 58Z" />
+              <path d="M60 64 C52 66 34 68 28 82 C22 98 40 108 51 94 C57 85 60 74 60 64Z" />
+            </g>
+            <g className="custom-cursor-bf-wing" transform="translate(120 0) scale(-1 1)">
+              <path d="M60 58 C54 34 30 12 12 20 C2 26 8 48 28 56 C40 60 52 60 60 58Z" />
+              <path d="M60 64 C52 66 34 68 28 82 C22 98 40 108 51 94 C57 85 60 74 60 64Z" />
+            </g>
+          </g>
+          <path className="custom-cursor-bf-body" d="M60 42 C63.5 58 62.5 76 60 91 C57.5 76 56.5 58 60 42Z" />
+          <circle className="custom-cursor-bf-head" cx="60" cy="37" r="4.2" />
+          <path className="custom-cursor-bf-ant" d="M58.6 34 C55 26 50 21 44 18 M61.4 34 C65 26 70 21 76 18" />
+        </svg>
       </span>
     </div>
   );

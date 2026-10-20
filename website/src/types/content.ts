@@ -217,6 +217,8 @@ export interface UiStrings {
     hint: string;
     /** The calmer variants (reduced motion) come back on any key. */
     hintAny: string;
+    /** Short nags the butterflies say while they circle an idle cursor. */
+    idle: string[];
   };
   /** Hover tooltips and screen-reader labels for icon-only controls. Brand names (GitHub, LinkedIn…) stay literal in the components. */
   labels: {
