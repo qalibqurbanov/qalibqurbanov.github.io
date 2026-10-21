@@ -219,6 +219,8 @@ export interface UiStrings {
     hintAny: string;
     /** Short nags the butterflies say while they circle an idle cursor. */
     idle: string[];
+    /** Said when the pointer touches a butterfly. */
+    hover: string[];
   };
   /** Hover tooltips and screen-reader labels for icon-only controls. Brand names (GitHub, LinkedIn…) stay literal in the components. */
   labels: {

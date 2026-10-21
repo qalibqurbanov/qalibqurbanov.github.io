@@ -145,6 +145,24 @@ export class ButterflyFlight {
     return this.mode === "hang";
   }
 
+  /** Flinches away from a point (the pointer): lets go of whatever it was doing and darts a
+   * short way in the opposite direction. Returns false while it circles the cursor, which it won't leave. */
+  startle(view: View, from: { x: number; y: number }): boolean {
+    if (this.mode === "orbit") return false;
+    if (this.mode === "hang") this.leave(view, true);
+    else if (this.mode === "land") this.leave(view, false);
+    const away = Math.atan2(this.y - from.y, this.x - from.x) + rand(-0.6, 0.6);
+    const reach = rand(150, 230);
+    this.gx = clamp(this.x + Math.cos(away) * reach, 20, view.w - 20);
+    this.gy = clamp(this.y + Math.sin(away) * reach, 20, Math.max(40, view.docH - 20));
+    this.mode = "fly";
+    this.goalAge = 0;
+    this.heading = Math.atan2(this.gy - this.y, this.gx - this.x);
+    this.turn = 0;
+    this.speed = Math.max(this.speed, 320);
+    return true;
+  }
+
   /** Gives up the approach, or lets go after hanging: it lifts off sideways and
    * a little upward, from a standstill, and the speed eases up from there. */
   private leave(view: View, fromHang: boolean): void {

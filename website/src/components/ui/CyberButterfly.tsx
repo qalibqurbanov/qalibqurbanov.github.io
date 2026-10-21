@@ -28,6 +28,19 @@ interface Bug {
   sayShown: boolean;
   sayUntil: number;
   nextSay: number;
+  /** The bubble shows a hover reply (not an AFK nag), so it stays until it has been read. */
+  hoverSay: boolean;
+  /** The bubble's size, measured when its text is set. */
+  sayW: number;
+  sayH: number;
+  sayBelow: boolean;
+  /** Earliest time for the next reply to a hover. */
+  nextHoverSay: number;
+  /** How many times it has darted away from the pointer lately. */
+  dodges: number;
+  dodgeResetAt: number;
+  /** Wings beat fast until then. */
+  startleUntil: number;
 }
 
 interface Trail {
@@ -44,6 +57,22 @@ interface Trail {
 }
 
 const MAX_TRAIL = 240;
+/** How long a message stays up: this much, plus a little per character so longer ones can be read. */
+const SAY_BASE_MS = 3600;
+const SAY_PER_CHAR_MS = 60;
+/** A message is not repeated until this many others have been shown. */
+const RECENT_LINES = 10;
+/** A butterfly darts away from the pointer this many times, then lets itself be caught. */
+const MAX_DODGES = 3;
+/** The dodges are counted again after this long without one. */
+const DODGE_RESET_MS = 8000;
+/** The least time between two replies from the same butterfly. */
+// const HOVER_REPLY_GAP_MS = 4000;
+/** How far the bubble's little trail of circles reaches from its edge to the butterfly. */
+const SAY_TAIL = 22;
+/** Wings beat fast this long after the pointer touches it. */
+const STARTLE_MS = 1200;
+const STARTLED_FLAP = 0.08;
 /** How many butterflies roam the page. */
 const COUNT = 5;
 const BUTTERFLIES = Array.from({ length: COUNT }, (_, n) => n);
@@ -216,13 +245,15 @@ export function CyberButterfly() {
   const threadRefs = useRef<Array<HTMLDivElement | null>>([]);
   const sayRefs = useRef<Array<HTMLDivElement | null>>([]);
   const idleRef = useRef(ui.butterfly.idle);
+  const hoverRef = useRef(ui.butterfly.hover);
   const trailRef = useRef<HTMLCanvasElement>(null);
   const hintRef = useRef({ hint: ui.butterfly.hint, hintAny: ui.butterfly.hintAny });
 
   useEffect(() => {
     hintRef.current = { hint: ui.butterfly.hint, hintAny: ui.butterfly.hintAny };
     idleRef.current = ui.butterfly.idle;
-  }, [ui.butterfly.hint, ui.butterfly.hintAny, ui.butterfly.idle]);
+    hoverRef.current = ui.butterfly.hover;
+  }, [ui.butterfly.hint, ui.butterfly.hintAny, ui.butterfly.idle, ui.butterfly.hover]);
 
   useEffect(() => {
     // Starts after the first paint: measuring the page while React is still inserting it
@@ -267,7 +298,7 @@ export function CyberButterfly() {
         const flight = new ButterflyFlight(size, view());
         flight.finder = calm ? null : (x, y) => findPerch(x, y, size, docH);
         if (i > 0) flight.scatter(view());
-        return { flight, body, hit, size, sleep: 0, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0 };
+        return { flight, body, hit, size, sleep: 0, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0, hoverSay: false, sayW: 0, sayH: 0, sayBelow: false, nextHoverSay: 0, dodges: 0, dodgeResetAt: 0, startleUntil: 0 };
       });
       const rest = () => {
         bugs.forEach((b, i) => {
@@ -334,23 +365,37 @@ export function CyberButterfly() {
         return Math.hypot(cx - p.x, cy - p.y) < bug.hit * 0.45;
       };
 
-      // Lines come out of a shuffled bag, so every one is used before any repeats.
-      let bag: number[] = [];
-      let lastSay = -1;
-      const nextLine = (count: number): number => {
-        bag = bag.filter((i) => i < count);
-        if (bag.length === 0) {
-          bag = Array.from({ length: count }, (_, i) => i).sort(() => Math.random() - 0.5);
-          // Never open a fresh round with the line that closed the last one.
-          if (count > 1 && bag[bag.length - 1] === lastSay) bag.unshift(bag.pop() as number);
-        }
-        lastSay = bag.pop() as number;
-        return lastSay;
+      // Each line is picked at random, but never one of the last few that were shown.
+      const linePicker = () => {
+        const recent: number[] = [];
+        return (count: number): number => {
+          const skip = Math.min(RECENT_LINES, count - 1);
+          // A language switch can change the list under it.
+          recent.splice(0, recent.length, ...(skip > 0 ? recent.filter((i) => i < count).slice(-skip) : []));
+          let pick: number;
+          do {
+            pick = Math.floor(Math.random() * count);
+          } while (recent.includes(pick));
+          recent.push(pick);
+          return pick;
+        };
       };
+      const pickIdleLine = linePicker();
+      // const pickHoverLine = linePicker();
       const hideSay = (bug: Bug, now: number) => {
         bug.say.classList.remove("is-shown");
         bug.sayShown = false;
+        bug.hoverSay = false;
         bug.nextSay = now + 3500 + Math.random() * 4000;
+      };
+      const showSay = (bug: Bug, text: string, now: number, reply: boolean) => {
+        bug.say.textContent = text;
+        bug.say.classList.add("is-shown");
+        bug.sayShown = true;
+        bug.hoverSay = reply;
+        bug.sayUntil = now + SAY_BASE_MS + text.length * SAY_PER_CHAR_MS;
+        bug.sayW = bug.say.offsetWidth;
+        bug.sayH = bug.say.offsetHeight;
       };
 
       const frame = (now: number) => {
@@ -373,7 +418,8 @@ export function CyberButterfly() {
                 bug.sleep = 0;
               }
             }
-            const wanted = calm ? 0.45 : Math.min(0.34, Math.max(0.15, 0.4 - flight.speed / 700));
+            const startled = bug.hover || now < bug.startleUntil;
+            const wanted = calm ? 0.45 : startled ? STARTLED_FLAP : Math.min(0.34, Math.max(0.15, 0.4 - flight.speed / 700));
             if (Math.abs(wanted - bug.flap) > 0.015) {
               bug.flap = wanted;
               body.style.setProperty("--bf-flap", `${bug.flap.toFixed(3)}s`);
@@ -384,6 +430,22 @@ export function CyberButterfly() {
             if (hot !== bug.hover) {
               bug.hover = hot;
               body.classList.toggle("is-hover", hot);
+              if (hot && pointer && !calm) {
+                bug.startleUntil = now + STARTLE_MS;
+                emit(bug, 10, 6, true);
+                // Hover replies are switched off for now (the lines are still in ui.butterfly.hover).
+                // const replies = hoverRef.current;
+                // if (replies.length > 0 && now >= bug.nextHoverSay) {
+                //   bug.nextHoverSay = now + HOVER_REPLY_GAP_MS;
+                //   showSay(bug, replies[pickHoverLine(replies.length)], now, true);
+                // }
+                // It darts away a few times, then holds still so it can be caught.
+                if (now > bug.dodgeResetAt) bug.dodges = 0;
+                if (bug.dodges < MAX_DODGES && flight.startle(v, { x: pointer.x, y: pointer.y + window.scrollY })) {
+                  bug.dodges += 1;
+                  bug.dodgeResetAt = now + DODGE_RESET_MS;
+                }
+              }
             }
           } else if (bug === chargedBug && now - chargedAt < 640) {
             emit(bug, 3, 28, true);
@@ -414,24 +476,30 @@ export function CyberButterfly() {
             }
           }
 
-          // While they circle an idle cursor, a couple at a time say a short nag.
-          if (mode === "fly" && flight.orbiting) {
-            if (bug.nextSay === 0) bug.nextSay = now + 500 + Math.random() * 4000;
+          // Two kinds of speech: a short nag while they circle an idle cursor (a couple at a time),
+          // and a reply to being touched.
+          if (mode === "fly" && (flight.orbiting || bug.hoverSay)) {
             if (bug.sayShown && now > bug.sayUntil) hideSay(bug, now);
-            const talking = bugs.filter((b) => b.sayShown).length;
-            const lines = idleRef.current;
-            if (!bug.sayShown && now >= bug.nextSay && talking < 2 && lines.length > 0 && flight.visible(v)) {
-              const pick = nextLine(lines.length);
-              bug.say.textContent = lines[pick];
-              bug.say.classList.add("is-shown");
-              bug.sayShown = true;
-              bug.sayUntil = now + 2800 + lines[pick].length * 50;
+            if (flight.orbiting && !bug.sayShown) {
+              if (bug.nextSay === 0) bug.nextSay = now + 500 + Math.random() * 4000;
+              const talking = bugs.filter((b) => b.sayShown).length;
+              const lines = idleRef.current;
+              if (now >= bug.nextSay && talking < 2 && lines.length > 0 && flight.visible(v)) {
+                showSay(bug, lines[pickIdleLine(lines.length)], now, false);
+              }
             }
             if (bug.sayShown) {
-              const w = bug.say.offsetWidth;
-              const sx = Math.min(Math.max(flight.x, w / 2 + 8), window.innerWidth - w / 2 - 8);
-              const sy = flight.y + flight.bob - window.scrollY - bug.size * 0.5;
-              bug.say.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(-50%, calc(-100% - 10px))`;
+              // The bubble lives in the same layer as the butterfly, so anything in front of one is in front of the other.
+              const w = bug.sayW;
+              const sx = Math.min(Math.max(flight.x, w / 2 + 8), v.w - w / 2 - 8);
+              const headY = flight.y + flight.bob;
+              const below = headY - bug.size * 0.5 - bug.sayH - SAY_TAIL < 4;
+              if (below !== bug.sayBelow) {
+                bug.sayBelow = below;
+                bug.say.dataset.side = below ? "bottom" : "top";
+              }
+              const sy = below ? headY + bug.size * 0.5 : headY - bug.size * 0.5;
+              bug.say.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(-50%, ${below ? `${SAY_TAIL}px` : `calc(-100% - ${SAY_TAIL}px)`})`;
               bug.say.style.setProperty("--tip-arrow", `${Math.min(Math.max(flight.x - sx + w / 2, 14), w - 14).toFixed(0)}px`);
             }
           } else if (bug.sayShown) {
@@ -515,6 +583,7 @@ export function CyberButterfly() {
           b.threadOn = false;
           b.say.classList.remove("is-shown");
           b.sayShown = false;
+          b.hoverSay = false;
           b.nextSay = 0;
         }
         // Held for the build-up, then it goes off with the first pulse. The others vanish with it.
@@ -564,6 +633,9 @@ export function CyberButterfly() {
           <div key={`thread-${n}`} ref={(el) => void (threadRefs.current[n] = el)} className="cyber-thread" />
         ))}
         {BUTTERFLIES.map((n) => (
+          <div key={`say-${n}`} ref={(el) => void (sayRefs.current[n] = el)} className="tip-balloon cyber-say" data-side="top" aria-hidden="true" />
+        ))}
+        {BUTTERFLIES.map((n) => (
         <div key={n} ref={(el) => void (bodyRefs.current[n] = el)} className="cyber-butterfly">
           <svg viewBox="0 0 120 120" focusable="false">
             <defs>
@@ -602,9 +674,6 @@ export function CyberButterfly() {
         </div>
         ))}
       </div>
-      {BUTTERFLIES.map((n) => (
-        <div key={`say-${n}`} ref={(el) => void (sayRefs.current[n] = el)} className="tip-balloon cyber-say" data-side="top" data-demolish-fixed aria-hidden="true" />
-      ))}
     </>,
     document.body,
   );

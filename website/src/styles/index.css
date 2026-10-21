@@ -1943,8 +1943,8 @@ html.demolishing {
   transform: translate(-50%, 0);
 }
 
-/* Fireflies (see Fireflies.tsx): a quiet glow behind the page; while the
-   visitor is idle they come to the front to gather round the cursor. */
+/* Fireflies (see Fireflies.tsx): a quiet glow behind the page, always under
+   the content, also while they gather round the cursor. */
 .fireflies-canvas {
   position: fixed;
   inset: 0;
@@ -1952,10 +1952,6 @@ html.demolishing {
   width: 100%;
   height: 100%;
   pointer-events: none;
-}
-
-.fireflies-canvas.is-front {
-  z-index: 80;
 }
 
 html.demolishing .fireflies-canvas {
@@ -2016,12 +2012,13 @@ html.demolishing .fireflies-canvas {
   border-right: 0;
 }
 
-/* A butterfly's speech bubble (reuses the balloon look; see CyberButterfly). */
+/* A butterfly's speech bubble (reuses the balloon look; see CyberButterfly).
+   It sits in the butterfly's own layer, in page coordinates, so whatever
+   covers the butterfly covers its bubble too. */
 .cyber-say {
-  position: fixed;
+  position: absolute;
   left: 0;
   top: 0;
-  z-index: 90;
   width: max-content;
   max-width: min(15rem, calc(100vw - 1.5rem));
   font-size: 12px;

@@ -38,8 +38,8 @@ interface Fly {
 
 /** A handful of fireflies that drift lazily about their own corners of the
  * screen, behind the page. When the visitor has been idle they are called
- * to the cursor one by one (as the countdown runs) and circle it, in front of
- * the page. As soon as the visitor moves again they drift back to where they
+ * to the cursor one by one (as the countdown runs) and circle it, still
+ * behind the page, like the butterflies. As soon as the visitor moves again they drift back to where they
  * were and carry on. */
 export function Fireflies() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -117,7 +117,6 @@ export function Fireflies() {
 
     let last = performance.now();
     let t = 0;
-    let front = false;
     const frame = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
@@ -135,7 +134,6 @@ export function Fireflies() {
 
       ctx.clearRect(0, 0, W, H);
       ctx.globalCompositeOperation = "lighter";
-      let anyAway = false;
       flies.forEach((f, i) => {
         const gathering = i < called && pointer !== null;
         f.g += ((gathering ? 1 : 0) - f.g) * Math.min(1, dt * 2.5);
@@ -175,7 +173,6 @@ export function Fireflies() {
         f.x += f.vx * dt;
         f.y += f.vy * dt;
 
-        if (f.g > 0.04) anyAway = true;
         const pulse = 0.5 + 0.5 * Math.sin(t * f.blink * 2.4 + f.ph[1]);
         const alpha = clamp((0.28 + 0.34 * pulse) * (1 - f.g) + (0.7 + 0.3 * pulse) * f.g, 0, 1);
         const size = f.size * (1 + f.g * 0.25);
@@ -190,12 +187,6 @@ export function Fireflies() {
       });
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
-
-      // In front of the page while any are away with the cursor; behind it otherwise.
-      if (anyAway !== front) {
-        front = anyAway;
-        canvas.classList.toggle("is-front", front);
-      }
     };
     // 30 fps is plenty for slow, soft lights, and half the work of 60.
     const stop = subscribeTick(frame, 33, true);
