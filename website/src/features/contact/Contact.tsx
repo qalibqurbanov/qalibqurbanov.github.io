@@ -1,4 +1,4 @@
-import { openContactModal } from "@/components/contact/ContactModal";
+import { openContactModal } from "@/components/contact/openContact";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionClosing } from "@/components/ui/SectionClosing";

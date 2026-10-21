@@ -9,7 +9,7 @@ import {
   TelegramIcon,
 } from "@/components/icons/BrandIcons";
 import { LiveClock } from "@/components/ui/LiveClock";
-import { openContactModal } from "@/components/contact/ContactModal";
+import { openContactModal } from "@/components/contact/openContact";
 import { useClock } from "@/hooks/useClock";
 import { useLiveSource } from "@/hooks/useLiveSource";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";

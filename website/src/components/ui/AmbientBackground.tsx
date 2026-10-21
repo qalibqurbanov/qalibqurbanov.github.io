@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
+import { pauseWhenOffscreen } from "@/lib/offscreen";
 import { useThemeValue } from "@/theme/context";
 
 const STAR_COUNT = 34;
@@ -71,6 +72,12 @@ export function AmbientBackground() {
       window.removeEventListener("resize", measure);
     };
   }, []);
+
+  // Only the screens of the field that are actually in view animate.
+  useEffect(() => {
+    const el = rootRef.current;
+    return el ? pauseWhenOffscreen(Array.from(el.children)) : undefined;
+  }, [tiles, theme]);
 
   const field = (key: number) => (
     <div key={key} className="relative w-full" style={{ height: "100vh" }}>

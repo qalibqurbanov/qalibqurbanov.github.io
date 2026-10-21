@@ -2,7 +2,7 @@ import { ArrowUp, ArrowUpRight, Bug, Check, FileText, Languages, Link2, Moon, Se
 import type { ComponentType, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import { OPEN_COMMAND_PALETTE_EVENT } from "@/components/command-palette/CommandPalette";
+import { OPEN_COMMAND_PALETTE_EVENT } from "@/components/command-palette/openPalette";
 import { GithubIcon } from "@/components/icons/BrandIcons";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";

@@ -10,6 +10,8 @@ interface Sub {
   /** Minimum time between calls, in ms (0 = every frame). */
   every: number;
   last: number;
+  /** Skipped while a modal covers the page. */
+  pauseWhenCovered: boolean;
 }
 
 const subs = new Set<Sub>();
@@ -19,10 +21,16 @@ function loop(now: number): void {
   raf = 0;
   for (const sub of [...subs]) {
     if (now - sub.last < sub.every - 1) continue;
+    if (sub.pauseWhenCovered && covered()) continue;
     sub.last = now;
     sub.fn(now);
   }
   schedule();
+}
+
+/** A modal is open (Radix marks the body while it locks the page behind it). */
+function covered(): boolean {
+  return document.body.hasAttribute("data-scroll-locked");
 }
 
 function schedule(): void {
@@ -39,9 +47,10 @@ if (typeof document !== "undefined") {
   });
 }
 
-/** Calls `fn` on each animation frame (or at most every `every` ms). Returns the unsubscribe. */
-export function subscribeTick(fn: Tick, every = 0): () => void {
-  const sub: Sub = { fn, every, last: 0 };
+/** Calls `fn` on each animation frame (or at most every `every` ms), and not at all while a modal
+ * covers the page if `pauseWhenCovered`. Returns the unsubscribe. */
+export function subscribeTick(fn: Tick, every = 0, pauseWhenCovered = false): () => void {
+  const sub: Sub = { fn, every, last: 0, pauseWhenCovered };
   subs.add(sub);
   schedule();
   return () => {

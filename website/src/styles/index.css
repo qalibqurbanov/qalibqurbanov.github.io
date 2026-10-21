@@ -515,6 +515,12 @@ html::-webkit-scrollbar-button,
   }
 }
 
+/* Scrolled out of view: nothing visible is moving, so nothing should be animating. */
+[data-offscreen],
+[data-offscreen] * {
+  animation-play-state: paused !important;
+}
+
 .blob-drift-a {
   animation: blob-drift-a 18s ease-in-out infinite;
 }

@@ -1,5 +1,5 @@
 import { ArrowDown, ChevronLeft, ChevronRight, FileText, Mail, Plus, SquareTerminal, X } from "lucide-react";
-import type { CSSProperties, MouseEvent as ReactMouseEvent, ReactNode } from "react";
+import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import {
@@ -9,7 +9,7 @@ import {
   StackOverflowIcon,
   TelegramIcon,
 } from "@/components/icons/BrandIcons";
-import { openContactModal } from "@/components/contact/ContactModal";
+import { openContactModal } from "@/components/contact/openContact";
 import { FileIcon } from "@/components/ui/FileIcon";
 import { TAB_BASE, TAB_IDLE } from "@/components/ui/tabStyles";
 import { GlitchText } from "@/components/ui/GlitchText";
@@ -25,15 +25,13 @@ import { HeroStatusBar } from "@/features/hero/HeroStatusBar";
 import { HeroTerminal } from "@/features/hero/HeroTerminal";
 import { useContent } from "@/i18n/context";
 import { format } from "@/lib/format";
+import { pauseWhenOffscreen } from "@/lib/offscreen";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
 import { useTheme, type Theme } from "@/theme/context";
 import { useDraggableWindow } from "@/hooks/useDraggableWindow";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
 import { useInView } from "@/hooks/useInView";
 import { useTilt } from "@/hooks/useTilt";
-
-/** Start of a hero line's glitch-in entrance (see `.glitch-in`), timed to land as its fade-in does. */
-const giDelay = (ms: number) => ({ "--gi-delay": `${ms}ms` }) as CSSProperties;
 
 const TOTAL_CODE_LINES = 8;
 const LINE_STEP_MS = 220;
@@ -48,13 +46,13 @@ function BreakableWords({
   text,
   seedBase,
   wordClassName,
-  glitchRange,
+  glitch,
 }: {
   text: string;
   seedBase: number;
   wordClassName?: string;
-  /** Glitch each word at random on its own, this often (ms, shortest and longest). */
-  glitchRange?: readonly [number, number];
+  /** Wrap each word in glitching text (it glitches while hovered). */
+  glitch?: boolean;
 }) {
   const tokens = text.split(/(\s+)/);
   let wordIndex = 0;
@@ -73,7 +71,7 @@ function BreakableWords({
             seed={seed}
             className={wordClassName ? `inline-block ${wordClassName}` : undefined}
           >
-            {glitchRange ? <GlitchText text={token} idle idleRange={glitchRange} /> : token}
+            {glitch ? <GlitchText text={token} /> : token}
           </Knockable>
         );
       })}
@@ -196,9 +194,6 @@ interface TerminalTab {
 /** Most tabs open at once, Developer.cs included. Past what fits, the tab strip scrolls (see the arrows beside it). */
 const MAX_TABS = 8;
 
-/** How often the hero name glitches by itself: far more often than the small labels. */
-const NAME_GLITCH_RANGE = [2200, 5200] as const;
-
 /** How far one click on a tab-strip arrow scrolls it. */
 const TAB_SCROLL_STEP = 140;
 /** The active tab here has no border of its own: the sliding underline draws it. */
@@ -236,6 +231,9 @@ const TAB_ARROW =
 export function Hero() {
   const { profile, socials, ui } = useContent();
   const { theme: siteTheme } = useTheme();
+  const sectionRef = useRef<HTMLElement>(null);
+  // The drifting glows and the window's animations stand still once the hero is scrolled away.
+  useEffect(() => (sectionRef.current ? pauseWhenOffscreen([sectionRef.current]) : undefined), []);
   // The hero window has its own theme, independent of the site's: it starts
   // out matching the site, then only the View menu, the status bar and the
   // `theme` command change it.
@@ -548,36 +546,36 @@ export function Hero() {
 
 
   return (
-    <section id="top" className="relative min-h-screen flex items-center bg-grid overflow-hidden">
-      <div className="pointer-events-none absolute -top-40 left-1/4 -translate-x-1/2 w-[640px] h-[640px] rounded-full bg-accent/15 blur-3xl blob-drift-a" />
-      <div className="pointer-events-none absolute top-1/3 right-0 w-[420px] h-[420px] rounded-full bg-accent-2/10 blur-3xl blob-drift-b" />
+    <section id="top" ref={sectionRef} className="relative min-h-screen flex items-center bg-grid overflow-hidden">
+      <div className="pointer-events-none absolute -top-40 left-1/4 -translate-x-1/2 w-[640px] h-[640px] rounded-full bg-accent/15 blur-3xl will-change-transform blob-drift-a" />
+      <div className="pointer-events-none absolute top-1/3 right-0 w-[420px] h-[420px] rounded-full bg-accent-2/10 blur-3xl will-change-transform blob-drift-b" />
 
       <div className="relative max-w-6xl mx-auto px-6 py-32 w-full grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-16 items-center">
         <div>
           <Reveal>
-            <p className="glitch-in font-mono text-accent text-sm mb-4" style={giDelay(300)}>
+            <p className="font-mono text-accent text-sm mb-4">
               <BreakableWords text={ui.hero.greeting} seedBase={200} />
             </p>
           </Reveal>
 
           <Reveal delayMs={100}>
-            <h1 className="glitch-in text-4xl sm:text-6xl font-bold tracking-tight leading-tight" style={giDelay(400)}>
-              <BreakableWords text={profile.name} seedBase={220} wordClassName="text-gradient" glitchRange={NAME_GLITCH_RANGE} />
+            <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight">
+              <BreakableWords text={profile.name} seedBase={220} wordClassName="text-gradient" glitch />
             </h1>
           </Reveal>
 
           <Reveal delayMs={200}>
-            <h2 className="glitch-in text-2xl sm:text-4xl font-semibold text-muted mt-2" style={giDelay(500)}>
+            <h2 className="text-2xl sm:text-4xl font-semibold text-muted mt-2">
               <BreakableWords text={taglineBefore} seedBase={240} />
               <Knockable seed={260}>
-                <GlitchText text={ui.hero.highlightWord} idle />
+                <GlitchText text={ui.hero.highlightWord} />
               </Knockable>
               <BreakableWords text={taglineAfter} seedBase={261} />
             </h2>
           </Reveal>
 
           <Reveal delayMs={300}>
-            <p className="glitch-in max-w-xl text-muted mt-6 leading-relaxed" style={giDelay(600)}>
+            <p className="max-w-xl text-muted mt-6 leading-relaxed">
               <BreakableWords text={profile.summary} seedBase={280} />
             </p>
           </Reveal>

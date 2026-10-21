@@ -225,322 +225,335 @@ export function CyberButterfly() {
   }, [ui.butterfly.hint, ui.butterfly.hintAny, ui.butterfly.idle]);
 
   useEffect(() => {
-    const layer = layerRef.current;
-    const canvas = trailRef.current;
-    const ctx = canvas?.getContext("2d");
-    const bodies = bodyRefs.current.filter((el): el is HTMLDivElement => el !== null);
-    const threads = threadRefs.current.filter((el): el is HTMLDivElement => el !== null);
-    const says = sayRefs.current.filter((el): el is HTMLDivElement => el !== null);
-    if (!layer || !canvas || !ctx || bodies.length === 0 || threads.length !== bodies.length || says.length !== bodies.length) return;
-
-    const calm = prefersReducedMotion();
-    const baseSize = window.innerWidth < 640 ? 32 : 42;
-    // Each one is a different size.
-    // Sizes spread evenly from small to large, then shuffled between the butterflies.
-    const scales = bodies
-      .map((_, i) => 0.7 + (i / Math.max(1, bodies.length - 1)) * 0.6 + (Math.random() - 0.5) * 0.06)
-      .sort(() => Math.random() - 0.5);
-    // Without motion they rest in a corner of the screen instead of roaming.
-    if (calm) layer.classList.add("is-fixed");
-
-    let W = document.documentElement.clientWidth;
-    let H = window.innerHeight;
-    let docH = Math.max(document.body.offsetHeight, H);
-    const view = (): View => ({ w: W, h: H, scrollY: calm ? 0 : window.scrollY, docH });
-    // Each butterfly has its own flight, with its own random phases and goals.
-    const bugs: Bug[] = bodies.map((body, i) => {
-      const size = Math.round(baseSize * scales[i % scales.length]);
-      const hit = Math.round(size * 1.25);
-      body.style.setProperty("--bf-hit", `${hit}px`);
-      const flight = new ButterflyFlight(size, view());
-      flight.finder = calm ? null : (x, y) => findPerch(x, y, size, docH);
-      if (i > 0) flight.scatter(view());
-      return { flight, body, hit, size, sleep: 0, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0 };
+    // Starts after the first paint: measuring the page while React is still inserting it
+    // forces the browser to lay everything out twice, in the middle of loading.
+    let teardown: (() => void) | undefined;
+    const raf = requestAnimationFrame(() => {
+      teardown = start();
     });
-    const rest = () => {
-      bugs.forEach((b, i) => {
-        b.flight.x = 36 + b.hit / 2 + i * (b.hit + 12);
-        b.flight.y = H - 96;
+    return () => {
+      cancelAnimationFrame(raf);
+      teardown?.();
+    };
+
+    function start(): (() => void) | undefined {
+      const layer = layerRef.current;
+      const canvas = trailRef.current;
+      const ctx = canvas?.getContext("2d");
+      const bodies = bodyRefs.current.filter((el): el is HTMLDivElement => el !== null);
+      const threads = threadRefs.current.filter((el): el is HTMLDivElement => el !== null);
+      const says = sayRefs.current.filter((el): el is HTMLDivElement => el !== null);
+      if (!layer || !canvas || !ctx || bodies.length === 0 || threads.length !== bodies.length || says.length !== bodies.length) return;
+
+      const calm = prefersReducedMotion();
+      const baseSize = window.innerWidth < 640 ? 32 : 42;
+      // Each one is a different size.
+      // Sizes spread evenly from small to large, then shuffled between the butterflies.
+      const scales = bodies
+        .map((_, i) => 0.7 + (i / Math.max(1, bodies.length - 1)) * 0.6 + (Math.random() - 0.5) * 0.06)
+        .sort(() => Math.random() - 0.5);
+      // Without motion they rest in a corner of the screen instead of roaming.
+      if (calm) layer.classList.add("is-fixed");
+
+      let W = document.documentElement.clientWidth;
+      let H = window.innerHeight;
+      let docH = Math.max(document.body.offsetHeight, H);
+      const view = (): View => ({ w: W, h: H, scrollY: calm ? 0 : window.scrollY, docH });
+      // Each butterfly has its own flight, with its own random phases and goals.
+      const bugs: Bug[] = bodies.map((body, i) => {
+        const size = Math.round(baseSize * scales[i % scales.length]);
+        const hit = Math.round(size * 1.25);
+        body.style.setProperty("--bf-hit", `${hit}px`);
+        const flight = new ButterflyFlight(size, view());
+        flight.finder = calm ? null : (x, y) => findPerch(x, y, size, docH);
+        if (i > 0) flight.scatter(view());
+        return { flight, body, hit, size, sleep: 0, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0 };
       });
-    };
-    if (calm) rest();
-
-    const css = getComputedStyle(document.documentElement);
-    const colors = [
-      css.getPropertyValue("--color-accent").trim() || "#b185ff",
-      css.getPropertyValue("--color-accent-2").trim() || "#22d3ee",
-      "#ffffff",
-    ];
-
-    const trail: Trail[] = [];
-    let mode: "fly" | "charging" = "fly";
-    let pointer: { x: number; y: number } | null = null;
-    let last = performance.now();
-    let chargedAt = 0;
-    // After this long without the pointer moving, every butterfly comes to circle it.
-    let chargedBug: Bug = bugs[0];
-
-    const measure = () => {
-      W = document.documentElement.clientWidth;
-      H = window.innerHeight;
-      docH = Math.max(document.body.offsetHeight, H);
-      canvas.width = W;
-      canvas.height = H;
-      layer.style.height = calm ? "" : `${docH}px`;
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    // Content can grow (images, fonts, live data); keep the roaming area the page's height.
-    const observer = new ResizeObserver(measure);
-    observer.observe(document.body);
-
-    const emit = (bug: Bug, n: number, spread: number, burst = false) => {
-      const { flight } = bug;
-      for (let i = 0; i < n && trail.length < MAX_TRAIL; i++) {
-        const back = flight.heading + Math.PI;
-        const a = burst ? Math.random() * Math.PI * 2 : back + (Math.random() - 0.5) * 1.6;
-        const s = burst ? 40 + Math.random() * 160 : 10 + Math.random() * 40;
-        const life = 0.45 + Math.random() * 0.8;
-        trail.push({
-          x: flight.x + (Math.random() - 0.5) * spread,
-          y: flight.y + (Math.random() - 0.5) * spread,
-          vx: Math.cos(a) * s,
-          vy: Math.sin(a) * s,
-          life,
-          max: life,
-          size: 1.5 + Math.random() * 2.5,
-          pixel: Math.random() < 0.45,
-          color: colors[Math.floor(Math.random() * colors.length)],
+      const rest = () => {
+        bugs.forEach((b, i) => {
+          b.flight.x = 36 + b.hit / 2 + i * (b.hit + 12);
+          b.flight.y = H - 96;
         });
-      }
-    };
+      };
+      if (calm) rest();
 
-    /** A butterfly's spot in viewport coordinates, for hit tests. */
-    const screen = (bug: Bug) => ({ x: bug.flight.x, y: bug.flight.y + bug.flight.bob - (calm ? 0 : window.scrollY) });
-    const overButterfly = (bug: Bug, cx: number, cy: number) => {
-      const p = screen(bug);
-      return Math.hypot(cx - p.x, cy - p.y) < bug.hit * 0.45;
-    };
+      const css = getComputedStyle(document.documentElement);
+      const colors = [
+        css.getPropertyValue("--color-accent").trim() || "#b185ff",
+        css.getPropertyValue("--color-accent-2").trim() || "#22d3ee",
+        "#ffffff",
+      ];
 
-    // Lines come out of a shuffled bag, so every one is used before any repeats.
-    let bag: number[] = [];
-    let lastSay = -1;
-    const nextLine = (count: number): number => {
-      bag = bag.filter((i) => i < count);
-      if (bag.length === 0) {
-        bag = Array.from({ length: count }, (_, i) => i).sort(() => Math.random() - 0.5);
-        // Never open a fresh round with the line that closed the last one.
-        if (count > 1 && bag[bag.length - 1] === lastSay) bag.unshift(bag.pop() as number);
-      }
-      lastSay = bag.pop() as number;
-      return lastSay;
-    };
-    const hideSay = (bug: Bug, now: number) => {
-      bug.say.classList.remove("is-shown");
-      bug.sayShown = false;
-      bug.nextSay = now + 3500 + Math.random() * 4000;
-    };
+      const trail: Trail[] = [];
+      let mode: "fly" | "charging" = "fly";
+      let pointer: { x: number; y: number } | null = null;
+      let last = performance.now();
+      let chargedAt = 0;
+      // After this long without the pointer moving, every butterfly comes to circle it.
+      let chargedBug: Bug = bugs[0];
 
-    const frame = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000);
-      last = now;
-      const v = view();
+      const measure = () => {
+        W = document.documentElement.clientWidth;
+        H = window.innerHeight;
+        docH = Math.max(document.body.offsetHeight, H);
+        canvas.width = W;
+        canvas.height = H;
+        layer.style.height = calm ? "" : `${docH}px`;
+      };
+      measure();
+      window.addEventListener("resize", measure);
+      // Content can grow (images, fonts, live data); keep the roaming area the page's height.
+      const observer = new ResizeObserver(measure);
+      observer.observe(document.body);
 
-      const idle = !calm && mode === "fly" && pointer !== null && idleFor(now) > IDLE_MS;
-      for (const bug of bugs) {
-        const { flight, body, hit } = bug;
-        if (mode === "fly") {
-          flight.orbit = idle && pointer ? { x: pointer.x, y: pointer.y + window.scrollY } : null;
-          if (!calm) {
-            // Far above or below the screen it only needs an occasional, larger step.
-            const far = flight.y < v.scrollY - 400 || flight.y > v.scrollY + v.h + 400;
-            bug.sleep = far ? bug.sleep + dt : 0;
-            if (!far) flight.update(dt, v, bug.hover ? 0.3 : 1);
-            else if (bug.sleep >= 0.1) {
-              flight.update(bug.sleep, v, 1);
-              bug.sleep = 0;
+      const emit = (bug: Bug, n: number, spread: number, burst = false) => {
+        const { flight } = bug;
+        for (let i = 0; i < n && trail.length < MAX_TRAIL; i++) {
+          const back = flight.heading + Math.PI;
+          const a = burst ? Math.random() * Math.PI * 2 : back + (Math.random() - 0.5) * 1.6;
+          const s = burst ? 40 + Math.random() * 160 : 10 + Math.random() * 40;
+          const life = 0.45 + Math.random() * 0.8;
+          trail.push({
+            x: flight.x + (Math.random() - 0.5) * spread,
+            y: flight.y + (Math.random() - 0.5) * spread,
+            vx: Math.cos(a) * s,
+            vy: Math.sin(a) * s,
+            life,
+            max: life,
+            size: 1.5 + Math.random() * 2.5,
+            pixel: Math.random() < 0.45,
+            color: colors[Math.floor(Math.random() * colors.length)],
+          });
+        }
+      };
+
+      /** A butterfly's spot in viewport coordinates, for hit tests. */
+      const screen = (bug: Bug) => ({ x: bug.flight.x, y: bug.flight.y + bug.flight.bob - (calm ? 0 : window.scrollY) });
+      const overButterfly = (bug: Bug, cx: number, cy: number) => {
+        const p = screen(bug);
+        return Math.hypot(cx - p.x, cy - p.y) < bug.hit * 0.45;
+      };
+
+      // Lines come out of a shuffled bag, so every one is used before any repeats.
+      let bag: number[] = [];
+      let lastSay = -1;
+      const nextLine = (count: number): number => {
+        bag = bag.filter((i) => i < count);
+        if (bag.length === 0) {
+          bag = Array.from({ length: count }, (_, i) => i).sort(() => Math.random() - 0.5);
+          // Never open a fresh round with the line that closed the last one.
+          if (count > 1 && bag[bag.length - 1] === lastSay) bag.unshift(bag.pop() as number);
+        }
+        lastSay = bag.pop() as number;
+        return lastSay;
+      };
+      const hideSay = (bug: Bug, now: number) => {
+        bug.say.classList.remove("is-shown");
+        bug.sayShown = false;
+        bug.nextSay = now + 3500 + Math.random() * 4000;
+      };
+
+      const frame = (now: number) => {
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        const v = view();
+
+        const idle = !calm && mode === "fly" && pointer !== null && idleFor(now) > IDLE_MS;
+        for (const bug of bugs) {
+          const { flight, body, hit } = bug;
+          if (mode === "fly") {
+            flight.orbit = idle && pointer ? { x: pointer.x, y: pointer.y + window.scrollY } : null;
+            if (!calm) {
+              // Far above or below the screen it only needs an occasional, larger step.
+              const far = flight.y < v.scrollY - 400 || flight.y > v.scrollY + v.h + 400;
+              bug.sleep = far ? bug.sleep + dt : 0;
+              if (!far) flight.update(dt, v, bug.hover ? 0.3 : 1);
+              else if (bug.sleep >= 0.1) {
+                flight.update(bug.sleep, v, 1);
+                bug.sleep = 0;
+              }
+            }
+            const wanted = calm ? 0.45 : Math.min(0.34, Math.max(0.15, 0.4 - flight.speed / 700));
+            if (Math.abs(wanted - bug.flap) > 0.015) {
+              bug.flap = wanted;
+              body.style.setProperty("--bf-flap", `${bug.flap.toFixed(3)}s`);
+            }
+            // Hovering only counts where the butterfly is actually showing.
+            const near = pointer !== null && overButterfly(bug, pointer.x, pointer.y) && flight.visible(v);
+            const hot = near && pointer !== null && !occludedAt(pointer.x, pointer.y);
+            if (hot !== bug.hover) {
+              bug.hover = hot;
+              body.classList.toggle("is-hover", hot);
+            }
+          } else if (bug === chargedBug && now - chargedAt < 640) {
+            emit(bug, 3, 28, true);
+          }
+
+          body.style.transform = `translate3d(${(flight.x - hit / 2).toFixed(1)}px, ${(flight.y + flight.bob - hit / 2).toFixed(1)}px, 0) rotate(${flight.angle.toFixed(3)}rad)`;
+
+          if (mode === "fly") {
+            // Wings close and open gradually as it lands on and leaves its thread.
+            if (Math.abs(flight.fold - bug.fold) > 0.004) {
+              bug.fold = flight.fold;
+              body.style.setProperty("--bf-fold", bug.fold.toFixed(3));
+            }
+            // The thread runs from where it is fixed to the butterfly's head.
+            const a = flight.threadAlpha;
+            if (a > 0.01) {
+              const ex = flight.x + Math.sin(flight.angle) * bug.size * 0.36;
+              const ey = flight.y + flight.bob - Math.cos(flight.angle) * bug.size * 0.36;
+              const dx = ex - flight.anchorX;
+              const dy = ey - flight.anchorY;
+              bug.thread.style.height = `${Math.hypot(dx, dy).toFixed(1)}px`;
+              bug.thread.style.transform = `translate3d(${flight.anchorX.toFixed(1)}px, ${flight.anchorY.toFixed(1)}px, 0) rotate(${Math.atan2(-dx, dy).toFixed(4)}rad)`;
+              bug.thread.style.opacity = a.toFixed(3);
+              bug.threadOn = true;
+            } else if (bug.threadOn) {
+              bug.thread.style.opacity = "0";
+              bug.threadOn = false;
             }
           }
-          const wanted = calm ? 0.45 : Math.min(0.34, Math.max(0.15, 0.4 - flight.speed / 700));
-          if (Math.abs(wanted - bug.flap) > 0.015) {
-            bug.flap = wanted;
-            body.style.setProperty("--bf-flap", `${bug.flap.toFixed(3)}s`);
-          }
-          // Hovering only counts where the butterfly is actually showing.
-          const near = pointer !== null && overButterfly(bug, pointer.x, pointer.y) && flight.visible(v);
-          const hot = near && pointer !== null && !occludedAt(pointer.x, pointer.y);
-          if (hot !== bug.hover) {
-            bug.hover = hot;
-            body.classList.toggle("is-hover", hot);
-          }
-        } else if (bug === chargedBug && now - chargedAt < 640) {
-          emit(bug, 3, 28, true);
-        }
 
-        body.style.transform = `translate3d(${(flight.x - hit / 2).toFixed(1)}px, ${(flight.y + flight.bob - hit / 2).toFixed(1)}px, 0) rotate(${flight.angle.toFixed(3)}rad)`;
-
-        if (mode === "fly") {
-          // Wings close and open gradually as it lands on and leaves its thread.
-          if (Math.abs(flight.fold - bug.fold) > 0.004) {
-            bug.fold = flight.fold;
-            body.style.setProperty("--bf-fold", bug.fold.toFixed(3));
+          // While they circle an idle cursor, a couple at a time say a short nag.
+          if (mode === "fly" && flight.orbiting) {
+            if (bug.nextSay === 0) bug.nextSay = now + 500 + Math.random() * 4000;
+            if (bug.sayShown && now > bug.sayUntil) hideSay(bug, now);
+            const talking = bugs.filter((b) => b.sayShown).length;
+            const lines = idleRef.current;
+            if (!bug.sayShown && now >= bug.nextSay && talking < 2 && lines.length > 0 && flight.visible(v)) {
+              const pick = nextLine(lines.length);
+              bug.say.textContent = lines[pick];
+              bug.say.classList.add("is-shown");
+              bug.sayShown = true;
+              bug.sayUntil = now + 2800 + lines[pick].length * 50;
+            }
+            if (bug.sayShown) {
+              const w = bug.say.offsetWidth;
+              const sx = Math.min(Math.max(flight.x, w / 2 + 8), window.innerWidth - w / 2 - 8);
+              const sy = flight.y + flight.bob - window.scrollY - bug.size * 0.5;
+              bug.say.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(-50%, calc(-100% - 10px))`;
+              bug.say.style.setProperty("--tip-arrow", `${Math.min(Math.max(flight.x - sx + w / 2, 14), w - 14).toFixed(0)}px`);
+            }
+          } else if (bug.sayShown) {
+            hideSay(bug, now);
+          } else {
+            bug.nextSay = 0;
           }
-          // The thread runs from where it is fixed to the butterfly's head.
-          const a = flight.threadAlpha;
-          if (a > 0.01) {
-            const ex = flight.x + Math.sin(flight.angle) * bug.size * 0.36;
-            const ey = flight.y + flight.bob - Math.cos(flight.angle) * bug.size * 0.36;
-            const dx = ex - flight.anchorX;
-            const dy = ey - flight.anchorY;
-            bug.thread.style.height = `${Math.hypot(dx, dy).toFixed(1)}px`;
-            bug.thread.style.transform = `translate3d(${flight.anchorX.toFixed(1)}px, ${flight.anchorY.toFixed(1)}px, 0) rotate(${Math.atan2(-dx, dy).toFixed(4)}rad)`;
-            bug.thread.style.opacity = a.toFixed(3);
-            bug.threadOn = true;
-          } else if (bug.threadOn) {
-            bug.thread.style.opacity = "0";
-            bug.threadOn = false;
+
+          if (mode === "fly" && !calm && !flight.hanging && flight.visible(v)) {
+            bug.spawn += dt * (6 + Math.min(16, flight.speed / 16));
+            while (bug.spawn >= 1) {
+              emit(bug, 1, 12);
+              bug.spawn -= 1;
+            }
           }
         }
 
-        // While they circle an idle cursor, a couple at a time say a short nag.
-        if (mode === "fly" && flight.orbiting) {
-          if (bug.nextSay === 0) bug.nextSay = now + 500 + Math.random() * 4000;
-          if (bug.sayShown && now > bug.sayUntil) hideSay(bug, now);
-          const talking = bugs.filter((b) => b.sayShown).length;
-          const lines = idleRef.current;
-          if (!bug.sayShown && now >= bug.nextSay && talking < 2 && lines.length > 0 && flight.visible(v)) {
-            const pick = nextLine(lines.length);
-            bug.say.textContent = lines[pick];
-            bug.say.classList.add("is-shown");
-            bug.sayShown = true;
-            bug.sayUntil = now + 2800 + lines[pick].length * 50;
+        // The trail is stored in page coordinates, drawn offset by the scroll.
+        const off = calm ? 0 : window.scrollY;
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = "lighter";
+        for (let i = trail.length - 1; i >= 0; i--) {
+          const p = trail[i];
+          p.life -= dt;
+          if (p.life <= 0) {
+            trail.splice(i, 1);
+            continue;
           }
-          if (bug.sayShown) {
-            const w = bug.say.offsetWidth;
-            const sx = Math.min(Math.max(flight.x, w / 2 + 8), window.innerWidth - w / 2 - 8);
-            const sy = flight.y + flight.bob - window.scrollY - bug.size * 0.5;
-            bug.say.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(-50%, calc(-100% - 10px))`;
-            bug.say.style.setProperty("--tip-arrow", `${Math.min(Math.max(flight.x - sx + w / 2, 14), w - 14).toFixed(0)}px`);
-          }
-        } else if (bug.sayShown) {
-          hideSay(bug, now);
-        } else {
-          bug.nextSay = 0;
-        }
-
-        if (mode === "fly" && !calm && !flight.hanging && flight.visible(v)) {
-          bug.spawn += dt * (6 + Math.min(16, flight.speed / 16));
-          while (bug.spawn >= 1) {
-            emit(bug, 1, 12);
-            bug.spawn -= 1;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vx *= 1 - 1.2 * dt;
+          p.vy *= 1 - 1.2 * dt;
+          const k = p.life / p.max;
+          const dy = p.y - off;
+          if (dy < -20 || dy > H + 20) continue;
+          ctx.globalAlpha = k * 0.9;
+          ctx.fillStyle = p.color;
+          if (p.pixel) {
+            const s = Math.max(2, Math.round(p.size));
+            ctx.fillRect(Math.round(p.x / 3) * 3, Math.round(dy / 3) * 3, s, s);
+          } else {
+            ctx.beginPath();
+            ctx.arc(p.x, dy, p.size * (0.4 + k * 0.6), 0, Math.PI * 2);
+            ctx.fill();
           }
         }
-      }
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
 
-      // The trail is stored in page coordinates, drawn offset by the scroll.
-      const off = calm ? 0 : window.scrollY;
-      ctx.clearRect(0, 0, W, H);
-      ctx.globalCompositeOperation = "lighter";
-      for (let i = trail.length - 1; i >= 0; i--) {
-        const p = trail[i];
-        p.life -= dt;
-        if (p.life <= 0) {
-          trail.splice(i, 1);
-          continue;
-        }
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.vx *= 1 - 1.2 * dt;
-        p.vy *= 1 - 1.2 * dt;
-        const k = p.life / p.max;
-        const dy = p.y - off;
-        if (dy < -20 || dy > H + 20) continue;
-        ctx.globalAlpha = k * 0.9;
-        ctx.fillStyle = p.color;
-        if (p.pixel) {
-          const s = Math.max(2, Math.round(p.size));
-          ctx.fillRect(Math.round(p.x / 3) * 3, Math.round(dy / 3) * 3, s, s);
-        } else {
-          ctx.beginPath();
-          ctx.arc(p.x, dy, p.size * (0.4 + k * 0.6), 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
+      };
+      const stop = subscribeTick(frame, 0, true);
 
-    };
-    const stop = subscribeTick(frame);
-
-    const onMove = (event: PointerEvent) => {
-      // Touch has no resting pointer to circle or hover over.
-      if (event.pointerType !== "mouse") return;
-      pointer = { x: event.clientX, y: event.clientY };
-      wake();
-    };
-    const onLeave = () => {
-      pointer = null;
-    };
-    const onDown = (event: PointerEvent) => {
-      wake();
-      if (mode !== "fly") return;
-      const v = view();
-      const target = bugs.find((b) => b.flight.visible(v) && overButterfly(b, event.clientX, event.clientY));
-      if (!target || occludedAt(event.clientX, event.clientY)) return;
-      event.preventDefault();
-      event.stopPropagation();
-      mode = "charging";
-      chargedBug = target;
-      chargedAt = performance.now();
-      const origin = screen(target);
-      for (const b of bugs) {
-        b.hover = false;
-        b.body.classList.remove("is-hover");
-      }
-      target.body.classList.add("is-charging");
-      for (const b of bugs) {
-        b.thread.style.opacity = "0";
-        b.threadOn = false;
-        b.say.classList.remove("is-shown");
-        b.sayShown = false;
-        b.nextSay = 0;
-      }
-      // Held for the build-up, then it goes off with the first pulse. The others vanish with it.
-      window.setTimeout(() => {
-        for (const b of bugs) b.body.classList.add("is-gone");
-      }, 640);
-      // The demolition (and the screenshot library behind it) loads only when it is first needed.
-      void import("@/lib/demolition").then((m) => m.demolish(origin, hintRef.current)).then(() => {
-        trail.length = 0;
+      const onMove = (event: PointerEvent) => {
+        // Touch has no resting pointer to circle or hover over.
+        if (event.pointerType !== "mouse") return;
+        pointer = { x: event.clientX, y: event.clientY };
+        wake();
+      };
+      const onLeave = () => {
+        pointer = null;
+      };
+      const onDown = (event: PointerEvent) => {
+        wake();
+        if (mode !== "fly") return;
+        const v = view();
+        const target = bugs.find((b) => b.flight.visible(v) && overButterfly(b, event.clientX, event.clientY));
+        if (!target || occludedAt(event.clientX, event.clientY)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        mode = "charging";
+        chargedBug = target;
+        chargedAt = performance.now();
+        const origin = screen(target);
         for (const b of bugs) {
-          b.body.classList.remove("is-charging", "is-gone");
-          b.body.style.removeProperty("--bf-fold");
-          b.fold = 0;
-          if (b === bugs[0]) b.flight.respawn(view());
-          else b.flight.scatter(view());
+          b.hover = false;
+          b.body.classList.remove("is-hover");
         }
-        if (calm) rest();
-        mode = "fly";
-      });
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    window.addEventListener("keydown", wake);
-    window.addEventListener("wheel", wake, { passive: true });
-    window.addEventListener("touchstart", wake, { passive: true });
-    document.documentElement.addEventListener("pointerleave", onLeave);
-    window.addEventListener("pointerdown", onDown, { capture: true });
+        target.body.classList.add("is-charging");
+        for (const b of bugs) {
+          b.thread.style.opacity = "0";
+          b.threadOn = false;
+          b.say.classList.remove("is-shown");
+          b.sayShown = false;
+          b.nextSay = 0;
+        }
+        // Held for the build-up, then it goes off with the first pulse. The others vanish with it.
+        window.setTimeout(() => {
+          for (const b of bugs) b.body.classList.add("is-gone");
+        }, 640);
+        // The demolition (and the screenshot library behind it) loads only when it is first needed.
+        void import("@/lib/demolition").then((m) => m.demolish(origin, hintRef.current)).then(() => {
+          trail.length = 0;
+          for (const b of bugs) {
+            b.body.classList.remove("is-charging", "is-gone");
+            b.body.style.removeProperty("--bf-fold");
+            b.fold = 0;
+            if (b === bugs[0]) b.flight.respawn(view());
+            else b.flight.scatter(view());
+          }
+          if (calm) rest();
+          mode = "fly";
+        });
+      };
+      window.addEventListener("pointermove", onMove, { passive: true });
+      window.addEventListener("keydown", wake);
+      window.addEventListener("wheel", wake, { passive: true });
+      window.addEventListener("touchstart", wake, { passive: true });
+      document.documentElement.addEventListener("pointerleave", onLeave);
+      window.addEventListener("pointerdown", onDown, { capture: true });
 
-    return () => {
-      stop();
-      observer.disconnect();
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("keydown", wake);
-      window.removeEventListener("wheel", wake);
-      window.removeEventListener("touchstart", wake);
-      document.documentElement.removeEventListener("pointerleave", onLeave);
-      window.removeEventListener("pointerdown", onDown, { capture: true });
-    };
+      return () => {
+        stop();
+        observer.disconnect();
+        window.removeEventListener("resize", measure);
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("keydown", wake);
+        window.removeEventListener("wheel", wake);
+        window.removeEventListener("touchstart", wake);
+        document.documentElement.removeEventListener("pointerleave", onLeave);
+        window.removeEventListener("pointerdown", onDown, { capture: true });
+      };
+    }
   }, []);
 
   return createPortal(

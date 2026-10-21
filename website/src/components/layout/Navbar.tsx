@@ -1,7 +1,7 @@
 import { ArrowLeft, Menu, Moon, Sun, X } from "lucide-react";
 import { useState } from "react";
 
-import { CommandPaletteTrigger } from "@/components/command-palette/CommandPalette";
+import { CommandPaletteTrigger } from "@/components/command-palette/CommandPaletteTrigger";
 import { GlitchText } from "@/components/ui/GlitchText";
 import { Knockable } from "@/components/ui/Knockable";
 import { useViewBar } from "@/components/ui/viewBar";

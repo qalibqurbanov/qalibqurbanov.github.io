@@ -25,15 +25,11 @@ import {
 } from "@/components/icons/BrandIcons";
 import { RESUME_HREF, useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
+import { OPEN_COMMAND_PALETTE_EVENT } from "@/components/command-palette/openPalette";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
 import { reportBugUrl } from "@/lib/githubIssue";
 import { scrollToTop } from "@/lib/scroll";
 import { useTheme } from "@/theme/context";
-
-/** Lets any UI element (e.g. the Navbar's search button) open the palette without
- * prop-drilling open state through the tree — the palette itself owns the
- * only piece of state that matters (whether it's open). */
-export const OPEN_COMMAND_PALETTE_EVENT = "portfolio:open-command-palette";
 
 interface PaletteItem {
   id: string;
@@ -406,20 +402,5 @@ export function CommandPalette() {
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
-  );
-}
-
-/** A small ">_" prompt button that opens the command palette from anywhere it's rendered. */
-export function CommandPaletteTrigger({ label }: { label: string }) {
-  return (
-    <button
-      type="button"
-      onClick={() => window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE_EVENT))}
-      aria-label={label}
-      title={`${label} (Alt+C)`}
-      className="hidden md:inline-flex h-7 w-7 items-center justify-center rounded border border-border font-mono text-xs text-muted transition-colors hover:border-accent/60 hover:text-accent"
-    >
-      {">_"}
-    </button>
   );
 }

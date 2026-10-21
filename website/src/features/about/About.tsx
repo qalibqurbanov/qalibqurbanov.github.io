@@ -59,6 +59,7 @@ export function About() {
                   className="h-full w-full object-cover"
                   width={128}
                   height={128}
+                  loading="lazy"
                   decoding="async"
                 />
               </div>

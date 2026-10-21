@@ -11,6 +11,8 @@ const loaders = {
   projectDetail: () => import("@/features/projects/ProjectDetail").then((m) => ({ default: m.ProjectDetail })),
   resume: () => import("@/features/resume/ResumeViewer").then((m) => ({ default: m.ResumeViewer })),
   butterfly: () => import("@/components/ui/CyberButterfly").then((m) => ({ default: m.CyberButterfly })),
+  commandPalette: () => import("@/components/command-palette/CommandPalette").then((m) => ({ default: m.CommandPalette })),
+  contactModal: () => import("@/components/contact/ContactModal").then((m) => ({ default: m.ContactModal })),
   fireflies: () => import("@/components/ui/Fireflies").then((m) => ({ default: m.Fireflies })),
 };
 
@@ -22,6 +24,13 @@ export const ProjectDetail = lazy(loaders.projectDetail);
 export const ResumeViewer = lazy(loaders.resume);
 export const CyberButterfly = lazy(loaders.butterfly);
 export const Fireflies = lazy(loaders.fireflies);
+export const CommandPalette = lazy(loaders.commandPalette);
+export const ContactModal = lazy(loaders.contactModal);
+
+/** Fetches the palette and the contact form, which are only mounted once asked for. */
+export function preloadDialogs(): Promise<unknown> {
+  return Promise.all([loaders.commandPalette(), loaders.contactModal()]);
+}
 
 /** Fetches every section chunk. Awaited before the first render when the URL
  * points into the page (a hash or a project), so the target exists to scroll to. */

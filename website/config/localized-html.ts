@@ -54,7 +54,22 @@ const PAGES: LocalePage[] = [
 
 const escapeAttr = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
-function localize(template: string, page: LocalePage): string {
+/** The few font files the first screen needs, per language, so they start downloading with the HTML
+ * instead of waiting for the CSS and the script. Names are matched in the build's hashed assets. */
+const FIRST_SCREEN_FONTS: Record<string, string[]> = {
+  en: ["onest-latin-700", "inter-latin-400", "jetbrains-mono-latin-400"],
+  az: ["onest-latin-700", "inter-latin-400", "jetbrains-mono-latin-400"],
+  ru: ["onest-cyrillic-700", "inter-cyrillic-400", "jetbrains-mono-cyrillic-400", "jetbrains-mono-latin-400"],
+};
+
+function fontPreloads(assets: string[], code: string): string[] {
+  return (FIRST_SCREEN_FONTS[code] ?? []).flatMap((name) => {
+    const file = assets.find((asset) => asset.startsWith(`${name}-normal-`) && asset.endsWith(".woff2"));
+    return file ? [`    <link rel="preload" as="font" type="font/woff2" href="/assets/${file}" crossorigin />`] : [];
+  });
+}
+
+function localize(template: string, page: LocalePage, assets: string[]): string {
   const url = SITE_URL + page.path;
   const alternates = PAGES.map(
     (p) => `    <link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`,
@@ -62,6 +77,7 @@ function localize(template: string, page: LocalePage): string {
   alternates.push(`    <link rel="alternate" hreflang="x-default" href="${SITE_URL}/" />`);
 
   const head = [
+    ...fontPreloads(assets, page.code),
     `    <link rel="canonical" href="${url}" />`,
     ...alternates,
     `    <meta property="og:type" content="website" />`,
@@ -95,14 +111,15 @@ export function localizedHtml(): Plugin {
     },
     closeBundle() {
       const template = fs.readFileSync(path.join(outDir, "index.html"), "utf-8");
+      const assets = fs.existsSync(path.join(outDir, "assets")) ? fs.readdirSync(path.join(outDir, "assets")) : [];
 
       const english = PAGES.find((page) => page.code === "en");
-      if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english));
+      if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english, assets));
 
       for (const page of PAGES) {
         const target = path.join(outDir, page.path, "index.html");
         fs.mkdirSync(path.dirname(target), { recursive: true });
-        fs.writeFileSync(target, localize(template, page));
+        fs.writeFileSync(target, localize(template, page, assets));
       }
 
       const urls = PAGES.map((page) => {

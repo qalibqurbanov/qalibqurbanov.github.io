@@ -198,7 +198,7 @@ export function Fireflies() {
       }
     };
     // 30 fps is plenty for slow, soft lights, and half the work of 60.
-    const stop = subscribeTick(frame, 33);
+    const stop = subscribeTick(frame, 33, true);
 
     return () => {
       stop();

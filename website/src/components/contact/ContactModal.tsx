@@ -6,13 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { CodeWindow } from "@/components/ui/CodeWindow";
 import { ViewModal } from "@/components/ui/ViewModal";
 import { useContent } from "@/i18n/context";
+import { OPEN_CONTACT_EVENT } from "@/components/contact/openContact";
 import { format } from "@/lib/format";
-
-export const OPEN_CONTACT_EVENT = "open-contact-modal";
-
-export function openContactModal() {
-  window.dispatchEvent(new Event(OPEN_CONTACT_EVENT));
-}
 
 /** Where the form is delivered. Set `VITE_CONTACT_ENDPOINT` to a form-relay
  * URL (Formspree, Web3Forms…); `VITE_CONTACT_ACCESS_KEY` is forwarded as

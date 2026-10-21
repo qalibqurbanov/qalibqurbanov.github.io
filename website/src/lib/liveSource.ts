@@ -1,3 +1,8 @@
+/** A saved copy younger than this is trusted as it is: opening the page does not
+ * ask GitHub again until it gets older (or until the first poll tick, if the page
+ * stays open). Keeps repeat visits off the 60-requests-an-hour anonymous limit. */
+const FRESH_MS = 5 * 60_000;
+
 /** What a live source currently holds. */
 export interface LiveState<T> {
   /** The newest value: from the last successful fetch, else a saved or built-in copy. */
@@ -15,13 +20,16 @@ export interface LiveState<T> {
  * good value is also saved in `localStorage` so the next visit starts from it
  * and not from the (older) copy baked in at build time. Shaped for React's
  * `useSyncExternalStore`: `subscribe` and `getSnapshot` are bound and the
- * snapshot object only changes when the state really does. */
+ * snapshot object only changes when the state really does. A saved copy under
+ * five minutes old is shown as live straight away and not fetched again on load. */
 export class LiveSource<T> {
   private state: LiveState<T>;
   private readonly listeners = new Set<() => void>();
   private timer: number | undefined;
   private busy = false;
   private lastRun = 0;
+  /** When the saved copy was written; 0 if there is none (or it predates timestamps). */
+  private savedAt = 0;
   private readonly load: (previous: T | null) => Promise<T>;
   private readonly intervalMs: number;
   private readonly storageKey: string;
@@ -34,7 +42,8 @@ export class LiveSource<T> {
     this.load = load;
     this.intervalMs = intervalMs;
     this.storageKey = storageKey;
-    this.state = { value: this.restore() ?? initial, live: false };
+    const saved = this.restore();
+    this.state = { value: saved ?? initial, live: saved !== null && this.isFresh() };
   }
 
   readonly subscribe = (listener: () => void): (() => void) => {
@@ -48,8 +57,13 @@ export class LiveSource<T> {
 
   readonly getSnapshot = (): LiveState<T> => this.state;
 
+  private isFresh(): boolean {
+    return Date.now() - this.savedAt < FRESH_MS;
+  }
+
   private start() {
-    void this.refresh();
+    if (this.isFresh()) this.lastRun = this.savedAt;
+    else void this.refresh();
     this.timer = window.setInterval(() => {
       if (!document.hidden) void this.refresh();
     }, this.intervalMs);
@@ -93,7 +107,14 @@ export class LiveSource<T> {
   private restore(): T | null {
     try {
       const raw = window.localStorage.getItem(this.storageKey);
-      return raw ? (JSON.parse(raw) as T) : null;
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { savedAt?: number; value?: T } | null;
+      // Copies saved before timestamps existed are plain values: usable, but never fresh.
+      if (parsed && typeof parsed === "object" && "savedAt" in parsed && "value" in parsed) {
+        this.savedAt = Number(parsed.savedAt) || 0;
+        return parsed.value ?? null;
+      }
+      return parsed as T | null;
     } catch {
       return null;
     }
@@ -101,7 +122,8 @@ export class LiveSource<T> {
 
   private save(value: T) {
     try {
-      window.localStorage.setItem(this.storageKey, JSON.stringify(value));
+      this.savedAt = Date.now();
+      window.localStorage.setItem(this.storageKey, JSON.stringify({ savedAt: this.savedAt, value }));
     } catch {
       // Storage may be unavailable (private mode, blocked); the next visit just starts from the build's copy.
     }
