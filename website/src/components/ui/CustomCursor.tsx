@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import { idleProgress, idleShow, wake } from "@/lib/idle";
+import { subscribeTick } from "@/lib/ticker";
 
 type CursorState = "default" | "link" | "field" | "code" | "grab";
 
@@ -52,7 +53,7 @@ export function CustomCursor() {
     let state: CursorState = "default";
     // While the visitor is away, the ring fills and the dot turns into a butterfly:
     // the countdown to the butterflies (see lib/idle). Only touched when it changes.
-    let idleFrame = 0;
+    let stopIdle: (() => void) | null = null;
     let lastP = -1;
     let lastShow = -1;
     // What is drawn eases toward what the clock says: it fades in with the
@@ -86,7 +87,6 @@ export function CustomCursor() {
         root.classList.toggle("is-idle", show > 0.01);
         root.classList.toggle("is-idle-done", p >= 1);
       }
-      idleFrame = requestAnimationFrame(idleTick);
     };
 
     const setState = (next: CursorState) => {
@@ -111,7 +111,7 @@ export function CustomCursor() {
         ringX = x;
         ringY = y;
         document.documentElement.classList.add("has-cursor");
-        idleFrame = requestAnimationFrame(idleTick);
+        stopIdle ??= subscribeTick(idleTick);
       }
       root.classList.add("is-on");
       dot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
@@ -145,7 +145,7 @@ export function CustomCursor() {
     return () => {
       cancelAnimationFrame(frame);
       cancelAnimationFrame(scrollFrame);
-      cancelAnimationFrame(idleFrame);
+      stopIdle?.();
       window.removeEventListener("pointermove", handleMove);
       window.removeEventListener("pointerdown", handleDown);
       window.removeEventListener("pointerup", handleUp);

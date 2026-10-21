@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 
+import { subscribeTick } from "@/lib/ticker";
+
 const pad = (value: number, length = 2) => String(value).padStart(length, "0");
 
 function formatTime(now: Date, withMilliseconds: boolean): string {
@@ -27,13 +29,24 @@ export function LiveClock() {
       return () => window.clearInterval(id);
     }
 
-    let frame = 0;
+    // Only runs while the footer is actually on screen.
     const tick = () => {
       el.textContent = formatTime(new Date(), true);
-      frame = requestAnimationFrame(tick);
     };
     tick();
-    return () => cancelAnimationFrame(frame);
+    let stop: (() => void) | null = null;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) stop ??= subscribeTick(tick);
+      else {
+        stop?.();
+        stop = null;
+      }
+    });
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      stop?.();
+    };
   }, []);
 
   // Tabular digits keep the width fixed, so the footer doesn't shimmer as the

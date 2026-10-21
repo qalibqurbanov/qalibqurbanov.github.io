@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 
 import { prefersReducedMotion } from "@/hooks/glitch";
 import { idleFor, IDLE_MS } from "@/lib/idle";
+import { subscribeTick } from "@/lib/ticker";
 
 const COUNT = 10;
 /** The idle clock shows nothing for the first stretch; fireflies leave one by one after it. */
@@ -105,6 +106,7 @@ export function Fireflies() {
 
     let pointer: { x: number; y: number } | null = null;
     const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
       pointer = { x: e.clientX, y: e.clientY };
     };
     const onLeave = () => {
@@ -113,12 +115,11 @@ export function Fireflies() {
     window.addEventListener("pointermove", onMove, { passive: true });
     document.documentElement.addEventListener("pointerleave", onLeave);
 
-    let raf = 0;
     let last = performance.now();
     let t = 0;
     let front = false;
     const frame = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000);
+      const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       t += dt;
 
@@ -195,12 +196,12 @@ export function Fireflies() {
         front = anyAway;
         canvas.classList.toggle("is-front", front);
       }
-      raf = requestAnimationFrame(frame);
     };
-    raf = requestAnimationFrame(frame);
+    // 30 fps is plenty for slow, soft lights, and half the work of 60.
+    const stop = subscribeTick(frame, 33);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onMove);
       document.documentElement.removeEventListener("pointerleave", onLeave);

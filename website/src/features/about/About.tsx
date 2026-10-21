@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import avatarUrl from "@/assets/avatar.png";
+import avatarUrl from "@/assets/avatar.webp";
 import { Container } from "@/components/ui/Container";
 import { CountUp } from "@/components/ui/CountUp";
 import { GlitchText } from "@/components/ui/GlitchText";
@@ -59,6 +59,7 @@ export function About() {
                   className="h-full w-full object-cover"
                   width={128}
                   height={128}
+                  decoding="async"
                 />
               </div>
               <dl className="card-surface rounded-xl p-5 flex-1 flex flex-wrap gap-x-8 gap-y-4">

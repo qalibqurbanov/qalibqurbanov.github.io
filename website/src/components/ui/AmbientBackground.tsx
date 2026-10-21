@@ -98,13 +98,13 @@ export function AmbientBackground() {
           />
         ))}
       <div className="absolute -top-32 -left-24 w-[520px] h-[520px]">
-        <div className="w-full h-full rounded-full bg-accent/10 blur-3xl blob-drift-a" />
+        <div className="ambient-blob blob-drift-a" style={{ "--blob": "var(--color-accent)", "--blob-a": "13%" } as CSSProperties} />
       </div>
       <div className="absolute bottom-[-15%] -right-24 w-[560px] h-[560px]">
-        <div className="w-full h-full rounded-full bg-accent-2/10 blur-3xl blob-drift-b" />
+        <div className="ambient-blob blob-drift-b" style={{ "--blob": "var(--color-accent-2)", "--blob-a": "13%" } as CSSProperties} />
       </div>
       <div className="absolute top-1/2 left-1/2 -ml-[220px] -mt-[220px] w-[440px] h-[440px]">
-        <div className="w-full h-full rounded-full bg-accent/5 blur-3xl blob-drift-a" style={{ animationDelay: "-9s" }} />
+        <div className="ambient-blob blob-drift-a" style={{ "--blob": "var(--color-accent)", "--blob-a": "7%", animationDelay: "-9s" } as CSSProperties} />
       </div>
     </div>
   );

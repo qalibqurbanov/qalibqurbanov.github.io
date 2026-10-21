@@ -1,4 +1,3 @@
-import { getFontEmbedCSS, toCanvas } from "html-to-image";
 
 import { glitchScreen } from "@/hooks/glitch";
 import { glitchStorm } from "@/lib/effects";
@@ -189,6 +188,7 @@ async function capturePage(root: HTMLElement, W: number, Hd: number, ratio: numb
     el.style.cssText += `;position:absolute;top:${r.top + window.scrollY}px;left:${r.left}px;right:auto;bottom:auto;transform:none;transition:none`;
   }
   try {
+    const { getFontEmbedCSS, toCanvas } = await import("html-to-image");
     if (fontCss === null) fontCss = await getFontEmbedCSS(root).catch(() => "");
     const shot = toCanvas(root, {
       width: W,

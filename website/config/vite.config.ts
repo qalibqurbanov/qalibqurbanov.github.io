@@ -134,6 +134,19 @@ export default defineConfig({
     __BUILD_INFO__: JSON.stringify(buildInfo),
     __REPO_STATS__: JSON.stringify(repoStats),
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        // Stable, separately cached vendor chunks: they change far less often than the site's own code.
+        advancedChunks: {
+          groups: [
+            { name: "react", test: /node_modules\/(react|react-dom|scheduler)\// },
+            { name: "radix", test: /node_modules\/(@radix-ui|@floating-ui|aria-hidden|react-remove-scroll[^/]*|react-style-singleton|use-[^/]+|get-nonce|tslib)\// },
+          ],
+        },
+      },
+    },
+  },
   server: {
     port: 1337,
   },

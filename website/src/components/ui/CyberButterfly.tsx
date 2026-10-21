@@ -3,10 +3,10 @@ import { createPortal } from "react-dom";
 
 import { prefersReducedMotion } from "@/hooks/glitch";
 import { useContent } from "@/i18n/context";
+import { subscribeTick } from "@/lib/ticker";
 import type { View } from "@/lib/butterflyFlight";
 import type { Perch } from "@/lib/butterflyFlight";
 import { ButterflyFlight } from "@/lib/butterflyFlight";
-import { demolish } from "@/lib/demolition";
 import { idleFor, IDLE_MS, wake } from "@/lib/idle";
 
 /** One of the roaming butterflies, each with its own flight and state. */
@@ -16,6 +16,8 @@ interface Bug {
   hit: number;
   size: number;
   thread: HTMLDivElement;
+  /** Time banked while far off screen, spent in one larger step. */
+  sleep: number;
   fold: number;
   threadOn: boolean;
   hover: boolean;
@@ -142,7 +144,7 @@ function findPerch(x: number, y: number, size: number, docH: number): Perch | nu
     .filter(({ r, top }) => r.width >= 56 && r.width <= 760 && r.height >= 14 && top > 80 && top + r.height + need < docH - 40 && r.left > 0 && r.right < window.innerWidth + 1)
     .filter(({ r, top }) => Math.hypot(r.left + r.width / 2 - x, top + r.height - y) < 1100)
     .sort(() => Math.random() - 0.5);
-  for (const { el, r, top } of candidates.slice(0, 12)) {
+  for (const { el } of candidates.slice(0, 12)) {
     if (!perchable(el)) continue;
     const at = 0.25 + Math.random() * 0.5;
     const line = lastLineOf(el);
@@ -253,7 +255,7 @@ export function CyberButterfly() {
       const flight = new ButterflyFlight(size, view());
       flight.finder = calm ? null : (x, y) => findPerch(x, y, size, docH);
       if (i > 0) flight.scatter(view());
-      return { flight, body, hit, size, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0 };
+      return { flight, body, hit, size, sleep: 0, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0 };
     });
     const rest = () => {
       bugs.forEach((b, i) => {
@@ -273,7 +275,6 @@ export function CyberButterfly() {
     const trail: Trail[] = [];
     let mode: "fly" | "charging" = "fly";
     let pointer: { x: number; y: number } | null = null;
-    let raf = 0;
     let last = performance.now();
     let chargedAt = 0;
     // After this long without the pointer moving, every butterfly comes to circle it.
@@ -350,7 +351,16 @@ export function CyberButterfly() {
         const { flight, body, hit } = bug;
         if (mode === "fly") {
           flight.orbit = idle && pointer ? { x: pointer.x, y: pointer.y + window.scrollY } : null;
-          if (!calm) flight.update(dt, v, bug.hover ? 0.3 : 1);
+          if (!calm) {
+            // Far above or below the screen it only needs an occasional, larger step.
+            const far = flight.y < v.scrollY - 400 || flight.y > v.scrollY + v.h + 400;
+            bug.sleep = far ? bug.sleep + dt : 0;
+            if (!far) flight.update(dt, v, bug.hover ? 0.3 : 1);
+            else if (bug.sleep >= 0.1) {
+              flight.update(bug.sleep, v, 1);
+              bug.sleep = 0;
+            }
+          }
           const wanted = calm ? 0.45 : Math.min(0.34, Math.max(0.15, 0.4 - flight.speed / 700));
           if (Math.abs(wanted - bug.flap) > 0.015) {
             bug.flap = wanted;
@@ -459,11 +469,12 @@ export function CyberButterfly() {
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
 
-      raf = requestAnimationFrame(frame);
     };
-    raf = requestAnimationFrame(frame);
+    const stop = subscribeTick(frame);
 
     const onMove = (event: PointerEvent) => {
+      // Touch has no resting pointer to circle or hover over.
+      if (event.pointerType !== "mouse") return;
       pointer = { x: event.clientX, y: event.clientY };
       wake();
     };
@@ -498,7 +509,8 @@ export function CyberButterfly() {
       window.setTimeout(() => {
         for (const b of bugs) b.body.classList.add("is-gone");
       }, 640);
-      void demolish(origin, hintRef.current).then(() => {
+      // The demolition (and the screenshot library behind it) loads only when it is first needed.
+      void import("@/lib/demolition").then((m) => m.demolish(origin, hintRef.current)).then(() => {
         trail.length = 0;
         for (const b of bugs) {
           b.body.classList.remove("is-charging", "is-gone");
@@ -519,7 +531,7 @@ export function CyberButterfly() {
     window.addEventListener("pointerdown", onDown, { capture: true });
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       observer.disconnect();
       window.removeEventListener("resize", measure);
       window.removeEventListener("pointermove", onMove);

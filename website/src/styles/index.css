@@ -759,6 +759,20 @@ html::-webkit-scrollbar-button,
    Consumers set only `--depth` inline — no JS wiring needed per element.
    The offset is clamped so a long page can't drift a layer far enough to
    expose empty space past the edge of its fixed, viewport-sized parent. */
+/* A soft glow as a plain radial gradient: it looks like the blurred disc it
+   replaced but costs nothing to repaint, unlike a large CSS blur. */
+.ambient-blob {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--blob) var(--blob-a), transparent) 0%,
+    color-mix(in srgb, var(--blob) calc(var(--blob-a) * 0.55), transparent) 45%,
+    transparent 100%
+  );
+}
+
 .parallax-layer {
   transform: translateY(clamp(-64px, calc(var(--scroll-y, 0) * var(--depth, 0) * 1px), 64px));
 }

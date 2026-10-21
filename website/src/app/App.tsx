@@ -5,24 +5,18 @@ import { Navbar } from "@/components/layout/Navbar";
 import { AmbientBackground } from "@/components/ui/AmbientBackground";
 import { BackToTop } from "@/components/ui/BackToTop";
 import { ContextMenu } from "@/components/ui/ContextMenu";
-import { CyberButterfly } from "@/components/ui/CyberButterfly";
-import { Fireflies } from "@/components/ui/Fireflies";
 import { TooltipLayer } from "@/components/ui/TooltipLayer";
 import { CursorGlow } from "@/components/ui/CursorGlow";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { About } from "@/features/about/About";
 // import { Blog } from "@/features/blog/Blog";
-import { Contact } from "@/features/contact/Contact";
-import { Experience } from "@/features/experience/Experience";
 import { Hero } from "@/features/hero/Hero";
-import { ProjectDetail } from "@/features/projects/ProjectDetail";
-import { Projects } from "@/features/projects/Projects";
-import { ResumeViewer } from "@/features/resume/ResumeViewer";
-import { Skills } from "@/features/skills/Skills";
+import { Contact, CyberButterfly, Experience, Fireflies, ProjectDetail, Projects, ResumeViewer, Skills } from "@/app/sections";
 import { useEasterEggs } from "@/hooks/useEasterEggs";
 import { useHashSectionFocus } from "@/hooks/useHashSectionFocus";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent } from "@/i18n/context";
+import { Suspense } from "react";
 
 export function App() {
   const { projects, ui } = useContent();
@@ -45,22 +39,26 @@ export function App() {
       <main>
         <Hero />
         <About />
-        <Experience />
-        <Projects />
-        <Skills />
-        {/* <Blog /> */}
-        <Contact />
+        <Suspense fallback={null}>
+          <Experience />
+          <Projects />
+          <Skills />
+          {/* <Blog /> */}
+          <Contact />
+        </Suspense>
       </main>
       <Footer />
       <BackToTop />
-      <CyberButterfly />
-      <Fireflies />
+      <Suspense fallback={null}>
+        <CyberButterfly />
+        <Fireflies />
 
-      {resumeOpen ? (
-        <ResumeViewer onBack={closeProject} />
-      ) : activeProject !== undefined ? (
-        <ProjectDetail project={activeProject} onBack={closeProject} />
-      ) : null}
+        {resumeOpen ? (
+          <ResumeViewer onBack={closeProject} />
+        ) : activeProject !== undefined ? (
+          <ProjectDetail project={activeProject} onBack={closeProject} />
+        ) : null}
+      </Suspense>
     </div>
   );
 }
