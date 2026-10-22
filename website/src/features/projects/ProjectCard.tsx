@@ -53,7 +53,7 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
                     target="_blank"
                     rel="noreferrer"
                     aria-label={format(ui.labels.repository, { title: project.title })}
-                    className="hover:text-accent transition"
+                    className="tap hover:text-accent transition"
                   >
                     <GithubIcon size={18} />
                   </a>
@@ -62,7 +62,7 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
                     target="_blank"
                     rel="noreferrer"
                     aria-label={format(download ? ui.labels.download : ui.labels.liveDemo, { title: project.title })}
-                    className="hover:text-accent transition"
+                    className="tap hover:text-accent transition"
                   >
                     {download ? <Download size={18} /> : <ExternalLink size={18} />}
                   </a>
@@ -81,7 +81,7 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
               </div>
               <a
                 href={projectHref(project.slug)}
-                className="inline-flex items-center gap-1 font-mono text-xs text-muted group-hover:text-accent transition-colors shrink-0"
+                className="tap inline-flex items-center gap-1 font-mono text-xs text-muted group-hover:text-accent transition-colors shrink-0"
               >
                 {ui.commandPalette.openCaseStudy}
                 <ArrowUpRight size={14} />

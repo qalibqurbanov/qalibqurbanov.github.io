@@ -35,13 +35,13 @@ interface FooterIconLinkProps {
 }
 
 const TONE_CLASSES: Record<NonNullable<FooterIconLinkProps["tone"]>, string> = {
-  default: "group relative inline-flex items-center hover:text-accent transition",
+  default: "tap group relative inline-flex items-center hover:text-accent transition",
   accent:
-    "group relative inline-flex items-center justify-center rounded-full bg-accent/10 p-1.5 text-accent transition hover:bg-accent/20",
+    "tap group relative inline-flex items-center justify-center rounded-full bg-accent/10 p-1.5 text-accent transition hover:bg-accent/20",
   danger:
-    "group relative inline-flex items-center justify-center rounded-full bg-danger/10 p-1.5 text-danger transition hover:bg-danger/20",
+    "tap group relative inline-flex items-center justify-center rounded-full bg-danger/10 p-1.5 text-danger transition hover:bg-danger/20",
   accent2:
-    "group relative inline-flex items-center justify-center rounded-full bg-accent-2/10 p-1.5 text-accent-2 transition hover:bg-accent-2/20",
+    "tap group relative inline-flex items-center justify-center rounded-full bg-accent-2/10 p-1.5 text-accent-2 transition hover:bg-accent-2/20",
 };
 
 // `card-surface` supplies the hover border sweep used elsewhere on the site;
@@ -86,14 +86,14 @@ function BranchBadge() {
       href={`${SITE_REPO_URL}/commit/${sha}`}
       target="_blank"
       rel="noreferrer"
-      className="group relative inline-flex items-center gap-1.5 text-accent"
+      className="tap group relative inline-flex items-center gap-1.5 text-accent"
     >
       {label}
       <span
         role="tooltip"
         data-side="top"
         style={{ ["--tip-arrow" as string]: "1.25rem" }}
-        className="tip-balloon pointer-events-none absolute bottom-full left-1/2 mb-2.5 w-max -translate-x-1/2 scale-95 text-left opacity-0 transition duration-150 group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100 sm:left-[-0.5rem] sm:translate-x-0"
+        className="tip-balloon pointer-events-none absolute bottom-full left-0 mb-2.5 w-max max-w-[calc(100vw-3rem)] scale-95 text-left opacity-0 transition duration-150 group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100 sm:left-[-0.5rem]"
       >
         <span className="block text-muted">{ui.labels.lastCommit}</span>
         <span className="block">
@@ -112,7 +112,7 @@ export function Footer() {
   const hasResume = profile.resumeUrl && profile.resumeUrl !== "#";
 
   return (
-    <footer className="border-t border-border bg-surface-2">
+    <footer className="overflow-x-clip border-t border-border bg-surface-2">
       <div className="max-w-6xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 font-mono text-xs text-muted">
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
           <BranchBadge />
@@ -133,7 +133,7 @@ export function Footer() {
             © {now.getFullYear()} {profile.name}
           </span>
         </div>
-        <div className="flex items-center gap-4 text-muted">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-muted">
           <div role="group" aria-label={ui.labels.socialMedia} className={`${GROUP_CLASS} gap-4`}>
             <FooterIconLink href={socials.github} label="GitHub">
               <GithubIcon size={18} />

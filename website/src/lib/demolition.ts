@@ -1,6 +1,7 @@
 import { glitchScreen, prefersReducedMotion } from "@/hooks/glitch";
 import { glitchStorm } from "@/lib/effects";
 import { shatter } from "@/lib/shatter";
+import { isLightTheme } from "@/lib/themeMode";
 
 /** The "city demolition" behind the cyber butterfly (see CyberButterfly).
  *
@@ -1300,8 +1301,9 @@ class Demolition {
     ctx.lineTo(this.W + BIN, this.Hd + 4);
     ctx.closePath();
     const g = ctx.createLinearGradient(0, this.Hd - max, 0, this.Hd);
-    g.addColorStop(0, "rgba(22,16,44,0.62)");
-    g.addColorStop(1, "rgba(6,4,14,0.8)");
+    const light = isLightTheme();
+    g.addColorStop(0, light ? "rgba(168,160,190,0.6)" : "rgba(22,16,44,0.62)");
+    g.addColorStop(1, light ? "rgba(112,102,142,0.85)" : "rgba(6,4,14,0.8)");
     ctx.fillStyle = g;
     ctx.fill();
     ctx.beginPath();

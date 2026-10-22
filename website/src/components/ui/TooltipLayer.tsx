@@ -49,6 +49,12 @@ export function TooltipLayer() {
       }
       active.current = null;
     };
+    /** Puts the balloon up (unplaced: the effect below measures and places it). */
+    const present = (target: HTMLElement, text: string) => {
+      if (!target.isConnected) return;
+      setPending({ target, text });
+      setTip({ text, theme: target.closest("[data-theme]")?.getAttribute("data-theme") ?? null, left: 0, top: 0, arrow: 0, side: "top" });
+    };
     const hide = () => {
       window.clearTimeout(timer);
       restore();
@@ -66,7 +72,7 @@ export function TooltipLayer() {
       target.dataset.tip = text;
       target.removeAttribute("title");
       active.current = target;
-      timer = window.setTimeout(() => setPending({ target, text }), instant ? 0 : SHOW_DELAY_MS);
+      timer = window.setTimeout(() => present(target, text), instant ? 0 : SHOW_DELAY_MS);
     };
     // While a window is being dragged the balloon steps aside; once the window
     // is back in its default place, the one that was showing comes back.
@@ -92,7 +98,7 @@ export function TooltipLayer() {
         target.dataset.tip = current;
         target.removeAttribute("title");
         active.current = target;
-        setPending({ target, text: current });
+        present(target, current);
       }, SETTLE_MS);
     };
     const unsubscribe = subscribeDisturbance(onDrag);
@@ -128,13 +134,6 @@ export function TooltipLayer() {
   }, []);
 
   // Place the balloon once its text is rendered and measurable.
-  useEffect(() => {
-    if (!pending) return;
-    const { target, text } = pending;
-    if (!target.isConnected) return;
-    setTip({ text, theme: target.closest("[data-theme]")?.getAttribute("data-theme") ?? null, left: 0, top: 0, arrow: 0, side: "top" });
-  }, [pending]);
-
   useEffect(() => {
     if (!tip || shown || !pending || !balloon.current) return;
     const rect = pending.target.getBoundingClientRect();

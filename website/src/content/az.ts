@@ -233,6 +233,11 @@ const az: Content = {
       successTitle: "Mesaj göndərildi",
       successBody: "Yazdığınız üçün təşəkkürlər — mümkün qədər tez cavab verəcəyəm.",
       error: "Mesajı göndərmək mümkün olmadı. Bir azdan yenidən cəhd edin.",
+      emailInstead: "Və ya birbaşa e-poçtla yazın",
+      rateLimited: "Çox tezdir — növbəti mesajdan əvvəl bir az gözləyin.",
+      mailTitle: "E-poçt tətbiqiniz açılır",
+      mailBody: "Mesaj e-poçt tətbiqinizdən göndərilməyə hazırdır. Heç nə açılmadısa, birbaşa {email} ünvanına yazın.",
+      mailSend: "E-poçt tətbiqində aç",
       close: "Bağla",
     },
     skillGroups: {
@@ -255,6 +260,9 @@ const az: Content = {
     resumeView: {
       back: "Geri",
       fallback: "Brauzeriniz PDF-i bu səhifədə göstərə bilmir.",
+      open: "Yeni tabda aç",
+      download: "PDF-i yüklə",
+      mobileHint: "Cihazınız PDF-ləri öz görüntüləyicisində göstərir — faylı açın və ya nüsxəsini saxlayın.",
     },
     butterfly: {
       hint: "Sistem söndü. Saytı bərpa etmək üçün \"r\" və ya \"reboot\" yazıb Enter basın.",

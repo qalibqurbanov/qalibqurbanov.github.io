@@ -232,6 +232,11 @@ const en: Content = {
       successTitle: "Message sent",
       successBody: "Thanks for reaching out — I'll reply as soon as I can.",
       error: "Couldn't send your message. Please try again in a moment.",
+      emailInstead: "Or email me directly",
+      rateLimited: "That was quick — please wait a moment before sending another message.",
+      mailTitle: "Your email app is opening",
+      mailBody: "The message is ready to send from your email app. If nothing opened, write to {email} directly.",
+      mailSend: "Open in email app",
       close: "Close",
     },
     skillGroups: {
@@ -254,6 +259,9 @@ const en: Content = {
     resumeView: {
       back: "Back",
       fallback: "Your browser can't display PDFs inline.",
+      open: "Open in new tab",
+      download: "Download PDF",
+      mobileHint: "Your device shows PDFs in its own viewer — open it or save a copy.",
     },
     butterfly: {
       hint: "System down. Type \"r\" or \"reboot\" and press Enter to restore the site.",

@@ -47,7 +47,7 @@ export function Navbar() {
         </div>
       </div>
 
-      <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+      <nav className="max-w-6xl mx-auto flex items-center justify-between gap-2 px-4 py-4 sm:px-6">
         <div className="relative">
           <Knockable
             seed={0}
@@ -59,7 +59,7 @@ export function Navbar() {
                 event.preventDefault();
                 scrollToTop();
               }}
-              className="font-mono text-sm text-text tracking-tight inline-flex items-center gap-2.5"
+              className="tap font-mono text-sm text-text tracking-tight inline-flex items-center gap-2.5"
             >
               <span className="relative flex h-2 w-2" aria-hidden="true">
                 <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping" />
@@ -102,7 +102,7 @@ export function Navbar() {
           ))}
         </ul>
 
-        <div className={`flex items-center gap-4 ${FADE} ${hideInView}`}>
+        <div className={`flex items-center gap-1 sm:gap-4 ${FADE} ${hideInView}`}>
           <Knockable seed={90} className="inline-flex items-center">
             <CommandPaletteTrigger label={ui.nav.commandPaletteHint} />
           </Knockable>
@@ -114,7 +114,7 @@ export function Navbar() {
           <Knockable seed={92} className="inline-flex items-center">
             <button
               type="button"
-              className="inline-flex items-center justify-center text-muted hover:text-accent transition-colors"
+              className="inline-flex h-10 w-10 items-center justify-center text-muted hover:text-accent transition-colors md:h-auto md:w-auto"
               onClick={toggleTheme}
               aria-label={
                 theme === "dark"
@@ -132,7 +132,7 @@ export function Navbar() {
           <Knockable seed={93} className="md:hidden inline-flex items-center">
             <button
               type="button"
-              className="inline-flex items-center justify-center text-text"
+              className="inline-flex h-10 w-10 items-center justify-center text-text"
               onClick={() => setOpen((value) => !value)}
               aria-label={ui.nav.toggleMenu}
               aria-expanded={open}
@@ -144,14 +144,14 @@ export function Navbar() {
       </nav>
 
       {open && (
-        <div className="md:hidden flex flex-col gap-4 px-6 pb-4 bg-bg/95 border-b border-border">
+        <div className="md:hidden flex flex-col gap-4 px-4 pb-4 sm:px-6 bg-bg/95 border-b border-border">
           <ul className="flex flex-col gap-1 font-mono text-sm text-muted">
             {navigation.map((item) => (
               <li key={item.href}>
                 <a
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="block py-2 hover:text-accent transition-colors"
+                  className="block min-h-11 py-3 hover:text-accent transition-colors"
                 >
                   {item.label}
                 </a>

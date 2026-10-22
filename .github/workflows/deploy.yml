@@ -46,6 +46,9 @@ jobs:
         env:
           # Lets the build read repository stats from the GitHub API without hitting rate limits.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The contact form service (see website/.env.example). Both are optional: without them the form opens the visitor's email app.
+          VITE_CONTACT_ENDPOINT: ${{ vars.VITE_CONTACT_ENDPOINT }}
+          VITE_CONTACT_ACCESS_KEY: ${{ secrets.VITE_CONTACT_ACCESS_KEY }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

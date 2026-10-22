@@ -37,7 +37,6 @@ export function ViewModal({
   const { ui } = useContent();
   const label = backLabel ?? ui.resumeView.back;
   const [closing, setClosing] = useState(false);
-  const timer = useRef<number | undefined>(undefined);
   const contentRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   const visible = open && !closing;
@@ -46,11 +45,15 @@ export function ViewModal({
     onCloseRef.current = onClose;
   }, [onClose]);
 
+  // Closing plays the exit animation first; only then does the owner hide or unmount the view.
   useEffect(() => {
-    if (open) setClosing(false);
-  }, [open]);
-
-  useEffect(() => () => window.clearTimeout(timer.current), []);
+    if (!closing) return;
+    const id = window.setTimeout(() => {
+      setClosing(false);
+      onCloseRef.current();
+    }, EXIT_MS);
+    return () => window.clearTimeout(id);
+  }, [closing]);
 
   // The window's border glitches once as the view opens.
   useEffect(() => {
@@ -62,14 +65,7 @@ export function ViewModal({
     return () => window.clearTimeout(id);
   }, [visible]);
 
-  const requestClose = useCallback(() => {
-    if (timer.current !== undefined) return;
-    setClosing(true);
-    timer.current = window.setTimeout(() => {
-      timer.current = undefined;
-      onCloseRef.current();
-    }, EXIT_MS);
-  }, []);
+  const requestClose = useCallback(() => setClosing(true), []);
 
   useEffect(() => {
     if (!visible) return;

@@ -120,7 +120,7 @@ export function MoreProjects({ variant }: { variant: MoreVariant }) {
             href={href}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 text-muted transition-colors hover:text-accent"
+            className="tap inline-flex items-center gap-1 text-muted transition-colors hover:text-accent"
           >
             {ui.projectList.moreCta}
             <ArrowUpRight size={14} />

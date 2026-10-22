@@ -199,6 +199,15 @@ export interface UiStrings {
     successTitle: string;
     successBody: string;
     error: string;
+    /** Offered next to the error: write by email instead. */
+    emailInstead: string;
+    /** Shown when a message is sent too quickly or too often. */
+    rateLimited: string;
+    /** Shown when the message was handed to the visitor's email app. */
+    mailTitle: string;
+    /** `{email}` is filled in. */
+    mailBody: string;
+    mailSend: string;
     close: string;
   };
   nav: {
@@ -210,6 +219,10 @@ export interface UiStrings {
   resumeView: {
     back: string;
     fallback: string;
+    open: string;
+    download: string;
+    /** Shown instead of the embedded viewer on devices that open PDFs in their own viewer. */
+    mobileHint: string;
   };
   /** The roaming cyber butterfly easter egg. */
   butterfly: {

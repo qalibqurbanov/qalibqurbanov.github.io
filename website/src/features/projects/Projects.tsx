@@ -10,8 +10,8 @@ import type { MoreVariant } from "./MoreProjects";
 import { MoreProjects } from "./MoreProjects";
 import { ProjectCard } from "./ProjectCard";
 
-const CHIP = "rounded-md border px-2.5 py-1 font-mono text-xs transition-colors";
-const SEGMENT = "rounded px-2.5 py-1 transition-colors";
+const CHIP = "rounded-md border px-2.5 py-1 font-mono text-xs transition-colors [@media(pointer:coarse)]:py-2";
+const SEGMENT = "rounded px-2.5 py-1 transition-colors [@media(pointer:coarse)]:py-2";
 
 type MatchMode = "any" | "all";
 

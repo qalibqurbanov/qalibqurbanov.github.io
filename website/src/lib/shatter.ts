@@ -1,6 +1,7 @@
 
 import { glitchScreen } from "@/hooks/glitch";
 import { glitchStorm } from "@/lib/effects";
+import { isLightTheme } from "@/lib/themeMode";
 
 /** The shard-based demolition behind the cyber butterfly (see demolition.ts).
  *
@@ -246,6 +247,8 @@ class Shatter {
   private readonly W = document.documentElement.clientWidth;
   private readonly H = window.innerHeight;
   private readonly mobile = this.W < 700;
+  /** The light theme: the dark chunks, vignette and heap are drawn in light tones instead. */
+  private readonly light = isLightTheme();
   private readonly scroll0 = window.scrollY;
   private readonly Hd = Math.max(document.documentElement.scrollHeight, window.innerHeight);
   private readonly ratio = this.mobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.25);
@@ -1014,14 +1017,14 @@ class Shatter {
     g.closePath();
     g.save();
     g.clip();
-    // The piece is a solid chunk of the page: a dark body under what was painted on it.
-    g.fillStyle = "rgba(14,10,30,0.94)";
+    // The piece is a solid chunk of the page: a body under what was painted on it (as dark as the page, or as light).
+    g.fillStyle = this.light ? "rgba(236,233,247,0.96)" : "rgba(14,10,30,0.94)";
     g.fill();
     g.drawImage(this.page, s.bx * r, s.by * r, s.bw * r, s.bh * r, 0, 0, cv.width, cv.height);
     g.restore();
     g.lineJoin = "round";
     g.lineWidth = 1.4 * r;
-    g.strokeStyle = "rgba(160,130,255,0.35)";
+    g.strokeStyle = this.light ? "rgba(109,40,217,0.4)" : "rgba(160,130,255,0.35)";
     g.stroke();
     s.cv = cv;
     s.phase = 1;
@@ -1426,7 +1429,7 @@ class Shatter {
     if (!g || this.scorches > 90) return;
     this.scorches++;
     const grad = g.createRadialGradient(x, y, 0, x, y, r);
-    grad.addColorStop(0, "rgba(0,0,0,0.5)");
+    grad.addColorStop(0, `rgba(0,0,0,${this.light ? 0.26 : 0.5})`);
     grad.addColorStop(1, "rgba(0,0,0,0)");
     g.fillStyle = grad;
     g.fillRect(x - r, y - r, r * 2, r * 2);
@@ -1475,12 +1478,12 @@ class Shatter {
     g.textBaseline = "middle";
     g.textAlign = "center";
     for (let i = 0; i < chars.length; i++) {
-      g.fillStyle = "#35f0a4";
-      g.shadowColor = "#35f0a4";
+      g.fillStyle = this.light ? "#0b7d57" : "#35f0a4";
+      g.shadowColor = this.light ? "#0b7d57" : "#35f0a4";
       g.shadowBlur = 4;
       g.fillText(chars[i], i * cw + cw / 2, ch / 2);
-      g.fillStyle = "#eafff6";
-      g.shadowColor = "#7dffd0";
+      g.fillStyle = this.light ? "#064e3b" : "#eafff6";
+      g.shadowColor = this.light ? "#10b981" : "#7dffd0";
       g.shadowBlur = 6;
       g.fillText(chars[i], i * cw + cw / 2, ch + ch / 2);
     }
@@ -1751,7 +1754,8 @@ class Shatter {
 
   /** Power failing: a darkening vignette that flickers. */
   private drawDim(ctx: CanvasRenderingContext2D): void {
-    const a = this.dim * this.flick;
+    // On a light page the dimming is half as strong: it is a shade, not a blackout.
+    const a = this.dim * this.flick * (this.light ? 0.5 : 1);
     if (a < 0.01) return;
     const R = Math.max(this.W, this.H) * 0.75;
     const g = ctx.createRadialGradient(this.W / 2, this.H * 0.45, this.H * 0.3, this.W / 2, this.H * 0.45, R);
@@ -1804,7 +1808,7 @@ class Shatter {
       ["sections", "all lost", c.danger],
       ["content", "preserved", c.ok],
       ["collapse", `${(this.afterAt / 1000).toFixed(1)} s`, this.accent],
-      ["seed", "0x51616C6962", c.text],
+      ["signature", "0x51616C6962", c.text],
     ];
     const headH = 42 * u;
     const cardPad = 12 * u;
@@ -2126,20 +2130,20 @@ class Shatter {
     const n = s.px.length / 2;
     const upto = Math.max(2, Math.round(n * Math.min(1, p * 1.4)));
     stroke(s.px, upto, s.cx, s.cy);
-    ctx.strokeStyle = "rgba(34,211,238,0.35)";
+    ctx.strokeStyle = this.light ? "rgba(109,40,217,0.3)" : "rgba(34,211,238,0.35)";
     ctx.lineWidth = 3;
     ctx.stroke();
-    ctx.strokeStyle = "rgba(235,250,255,0.9)";
+    ctx.strokeStyle = this.light ? "rgba(30,20,60,0.9)" : "rgba(235,250,255,0.9)";
     ctx.lineWidth = 0.9;
     ctx.stroke();
     ctx.globalAlpha = 1;
     for (const line of s.cracks) {
       const count = Math.max(2, Math.round((line.length / 2) * p));
       stroke(line, count, 0, 0);
-      ctx.strokeStyle = "rgba(34,211,238,0.35)";
+      ctx.strokeStyle = this.light ? "rgba(109,40,217,0.3)" : "rgba(34,211,238,0.35)";
       ctx.lineWidth = 3;
       ctx.stroke();
-      ctx.strokeStyle = "rgba(235,250,255,0.95)";
+      ctx.strokeStyle = this.light ? "rgba(30,20,60,0.95)" : "rgba(235,250,255,0.95)";
       ctx.lineWidth = 1;
       ctx.stroke();
     }
@@ -2169,8 +2173,8 @@ class Shatter {
     ctx.lineTo(this.W + BIN, this.Hd + 4);
     ctx.closePath();
     const g = ctx.createLinearGradient(0, this.Hd - max, 0, this.Hd);
-    g.addColorStop(0, "rgba(14,10,28,0.85)");
-    g.addColorStop(1, "rgba(5,3,12,0.97)");
+    g.addColorStop(0, this.light ? "rgba(168,160,190,0.7)" : "rgba(14,10,28,0.85)");
+    g.addColorStop(1, this.light ? "rgba(112,102,142,0.9)" : "rgba(5,3,12,0.97)");
     ctx.fillStyle = g;
     ctx.fill();
   }

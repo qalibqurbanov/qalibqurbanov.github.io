@@ -55,7 +55,13 @@ function BreakableWords({
   glitch?: boolean;
 }) {
   const tokens = text.split(/(\s+)/);
-  let wordIndex = 0;
+  // The position of every word among the words (not the spaces), counted up front.
+  const wordIndexes: number[] = [];
+  let words = 0;
+  for (const token of tokens) {
+    wordIndexes.push(words);
+    if (token !== "" && !/^\s+$/.test(token)) words += 1;
+  }
 
   return (
     <>
@@ -63,8 +69,7 @@ function BreakableWords({
         if (token === "") return null;
         if (/^\s+$/.test(token)) return <Fragment key={index}>{token}</Fragment>;
 
-        const seed = seedBase + wordIndex;
-        wordIndex += 1;
+        const seed = seedBase + wordIndexes[index];
         return (
           <Knockable
             key={index}
@@ -288,15 +293,17 @@ export function Hero() {
 
   // The "+" callout steps aside while the window is dragged and returns once it
   // has snapped back to its default place (the snap-back animation is 0.4s).
+  // While the window is dragged the hint is hidden outright; when the drag ends it is held back until the snap-back is over.
   const [hintSettled, setHintSettled] = useState(true);
   useEffect(() => {
-    if (dragging) {
-      setHintSettled(false);
-      return;
-    }
+    if (!dragging) return;
+    return () => setHintSettled(false);
+  }, [dragging]);
+  useEffect(() => {
+    if (hintSettled || dragging) return;
     const timer = window.setTimeout(() => setHintSettled(true), 450);
     return () => window.clearTimeout(timer);
-  }, [dragging]);
+  }, [hintSettled, dragging]);
 
   useLayoutEffect(() => {
     const plus = plusRef.current;
@@ -714,7 +721,7 @@ export function Hero() {
               }`}
             >
               <div ref={windowRef} style={windowStyle} inert={!booted} className="relative">
-                {pointAtPlus && hintSettled && plusX !== null && (
+                {pointAtPlus && hintSettled && !dragging && plusX !== null && (
                   <div
                     role="note"
                     style={{ left: Math.max(0, plusX - HINT_NOTCH) }}
