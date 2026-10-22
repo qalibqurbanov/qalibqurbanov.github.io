@@ -7,6 +7,8 @@ export interface MenuNode {
   children?: MenuNode[];
   /** A terminal command to run (and echo) when the item is chosen. */
   command?: string;
+  /** A page effect to run instead of a command (nothing is echoed to the log). */
+  action?: () => void;
 }
 
 interface TerminalMenuProps {
@@ -14,8 +16,8 @@ interface TerminalMenuProps {
   /** Breadcrumb root, e.g. "menu". */
   title: string;
   labels: { hint: string; back: string; close: string };
-  /** Called with a leaf's command; the caller is expected to close the menu. */
-  onRun: (command: string) => void;
+  /** Called with the chosen leaf; the caller is expected to close the menu. */
+  onRun: (node: MenuNode) => void;
   onClose: () => void;
 }
 
@@ -48,8 +50,8 @@ export function TerminalMenu({ items, title, labels, onRun, onClose }: TerminalM
     if (node.children) {
       setPath([...path, index]);
       setCursor(0);
-    } else if (node.command) {
-      onRun(node.command);
+    } else if (node.command || node.action) {
+      onRun(node);
     }
   }
 
@@ -176,7 +178,7 @@ export function TerminalMenu({ items, title, labels, onRun, onClose }: TerminalM
               <span className={selected ? "text-accent" : "text-muted"}>{selected ? "▸" : " "}</span>
               <span className="w-3 text-muted tabular-nums">{index < 9 ? index + 1 : ""}</span>
               <span className="min-w-0 flex-1 truncate">{node.label}</span>
-              <span className="shrink-0 text-muted">{node.children ? "›" : `$ ${node.command?.split(" ")[0]}`}</span>
+              <span className="shrink-0 text-muted">{node.children ? "›" : node.command ? `$ ${node.command.split(" ")[0]}` : "✦"}</span>
             </div>
           );
         })}

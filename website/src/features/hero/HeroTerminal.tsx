@@ -1,7 +1,6 @@
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
-import { glitchScreen } from "@/hooks/glitch";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { isLocale, SUPPORTED_LOCALES } from "@/i18n/locale";
@@ -26,7 +25,7 @@ interface LogEntry {
 const KNOWN_COMMANDS = new Set([
   "help", "whoami", "about", "skills", "experience", "projects", "open", "contact",
   "resume", "github", "linkedin", "telegram", "medium", "stackoverflow", "theme",
-  "lang", "home", "clear", "sudo", "glitch", "matrix", "menu",
+  "lang", "home", "clear", "menu",
 ]);
 
 /** `key  description` (two or more spaces) or `key: description`. */
@@ -166,16 +165,29 @@ export function HeroTerminal({ onCommand, initialCommand, theme, onToggleTheme }
       {
         label: groups.fun,
         children: [
-          { label: items.glitch, command: "glitch" },
-          { label: items.matrix, command: "matrix" },
+          {
+            label: items.glitch,
+            action: () => {
+              print(ui.terminal.glitchOn);
+              glitchStorm();
+            },
+          },
+          {
+            label: items.matrix,
+            action: () => {
+              print(ui.terminal.matrixOn);
+              matrixRain();
+            },
+          },
         ],
       },
     ];
   }
 
-  function runFromMenu(command: string) {
+  function runFromMenu(node: MenuNode) {
     setMenuOpen(false);
-    runCommand(command);
+    if (node.action) node.action();
+    else if (node.command) runCommand(node.command);
   }
 
   function runCommand(raw: string) {
@@ -290,18 +302,6 @@ export function HeroTerminal({ onCommand, initialCommand, theme, onToggleTheme }
         break;
       case "menu":
         setMenuOpen(true);
-        break;
-      case "sudo":
-        print(ui.terminal.permissionDenied, "error");
-        glitchScreen();
-        break;
-      case "glitch":
-        print(ui.terminal.glitchOn);
-        glitchStorm();
-        break;
-      case "matrix":
-        print(ui.terminal.matrixOn);
-        matrixRain();
         break;
       default:
         print(format(ui.terminal.notFound, { cmd }), "error");

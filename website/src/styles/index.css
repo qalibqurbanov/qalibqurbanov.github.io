@@ -1618,13 +1618,14 @@ html.glitch-storm footer {
 .matrix-rain {
   position: fixed;
   inset: 0;
-  z-index: 95;
+  z-index: -1;
   pointer-events: none;
-  transition: opacity 0.4s ease;
+  opacity: 0;
+  transition: opacity 1.8s ease;
 }
 
-.matrix-rain.is-leaving {
-  opacity: 0;
+.matrix-rain.is-visible {
+  opacity: 1;
 }
 
 /* The project filter animates through the View Transitions API: the cards

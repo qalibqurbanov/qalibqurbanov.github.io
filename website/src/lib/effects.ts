@@ -40,7 +40,7 @@ export function glitchStorm(duration = 2200): void {
 const RAIN_GLYPHS = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉ0123456789<>/{}=+*";
 let rainActive = false;
 
-/** Falling-glyph rain over the page in the accent colour. Ends on its own
+/** Falling-glyph rain in the accent colour, just above the page background and behind all content. Ends on its own
  * after `duration`, or at once on a key press, click or Escape. */
 export function matrixRain(duration = 7000): void {
   if (rainActive || prefersReducedMotion()) return;
@@ -52,6 +52,8 @@ export function matrixRain(duration = 7000): void {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   document.body.appendChild(canvas);
+  // Fade in on the next frame so the transition runs.
+  requestAnimationFrame(() => canvas.classList.add("is-visible"));
 
   const ctx = canvas.getContext("2d");
   if (!ctx) {
@@ -61,7 +63,8 @@ export function matrixRain(duration = 7000): void {
   }
   const size = 16;
   const color = getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim() || "#b185ff";
-  const drops = Array.from({ length: Math.ceil(canvas.width / size) }, () => Math.random() * -40);
+  const drops = Array.from({ length: Math.ceil(canvas.width / size) }, () => Math.random() * -60);
+  let ending = false;
 
   const draw = () => {
     // Fading what is already there (rather than painting a background over
@@ -75,21 +78,25 @@ export function matrixRain(duration = 7000): void {
     drops.forEach((row, column) => {
       const glyph = RAIN_GLYPHS[Math.floor(Math.random() * RAIN_GLYPHS.length)];
       ctx.fillText(glyph, column * size, row * size);
-      drops[column] = row * size > canvas.height && Math.random() > 0.975 ? 0 : row + 1;
+      // Once ending, streams are not restarted: the rain thins out and runs dry.
+      const offscreen = row * size > canvas.height;
+      drops[column] = offscreen && !ending && Math.random() > 0.975 ? 0 : row + 1;
     });
   };
 
   const interval = window.setInterval(draw, 50);
   const stop = () => {
-    window.clearInterval(interval);
+    if (ending) return;
+    ending = true;
     window.clearTimeout(timer);
     window.removeEventListener("keydown", stop);
     window.removeEventListener("pointerdown", stop);
-    canvas.classList.add("is-leaving");
+    canvas.classList.remove("is-visible");
     window.setTimeout(() => {
+      window.clearInterval(interval);
       canvas.remove();
       rainActive = false;
-    }, 400);
+    }, 1800);
   };
   const timer = window.setTimeout(stop, duration);
   window.addEventListener("keydown", stop);
