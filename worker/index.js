@@ -17,20 +17,13 @@ const COLOR = {
   text: "#ebe9f5",
   muted: "#8d89a6",
 };
+/** The site owner's initials, as in the badge on the site's window title bars. */
+const BADGE = "GG";
 const MONO = "'JetBrains Mono',Consolas,'Courier New',monospace";
 const SANS = "Inter,Arial,Helvetica,sans-serif";
 
 function escapeHtml(value) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
-
-function initials(name) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0].toUpperCase())
-    .join("");
 }
 
 /** The terminal-in-a-window mail. Inline styles and tables only: mail apps ignore the rest. */
@@ -43,13 +36,13 @@ function renderHtml({ name, email, message, page }) {
     `<div style="font-family:${MONO};font-size:13px;line-height:1.7;color:${COLOR.muted}">$ <span style="color:${COLOR.accent2}">${key}</span> <span style="color:${COLOR.accent}">${value}</span></div>`;
 
   return `<!doctype html>
-<html><body style="margin:0;padding:0;background:${COLOR.bg}">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${COLOR.bg}"><tr><td align="center" style="padding:28px 12px">
+<html><body style="margin:0;padding:0;background:#ffffff">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff"><tr><td align="center" style="padding:28px 12px">
 <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:${COLOR.surface};border:1px solid ${COLOR.border};border-radius:12px;border-collapse:separate;overflow:hidden">
   <tr><td style="background:${COLOR.surface2};border-bottom:1px solid ${COLOR.border};padding:8px 10px 8px 20px">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
       <td style="font-family:${MONO};font-size:12px;color:${COLOR.muted}">
-        <span style="display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border:1px solid ${COLOR.border};border-radius:4px;font-size:8px;font-weight:700;color:${COLOR.accent};vertical-align:middle">${escapeHtml(initials(name))}</span>
+        <span style="display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border:1px solid ${COLOR.border};border-radius:4px;font-size:8px;font-weight:700;color:${COLOR.accent};vertical-align:middle">${BADGE}</span>
         <span style="vertical-align:middle;padding-left:6px">&quot;${n}&quot; sent you a message</span>
       </td>
       <td align="right" style="font-family:${MONO};font-size:13px;color:${COLOR.muted};opacity:.4;white-space:nowrap">&#8211;&nbsp;&nbsp;&#9633;&nbsp;&nbsp;&#215;</td>
@@ -57,10 +50,10 @@ function renderHtml({ name, email, message, page }) {
   </td></tr>
   <tr><td style="padding:22px">
     ${line("from", `&quot;${n}&quot;`)}
-    ${line("email", e)}
-    ${line("page", p)}
+    ${line("email", `<a href="mailto:${e}" style="color:${COLOR.accent};text-decoration:none">${e}</a>`)}
+    ${line("page", `<a href="${p}" style="color:${COLOR.accent};text-decoration:none">${p}</a>`)}
     <div style="margin:14px 0;padding:14px;background:${COLOR.surface2};border-left:2px solid ${COLOR.accent};color:${COLOR.text};font-family:${SANS};font-size:14px;line-height:1.6">${m}</div>
-    <a href="mailto:${e}" style="display:inline-block;padding:9px 16px;border:1px solid ${COLOR.accent};border-radius:6px;color:${COLOR.accent};text-decoration:none;font-family:${MONO};font-size:13px">reply --to ${e}</a>
+    <a href="mailto:${e}" style="display:inline-block;padding:9px 16px;border:1px solid ${COLOR.accent};border-radius:6px;color:${COLOR.accent};text-decoration:none;font-family:${MONO};font-size:13px">reply to &quot;${e}&quot;</a>
   </td></tr>
 </table>
 </td></tr></table>

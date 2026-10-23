@@ -17,6 +17,10 @@ const ENDPOINT = import.meta.env.VITE_CONTACT_ENDPOINT as string | undefined;
 const ACCESS_KEY = import.meta.env.VITE_CONTACT_ACCESS_KEY as
   string | undefined;
 
+/** A second form service, tried only when the first one fails. It takes the same
+ * `VITE_CONTACT_ACCESS_KEY` (Web3Forms: https://api.web3forms.com/submit). */
+const FALLBACK_ENDPOINT = import.meta.env.VITE_CONTACT_FALLBACK_ENDPOINT as string | undefined;
+
 /** Attachments need a plan that accepts files (the free tiers of the usual services do not): they are only offered when this is switched on. */
 const ATTACHMENTS = import.meta.env.VITE_CONTACT_ATTACHMENTS === "true";
 
@@ -58,7 +62,38 @@ function rememberSend(now: number): void {
   }
 }
 
-type Status = "idle" | "sending" | "sent" | "mail" | "error" | "limited";
+/** Posts the message to one service; true when the service says it accepted it. */
+async function deliver(
+  endpoint: string,
+  accessKey: string | undefined,
+  { name, email, message }: { name: string; email: string; message: string },
+  attachments: File[],
+): Promise<boolean> {
+  try {
+    // Multipart, so attachments can ride along with the text fields.
+    const body = new FormData();
+    if (accessKey) body.append("access_key", accessKey);
+    body.append("name", name);
+    body.append("email", email);
+    body.append("message", message);
+    body.append("subject", `Portfolio - ${name} sent you a message`);
+    body.append("page", window.location.href);
+    for (const file of attachments) body.append("attachment", file, file.name);
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { Accept: "application/json" },
+      body,
+    });
+    // The services answer with JSON that says whether they accepted the message (Web3Forms: `success`, Formspree and the mail worker: `ok`).
+    const reply: unknown = await response.json().catch(() => null);
+    const refused = typeof reply === "object" && reply !== null && ("success" in reply ? reply.success === false : "ok" in reply ? reply.ok === false : false);
+    return response.ok && !refused;
+  } catch {
+    return false;
+  }
+}
+
+type Status ="idle" | "sending" | "sent" | "mail" | "error" | "limited";
 
 const FIELD =
   "w-full rounded-md border border-border bg-surface-2 px-3 py-2 font-sans text-sm text-text placeholder:text-muted/60 outline-none transition focus:border-accent selectable";
@@ -135,30 +170,12 @@ export function ContactModal() {
     }
 
     setStatus("sending");
-    try {
-      // Multipart, so attachments can ride along with the text fields.
-      const body = new FormData();
-      if (ACCESS_KEY) body.append("access_key", ACCESS_KEY);
-      body.append("name", name);
-      body.append("email", email);
-      body.append("message", message);
-      body.append("subject", `Portfolio - ${name} sent you a message`);
-      body.append("page", window.location.href);
-      if (canAttach) for (const file of files) body.append("attachment", file, file.name);
-      const response = await fetch(ENDPOINT, {
-        method: "POST",
-        headers: { Accept: "application/json" },
-        body,
-      });
-      // The services answer with JSON that says whether they accepted the message (Web3Forms: `success`, Formspree: `ok`).
-      const reply: unknown = await response.json().catch(() => null);
-      const refused = typeof reply === "object" && reply !== null && ("success" in reply ? reply.success === false : "ok" in reply ? reply.ok === false : false);
-      const accepted = response.ok && !refused;
-      if (accepted) rememberSend(Date.now());
-      setStatus(accepted ? "sent" : "error");
-    } catch {
-      setStatus("error");
-    }
+    const fields = { name, email, message };
+    let accepted = await deliver(ENDPOINT, ACCESS_KEY, fields, canAttach ? files : []);
+    // The mail service is down or refused: the same message goes to the backup service instead.
+    if (!accepted && FALLBACK_ENDPOINT) accepted = await deliver(FALLBACK_ENDPOINT, ACCESS_KEY, fields, []);
+    if (accepted) rememberSend(Date.now());
+    setStatus(accepted ? "sent" : "error");
   }
 
   const done = status === "sent" || status === "mail";
