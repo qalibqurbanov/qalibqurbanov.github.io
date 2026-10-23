@@ -159,7 +159,7 @@ export class ButterflyFlight {
     this.goalAge = 0;
     this.heading = Math.atan2(this.gy - this.y, this.gx - this.x);
     this.turn = 0;
-    this.speed = Math.max(this.speed, 320);
+    this.speed = Math.max(this.speed, 280);
     return true;
   }
 

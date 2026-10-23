@@ -39,6 +39,8 @@ interface Bug {
   /** How many times it has darted away from the pointer lately. */
   dodges: number;
   dodgeResetAt: number;
+  /** When it will react to the pointer touching it (0 while it is not about to). */
+  dodgeAt: number;
   /** Wings beat fast until then. */
   startleUntil: number;
 }
@@ -64,6 +66,8 @@ const SAY_PER_CHAR_MS = 60;
 const RECENT_LINES = 10;
 /** A butterfly darts away from the pointer this many times, then lets itself be caught. */
 const MAX_DODGES = 3;
+/** It reacts to the pointer this long after being touched, so there is a moment to click it first. */
+const REACT_DELAY_MS = 180;
 /** The dodges are counted again after this long without one. */
 const DODGE_RESET_MS = 8000;
 /** The least time between two replies from the same butterfly. */
@@ -298,7 +302,7 @@ export function CyberButterfly() {
         const flight = new ButterflyFlight(size, view());
         flight.finder = calm ? null : (x, y) => findPerch(x, y, size, docH);
         if (i > 0) flight.scatter(view());
-        return { flight, body, hit, size, sleep: 0, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0, hoverSay: false, sayW: 0, sayH: 0, sayBelow: false, nextHoverSay: 0, dodges: 0, dodgeResetAt: 0, startleUntil: 0 };
+        return { flight, body, hit, size, sleep: 0, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0, hoverSay: false, sayW: 0, sayH: 0, sayBelow: false, nextHoverSay: 0, dodges: 0, dodgeResetAt: 0, dodgeAt: 0, startleUntil: 0 };
       });
       const rest = () => {
         bugs.forEach((b, i) => {
@@ -441,10 +445,16 @@ export function CyberButterfly() {
                 // }
                 // It darts away a few times, then holds still so it can be caught.
                 if (now > bug.dodgeResetAt) bug.dodges = 0;
-                if (bug.dodges < MAX_DODGES && flight.startle(v, { x: pointer.x, y: pointer.y + window.scrollY })) {
-                  bug.dodges += 1;
-                  bug.dodgeResetAt = now + DODGE_RESET_MS;
-                }
+                if (bug.dodges < MAX_DODGES) bug.dodgeAt = now + REACT_DELAY_MS;
+              }
+              if (!hot) bug.dodgeAt = 0;
+            }
+            // Only if the pointer is still on it after the delay.
+            if (bug.dodgeAt > 0 && now >= bug.dodgeAt) {
+              bug.dodgeAt = 0;
+              if (hot && pointer && bug.dodges < MAX_DODGES && flight.startle(v, { x: pointer.x, y: pointer.y + window.scrollY })) {
+                bug.dodges += 1;
+                bug.dodgeResetAt = now + DODGE_RESET_MS;
               }
             }
           } else if (bug === chargedBug && now - chargedAt < 640) {
