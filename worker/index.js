@@ -142,7 +142,8 @@ export default {
     const data = { name: field("name"), email: field("email"), message: field("message"), page: field("page") };
 
     const tooLong = Object.keys(MAX).some((key) => data[key].length > MAX[key]);
-    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
+    // A real top-level domain (two letters or more): the mail service refuses an address like a@b.c as a reply-to.
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email);
     if (!data.name || !data.message || !validEmail || tooLong) return reply({ ok: false, error: "fields" }, 400, origin);
 
     const ip = request.headers.get("CF-Connecting-IP") ?? "";
@@ -162,7 +163,12 @@ export default {
         text: renderText(data),
       }),
     });
-    if (!response.ok) return reply({ ok: false, error: "send" }, 502, origin);
+    if (!response.ok) {
+      // The log (Cloudflare > the Cloudflare Worker > Logs) says why the mail service refused.
+      console.error("resend", response.status, await response.text());
+      // 422: it did not accept what was sent (such as an address), so it is the sender's doing, not an outage.
+      return response.status === 422 ? reply({ ok: false, error: "fields" }, 400, origin) : reply({ ok: false, error: "send" }, 502, origin);
+    }
     return reply({ ok: true }, 200, origin);
   },
 };
