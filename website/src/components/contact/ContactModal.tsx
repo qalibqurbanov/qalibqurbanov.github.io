@@ -1,9 +1,11 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { CheckCircle2, CircleAlert, Clock, Mail, Paperclip, Send, X } from "lucide-react";
-import type { DragEvent, FormEvent, ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import type { CSSProperties, DragEvent, FormEvent, ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { borderBurst } from "@/hooks/borderGlitch";
+import { prefersReducedMotion, SCRAMBLE } from "@/hooks/glitch";
 
 import { CodeWindow } from "@/components/ui/CodeWindow";
 import { ViewModal } from "@/components/ui/ViewModal";
@@ -38,7 +40,13 @@ const AUTO_CLOSE_MS = 6000;
 const GLITCH_MS = 450;
 
 /** A plain check that an address has an @ and a dot after it; the mail service does the real one. */
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/** A notice about the form or a failed send goes away by itself after this long. */
+const NOTICE_MS = 8000;
+
+/** The most characters a message can have (the form stops typing there). */
+const MESSAGE_MAX = 4000;
 
 const MAX_FILES = 5;
 const MAX_TOTAL_BYTES = 10 * 1024 * 1024;
@@ -75,6 +83,45 @@ function rememberSend(now: number): void {
     window.localStorage.setItem(SENT_KEY, JSON.stringify([...recentSends(now), now]));
   } catch {
     // Private mode or blocked storage: the limit simply does not apply.
+  }
+}
+
+/** A "please wait" that is still running is kept here, so closing and opening the window
+ * again shows it again, with the time that is left, until it ends. */
+const WAIT_KEY = "contact:wait";
+/** Why the form is waiting: sent right after opening, sent again too soon, this browser's hourly limit, or
+ * the hourly limit of the internet connection (set by the mail Cloudflare Worker). */
+type WaitKind = "fast" | "pause" | "limit" | "server";
+const WAIT_KINDS: string[] = ["fast", "pause", "limit", "server"];
+/** The messages an hour that one internet connection may send. Keep it equal to LIMIT in worker/index.js. */
+const SERVER_LIMIT = 5;
+
+function readWait(): { until: number; total: number; kind: WaitKind } | null {
+  try {
+    const raw: unknown = JSON.parse(window.localStorage.getItem(WAIT_KEY) ?? "null");
+    if (typeof raw === "object" && raw !== null && "until" in raw && "total" in raw && typeof raw.until === "number" && typeof raw.total === "number" && raw.total > 0) {
+      const kind = "kind" in raw && typeof raw.kind === "string" && WAIT_KINDS.includes(raw.kind) ? (raw.kind as WaitKind) : "limit";
+      return { until: raw.until, total: raw.total, kind };
+    }
+  } catch {
+    // Storage unavailable: the wait is simply not remembered.
+  }
+  return null;
+}
+
+function writeWait(ms: number, kind: WaitKind): void {
+  try {
+    window.localStorage.setItem(WAIT_KEY, JSON.stringify({ until: Date.now() + ms, total: ms, kind }));
+  } catch {
+    // Private mode or blocked storage.
+  }
+}
+
+function clearWait(): void {
+  try {
+    window.localStorage.removeItem(WAIT_KEY);
+  } catch {
+    // Nothing to clear.
   }
 }
 
@@ -173,24 +220,102 @@ function AutoClose({ label, onDone }: { label: string; onDone: () => void }) {
 
 type Field = "name" | "email" | "message";
 
-/** A message floating over the top of the contact window: what is wrong with the form,
- * why a send failed, or how long to wait. It has its own close button. */
-function Notice({ tone, icon, onClose, closeLabel, children }: { tone: "danger" | "info"; icon: ReactNode; onClose: () => void; closeLabel: string; children: ReactNode }) {
+/** How long the popup's glitch-out lasts before it is gone. */
+const NOTICE_OUT_MS = 340;
+
+/** The word on the Send button while a message is on its way: its letters scramble into noise and
+ * lock back into place, left to right, over and over until the send is over. The button's font has
+ * letters of equal width, so nothing around it moves. */
+const SCRAMBLE_CYCLE_MS = 1500;
+function ScrambleText({ text }: { text: string }) {
+  const [shown, setShown] = useState(text);
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const start = performance.now();
+    const id = window.setInterval(() => {
+      const progress = ((performance.now() - start) % SCRAMBLE_CYCLE_MS) / SCRAMBLE_CYCLE_MS;
+      // Locks in over the first 70% of the cycle, holds the real word, then scrambles again.
+      const locked = progress < 0.7 ? Math.floor((progress / 0.7) * text.length) : progress < 0.85 ? text.length : 0;
+      let out = "";
+      for (let i = 0; i < text.length; i++) {
+        out += i < locked || text[i] === " " ? text[i] : SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)];
+      }
+      setShown(out);
+    }, 60);
+    return () => window.clearInterval(id);
+  }, [text]);
+  return (
+    <span aria-label={text}>
+      <span aria-hidden="true">{shown}</span>
+    </span>
+  );
+}
+
+/** A small window at the top right of the screen, in the site's own window style: what is
+ * wrong with the form, why a send failed, or how long to wait. It glitches in, and glitches
+ * out when it is closed. A bar along its bottom edge runs down over `lifeMs` and the popup
+ * closes itself when it is empty; the X in its title bar closes it sooner. */
+function Notice({ tone, icon, onClose, lifeMs, from = 1, children }: { tone: "danger" | "info" | "success"; icon: ReactNode; onClose: () => void; lifeMs: number; from?: number; children: ReactNode }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+  const leavingRef = useRef(false);
+  const [leaving, setLeaving] = useState(false);
+
+  useEffect(() => {
+    closeRef.current = onClose;
+  });
+
+  const glitchBorder = useCallback((frames: number) => {
+    const win = rootRef.current?.querySelector<HTMLElement>(".glitch-border");
+    if (win) borderBurst(win, frames);
+  }, []);
+
+  const dismiss = useCallback(() => {
+    if (leavingRef.current) return;
+    leavingRef.current = true;
+    setLeaving(true);
+    glitchBorder(10);
+    window.setTimeout(() => closeRef.current(), prefersReducedMotion() ? 0 : NOTICE_OUT_MS);
+  }, [glitchBorder]);
+
+  useEffect(() => {
+    const glitchIn = window.setTimeout(() => glitchBorder(10), 80);
+    const life = window.setTimeout(dismiss, lifeMs);
+    return () => {
+      window.clearTimeout(glitchIn);
+      window.clearTimeout(life);
+    };
+  }, [lifeMs, dismiss, glitchBorder]);
+
+  const danger = tone === "danger";
   return (
     <div
-      role={tone === "danger" ? "alert" : "status"}
-      className={`notice-drop absolute inset-x-3 top-3 z-10 flex items-start gap-2.5 rounded-lg border bg-surface-2 py-2.5 pl-3 pr-1.5 font-mono text-xs shadow-xl shadow-black/40 ${tone === "danger" ? "border-danger/60 text-danger" : "border-accent/60 text-text"}`}
+      ref={rootRef}
+      role={danger ? "alert" : "status"}
+      className={`${leaving ? "notice-out" : "notice-in"} fixed right-4 top-20 z-[70] w-[min(22rem,calc(100vw-2rem))]`}
     >
-      <span className={`mt-px shrink-0 ${tone === "danger" ? "" : "text-accent"}`}>{icon}</span>
-      <div className="min-w-0 flex-1 leading-relaxed">{children}</div>
-      <button type="button" aria-label={closeLabel} onClick={onClose} className="-my-1 shrink-0 rounded p-2 text-muted transition hover:text-text">
-        <X size={12} />
-      </button>
+      <CodeWindow
+        filename={danger ? "error.log" : tone === "success" ? "sent.log" : "wait.log"}
+        onClose={dismiss}
+        footer={
+          <div className="h-0.5 w-full bg-surface-2" role="presentation">
+            <div
+              className={`notice-bar h-full origin-left ${danger ? "bg-danger" : tone === "success" ? "bg-gradient-to-r from-accent to-accent-2" : "bg-accent"}`}
+              style={{ animationDuration: `${lifeMs}ms`, "--notice-from": from } as CSSProperties}
+            />
+          </div>
+        }
+      >
+        <div className={`flex items-start gap-2.5 p-3 font-mono text-xs leading-relaxed ${danger ? "text-danger" : "text-text"}`}>
+          <span className={`mt-px shrink-0 ${danger ? "" : tone === "success" ? "text-accent-2" : "text-accent"}`}>{icon}</span>
+          <div className="min-w-0 flex-1">{children}</div>
+        </div>
+      </CodeWindow>
     </div>
   );
 }
 
-type Status = "idle" | "sending" | "sent" | "mail" | "error" | "limited";
+type Status = "idle" | "sending" | "sent" | "mail" | "error" | "limited" | "tooMany";
 
 const FIELD =
   "w-full rounded-md border border-border bg-surface-2 px-3 py-2 font-sans text-sm text-text placeholder:text-muted/60 outline-none transition focus:border-accent selectable";
@@ -210,8 +335,19 @@ export function ContactModal() {
   const canAttach = canSend && ATTACHMENTS;
   // How long a "wait a moment" message still has to wait (ms): it counts the seconds down and goes away by itself.
   const [waitMs, setWaitMs] = useState(0);
+  const [waitTotalMs, setWaitTotalMs] = useState(0);
+  // How full the wait popup's bar is when it shows: less than full when it comes back while the wait is half over.
+  const [waitFrom, setWaitFrom] = useState(1);
+  // Why the form waits, and the time of day the wait ends (shown to the visitor).
+  const [waitKind, setWaitKind] = useState<WaitKind>("pause");
+  const [waitEndsAt, setWaitEndsAt] = useState(0);
   // What is wrong with the fields after a send was tried: shown in a notice, and the fields get a red edge.
   const [problems, setProblems] = useState<{ field: Field; text: string }[]>([]);
+  const [invalid, setInvalid] = useState<Field[]>([]);
+  // The popup after a send. It is shown outside the window, so it stays when the window closes.
+  const [sentNotice, setSentNotice] = useState<{ id: number; title: string; body: string } | null>(null);
+  // Counts the send attempts, so each popup is a new one (and glitches in again).
+  const [round, setRound] = useState(0);
   const checked = canSend && Boolean(SITE_KEY);
   // The spam check's token: fetched in the background, so the form can only be sent once it is there.
   const checkToken = useRef<string | null>(null);
@@ -220,10 +356,25 @@ export function ContactModal() {
 
   useEffect(() => {
     const onOpen = () => {
-      setStatus("idle");
+      const stored = readWait();
+      const left = stored ? stored.until - Date.now() : 0;
+      if (stored && left > 0) {
+        // A wait is still running: its popup comes back with the time that is left.
+        setWaitMs(left);
+        setWaitTotalMs(left);
+        setWaitFrom(Math.min(1, left / stored.total));
+        setWaitKind(stored.kind);
+        setWaitEndsAt(stored.until);
+        setRound((count) => count + 1);
+        setStatus("limited");
+      } else {
+        clearWait();
+        setStatus("idle");
+      }
       setFiles([]);
       setFileError(false);
       setProblems([]);
+      setInvalid([]);
       checkToken.current = null;
       setCheck(checked ? "pending" : "ready");
       openedAt.current = Date.now();
@@ -239,6 +390,15 @@ export function ContactModal() {
     return () => window.clearInterval(id);
   }, [status]);
 
+
+  function startWait(ms: number, kind: WaitKind) {
+    writeWait(ms, kind);
+    setWaitMs(ms);
+    setWaitTotalMs(ms);
+    setWaitFrom(1);
+    setWaitKind(kind);
+    setWaitEndsAt(Date.now() + ms);
+  }
 
   function addFiles(incoming: FileList | File[]) {
     const merged = [...files];
@@ -275,6 +435,8 @@ export function ContactModal() {
     if (!EMAIL_PATTERN.test(email.trim())) found.push({ field: "email", text: t.needEmail });
     if (!message.trim()) found.push({ field: "message", text: t.needMessage });
     setProblems(found);
+    setInvalid(found.map((problem) => problem.field));
+    setRound((count) => count + 1);
     if (found.length > 0) {
       setStatus("idle");
       (formElement.elements.namedItem(found[0].field) as HTMLElement | null)?.focus();
@@ -283,12 +445,15 @@ export function ContactModal() {
     const now = Date.now();
     const sends = recentSends(now);
     // How long until the form may be sent: the longest of the waits that apply.
-    const waits: number[] = [];
-    if (now - openedAt.current < MIN_FILL_MS) waits.push(MIN_FILL_MS - (now - openedAt.current));
-    if (sends.length > 0 && now - Math.max(...sends) < MIN_GAP_MS) waits.push(MIN_GAP_MS - (now - Math.max(...sends)));
-    if (sends.length >= MAX_PER_WINDOW) waits.push([...sends].sort((a, b) => a - b)[sends.length - MAX_PER_WINDOW] + WINDOW_MS - now);
+    const waits: { ms: number; kind: WaitKind }[] = [];
+    if (now - openedAt.current < MIN_FILL_MS) waits.push({ ms: MIN_FILL_MS - (now - openedAt.current), kind: "fast" });
+    if (sends.length > 0 && now - Math.max(...sends) < MIN_GAP_MS) waits.push({ ms: MIN_GAP_MS - (now - Math.max(...sends)), kind: "pause" });
+    const stored = readWait();
+    if (stored && stored.until > now) waits.push({ ms: stored.until - now, kind: stored.kind });
+    if (sends.length >= MAX_PER_WINDOW) waits.push({ ms: [...sends].sort((a, b) => a - b)[sends.length - MAX_PER_WINDOW] + WINDOW_MS - now, kind: "limit" });
     if (waits.length > 0) {
-      setWaitMs(Math.max(...waits));
+      const longest = waits.reduce((a, b) => (b.ms > a.ms ? b : a));
+      startWait(longest.ms, longest.kind);
       setStatus("limited");
       return;
     }
@@ -297,6 +462,7 @@ export function ContactModal() {
       const body = `${message}\n\n— ${name} <${email}>`;
       const clipped = body.length > MAILTO_BODY_MAX ? `${body.slice(0, MAILTO_BODY_MAX)}…` : body;
       rememberSend(now);
+      setSentNotice({ id: now, title: t.mailTitle, body: format(t.mailBody, { email: profile.email }) });
       setStatus("mail");
       window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent(`Portfolio - ${name} sent you a message`)}&body=${encodeURIComponent(clipped)}`;
       return;
@@ -307,10 +473,14 @@ export function ContactModal() {
     let { outcome, retryAfter } = await deliver(ENDPOINT, ACCESS_KEY, fields, canAttach ? files : [], checkToken.current);
     // Only a mail service that is down hands over to the backup. A refusal (spam check, too many messages) is final, or the backup would let spam around it.
     if (outcome === "failed" && FALLBACK_ENDPOINT) ({ outcome, retryAfter } = await deliver(FALLBACK_ENDPOINT, ACCESS_KEY, fields, [], null));
-    if (outcome === "ok") rememberSend(Date.now());
+    if (outcome === "ok") {
+      rememberSend(Date.now());
+      setSentNotice({ id: Date.now(), title: t.successTitle, body: t.successBody });
+    }
     // The mail service says how long to wait; without that, a minute.
-    if (outcome === "limited") setWaitMs((retryAfter ?? 60) * 1000);
-    setStatus(outcome === "ok" ? "sent" : outcome === "limited" ? "limited" : "error");
+    // With no time from the mail service there is no countdown to show, so the notice just says so.
+    if (outcome === "limited" && retryAfter) startWait(retryAfter * 1000, "server");
+    setStatus(outcome === "ok" ? "sent" : outcome === "limited" ? (retryAfter ? "limited" : "tooMany") : "error");
     if (outcome !== "ok" && checked) {
       // A token works once: ask for a new one before the next try.
       checkToken.current = null;
@@ -320,10 +490,21 @@ export function ContactModal() {
   }
 
   const done = status === "sent" || status === "mail";
-  const waitText = status === "limited" && waitMs > 0 ? format(t.rateLimited, { time: formatWait(Math.max(1, Math.ceil(waitMs / 1000)), getLocaleMeta(locale).bcp47) }) : null;
-  const fieldClass = (field: Field, extra = "") => `${FIELD} ${extra} ${problems.some((p) => p.field === field) ? "border-danger!" : ""}`;
+  const bcp47 = getLocaleMeta(locale).bcp47;
+  const waitTemplate = { fast: t.waitFast, pause: t.waitPause, limit: t.waitLimit, server: t.waitServer }[waitKind];
+  const waitText =
+    status === "limited"
+      ? format(waitTemplate, {
+          time: formatWait(Math.max(1, Math.ceil(waitMs / 1000)), bcp47),
+          clock: new Intl.DateTimeFormat(bcp47, { hour: "2-digit", minute: "2-digit" }).format(waitEndsAt),
+          seconds: String(MIN_GAP_MS / 1000),
+          count: String(waitKind === "server" ? SERVER_LIMIT : MAX_PER_WINDOW),
+        })
+      : null;
+  const fieldClass = (field: Field, extra = "") => `${FIELD} ${extra} ${invalid.includes(field) ? "border-danger!" : ""}`;
 
   return (
+    <>
     <ViewModal open={open} widthClass="max-w-md" onClose={() => setOpen(false)}>
       {(close) => (
       <CodeWindow
@@ -331,28 +512,6 @@ export function ContactModal() {
         className="flex min-h-0 flex-col"
         onClose={close}
       >
-        <div className="relative flex min-h-0 flex-1 flex-col">
-        {!done &&
-          (problems.length > 0 ? (
-            <Notice tone="danger" icon={<CircleAlert size={16} />} closeLabel={t.close} onClose={() => setProblems([])}>
-              <ul className="flex flex-col gap-0.5">
-                {problems.map((problem) => (
-                  <li key={problem.field}>{problem.text}</li>
-                ))}
-              </ul>
-            </Notice>
-          ) : status === "error" ? (
-            <Notice tone="danger" icon={<CircleAlert size={16} />} closeLabel={t.close} onClose={() => setStatus("idle")}>
-              {t.error}{" "}
-              <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
-                {t.emailInstead}
-              </a>
-            </Notice>
-          ) : waitText ? (
-            <Notice tone="info" icon={<Clock size={16} />} closeLabel={t.close} onClose={() => setWaitMs(0)}>
-              {waitText}
-            </Notice>
-          ) : null)}
         <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-6">
           {done ? (
             <div className="flex flex-col items-center gap-3 py-6 text-center">
@@ -375,7 +534,7 @@ export function ContactModal() {
               onSubmit={handleSubmit}
               onInput={(event) => {
                 const field = (event.target as HTMLInputElement).name;
-                setProblems((list) => list.filter((problem) => problem.field !== field));
+                setInvalid((list) => list.filter((name) => name !== field));
               }}
               className="flex flex-col gap-4"
             >
@@ -395,7 +554,7 @@ export function ContactModal() {
                   required
                   maxLength={100}
                   autoComplete="name"
-                  aria-invalid={problems.some((p) => p.field === "name")}
+                  aria-invalid={invalid.includes("name")}
                   className={fieldClass("name")}
                 />
               </label>
@@ -407,7 +566,7 @@ export function ContactModal() {
                   required
                   maxLength={200}
                   autoComplete="email"
-                  aria-invalid={problems.some((p) => p.field === "email")}
+                  aria-invalid={invalid.includes("email")}
                   className={fieldClass("email")}
                 />
               </label>
@@ -417,8 +576,8 @@ export function ContactModal() {
                   name="message"
                   required
                   rows={5}
-                  maxLength={4000}
-                  aria-invalid={problems.some((p) => p.field === "message")}
+                  maxLength={MESSAGE_MAX}
+                  aria-invalid={invalid.includes("message")}
                   className={fieldClass("message", "custom-scrollbar [--scrollbar-track:var(--color-surface-2)] resize-none")}
                 />
               </label>
@@ -522,20 +681,70 @@ export function ContactModal() {
                 />
               )}
 
+              {problems.length > 0 ? (
+                <Notice key={`problems-${round}`} tone="danger" icon={<CircleAlert size={16} />} lifeMs={NOTICE_MS} onClose={() => setProblems([])}>
+                  <ul className="flex flex-col gap-0.5">
+                    {problems.map((problem) => (
+                      <li key={problem.field}>{problem.text}</li>
+                    ))}
+                  </ul>
+                </Notice>
+              ) : status === "error" ? (
+                <Notice key={`error-${round}`} tone="danger" icon={<CircleAlert size={16} />} lifeMs={NOTICE_MS} onClose={() => setStatus("idle")}>
+                  {t.error}{" "}
+                  <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
+                    {t.emailInstead}
+                  </a>
+                </Notice>
+              ) : status === "tooMany" ? (
+                <Notice key={`toomany-${round}`} tone="info" icon={<Clock size={16} />} lifeMs={NOTICE_MS} onClose={() => setStatus("idle")}>
+                  {format(t.tooMany, { count: String(SERVER_LIMIT) })}{" "}
+                  <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
+                    {t.emailInstead}
+                  </a>
+                </Notice>
+              ) : waitText ? (
+                <Notice
+                  key={`wait-${round}`}
+                  tone="info"
+                  icon={<Clock size={16} />}
+                  lifeMs={waitTotalMs}
+                  from={waitFrom}
+                  onClose={() => {
+                    clearWait();
+                    setStatus("idle");
+                    setWaitMs(0);
+                  }}
+                >
+                  {waitText}
+                </Notice>
+              ) : null}
+
               <button
                 type="submit"
                 disabled={status === "sending" || check === "pending"}
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-accent px-5 py-2.5 font-mono text-sm font-medium text-bg transition hover:brightness-110 disabled:opacity-60"
               >
                 {canSend ? <Send size={14} /> : <Mail size={14} />}
-                {status === "sending" ? t.sending : canSend ? t.send : t.mailSend}
+                {status === "sending" ? <ScrambleText text={t.sending} /> : canSend ? t.send : t.mailSend}
               </button>
+              <p className="-mt-1 text-center font-mono text-[11px] leading-relaxed text-muted">
+                {format(t.limits, { count: String(MAX_PER_WINDOW), seconds: String(MIN_GAP_MS / 1000), chars: String(MESSAGE_MAX) })}
+              </p>
             </form>
           )}
-        </div>
         </div>
       </CodeWindow>
       )}
     </ViewModal>
+    {sentNotice &&
+      createPortal(
+        <Notice key={sentNotice.id} tone="success" icon={<CheckCircle2 size={16} />} lifeMs={NOTICE_MS} onClose={() => setSentNotice(null)}>
+          <p className="font-semibold">{sentNotice.title}</p>
+          <p className="mt-0.5 text-muted">{sentNotice.body}</p>
+        </Notice>,
+        document.body,
+      )}
+    </>
   );
 }

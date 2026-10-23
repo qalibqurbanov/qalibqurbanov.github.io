@@ -201,9 +201,18 @@ export interface UiStrings {
     error: string;
     /** Offered next to the error: write by email instead. */
     emailInstead: string;
-    /** Shown when a message is sent too quickly or too often; `{time}` is the wait, e.g. "23 seconds". */
-    rateLimited: string;
     /** Shown in the notice when a field is empty or wrong. */
+    /** The wait notices. `{time}` is the wait ("23 seconds"), `{clock}` the time of day it ends, `{seconds}` the pause
+     * between messages and `{count}` the messages allowed an hour.
+     * Fast: sent right after opening. Pause: sent again too soon. Limit: the hourly limit of this browser.
+     * Server: the hourly limit of this internet connection (known time). tooMany: the same, time not known. */
+    waitFast: string;
+    waitPause: string;
+    waitLimit: string;
+    waitServer: string;
+    tooMany: string;
+    /** A line under the Send button about what is allowed; `{count}`, `{seconds}` and `{chars}` are filled in. */
+    limits: string;
     needName: string;
     needEmail: string;
     needMessage: string;

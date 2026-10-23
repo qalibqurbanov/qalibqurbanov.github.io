@@ -924,20 +924,87 @@ html::-webkit-scrollbar-button,
   }
 }
 
-/* A notice dropping into the contact window (see Notice in ContactModal). */
-@keyframes notice-drop {
-  from {
+/* The popup at the top right of the screen (see Notice in ContactModal): it glitches in
+   and glitches out, a few jumps and flickers around its real position. */
+@keyframes notice-in {
+  0% {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateX(28px);
   }
-  to {
+  18% {
+    opacity: 0.9;
+    transform: translateX(-7px) skewX(-7deg);
+  }
+  34% {
+    opacity: 0.25;
+    transform: translateX(6px);
+  }
+  52% {
+    opacity: 1;
+    transform: translateX(-3px) skewX(4deg);
+  }
+  72% {
+    opacity: 0.7;
+    transform: translateX(2px);
+  }
+  100% {
     opacity: 1;
     transform: none;
   }
 }
 
-.notice-drop {
-  animation: notice-drop 200ms ease-out both;
+@keyframes notice-out {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  22% {
+    opacity: 0.6;
+    transform: translateX(6px) skewX(5deg);
+  }
+  44% {
+    opacity: 1;
+    transform: translateX(-8px);
+  }
+  66% {
+    opacity: 0.3;
+    transform: translateX(4px) skewX(-6deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+
+/* The bar along the bottom of the popup: full at first, empty when the popup closes (its
+   length of time is set on the element). */
+@keyframes notice-bar {
+  from {
+    transform: scaleX(var(--notice-from, 1));
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.notice-bar {
+  animation: notice-bar linear both;
+}
+
+.notice-in {
+  animation: notice-in 380ms steps(14, end) both;
+}
+
+.notice-out {
+  animation: notice-out 340ms steps(12, end) both;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notice-in,
+  .notice-out {
+    animation: none;
+  }
 }
 
 .view-overlay {

@@ -152,7 +152,7 @@ export function glitchScreen(): void {
   run();
 }
 
-const SCRAMBLE = "abcdefghijklmnopqrstuvwxyz0123456789#%&$@!?<>/[]{}=+*^~";
+export const SCRAMBLE = "abcdefghijklmnopqrstuvwxyz0123456789#%&$@!?<>/[]{}=+*^~";
 
 /** Decodes an element's text in: every character starts as noise and locks
  * into place left to right. The element must hold a single text node, with
