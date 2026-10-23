@@ -67,7 +67,9 @@ The `VITE_` settings are read when the website is built. After changing one, re-
 
 **Change the mail design or subject**
 1. Edit `worker/index.js` (`renderHtml` is the design, the subject is in the Resend call near the bottom).
-2. Cloudflare > Workers & Pages > `portfolio-mail` > Edit code > select all, delete, paste the whole file > Deploy.
+2. Deploy it, either way:
+   - Fast: double-click `scripts/deploy-mail.bat`. It installs what is missing, asks for the Cloudflare login the first time (opens the browser), then deploys. The settings and secrets in the Cloudflare dashboard are kept. (By terminal: `cd worker`, `npm run deploy`.)
+   - By hand: Cloudflare > Workers & Pages > `portfolio-mail` > Edit code > select all, delete, paste the whole file > Deploy.
 3. The website does not need a redeploy for this.
 
 Mail apps ignore most CSS, so the design uses tables and inline styles only.
