@@ -203,6 +203,10 @@ export interface UiStrings {
     emailInstead: string;
     /** Shown when a message is sent too quickly or too often; `{time}` is the wait, e.g. "23 seconds". */
     rateLimited: string;
+    /** Shown in the notice when a field is empty or wrong. */
+    needName: string;
+    needEmail: string;
+    needMessage: string;
     /** Shown when the message was handed to the visitor's email app. */
     mailTitle: string;
     /** `{email}` is filled in. */

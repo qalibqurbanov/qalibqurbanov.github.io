@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { CheckCircle2, Mail, Paperclip, Send, X } from "lucide-react";
-import type { DragEvent, FormEvent } from "react";
+import { CheckCircle2, CircleAlert, Clock, Mail, Paperclip, Send, X } from "lucide-react";
+import type { DragEvent, FormEvent, ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 
 import { borderBurst } from "@/hooks/borderGlitch";
@@ -36,6 +36,9 @@ const ATTACHMENTS = import.meta.env.VITE_CONTACT_ATTACHMENTS === "true";
 const AUTO_CLOSE_MS = 6000;
 /** How long the window glitches before it closes. */
 const GLITCH_MS = 450;
+
+/** A plain check that an address has an @ and a dot after it; the mail service does the real one. */
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const MAX_FILES = 5;
 const MAX_TOTAL_BYTES = 10 * 1024 * 1024;
@@ -168,6 +171,25 @@ function AutoClose({ label, onDone }: { label: string; onDone: () => void }) {
   );
 }
 
+type Field = "name" | "email" | "message";
+
+/** A message floating over the top of the contact window: what is wrong with the form,
+ * why a send failed, or how long to wait. It has its own close button. */
+function Notice({ tone, icon, onClose, closeLabel, children }: { tone: "danger" | "info"; icon: ReactNode; onClose: () => void; closeLabel: string; children: ReactNode }) {
+  return (
+    <div
+      role={tone === "danger" ? "alert" : "status"}
+      className={`notice-drop absolute inset-x-3 top-3 z-10 flex items-start gap-2.5 rounded-lg border bg-surface-2 py-2.5 pl-3 pr-1.5 font-mono text-xs shadow-xl shadow-black/40 ${tone === "danger" ? "border-danger/60 text-danger" : "border-accent/60 text-text"}`}
+    >
+      <span className={`mt-px shrink-0 ${tone === "danger" ? "" : "text-accent"}`}>{icon}</span>
+      <div className="min-w-0 flex-1 leading-relaxed">{children}</div>
+      <button type="button" aria-label={closeLabel} onClick={onClose} className="-my-1 shrink-0 rounded p-2 text-muted transition hover:text-text">
+        <X size={12} />
+      </button>
+    </div>
+  );
+}
+
 type Status = "idle" | "sending" | "sent" | "mail" | "error" | "limited";
 
 const FIELD =
@@ -188,6 +210,8 @@ export function ContactModal() {
   const canAttach = canSend && ATTACHMENTS;
   // How long a "wait a moment" message still has to wait (ms): it counts the seconds down and goes away by itself.
   const [waitMs, setWaitMs] = useState(0);
+  // What is wrong with the fields after a send was tried: shown in a notice, and the fields get a red edge.
+  const [problems, setProblems] = useState<{ field: Field; text: string }[]>([]);
   const checked = canSend && Boolean(SITE_KEY);
   // The spam check's token: fetched in the background, so the form can only be sent once it is there.
   const checkToken = useRef<string | null>(null);
@@ -199,6 +223,7 @@ export function ContactModal() {
       setStatus("idle");
       setFiles([]);
       setFileError(false);
+      setProblems([]);
       checkToken.current = null;
       setCheck(checked ? "pending" : "ready");
       openedAt.current = Date.now();
@@ -238,9 +263,23 @@ export function ContactModal() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     // Honeypot: real users never see or fill this field.
     if (form.get("hp_field")) return;
+    const name = String(form.get("name") ?? "");
+    const message = String(form.get("message") ?? "");
+    const email = String(form.get("email") ?? "");
+    const found: { field: Field; text: string }[] = [];
+    if (!name.trim()) found.push({ field: "name", text: t.needName });
+    if (!EMAIL_PATTERN.test(email.trim())) found.push({ field: "email", text: t.needEmail });
+    if (!message.trim()) found.push({ field: "message", text: t.needMessage });
+    setProblems(found);
+    if (found.length > 0) {
+      setStatus("idle");
+      (formElement.elements.namedItem(found[0].field) as HTMLElement | null)?.focus();
+      return;
+    }
     const now = Date.now();
     const sends = recentSends(now);
     // How long until the form may be sent: the longest of the waits that apply.
@@ -253,10 +292,6 @@ export function ContactModal() {
       setStatus("limited");
       return;
     }
-    const name = String(form.get("name") ?? "");
-    const message = String(form.get("message") ?? "");
-    const email = String(form.get("email") ?? "");
-
     if (!ENDPOINT) {
       // No form service behind this site: the visitor's own email app sends it.
       const body = `${message}\n\n— ${name} <${email}>`;
@@ -285,6 +320,8 @@ export function ContactModal() {
   }
 
   const done = status === "sent" || status === "mail";
+  const waitText = status === "limited" && waitMs > 0 ? format(t.rateLimited, { time: formatWait(Math.max(1, Math.ceil(waitMs / 1000)), getLocaleMeta(locale).bcp47) }) : null;
+  const fieldClass = (field: Field, extra = "") => `${FIELD} ${extra} ${problems.some((p) => p.field === field) ? "border-danger!" : ""}`;
 
   return (
     <ViewModal open={open} widthClass="max-w-md" onClose={() => setOpen(false)}>
@@ -294,6 +331,28 @@ export function ContactModal() {
         className="flex min-h-0 flex-col"
         onClose={close}
       >
+        <div className="relative flex min-h-0 flex-1 flex-col">
+        {!done &&
+          (problems.length > 0 ? (
+            <Notice tone="danger" icon={<CircleAlert size={16} />} closeLabel={t.close} onClose={() => setProblems([])}>
+              <ul className="flex flex-col gap-0.5">
+                {problems.map((problem) => (
+                  <li key={problem.field}>{problem.text}</li>
+                ))}
+              </ul>
+            </Notice>
+          ) : status === "error" ? (
+            <Notice tone="danger" icon={<CircleAlert size={16} />} closeLabel={t.close} onClose={() => setStatus("idle")}>
+              {t.error}{" "}
+              <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
+                {t.emailInstead}
+              </a>
+            </Notice>
+          ) : waitText ? (
+            <Notice tone="info" icon={<Clock size={16} />} closeLabel={t.close} onClose={() => setWaitMs(0)}>
+              {waitText}
+            </Notice>
+          ) : null)}
         <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-6">
           {done ? (
             <div className="flex flex-col items-center gap-3 py-6 text-center">
@@ -311,7 +370,15 @@ export function ContactModal() {
               <AutoClose label={t.closingIn} onDone={close} />
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form
+              noValidate
+              onSubmit={handleSubmit}
+              onInput={(event) => {
+                const field = (event.target as HTMLInputElement).name;
+                setProblems((list) => list.filter((problem) => problem.field !== field));
+              }}
+              className="flex flex-col gap-4"
+            >
               <div>
                 <Dialog.Title className="text-xl font-bold text-text">
                   {t.title}
@@ -328,7 +395,8 @@ export function ContactModal() {
                   required
                   maxLength={100}
                   autoComplete="name"
-                  className={FIELD}
+                  aria-invalid={problems.some((p) => p.field === "name")}
+                  className={fieldClass("name")}
                 />
               </label>
               <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
@@ -339,7 +407,8 @@ export function ContactModal() {
                   required
                   maxLength={200}
                   autoComplete="email"
-                  className={FIELD}
+                  aria-invalid={problems.some((p) => p.field === "email")}
+                  className={fieldClass("email")}
                 />
               </label>
               <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
@@ -349,7 +418,8 @@ export function ContactModal() {
                   required
                   rows={5}
                   maxLength={4000}
-                  className={`${FIELD} custom-scrollbar [--scrollbar-track:var(--color-surface-2)] resize-none`}
+                  aria-invalid={problems.some((p) => p.field === "message")}
+                  className={fieldClass("message", "custom-scrollbar [--scrollbar-track:var(--color-surface-2)] resize-none")}
                 />
               </label>
               {canAttach && (
@@ -452,23 +522,6 @@ export function ContactModal() {
                 />
               )}
 
-              {(status === "error" || (status === "limited" && waitMs > 0)) && (
-                <p role="alert" className="font-mono text-xs text-danger">
-                  {status === "limited" ? format(t.rateLimited, { time: formatWait(Math.max(1, Math.ceil(waitMs / 1000)), getLocaleMeta(locale).bcp47) }) : t.error}
-                  {status === "error" && (
-                    <>
-                      {" "}
-                      <a
-                        href={`mailto:${profile.email}`}
-                        className="underline underline-offset-2 hover:text-accent"
-                      >
-                        {t.emailInstead}
-                      </a>
-                    </>
-                  )}
-                </p>
-              )}
-
               <button
                 type="submit"
                 disabled={status === "sending" || check === "pending"}
@@ -479,6 +532,7 @@ export function ContactModal() {
               </button>
             </form>
           )}
+        </div>
         </div>
       </CodeWindow>
       )}

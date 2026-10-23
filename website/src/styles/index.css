@@ -924,6 +924,22 @@ html::-webkit-scrollbar-button,
   }
 }
 
+/* A notice dropping into the contact window (see Notice in ContactModal). */
+@keyframes notice-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.notice-drop {
+  animation: notice-drop 200ms ease-out both;
+}
+
 .view-overlay {
   animation: view-fade-in 220ms ease-out both;
 }
