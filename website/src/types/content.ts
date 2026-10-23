@@ -201,7 +201,7 @@ export interface UiStrings {
     error: string;
     /** Offered next to the error: write by email instead. */
     emailInstead: string;
-    /** Shown when a message is sent too quickly or too often. */
+    /** Shown when a message is sent too quickly or too often; `{time}` is the wait, e.g. "23 seconds". */
     rateLimited: string;
     /** Shown when the message was handed to the visitor's email app. */
     mailTitle: string;

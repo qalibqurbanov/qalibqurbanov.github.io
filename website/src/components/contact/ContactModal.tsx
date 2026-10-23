@@ -7,7 +7,8 @@ import { borderBurst } from "@/hooks/borderGlitch";
 
 import { CodeWindow } from "@/components/ui/CodeWindow";
 import { ViewModal } from "@/components/ui/ViewModal";
-import { useContent } from "@/i18n/context";
+import { useContent, useLocale } from "@/i18n/context";
+import { getLocaleMeta } from "@/i18n/locale";
 import { OPEN_CONTACT_EVENT } from "@/components/contact/openContact";
 import { Turnstile } from "@/components/contact/Turnstile";
 import { format } from "@/lib/format";
@@ -77,6 +78,17 @@ function rememberSend(now: number): void {
 /** How a post went: accepted, turned away for sending too much, refused for another
  * reason (the spam check, bad fields) or not answered at all (down, offline). */
 type Outcome = "ok" | "limited" | "refused" | "failed";
+/** `retryAfter` (seconds) comes with "limited" from the mail service, which says how long to wait. */
+interface Result {
+  outcome: Outcome;
+  retryAfter?: number;
+}
+
+/** "23 seconds" or "12 minutes", in the page's language. */
+function formatWait(seconds: number, bcp47: string): string {
+  const minutes = seconds >= 60;
+  return new Intl.NumberFormat(bcp47, { style: "unit", unit: minutes ? "minute" : "second", unitDisplay: "long" }).format(minutes ? Math.ceil(seconds / 60) : seconds);
+}
 
 /** Posts the message to one service. */
 async function deliver(
@@ -85,7 +97,7 @@ async function deliver(
   { name, email, message }: { name: string; email: string; message: string },
   attachments: File[],
   checkToken: string | null,
-): Promise<Outcome> {
+): Promise<Result> {
   try {
     // Multipart, so attachments can ride along with the text fields.
     const body = new FormData();
@@ -102,14 +114,14 @@ async function deliver(
       headers: { Accept: "application/json" },
       body,
     });
-    if (response.status === 429) return "limited";
-    if (response.status >= 500) return "failed";
+    if (response.status === 429) return { outcome: "limited", retryAfter: Number(response.headers.get("Retry-After")) || undefined };
+    if (response.status >= 500) return { outcome: "failed" };
     // The services answer with JSON that says whether they accepted the message (Web3Forms: `success`, Formspree and the mail worker: `ok`).
     const reply: unknown = await response.json().catch(() => null);
     const refused = typeof reply === "object" && reply !== null && ("success" in reply ? reply.success === false : "ok" in reply ? reply.ok === false : false);
-    return response.ok && !refused ? "ok" : "refused";
+    return { outcome: response.ok && !refused ? "ok" : "refused" };
   } catch {
-    return "failed";
+    return { outcome: "failed" };
   }
 }
 
@@ -163,6 +175,7 @@ const FIELD =
 
 export function ContactModal() {
   const { profile, ui } = useContent();
+  const { locale } = useLocale();
   const t = ui.contactModal;
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
@@ -173,6 +186,8 @@ export function ContactModal() {
   const openedAt = useRef(0);
   const canSend = Boolean(ENDPOINT);
   const canAttach = canSend && ATTACHMENTS;
+  // How long a "wait a moment" message still has to wait (ms): it counts the seconds down and goes away by itself.
+  const [waitMs, setWaitMs] = useState(0);
   const checked = canSend && Boolean(SITE_KEY);
   // The spam check's token: fetched in the background, so the form can only be sent once it is there.
   const checkToken = useRef<string | null>(null);
@@ -192,6 +207,13 @@ export function ContactModal() {
     window.addEventListener(OPEN_CONTACT_EVENT, onOpen);
     return () => window.removeEventListener(OPEN_CONTACT_EVENT, onOpen);
   }, [checked]);
+
+  useEffect(() => {
+    if (status !== "limited") return;
+    const id = window.setInterval(() => setWaitMs((left) => left - 1000), 1000);
+    return () => window.clearInterval(id);
+  }, [status]);
+
 
   function addFiles(incoming: FileList | File[]) {
     const merged = [...files];
@@ -221,7 +243,13 @@ export function ContactModal() {
     if (form.get("hp_field")) return;
     const now = Date.now();
     const sends = recentSends(now);
-    if (now - openedAt.current < MIN_FILL_MS || sends.length >= MAX_PER_WINDOW || (sends.length > 0 && now - Math.max(...sends) < MIN_GAP_MS)) {
+    // How long until the form may be sent: the longest of the waits that apply.
+    const waits: number[] = [];
+    if (now - openedAt.current < MIN_FILL_MS) waits.push(MIN_FILL_MS - (now - openedAt.current));
+    if (sends.length > 0 && now - Math.max(...sends) < MIN_GAP_MS) waits.push(MIN_GAP_MS - (now - Math.max(...sends)));
+    if (sends.length >= MAX_PER_WINDOW) waits.push([...sends].sort((a, b) => a - b)[sends.length - MAX_PER_WINDOW] + WINDOW_MS - now);
+    if (waits.length > 0) {
+      setWaitMs(Math.max(...waits));
       setStatus("limited");
       return;
     }
@@ -241,10 +269,12 @@ export function ContactModal() {
 
     setStatus("sending");
     const fields = { name, email, message };
-    let outcome = await deliver(ENDPOINT, ACCESS_KEY, fields, canAttach ? files : [], checkToken.current);
+    let { outcome, retryAfter } = await deliver(ENDPOINT, ACCESS_KEY, fields, canAttach ? files : [], checkToken.current);
     // Only a mail service that is down hands over to the backup. A refusal (spam check, too many messages) is final, or the backup would let spam around it.
-    if (outcome === "failed" && FALLBACK_ENDPOINT) outcome = await deliver(FALLBACK_ENDPOINT, ACCESS_KEY, fields, [], null);
+    if (outcome === "failed" && FALLBACK_ENDPOINT) ({ outcome, retryAfter } = await deliver(FALLBACK_ENDPOINT, ACCESS_KEY, fields, [], null));
     if (outcome === "ok") rememberSend(Date.now());
+    // The mail service says how long to wait; without that, a minute.
+    if (outcome === "limited") setWaitMs((retryAfter ?? 60) * 1000);
     setStatus(outcome === "ok" ? "sent" : outcome === "limited" ? "limited" : "error");
     if (outcome !== "ok" && checked) {
       // A token works once: ask for a new one before the next try.
@@ -422,9 +452,9 @@ export function ContactModal() {
                 />
               )}
 
-              {(status === "error" || status === "limited") && (
+              {(status === "error" || (status === "limited" && waitMs > 0)) && (
                 <p role="alert" className="font-mono text-xs text-danger">
-                  {status === "limited" ? t.rateLimited : t.error}
+                  {status === "limited" ? format(t.rateLimited, { time: formatWait(Math.max(1, Math.ceil(waitMs / 1000)), getLocaleMeta(locale).bcp47) }) : t.error}
                   {status === "error" && (
                     <>
                       {" "}

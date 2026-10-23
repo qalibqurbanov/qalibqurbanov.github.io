@@ -233,7 +233,7 @@ const en: Content = {
       successBody: "Thanks for reaching out — I'll reply as soon as I can.",
       error: "Couldn't send your message. Please try again in a moment.",
       emailInstead: "Or email me directly",
-      rateLimited: "That was quick — please wait a moment before sending another message.",
+      rateLimited: "That was quick — please wait {time} before sending another message.",
       mailTitle: "Your email app is opening",
       mailBody: "The message is ready to send from your email app. If nothing opened, write to {email} directly.",
       mailSend: "Open in email app",

@@ -234,7 +234,7 @@ const az: Content = {
       successBody: "Yazdığınız üçün təşəkkürlər — mümkün qədər tez cavab verəcəyəm.",
       error: "Mesajı göndərmək mümkün olmadı. Bir azdan yenidən cəhd edin.",
       emailInstead: "Və ya birbaşa e-poçtla yazın",
-      rateLimited: "Çox tezdir — növbəti mesajdan əvvəl bir az gözləyin.",
+      rateLimited: "Çox tezdir — növbəti mesajdan əvvəl {time} gözləyin.",
       mailTitle: "E-poçt tətbiqiniz açılır",
       mailBody: "Mesaj e-poçt tətbiqinizdən göndərilməyə hazırdır. Heç nə açılmadısa, birbaşa {email} ünvanına yazın.",
       mailSend: "E-poçt tətbiqində aç",

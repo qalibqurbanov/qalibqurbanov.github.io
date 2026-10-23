@@ -87,28 +87,30 @@ async function passedCheck(env, token, ip) {
   }
 }
 
-/** Counts this message against the sender's IP address; false once the limit is reached.
+/** Counts this message against the sender's IP address. Returns 0 when it may go ahead, or
+ * how many seconds the sender has to wait once the limit is reached.
  * A failing store never blocks a real message. */
-async function underLimit(env, ip) {
-  if (!env.RATE || !ip) return true;
+async function waitSeconds(env, ip) {
+  if (!env.RATE || !ip) return 0;
   try {
     const key = `ip:${ip}`;
     const now = Math.floor(Date.now() / 1000);
     const saved = await env.RATE.get(key, "json");
     const entry = saved && saved.resetAt > now ? saved : { count: 0, resetAt: now + WINDOW_SECONDS };
-    if (entry.count >= LIMIT) return false;
+    if (entry.count >= LIMIT) return Math.max(1, entry.resetAt - now);
     // The store wants an expiry at least a minute ahead.
     await env.RATE.put(key, JSON.stringify({ count: entry.count + 1, resetAt: entry.resetAt }), { expiration: Math.max(entry.resetAt, now + 60) });
-    return true;
+    return 0;
   } catch {
-    return true;
+    return 0;
   }
 }
 
-function reply(body, status, origin) {
-  const headers = { "Content-Type": "application/json" };
+function reply(body, status, origin, extra = {}) {
+  const headers = { "Content-Type": "application/json", ...extra };
   if (ALLOWED_ORIGINS.includes(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
+    headers["Access-Control-Expose-Headers"] = "Retry-After";
     headers.Vary = "Origin";
   }
   return new Response(JSON.stringify(body), { status, headers });
@@ -145,7 +147,8 @@ export default {
 
     const ip = request.headers.get("CF-Connecting-IP") ?? "";
     if (!(await passedCheck(env, String(form.get("cf-turnstile-response") ?? ""), ip))) return reply({ ok: false, error: "check" }, 403, origin);
-    if (!(await underLimit(env, ip))) return reply({ ok: false, error: "rate" }, 429, origin);
+    const wait = await waitSeconds(env, ip);
+    if (wait > 0) return reply({ ok: false, error: "rate" }, 429, origin, { "Retry-After": String(wait) });
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
