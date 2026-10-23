@@ -3,6 +3,8 @@ import { CheckCircle2, Mail, Paperclip, Send, X } from "lucide-react";
 import type { DragEvent, FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
+import { borderBurst } from "@/hooks/borderGlitch";
+
 import { CodeWindow } from "@/components/ui/CodeWindow";
 import { ViewModal } from "@/components/ui/ViewModal";
 import { useContent } from "@/i18n/context";
@@ -23,6 +25,11 @@ const FALLBACK_ENDPOINT = import.meta.env.VITE_CONTACT_FALLBACK_ENDPOINT as stri
 
 /** Attachments need a plan that accepts files (the free tiers of the usual services do not): they are only offered when this is switched on. */
 const ATTACHMENTS = import.meta.env.VITE_CONTACT_ATTACHMENTS === "true";
+
+/** After a message is sent the window closes itself this long after; a bar shows the time left. */
+const AUTO_CLOSE_MS = 6000;
+/** How long the window glitches before it closes. */
+const GLITCH_MS = 450;
 
 const MAX_FILES = 5;
 const MAX_TOTAL_BYTES = 10 * 1024 * 1024;
@@ -93,7 +100,50 @@ async function deliver(
   }
 }
 
-type Status ="idle" | "sending" | "sent" | "mail" | "error" | "limited";
+/** The countdown under the thank-you: a bar that runs down and the seconds left. When it
+ * ends the window glitches, then `onDone` closes it. */
+function AutoClose({ label, onDone }: { label: string; onDone: () => void }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const doneRef = useRef(onDone);
+  const [running, setRunning] = useState(false);
+  const [seconds, setSeconds] = useState(Math.ceil(AUTO_CLOSE_MS / 1000));
+
+  useEffect(() => {
+    doneRef.current = onDone;
+  });
+
+  useEffect(() => {
+    const start = Date.now();
+    const frame = window.requestAnimationFrame(() => setRunning(true));
+    const tick = window.setInterval(() => setSeconds(Math.max(1, Math.ceil((AUTO_CLOSE_MS - (Date.now() - start)) / 1000))), 250);
+    let closeTimer = 0;
+    const end = window.setTimeout(() => {
+      const win = rootRef.current?.closest<HTMLElement>(".glitch-border");
+      if (win) borderBurst(win, 14);
+      closeTimer = window.setTimeout(() => doneRef.current(), GLITCH_MS);
+    }, AUTO_CLOSE_MS);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearInterval(tick);
+      window.clearTimeout(end);
+      window.clearTimeout(closeTimer);
+    };
+  }, []);
+
+  return (
+    <div ref={rootRef} className="mt-3 flex w-full flex-col items-center gap-2">
+      <div className="h-1 w-full overflow-hidden rounded-full bg-surface-2" role="presentation">
+        <div
+          className="h-full origin-left rounded-full bg-gradient-to-r from-accent to-accent-2"
+          style={{ transform: running ? "scaleX(0)" : "scaleX(1)", transition: running ? `transform ${AUTO_CLOSE_MS}ms linear` : "none" }}
+        />
+      </div>
+      <span className="font-mono text-xs text-muted">{format(label, { seconds: String(seconds) })}</span>
+    </div>
+  );
+}
+
+type Status = "idle" | "sending" | "sent" | "mail" | "error" | "limited";
 
 const FIELD =
   "w-full rounded-md border border-border bg-surface-2 px-3 py-2 font-sans text-sm text-text placeholder:text-muted/60 outline-none transition focus:border-accent selectable";
@@ -182,10 +232,11 @@ export function ContactModal() {
 
   return (
     <ViewModal open={open} widthClass="max-w-md" onClose={() => setOpen(false)}>
+      {(close) => (
       <CodeWindow
         filename="message.txt"
         className="flex min-h-0 flex-col"
-        onClose={() => setOpen(false)}
+        onClose={close}
       >
         <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-6">
           {done ? (
@@ -201,9 +252,7 @@ export function ContactModal() {
               <Dialog.Description className="text-sm text-muted">
                 {status === "mail" ? format(t.mailBody, { email: profile.email }) : t.successBody}
               </Dialog.Description>
-              <Dialog.Close className="mt-2 min-h-11 rounded-md border border-border px-5 py-2 font-mono text-sm text-text transition hover:border-accent hover:text-accent">
-                {t.close}
-              </Dialog.Close>
+              <AutoClose label={t.closingIn} onDone={close} />
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -360,6 +409,7 @@ export function ContactModal() {
           )}
         </div>
       </CodeWindow>
+      )}
     </ViewModal>
   );
 }

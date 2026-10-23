@@ -237,6 +237,7 @@ const en: Content = {
       mailTitle: "Your email app is opening",
       mailBody: "The message is ready to send from your email app. If nothing opened, write to {email} directly.",
       mailSend: "Open in email app",
+      closingIn: "Closing in {seconds}s",
       close: "Close",
     },
     skillGroups: {
