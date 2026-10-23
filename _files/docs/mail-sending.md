@@ -1,0 +1,94 @@
+# Mail sending (contact form)
+
+Written so that future me can read it in five minutes and remember what is going on.
+
+## The idea in one picture
+
+```
+visitor fills the form
+        |
+        v
+website (GitHub Pages) ---- cannot hold secrets, it is only static files
+        |
+        v   posts name, email, message, page
+Cloudflare Worker  (worker/index.js) ---- small program that holds the secret key
+        |
+        v
+Resend ---- the service that really sends the e-mail
+        |
+        v
+my inbox:  "Portfolio - <name> sent you a message"
+
+If the Cloudflare Worker or Resend fails:
+website (browser) -> Web3Forms -> my inbox   (same subject, Web3Forms's own template)
+If that fails too: the visitor sees an error and can try again.
+```
+
+## Why it is built like this
+
+- GitHub Pages only serves files. Anything in the website's code is public, so a mail key cannot live there.
+- So a tiny separate program (a Cloudflare Worker) sits in between. It keeps the Resend key secret and builds the mail with my own design (a dark terminal-style window, like the project windows on the site).
+- Web3Forms was the first solution. It works, but its mail design cannot be changed on the free plan. It is kept as the backup.
+
+## The pieces
+
+| Piece | What it is | Cost |
+|---|---|---|
+| Website form | `website/src/components/contact/ContactModal.tsx` | free (GitHub Pages) |
+| Cloudflare Worker | `worker/index.js`, also pasted into Cloudflare as `portfolio-mail` | free tier |
+| Resend | sends the mail, holds the API key | free tier |
+| Web3Forms | backup sender | free tier |
+
+Cloudflare Worker address: `https://portfolio-mail.qalibqurbanow.workers.dev/`
+
+## Settings and where they are
+
+| Setting | Where | What it does |
+|---|---|---|
+| `VITE_CONTACT_ENDPOINT` | GitHub repo > Settings > Secrets and variables > Actions > Variables | the Cloudflare Worker address the form posts to |
+| `VITE_CONTACT_FALLBACK_ENDPOINT` | same place | backup address (Web3Forms), tried only if the first fails |
+| `VITE_CONTACT_ACCESS_KEY` | same place, Secrets | the Web3Forms key (it ends up public in the site anyway) |
+| `RESEND_API_KEY` | Cloudflare > the Cloudflare Worker > Settings > Variables and Secrets | the Resend key, never in the repo |
+| `TO_EMAIL` | same place | where messages are delivered |
+| `FROM_EMAIL` | same place (optional) | sender, default `Portfolio <onboarding@resend.dev>` |
+
+The `VITE_` settings are read when the website is built. After changing one, re-run the "Deploy to GitHub Pages" workflow (Actions tab).
+
+## Good to know
+
+- Resend's free test sender only delivers to the address I signed up to Resend with. To mail any address I would need my own domain verified in Resend.
+- Mails from `onboarding@resend.dev` can land in spam. Fix: Gmail filter, from that address, "never send to spam".
+- The Cloudflare Worker only accepts requests from the live site and localhost ports 1337 and 1338 (`ALLOWED_ORIGINS` at the top of the file).
+- The form protects itself in the browser: a hidden trap field, no send within 2.5 s of opening, 30 s between sends, 3 per hour. The Cloudflare Worker also checks the fields and their length.
+- The visitor's address is the reply-to, so pressing Reply writes back to them.
+- Without any endpoint (for example local development without `website/.env.local`), the form opens the visitor's own mail app instead (`mailto:`).
+
+## Common tasks
+
+**Change the mail design or subject**
+1. Edit `worker/index.js` (`renderHtml` is the design, the subject is in the Resend call near the bottom).
+2. Cloudflare > Workers & Pages > `portfolio-mail` > Edit code > select all, delete, paste the whole file > Deploy.
+3. The website does not need a redeploy for this.
+
+Mail apps ignore most CSS, so the design uses tables and inline styles only.
+
+**Change where mail goes:** edit `TO_EMAIL` in Cloudflare, then Deploy.
+
+**Replace a leaked or old Resend key:** create a new key in Resend (Sending access), delete the old one, put the new one in `RESEND_API_KEY` in Cloudflare, Deploy.
+
+**Change the success or error texts shown on the site:** `website/src/content/en.ts` (and `az.ts`, `ru.ts`), section `contactModal`.
+
+**Turn the backup off:** delete the `VITE_CONTACT_FALLBACK_ENDPOINT` variable and re-run the deploy.
+
+## When something does not work
+
+| Symptom | Check |
+|---|---|
+| The form shows an error | Open the Cloudflare Worker address in a browser. It should answer `{"ok":false,"error":"method"}`. If it does not, the Cloudflare Worker or the endpoint variable is wrong. |
+| Cloudflare Worker answers but mail does not come | Cloudflare > the Cloudflare Worker > Logs. `error: send` means Resend refused: wrong or missing key, or `TO_EMAIL` is not the Resend signup address. |
+| `error: origin` | The site's address is missing from `ALLOWED_ORIGINS`. |
+| Mail is in spam | See "Good to know". |
+| The form opens my mail app instead of sending | The endpoint was empty when the site was built. Set it and re-run the deploy. |
+| Changed a variable, nothing changed | The site reads it at build time. Re-run the deploy. |
+
+Free plan limits (check the dashboards for today's numbers): Cloudflare Workers about 100,000 requests a day, Resend a few thousand mails a month, Web3Forms about 250 a month.
