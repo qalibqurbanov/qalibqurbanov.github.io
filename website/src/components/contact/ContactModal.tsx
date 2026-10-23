@@ -17,6 +17,9 @@ const ENDPOINT = import.meta.env.VITE_CONTACT_ENDPOINT as string | undefined;
 const ACCESS_KEY = import.meta.env.VITE_CONTACT_ACCESS_KEY as
   string | undefined;
 
+/** Attachments need a plan that accepts files (the free tiers of the usual services do not): they are only offered when this is switched on. */
+const ATTACHMENTS = import.meta.env.VITE_CONTACT_ATTACHMENTS === "true";
+
 const MAX_FILES = 5;
 const MAX_TOTAL_BYTES = 10 * 1024 * 1024;
 
@@ -71,6 +74,7 @@ export function ContactModal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const openedAt = useRef(0);
   const canSend = Boolean(ENDPOINT);
+  const canAttach = canSend && ATTACHMENTS;
 
   useEffect(() => {
     const onOpen = () => {
@@ -140,14 +144,18 @@ export function ContactModal() {
       body.append("message", message);
       body.append("subject", `Portfolio message from ${name}`);
       body.append("page", window.location.href);
-      for (const file of files) body.append("attachment", file, file.name);
+      if (canAttach) for (const file of files) body.append("attachment", file, file.name);
       const response = await fetch(ENDPOINT, {
         method: "POST",
         headers: { Accept: "application/json" },
         body,
       });
-      if (response.ok) rememberSend(Date.now());
-      setStatus(response.ok ? "sent" : "error");
+      // The services answer with JSON that says whether they accepted the message (Web3Forms: `success`, Formspree: `ok`).
+      const reply: unknown = await response.json().catch(() => null);
+      const refused = typeof reply === "object" && reply !== null && ("success" in reply ? reply.success === false : "ok" in reply ? reply.ok === false : false);
+      const accepted = response.ok && !refused;
+      if (accepted) rememberSend(Date.now());
+      setStatus(accepted ? "sent" : "error");
     } catch {
       setStatus("error");
     }
@@ -222,7 +230,7 @@ export function ContactModal() {
                   className={`${FIELD} custom-scrollbar [--scrollbar-track:var(--color-surface-2)] resize-none`}
                 />
               </label>
-              {canSend && (
+              {canAttach && (
                 <div className="flex flex-col gap-1.5 font-mono text-xs text-muted">
                   {t.attachLabel}
                   <div
