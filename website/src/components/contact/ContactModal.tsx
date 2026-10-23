@@ -130,7 +130,7 @@ export function ContactModal() {
       const clipped = body.length > MAILTO_BODY_MAX ? `${body.slice(0, MAILTO_BODY_MAX)}…` : body;
       rememberSend(now);
       setStatus("mail");
-      window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent(`Portfolio message from ${name}`)}&body=${encodeURIComponent(clipped)}`;
+      window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent(`Portfolio - ${name} sent you a message`)}&body=${encodeURIComponent(clipped)}`;
       return;
     }
 
@@ -142,7 +142,7 @@ export function ContactModal() {
       body.append("name", name);
       body.append("email", email);
       body.append("message", message);
-      body.append("subject", `Portfolio message from ${name}`);
+      body.append("subject", `Portfolio - ${name} sent you a message`);
       body.append("page", window.location.href);
       if (canAttach) for (const file of files) body.append("attachment", file, file.name);
       const response = await fetch(ENDPOINT, {
