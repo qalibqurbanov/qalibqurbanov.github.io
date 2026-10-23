@@ -3,8 +3,14 @@
 //   RESEND_API_KEY  secret  the Resend API key
 //   TO_EMAIL        text    the address that receives the messages
 //   FROM_EMAIL      text    optional sender, "Portfolio <onboarding@resend.dev>" by default
+//   TURNSTILE_SECRET secret optional: Cloudflare Turnstile secret key. When set, every message must carry a
+//                           valid Turnstile token (the spam check on the form).
+// Binding (wrangler.toml): RATE, a KV namespace that counts messages per IP address. Without it there is no limit.
 
 const ALLOWED_ORIGINS = ["https://qalibqurbanov.github.io", "http://localhost:1337", "http://localhost:1338"];
+/** At most this many messages from one IP address per window. */
+const LIMIT = 5;
+const WINDOW_SECONDS = 60 * 60;
 const MAX = { name: 100, email: 200, message: 5000, page: 300 };
 
 const COLOR = {
@@ -64,6 +70,41 @@ function renderText({ name, email, message, page }) {
   return `${name} <${email}>\n${page}\n\n${message}\n`;
 }
 
+/** Asks Cloudflare whether the Turnstile token the form sent is real. */
+async function passedCheck(env, token, ip) {
+  if (!env.TURNSTILE_SECRET) return true;
+  if (!token) return false;
+  const body = new FormData();
+  body.append("secret", env.TURNSTILE_SECRET);
+  body.append("response", token);
+  if (ip) body.append("remoteip", ip);
+  try {
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body });
+    const result = await response.json();
+    return result.success === true;
+  } catch {
+    return false;
+  }
+}
+
+/** Counts this message against the sender's IP address; false once the limit is reached.
+ * A failing store never blocks a real message. */
+async function underLimit(env, ip) {
+  if (!env.RATE || !ip) return true;
+  try {
+    const key = `ip:${ip}`;
+    const now = Math.floor(Date.now() / 1000);
+    const saved = await env.RATE.get(key, "json");
+    const entry = saved && saved.resetAt > now ? saved : { count: 0, resetAt: now + WINDOW_SECONDS };
+    if (entry.count >= LIMIT) return false;
+    // The store wants an expiry at least a minute ahead.
+    await env.RATE.put(key, JSON.stringify({ count: entry.count + 1, resetAt: entry.resetAt }), { expiration: Math.max(entry.resetAt, now + 60) });
+    return true;
+  } catch {
+    return true;
+  }
+}
+
 function reply(body, status, origin) {
   const headers = { "Content-Type": "application/json" };
   if (ALLOWED_ORIGINS.includes(origin)) {
@@ -101,6 +142,10 @@ export default {
     const tooLong = Object.keys(MAX).some((key) => data[key].length > MAX[key]);
     const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
     if (!data.name || !data.message || !validEmail || tooLong) return reply({ ok: false, error: "fields" }, 400, origin);
+
+    const ip = request.headers.get("CF-Connecting-IP") ?? "";
+    if (!(await passedCheck(env, String(form.get("cf-turnstile-response") ?? ""), ip))) return reply({ ok: false, error: "check" }, 403, origin);
+    if (!(await underLimit(env, ip))) return reply({ ok: false, error: "rate" }, 429, origin);
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",

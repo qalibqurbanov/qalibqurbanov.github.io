@@ -30,6 +30,18 @@ If that fails too: the visitor sees an error and can try again.
 - So a tiny separate program (a Cloudflare Worker) sits in between. It keeps the Resend key secret and builds the mail with my own design (a dark terminal-style window, like the project windows on the site).
 - Web3Forms was the first solution. It works, but its mail design cannot be changed on the free plan. It is kept as the backup.
 
+## Spam protection
+
+Three layers, from the visitor's side to the inbox:
+
+1. **Form in the browser** (weak, only stops casual spam): a hidden trap field, no send within 2.5 s of opening, 30 s between sends, 3 per hour.
+2. **Cloudflare Turnstile** (free invisible captcha): the form shows nothing unless it doubts the visitor. The Send button waits until the check passes. The check's token goes to the Cloudflare Worker, which verifies it with Cloudflare before sending anything. Needs `VITE_TURNSTILE_SITE_KEY` (site) and `TURNSTILE_SECRET` (Cloudflare Worker secret). Without them the check is simply off.
+3. **Limit per visitor in the Cloudflare Worker**: at most 5 messages per hour from one IP address, counted in a small Cloudflare store (the `RATE` KV namespace in `worker/wrangler.toml`). Over the limit the visitor sees the "please wait" message.
+
+Also: the Cloudflare Worker only accepts requests from the live site and localhost, and the recipient is fixed (`TO_EMAIL`), so nobody can use it to mail other people.
+
+The Web3Forms backup is used only when the Cloudflare Worker is **down** (no answer or a server error). If it **refuses** a message (failed check, too many messages) that is final, otherwise the backup would let spam around the checks. The backup key is public: in the Web3Forms dashboard restrict it to the site's domain and turn on its spam filter.
+
 ## The pieces
 
 | Piece | What it is | Cost |
@@ -51,6 +63,8 @@ Cloudflare Worker address: `https://portfolio-mail.qalibqurbanow.workers.dev/`
 | `RESEND_API_KEY` | Cloudflare > the Cloudflare Worker > Settings > Variables and Secrets | the Resend key, never in the repo |
 | `TO_EMAIL` | same place | where messages are delivered |
 | `FROM_EMAIL` | same place (optional) | sender, default `Portfolio <onboarding@resend.dev>` |
+| `TURNSTILE_SECRET` | same place (secret) | the Turnstile secret key; without it the Cloudflare Worker does not check tokens |
+| `VITE_TURNSTILE_SITE_KEY` | GitHub repo > Variables | the Turnstile site key (public); without it the form shows no check |
 
 The `VITE_` settings are read when the website is built. After changing one, re-run the "Deploy to GitHub Pages" workflow (Actions tab).
 
@@ -88,6 +102,8 @@ Mail apps ignore most CSS, so the design uses tables and inline styles only.
 |---|---|
 | The form shows an error | Open the Cloudflare Worker address in a browser. It should answer `{"ok":false,"error":"method"}`. If it does not, the Cloudflare Worker or the endpoint variable is wrong. |
 | Cloudflare Worker answers but mail does not come | Cloudflare > the Cloudflare Worker > Logs. `error: send` means Resend refused: wrong or missing key, or `TO_EMAIL` is not the Resend signup address. |
+| `error: check` (403) | The Turnstile check failed: wrong secret, or the site's address is not listed in the Turnstile widget's hostnames. |
+| `error: rate` (429) | More than 5 messages from this IP address in an hour. |
 | `error: origin` | The site's address is missing from `ALLOWED_ORIGINS`. |
 | Mail is in spam | See "Good to know". |
 | The form opens my mail app instead of sending | The endpoint was empty when the site was built. Set it and re-run the deploy. |

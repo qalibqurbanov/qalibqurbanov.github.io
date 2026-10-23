@@ -4,3 +4,7 @@ compatibility_date = "2026-10-01"
 
 # Keep the settings and secrets entered in the Cloudflare dashboard (RESEND_API_KEY, TO_EMAIL, FROM_EMAIL).
 keep_vars = true
+
+# Counts messages per IP address (see underLimit in index.js). Wrangler creates the namespace on the first deploy.
+[[kv_namespaces]]
+binding = "RATE"

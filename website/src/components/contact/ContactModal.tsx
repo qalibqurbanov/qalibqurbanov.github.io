@@ -9,6 +9,7 @@ import { CodeWindow } from "@/components/ui/CodeWindow";
 import { ViewModal } from "@/components/ui/ViewModal";
 import { useContent } from "@/i18n/context";
 import { OPEN_CONTACT_EVENT } from "@/components/contact/openContact";
+import { Turnstile } from "@/components/contact/Turnstile";
 import { format } from "@/lib/format";
 
 /** Where the form is delivered. Set `VITE_CONTACT_ENDPOINT` to a form-relay
@@ -22,6 +23,10 @@ const ACCESS_KEY = import.meta.env.VITE_CONTACT_ACCESS_KEY as
 /** A second form service, tried only when the first one fails. It takes the same
  * `VITE_CONTACT_ACCESS_KEY` (Web3Forms: https://api.web3forms.com/submit). */
 const FALLBACK_ENDPOINT = import.meta.env.VITE_CONTACT_FALLBACK_ENDPOINT as string | undefined;
+
+/** The Cloudflare Turnstile site key (public). With it the form runs the spam check and
+ * sends its token to the mail Cloudflare Worker, which verifies it. */
+const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 
 /** Attachments need a plan that accepts files (the free tiers of the usual services do not): they are only offered when this is switched on. */
 const ATTACHMENTS = import.meta.env.VITE_CONTACT_ATTACHMENTS === "true";
@@ -69,13 +74,18 @@ function rememberSend(now: number): void {
   }
 }
 
-/** Posts the message to one service; true when the service says it accepted it. */
+/** How a post went: accepted, turned away for sending too much, refused for another
+ * reason (the spam check, bad fields) or not answered at all (down, offline). */
+type Outcome = "ok" | "limited" | "refused" | "failed";
+
+/** Posts the message to one service. */
 async function deliver(
   endpoint: string,
   accessKey: string | undefined,
   { name, email, message }: { name: string; email: string; message: string },
   attachments: File[],
-): Promise<boolean> {
+  checkToken: string | null,
+): Promise<Outcome> {
   try {
     // Multipart, so attachments can ride along with the text fields.
     const body = new FormData();
@@ -85,18 +95,21 @@ async function deliver(
     body.append("message", message);
     body.append("subject", `Portfolio - ${name} sent you a message`);
     body.append("page", window.location.href);
+    if (checkToken) body.append("cf-turnstile-response", checkToken);
     for (const file of attachments) body.append("attachment", file, file.name);
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { Accept: "application/json" },
       body,
     });
+    if (response.status === 429) return "limited";
+    if (response.status >= 500) return "failed";
     // The services answer with JSON that says whether they accepted the message (Web3Forms: `success`, Formspree and the mail worker: `ok`).
     const reply: unknown = await response.json().catch(() => null);
     const refused = typeof reply === "object" && reply !== null && ("success" in reply ? reply.success === false : "ok" in reply ? reply.ok === false : false);
-    return response.ok && !refused;
+    return response.ok && !refused ? "ok" : "refused";
   } catch {
-    return false;
+    return "failed";
   }
 }
 
@@ -160,18 +173,25 @@ export function ContactModal() {
   const openedAt = useRef(0);
   const canSend = Boolean(ENDPOINT);
   const canAttach = canSend && ATTACHMENTS;
+  const checked = canSend && Boolean(SITE_KEY);
+  // The spam check's token: fetched in the background, so the form can only be sent once it is there.
+  const checkToken = useRef<string | null>(null);
+  const [check, setCheck] = useState<"pending" | "ready" | "unavailable">(checked ? "pending" : "ready");
+  const [checkRound, setCheckRound] = useState(0);
 
   useEffect(() => {
     const onOpen = () => {
       setStatus("idle");
       setFiles([]);
       setFileError(false);
+      checkToken.current = null;
+      setCheck(checked ? "pending" : "ready");
       openedAt.current = Date.now();
       setOpen(true);
     };
     window.addEventListener(OPEN_CONTACT_EVENT, onOpen);
     return () => window.removeEventListener(OPEN_CONTACT_EVENT, onOpen);
-  }, []);
+  }, [checked]);
 
   function addFiles(incoming: FileList | File[]) {
     const merged = [...files];
@@ -221,11 +241,17 @@ export function ContactModal() {
 
     setStatus("sending");
     const fields = { name, email, message };
-    let accepted = await deliver(ENDPOINT, ACCESS_KEY, fields, canAttach ? files : []);
-    // The mail service is down or refused: the same message goes to the backup service instead.
-    if (!accepted && FALLBACK_ENDPOINT) accepted = await deliver(FALLBACK_ENDPOINT, ACCESS_KEY, fields, []);
-    if (accepted) rememberSend(Date.now());
-    setStatus(accepted ? "sent" : "error");
+    let outcome = await deliver(ENDPOINT, ACCESS_KEY, fields, canAttach ? files : [], checkToken.current);
+    // Only a mail service that is down hands over to the backup. A refusal (spam check, too many messages) is final, or the backup would let spam around it.
+    if (outcome === "failed" && FALLBACK_ENDPOINT) outcome = await deliver(FALLBACK_ENDPOINT, ACCESS_KEY, fields, [], null);
+    if (outcome === "ok") rememberSend(Date.now());
+    setStatus(outcome === "ok" ? "sent" : outcome === "limited" ? "limited" : "error");
+    if (outcome !== "ok" && checked) {
+      // A token works once: ask for a new one before the next try.
+      checkToken.current = null;
+      setCheck("pending");
+      setCheckRound((round) => round + 1);
+    }
   }
 
   const done = status === "sent" || status === "mail";
@@ -380,6 +406,22 @@ export function ContactModal() {
                 className="absolute -left-[9999px] h-0 w-0 opacity-0"
               />
 
+              {SITE_KEY && canSend && (
+                <Turnstile
+                  siteKey={SITE_KEY}
+                  resetKey={checkRound}
+                  onToken={(token) => {
+                    checkToken.current = token;
+                    setCheck("ready");
+                  }}
+                  onExpire={() => {
+                    checkToken.current = null;
+                    setCheck("pending");
+                  }}
+                  onUnavailable={() => setCheck("unavailable")}
+                />
+              )}
+
               {(status === "error" || status === "limited") && (
                 <p role="alert" className="font-mono text-xs text-danger">
                   {status === "limited" ? t.rateLimited : t.error}
@@ -399,7 +441,7 @@ export function ContactModal() {
 
               <button
                 type="submit"
-                disabled={status === "sending"}
+                disabled={status === "sending" || check === "pending"}
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-accent px-5 py-2.5 font-mono text-sm font-medium text-bg transition hover:brightness-110 disabled:opacity-60"
               >
                 {canSend ? <Send size={14} /> : <Mail size={14} />}
