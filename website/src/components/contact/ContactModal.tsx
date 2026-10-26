@@ -746,15 +746,25 @@ export function ContactModal() {
                 {canSend ? <Send size={14} /> : <Mail size={14} />}
                 {status === "sending" ? <ScrambleText text={t.sending} /> : canSend ? t.send : t.mailSend}
               </button>
-              <div className="-mt-1 flex flex-col gap-1.5 text-center font-mono text-[11px] leading-relaxed">
-                {sentTimes.length > 0 && (
-                  <p className={sentTimes.length >= MAX_PER_WINDOW ? "text-accent" : "text-text"}>
-                    {sentTimes.length >= MAX_PER_WINDOW
-                      ? format(t.sentAll, { count: String(MAX_PER_WINDOW), clock: formatClock([...sentTimes].sort((a, b) => a - b)[sentTimes.length - MAX_PER_WINDOW] + WINDOW_MS, bcp47) })
-                      : format(t.sentCount, { sent: String(sentTimes.length), count: String(MAX_PER_WINDOW) })}
+              {sentTimes.length > 0 && (
+                  // A small panel of its own, with one dot for each message of the hour (filled once used), so it reads as a status and not as one more rule.
+                  <p
+                    className={`-mt-1 inline-flex items-center gap-2.5 self-center rounded-md border bg-surface-2 px-3 py-1.5 font-mono text-xs ${
+                      sentTimes.length >= MAX_PER_WINDOW ? "border-accent/60 text-accent" : "border-border text-text"
+                    }`}
+                  >
+                    <span className="flex shrink-0 gap-1" aria-hidden="true">
+                      {Array.from({ length: MAX_PER_WINDOW }, (_, i) => (
+                        <i key={i} className={`h-2 w-2 rounded-full border ${i < sentTimes.length ? "border-accent bg-accent" : "border-muted/60"}`} />
+                      ))}
+                    </span>
+                    <span className="text-left">
+                      {sentTimes.length >= MAX_PER_WINDOW
+                        ? format(t.sentAll, { count: String(MAX_PER_WINDOW), clock: formatClock([...sentTimes].sort((a, b) => a - b)[sentTimes.length - MAX_PER_WINDOW] + WINDOW_MS, bcp47) })
+                        : format(t.sentCount, { sent: String(sentTimes.length), count: String(MAX_PER_WINDOW) })}
+                    </span>
                   </p>
                 )}
-              </div>
             </form>
           )}
         </div>
