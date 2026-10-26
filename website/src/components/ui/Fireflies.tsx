@@ -7,7 +7,7 @@ import { subscribeTick } from "@/lib/ticker";
 
 const COUNT = 10;
 /** The idle clock shows nothing for the first stretch; fireflies leave one by one after it. */
-const FIRST_CALL_MS = 900;
+const FIRST_CALL_MS = 10000;
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
