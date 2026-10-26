@@ -9,7 +9,7 @@
 
 const ALLOWED_ORIGINS = ["https://qalibqurbanov.github.io", "http://localhost:1337", "http://localhost:1338"];
 /** At most this many messages from one IP address per window. */
-const LIMIT = 5;
+const LIMIT = 3;
 const WINDOW_SECONDS = 60 * 60;
 const MAX = { name: 100, email: 200, message: 5000, page: 300 };
 

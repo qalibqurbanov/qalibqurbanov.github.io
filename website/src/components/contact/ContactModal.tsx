@@ -93,8 +93,8 @@ const WAIT_KEY = "contact:wait";
  * the hourly limit of the internet connection (set by the mail Cloudflare Worker). */
 type WaitKind = "fast" | "pause" | "limit" | "server";
 const WAIT_KINDS: string[] = ["fast", "pause", "limit", "server"];
-/** The messages an hour that one internet connection may send. Keep it equal to LIMIT in worker/index.js. */
-const SERVER_LIMIT = 5;
+/** The messages an hour that one internet connection may send. Keep it equal to LIMIT in worker/index.js (and to MAX_PER_WINDOW, so every message in the form says the same number). */
+const SERVER_LIMIT = 3;
 
 function readWait(): { until: number; total: number; kind: WaitKind } | null {
   try {
