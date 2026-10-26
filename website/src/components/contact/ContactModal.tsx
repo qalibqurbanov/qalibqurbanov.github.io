@@ -505,7 +505,7 @@ export function ContactModal() {
 
   return (
     <>
-    <ViewModal open={open} widthClass="max-w-md" onClose={() => setOpen(false)}>
+    <ViewModal open={open} widthClass="max-w-xl" onClose={() => setOpen(false)}>
       {(close) => (
       <CodeWindow
         filename="message.txt"
