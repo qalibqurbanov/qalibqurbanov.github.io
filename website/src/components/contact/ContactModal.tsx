@@ -134,6 +134,11 @@ interface Result {
   retryAfter?: number;
 }
 
+/** The time of day as on a 24-hour clock, such as "14:05". */
+function formatClock(ms: number, bcp47: string): string {
+  return new Intl.DateTimeFormat(bcp47, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(ms);
+}
+
 /** "23 seconds" or "12 minutes", in the page's language. */
 function formatWait(seconds: number, bcp47: string): string {
   const minutes = seconds >= 60;
@@ -353,6 +358,8 @@ export function ContactModal() {
   const checkToken = useRef<string | null>(null);
   const [check, setCheck] = useState<"pending" | "ready" | "unavailable">(checked ? "pending" : "ready");
   const [checkRound, setCheckRound] = useState(0);
+  // When this browser sent its messages within the last hour: the counter under the Send button.
+  const [sentTimes, setSentTimes] = useState<number[]>([]);
 
   useEffect(() => {
     const onOpen = () => {
@@ -375,6 +382,7 @@ export function ContactModal() {
       setFileError(false);
       setProblems([]);
       setInvalid([]);
+      setSentTimes(recentSends(Date.now()));
       checkToken.current = null;
       setCheck(checked ? "pending" : "ready");
       openedAt.current = Date.now();
@@ -383,6 +391,12 @@ export function ContactModal() {
     window.addEventListener(OPEN_CONTACT_EVENT, onOpen);
     return () => window.removeEventListener(OPEN_CONTACT_EVENT, onOpen);
   }, [checked]);
+
+  useEffect(() => {
+    if (!open) return;
+    const id = window.setInterval(() => setSentTimes(recentSends(Date.now())), 15_000);
+    return () => window.clearInterval(id);
+  }, [open]);
 
   useEffect(() => {
     if (status !== "limited") return;
@@ -462,6 +476,7 @@ export function ContactModal() {
       const body = `${message}\n\n— ${name} <${email}>`;
       const clipped = body.length > MAILTO_BODY_MAX ? `${body.slice(0, MAILTO_BODY_MAX)}…` : body;
       rememberSend(now);
+      setSentTimes(recentSends(now));
       setSentNotice({ id: now, title: t.mailTitle, body: format(t.mailBody, { email: profile.email }) });
       setStatus("mail");
       window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent(`Portfolio - ${name} sent you a message`)}&body=${encodeURIComponent(clipped)}`;
@@ -475,9 +490,9 @@ export function ContactModal() {
     if (outcome === "failed" && FALLBACK_ENDPOINT) ({ outcome, retryAfter } = await deliver(FALLBACK_ENDPOINT, ACCESS_KEY, fields, [], null));
     if (outcome === "ok") {
       rememberSend(Date.now());
+      setSentTimes(recentSends(Date.now()));
       setSentNotice({ id: Date.now(), title: t.successTitle, body: t.successBody });
     }
-    // The mail service says how long to wait; without that, a minute.
     // With no time from the mail service there is no countdown to show, so the notice just says so.
     if (outcome === "limited" && retryAfter) startWait(retryAfter * 1000, "server");
     setStatus(outcome === "ok" ? "sent" : outcome === "limited" ? (retryAfter ? "limited" : "tooMany") : "error");
@@ -496,7 +511,7 @@ export function ContactModal() {
     status === "limited"
       ? format(waitTemplate, {
           time: formatWait(Math.max(1, Math.ceil(waitMs / 1000)), bcp47),
-          clock: new Intl.DateTimeFormat(bcp47, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(waitEndsAt),
+          clock: formatClock(waitEndsAt, bcp47),
           seconds: String(MIN_GAP_MS / 1000),
           count: String(waitKind === "server" ? SERVER_LIMIT : MAX_PER_WINDOW),
         })
@@ -728,9 +743,18 @@ export function ContactModal() {
                 {canSend ? <Send size={14} /> : <Mail size={14} />}
                 {status === "sending" ? <ScrambleText text={t.sending} /> : canSend ? t.send : t.mailSend}
               </button>
-              <p className="-mt-1 text-center font-mono text-[11px] leading-relaxed text-muted">
-                {format(t.limits, { count: String(MAX_PER_WINDOW), seconds: String(MIN_GAP_MS / 1000), chars: String(MESSAGE_MAX) })}
-              </p>
+              <div className="-mt-1 flex flex-col gap-1.5 text-center font-mono text-[11px] leading-relaxed">
+                {sentTimes.length > 0 && (
+                  <p className={sentTimes.length >= MAX_PER_WINDOW ? "text-accent" : "text-text"}>
+                    {sentTimes.length >= MAX_PER_WINDOW
+                      ? format(t.sentAll, { count: String(MAX_PER_WINDOW), clock: formatClock([...sentTimes].sort((a, b) => a - b)[sentTimes.length - MAX_PER_WINDOW] + WINDOW_MS, bcp47) })
+                      : format(t.sentCount, { sent: String(sentTimes.length), count: String(MAX_PER_WINDOW) })}
+                  </p>
+                )}
+                <p className="text-muted">
+                  {format(t.limits, { count: String(MAX_PER_WINDOW), seconds: String(MIN_GAP_MS / 1000), chars: String(MESSAGE_MAX) })}
+                </p>
+              </div>
             </form>
           )}
         </div>

@@ -238,6 +238,8 @@ const en: Content = {
       waitServer: "This internet connection can send up to {count} messages an hour, and that limit is reached. Please wait {time}. You can send again at {clock}.",
       tooMany: "This internet connection can send up to {count} messages an hour, and that limit is reached. Please try again a bit later.",
       limits: "You can send up to {count} messages an hour. Please wait {seconds} seconds between messages. One message can have up to {chars} characters.",
+      sentCount: "You've sent {sent} of {count} messages allowed this hour.",
+      sentAll: "You've used all {count} messages for this hour. You can send again at {clock}.",
       needName: "Please enter your name.",
       needEmail: "Please enter a valid email address.",
       needMessage: "Please write a message.",

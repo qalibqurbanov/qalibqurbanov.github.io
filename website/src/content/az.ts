@@ -239,6 +239,8 @@ const az: Content = {
       waitServer: "Bu internet bağlantısından saatda {count} mesaja qədər göndərmək olar və bu limit dolub. {time} gözləyin. Saat {clock} olanda yenidən göndərə bilərsiniz.",
       tooMany: "Bu internet bağlantısından saatda {count} mesaja qədər göndərmək olar və bu limit dolub. Bir az sonra yenidən cəhd edin.",
       limits: "Saatda {count} mesaja qədər göndərə bilərsiniz. Mesajlar arasında {seconds} saniyə gözləyin. Bir mesajda {chars} simvola qədər ola bilər.",
+      sentCount: "Bu saat üçün icazə verilən {count} mesajdan {sent} göndərilib.",
+      sentAll: "Bu saat üçün {count} mesajın hamısını göndərmisiniz. Saat {clock} olanda yenidən göndərə bilərsiniz.",
       needName: "Zəhmət olmasa adınızı daxil edin.",
       needEmail: "Zəhmət olmasa düzgün e-poçt ünvanı daxil edin.",
       needMessage: "Zəhmət olmasa mesaj yazın.",

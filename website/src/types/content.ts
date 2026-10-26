@@ -213,6 +213,9 @@ export interface UiStrings {
     tooMany: string;
     /** A line under the Send button about what is allowed; `{count}`, `{seconds}` and `{chars}` are filled in. */
     limits: string;
+    /** Under the Send button: how many of the hour's messages are used (`{sent}` of `{count}`), and the version for when all are used (`{clock}` is when the next one may go). */
+    sentCount: string;
+    sentAll: string;
     needName: string;
     needEmail: string;
     needMessage: string;
