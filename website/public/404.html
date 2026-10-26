@@ -22,10 +22,28 @@
         } catch (e) {}
       })();
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Onest:wght@600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
+      @font-face { font-family: "Inter"; font-style: normal; font-display: swap; font-weight: 400; src: url("/fonts/inter-latin-400-normal.woff2") format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+      @font-face { font-family: "Inter"; font-style: normal; font-display: swap; font-weight: 400; src: url("/fonts/inter-latin-ext-400-normal.woff2") format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+      @font-face { font-family: "Inter"; font-style: normal; font-display: swap; font-weight: 400; src: url("/fonts/inter-cyrillic-400-normal.woff2") format("woff2"); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+      @font-face { font-family: "Inter"; font-style: normal; font-display: swap; font-weight: 500; src: url("/fonts/inter-latin-500-normal.woff2") format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+      @font-face { font-family: "Inter"; font-style: normal; font-display: swap; font-weight: 500; src: url("/fonts/inter-latin-ext-500-normal.woff2") format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+      @font-face { font-family: "Inter"; font-style: normal; font-display: swap; font-weight: 500; src: url("/fonts/inter-cyrillic-500-normal.woff2") format("woff2"); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+      @font-face { font-family: "Inter"; font-style: normal; font-display: swap; font-weight: 600; src: url("/fonts/inter-latin-600-normal.woff2") format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+      @font-face { font-family: "Inter"; font-style: normal; font-display: swap; font-weight: 600; src: url("/fonts/inter-latin-ext-600-normal.woff2") format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+      @font-face { font-family: "Inter"; font-style: normal; font-display: swap; font-weight: 600; src: url("/fonts/inter-cyrillic-600-normal.woff2") format("woff2"); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+      @font-face { font-family: "Onest"; font-style: normal; font-display: swap; font-weight: 600; src: url("/fonts/onest-latin-600-normal.woff2") format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+      @font-face { font-family: "Onest"; font-style: normal; font-display: swap; font-weight: 600; src: url("/fonts/onest-latin-ext-600-normal.woff2") format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+      @font-face { font-family: "Onest"; font-style: normal; font-display: swap; font-weight: 600; src: url("/fonts/onest-cyrillic-600-normal.woff2") format("woff2"); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+      @font-face { font-family: "Onest"; font-style: normal; font-display: swap; font-weight: 800; src: url("/fonts/onest-latin-800-normal.woff2") format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+      @font-face { font-family: "Onest"; font-style: normal; font-display: swap; font-weight: 800; src: url("/fonts/onest-latin-ext-800-normal.woff2") format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+      @font-face { font-family: "Onest"; font-style: normal; font-display: swap; font-weight: 800; src: url("/fonts/onest-cyrillic-800-normal.woff2") format("woff2"); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+      @font-face { font-family: "JetBrains Mono"; font-style: normal; font-display: swap; font-weight: 400; src: url("/fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+      @font-face { font-family: "JetBrains Mono"; font-style: normal; font-display: swap; font-weight: 400; src: url("/fonts/jetbrains-mono-latin-ext-400-normal.woff2") format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+      @font-face { font-family: "JetBrains Mono"; font-style: normal; font-display: swap; font-weight: 400; src: url("/fonts/jetbrains-mono-cyrillic-400-normal.woff2") format("woff2"); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+      @font-face { font-family: "JetBrains Mono"; font-style: normal; font-display: swap; font-weight: 500; src: url("/fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+      @font-face { font-family: "JetBrains Mono"; font-style: normal; font-display: swap; font-weight: 500; src: url("/fonts/jetbrains-mono-latin-ext-500-normal.woff2") format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+      @font-face { font-family: "JetBrains Mono"; font-style: normal; font-display: swap; font-weight: 500; src: url("/fonts/jetbrains-mono-cyrillic-500-normal.woff2") format("woff2"); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
       :root {
         --bg: #07060d;
         --surface: #100e19;
@@ -420,7 +438,7 @@
           <span class="sep">|</span><span>LF</span>
           <span class="sep">|</span><span class="ic acc"><svg class="l" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/></svg>0 problems</span>
           <span class="sep">|</span><span class="ic"><svg class="l" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span id="clock" style="font-variant-numeric:tabular-nums"></span></span>
-          <span class="sep">|</span><span>© 2026 Galib Gurbanov</span>
+          <span class="sep">|</span><span id="owner">© 2026 Galib Gurbanov</span>
         </div>
         <div class="row r">
           <div class="pill" role="group" aria-label="Social media">
@@ -453,7 +471,7 @@
             file: "File", view: "View", go: "Go", help: "Help",
             homeItem: "Home page", theme: "Toggle light / dark", none: "Nothing open yet",
             source: "View source on GitHub", bug: "Report a bug",
-            menuLabel: "Window menu", statusBar: "Status bar", tabs: "Tabs: 0",
+            menuLabel: "Window menu", statusBar: "Status bar", tabs: "Tabs: 0", owner: "© 2026 Galib Gurbanov",
             light: "Switch to light mode", dark: "Switch to dark mode",
           },
           az: {
@@ -464,7 +482,7 @@
             file: "Fayl", view: "Görünüş", go: "Keçid", help: "Kömək",
             homeItem: "Ana səhifə", theme: "İşıqlı / qaranlıq rejim", none: "Açıq tab yoxdur",
             source: "GitHub-da mənbə koduna bax", bug: "Xəta bildir",
-            menuLabel: "Pəncərə menyusu", statusBar: "Status sətri", tabs: "Vərəqlər: 0",
+            menuLabel: "Pəncərə menyusu", statusBar: "Status sətri", tabs: "Vərəqlər: 0", owner: "© 2026 Qalib Qurbanov",
             light: "İşıqlı rejimə keç", dark: "Qaranlıq rejimə keç",
           },
           ru: {
@@ -475,7 +493,7 @@
             file: "Файл", view: "Вид", go: "Перейти", help: "Справка",
             homeItem: "Главная страница", theme: "Светлая / тёмная тема", none: "Пока ничего не открыто",
             source: "Исходный код на GitHub", bug: "Сообщить об ошибке",
-            menuLabel: "Меню окна", statusBar: "Строка состояния", tabs: "Вкладок: 0",
+            menuLabel: "Меню окна", statusBar: "Строка состояния", tabs: "Вкладок: 0", owner: "© 2026 Галиб Гурбанов",
             light: "Включить светлую тему", dark: "Включить тёмную тему",
           },
         };
@@ -505,6 +523,7 @@
         document.documentElement.lang = locale;
         document.title = t.doc;
         $("eyebrow").textContent = t.eyebrow;
+        $("owner").textContent = t.owner;
         var pathEl = document.createElement("span");
         pathEl.textContent = location.pathname;
         $("title").append(t.msg[0], pathEl, t.msg[1]);
