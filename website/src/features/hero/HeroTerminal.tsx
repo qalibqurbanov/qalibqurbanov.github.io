@@ -7,7 +7,10 @@ import { isLocale, SUPPORTED_LOCALES } from "@/i18n/locale";
 import { colorizeBrackets } from "@/lib/brackets";
 import { glitchStorm, matrixRain, signalLoss } from "@/lib/effects";
 import { format } from "@/lib/format";
+import { isMotion, MOTION_LEVELS } from "@/lib/motion";
 import { scrollToTop } from "@/lib/scroll";
+import { useMotion } from "@/motion/context";
+import { useMotionLabel } from "@/motion/labels";
 import type { Theme } from "@/theme/context";
 
 import type { MenuNode } from "./TerminalMenu";
@@ -25,7 +28,7 @@ interface LogEntry {
 const KNOWN_COMMANDS = new Set([
   "help", "whoami", "about", "skills", "experience", "projects", "open", "contact",
   "resume", "github", "linkedin", "telegram", "medium", "stackoverflow", "theme",
-  "lang", "home", "clear", "menu",
+  "motion", "lang", "home", "clear", "menu",
 ]);
 
 /** `key  description` (two or more spaces) or `key: description`. */
@@ -96,6 +99,8 @@ export function HeroTerminal({ onCommand, initialCommand, theme, onToggleTheme }
   const { profile, skills, experience, projects, socials, ui } = useContent();
   const { setLocale } = useLocale();
   const { openProject, openResume } = useProjectRoute();
+  const { setMotion } = useMotion();
+  const motionName = useMotionLabel();
 
   const [log, setLog] = useState<LogEntry[]>([{ type: "welcome", text: "" }]);
   const [value, setValue] = useState("");
@@ -156,6 +161,10 @@ export function HeroTerminal({ onCommand, initialCommand, theme, onToggleTheme }
         label: groups.settings,
         children: [
           { label: items.theme, command: "theme" },
+          {
+            label: items.motion,
+            children: MOTION_LEVELS.map((level) => ({ label: motionName(level), command: `motion ${level}` })),
+          },
           {
             label: items.language,
             children: SUPPORTED_LOCALES.map((meta) => ({ label: meta.nativeName, command: `lang ${meta.code}` })),
@@ -291,6 +300,16 @@ export function HeroTerminal({ onCommand, initialCommand, theme, onToggleTheme }
         print(format(ui.terminal.themeSwitched, { mode: theme === "dark" ? ui.labels.modeLight : ui.labels.modeDark }));
         onToggleTheme();
         break;
+      case "motion": {
+        const level = arg.toLowerCase();
+        if (isMotion(level)) {
+          setMotion(level);
+          print(format(ui.terminal.motionSwitched, { level: motionName(level) }));
+        } else {
+          print(format(ui.terminal.motionInvalid, { level: arg }), "error");
+        }
+        break;
+      }
       case "lang": {
         if (isLocale(arg)) {
           const meta = SUPPORTED_LOCALES.find((item) => item.code === arg);

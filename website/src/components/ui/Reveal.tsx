@@ -22,7 +22,7 @@ export function Reveal({ delayMs = 0, replay = false, className = "", style, chi
   return (
     <div ref={ref} className="h-full" {...props}>
       <div
-        className={`h-full transition-all duration-700 ease-out ${
+        className={`reveal-slide h-full transition-all duration-700 ease-out ${
           isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
         } ${className}`}
         style={{ transitionDelay: `${delayMs}ms`, ...style }}

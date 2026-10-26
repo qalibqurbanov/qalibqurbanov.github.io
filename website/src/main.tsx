@@ -6,6 +6,7 @@ import { preloadDialogs, preloadSections } from "@/app/sections";
 import { loadContent } from "@/content";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { resolveInitialLocale } from "@/i18n/locale";
+import { MotionProvider } from "@/motion/MotionProvider";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
 import { installBorderGlitch } from "@/hooks/borderGlitch";
@@ -59,9 +60,11 @@ void ready.then(([initialContent]) => {
   createRoot(rootElement).render(
     <StrictMode>
       <ThemeProvider>
-        <LocaleProvider initialLocale={initialLocale} initialContent={initialContent}>
-          <App />
-        </LocaleProvider>
+        <MotionProvider>
+          <LocaleProvider initialLocale={initialLocale} initialContent={initialContent}>
+            <App />
+          </LocaleProvider>
+        </MotionProvider>
       </ThemeProvider>
     </StrictMode>,
   );

@@ -271,6 +271,11 @@ export interface UiStrings {
     /** Adjective forms fed into terminal.themeSwitched ("{mode}"). */
     modeLight: string;
     modeDark: string;
+    /** Contains "{level}"; the three level names follow. */
+    motion: string;
+    motionFull: string;
+    motionLight: string;
+    motionOff: string;
     terminalInput: string;
     /** Contains "{title}". */
     repository: string;
@@ -295,6 +300,8 @@ export interface UiStrings {
     groupActions: string;
     groupLanguages: string;
     actionToggleTheme: string;
+    /** Contains "{level}". */
+    actionMotion: string;
     actionCopyEmail: string;
     actionEmailCopied: string;
     actionOpenResume: string;
@@ -377,6 +384,7 @@ export interface UiStrings {
         contactInfo: string;
         resume: string;
         theme: string;
+        motion: string;
         language: string;
         glitch: string;
         matrix: string;
@@ -393,6 +401,9 @@ export interface UiStrings {
     openingProject: string;
     projectNotFound: string;
     themeSwitched: string;
+    /** Both contain "{level}". */
+    motionSwitched: string;
+    motionInvalid: string;
     langSwitched: string;
     langInvalid: string;
   };

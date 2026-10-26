@@ -14,7 +14,7 @@ import {
   Sun,
 } from "lucide-react";
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   GithubIcon,
@@ -27,8 +27,11 @@ import { RESUME_HREF, useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { OPEN_COMMAND_PALETTE_EVENT } from "@/components/command-palette/openPalette";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
+import { format } from "@/lib/format";
 import { reportBugUrl } from "@/lib/githubIssue";
 import { scrollToTop } from "@/lib/scroll";
+import { useMotion } from "@/motion/context";
+import { MOTION_ICONS, useMotionLabel } from "@/motion/labels";
 import { useTheme } from "@/theme/context";
 
 interface PaletteItem {
@@ -57,6 +60,8 @@ export function CommandPalette() {
   const { profile, socials, navigation, about, experience, skills, projects, ui } = useContent();
   const { locale, setLocale } = useLocale();
   const { theme, toggleTheme } = useTheme();
+  const { motion, cycleMotion } = useMotion();
+  const motionName = useMotionLabel()(motion);
   const { activeSlug, resumeOpen, openProject, closeProject } = useProjectRoute();
 
   const [open, setOpen] = useState(false);
@@ -173,6 +178,13 @@ export function CommandPalette() {
         onSelect: toggleTheme,
       },
       {
+        id: "action-motion",
+        label: format(ui.commandPalette.actionMotion, { level: motionName }),
+        icon: createElement(MOTION_ICONS[motion], { size: 16 }),
+        keepOpen: true,
+        onSelect: cycleMotion,
+      },
+      {
         id: "action-copy-email",
         label: emailCopied ? ui.commandPalette.actionEmailCopied : ui.commandPalette.actionCopyEmail,
         icon: <Mail size={16} />,
@@ -281,6 +293,9 @@ export function CommandPalette() {
     socials.telegram,
     theme,
     toggleTheme,
+    motion,
+    motionName,
+    cycleMotion,
     ui.commandPalette,
     ui.labels.home,
     ui.skillGroups,

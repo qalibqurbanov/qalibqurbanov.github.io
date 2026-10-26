@@ -6,10 +6,12 @@
  * ghost colours are always the theme's accent and accent-2. */
 
 import { rand, sign } from "@/lib/math";
+import { currentMotion } from "@/lib/motion";
 
-
+/** True unless the motion level is "full": the heavy effects check this before they start. The level
+ * follows the device's reduce-motion setting until the visitor picks one (see MotionProvider). */
 export function prefersReducedMotion(): boolean {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return currentMotion() !== "full";
 }
 
 /** Runs `frames` rapid, irregular frames, with the odd clean frame between

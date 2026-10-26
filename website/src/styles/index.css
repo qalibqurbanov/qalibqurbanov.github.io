@@ -847,16 +847,42 @@ html::-webkit-scrollbar-button,
   transform-origin: top center;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after,
-  ::-webkit-scrollbar-thumb {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
+/* Motion levels (data-motion on the root, set by MotionProvider). "full" is the site as
+   designed. "light" keeps fades and hover changes but drops the heavy decoration (see the
+   list below), sliding reveals and smooth scrolling. "off" also stops every animation and
+   transition. Until a visitor picks a level, the device's reduce-motion setting gives "light". */
+:root[data-motion="light"],
+:root[data-motion="off"] {
+  scroll-behavior: auto !important;
+}
+
+:root[data-motion="light"] .animate-float-slow,
+:root[data-motion="light"] .hud-ripple,
+:root[data-motion="light"] .bg-grid,
+:root[data-motion="light"] .text-gradient,
+:root[data-motion="light"] .blob-drift-a,
+:root[data-motion="light"] .blob-drift-b,
+:root[data-motion="light"] .bracket-pulse,
+:root[data-motion="light"] .star-dot,
+:root[data-motion="light"] .empty-ghost-a,
+:root[data-motion="light"] .empty-ghost-b,
+:root[data-motion="light"] .empty-ghost-front,
+:root[data-motion="light"] .empty-ghost-button {
+  animation: none !important;
+}
+
+:root[data-motion="light"] .reveal-slide {
+  translate: none !important;
+}
+
+:root[data-motion="off"] *,
+:root[data-motion="off"] *::before,
+:root[data-motion="off"] *::after,
+:root[data-motion="off"] ::-webkit-scrollbar-thumb {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0ms !important;
 }
 
 /* Heading glow that accompanies the section-focus ring: the heading is what's
@@ -1035,11 +1061,11 @@ html::-webkit-scrollbar-button,
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .notice-in,
-  .notice-out {
-    animation: none;
-  }
+:root[data-motion="light"] .notice-in,
+:root[data-motion="light"] .notice-out,
+:root[data-motion="off"] .notice-in,
+:root[data-motion="off"] .notice-out {
+  animation: none;
 }
 
 .view-overlay {
@@ -1285,10 +1311,9 @@ html::-webkit-scrollbar-button,
   animation: heartbeat 1.7s ease-out infinite;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .plus-heartbeat {
-    animation: none;
-  }
+:root[data-motion="light"] .plus-heartbeat,
+:root[data-motion="off"] .plus-heartbeat {
+  animation: none;
 }
 
 /* The site's own cursor (see CustomCursor): a dot plus a soft trailing ring
@@ -1605,18 +1630,22 @@ html.has-cursor * {
   scale: 0.7;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .custom-cursor-ring,
-  .custom-cursor-dot,
-  .custom-cursor-ring::before,
-  .custom-cursor-ring::after {
-    transition: none;
-  }
+:root[data-motion="light"] .custom-cursor-ring,
+:root[data-motion="light"] .custom-cursor-dot,
+:root[data-motion="light"] .custom-cursor-ring::before,
+:root[data-motion="light"] .custom-cursor-ring::after,
+:root[data-motion="off"] .custom-cursor-ring,
+:root[data-motion="off"] .custom-cursor-dot,
+:root[data-motion="off"] .custom-cursor-ring::before,
+:root[data-motion="off"] .custom-cursor-ring::after {
+  transition: none;
+}
 
-  .custom-cursor[data-state="code"] .custom-cursor-dot,
-  .custom-cursor[data-state="field"] .custom-cursor-dot {
-    animation: none;
-  }
+:root[data-motion="light"] .custom-cursor[data-state="code"] .custom-cursor-dot,
+:root[data-motion="light"] .custom-cursor[data-state="field"] .custom-cursor-dot,
+:root[data-motion="off"] .custom-cursor[data-state="code"] .custom-cursor-dot,
+:root[data-motion="off"] .custom-cursor[data-state="field"] .custom-cursor-dot {
+  animation: none;
 }
 
 /* Experience timeline: the accent line grows down the rail with the scroll
@@ -2171,12 +2200,13 @@ html.demolishing .fireflies-canvas {
   visibility: hidden;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .bf-wings,
-  .bf-core,
-  .cyber-butterfly svg {
-    animation: none;
-  }
+:root[data-motion="light"] .bf-wings,
+:root[data-motion="light"] .bf-core,
+:root[data-motion="light"] .cyber-butterfly svg,
+:root[data-motion="off"] .bf-wings,
+:root[data-motion="off"] .bf-core,
+:root[data-motion="off"] .cyber-butterfly svg {
+  animation: none;
 }
 
 /* Balloon tooltips — one look for every hover hint on the site. `--tip-arrow`

@@ -21,6 +21,22 @@
         } catch (e) {}
       })();
     </script>
+    <script>
+      // The motion level (full, light or off) is set before the first paint, like the theme, so the
+      // page never starts in the wrong state: the saved choice, else the device's reduce-motion setting.
+      (function () {
+        try {
+          var stored = localStorage.getItem("motion");
+          var level =
+            stored === "full" || stored === "light" || stored === "off"
+              ? stored
+              : window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                ? "light"
+                : "full";
+          document.documentElement.setAttribute("data-motion", level);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

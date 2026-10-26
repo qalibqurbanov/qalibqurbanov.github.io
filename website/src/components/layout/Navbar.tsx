@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CommandPaletteTrigger } from "@/components/command-palette/CommandPaletteTrigger";
 import { GlitchText } from "@/components/ui/GlitchText";
 import { Knockable } from "@/components/ui/Knockable";
+import { MotionToggle } from "@/components/ui/MotionToggle";
 import { useViewBar } from "@/components/ui/viewBar";
 import { useContent } from "@/i18n/context";
 import { format } from "@/lib/format";
@@ -109,6 +110,10 @@ export function Navbar() {
 
           <Knockable seed={91} className="hidden md:inline-flex items-center">
             <LanguageSwitcher />
+          </Knockable>
+
+          <Knockable seed={94} className="inline-flex items-center">
+            <MotionToggle />
           </Knockable>
 
           <Knockable seed={92} className="inline-flex items-center">

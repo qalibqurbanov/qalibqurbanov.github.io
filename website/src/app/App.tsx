@@ -16,6 +16,7 @@ import { CommandPalette, Contact, ContactModal, CyberButterfly, Experience, Fire
 import { useEasterEggs } from "@/hooks/useEasterEggs";
 import { useHashSectionFocus } from "@/hooks/useHashSectionFocus";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
+import { useMotion } from "@/motion/context";
 import { useContent } from "@/i18n/context";
 import { Suspense } from "react";
 
@@ -23,14 +24,16 @@ export function App() {
   const { projects, ui } = useContent();
   const { activeSlug, resumeOpen, closeProject } = useProjectRoute();
   const activeProject = activeSlug ? (projects.find((project) => project.slug === activeSlug) ?? null) : undefined;
+  // The heavy decoration only runs at the full level; it is taken off the page as soon as the level drops.
+  const decorated = useMotion().motion === "full";
   useHashSectionFocus();
   useEasterEggs(ui.terminal.konami);
 
   return (
     <div className="relative min-h-screen">
       <AmbientBackground />
-      <CursorGlow />
-      <CustomCursor />
+      {decorated ? <CursorGlow /> : null}
+      {decorated ? <CustomCursor /> : null}
       <OnDemand component={CommandPalette} event={OPEN_COMMAND_PALETTE_EVENT} shortcut={isPaletteShortcut} />
       <ContextMenu />
       <TooltipLayer />
@@ -51,8 +54,8 @@ export function App() {
       <Footer />
       <BackToTop />
       <Suspense fallback={null}>
-        <CyberButterfly />
-        <Fireflies />
+        {decorated ? <CyberButterfly /> : null}
+        {decorated ? <Fireflies /> : null}
 
         {resumeOpen ? (
           <ResumeViewer onBack={closeProject} />
