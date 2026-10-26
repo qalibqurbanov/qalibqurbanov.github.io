@@ -53,12 +53,289 @@ interface Trail {
   life: number;
   max: number;
   size: number;
-  /** Digital "pixel" spark (a snapped square) instead of a soft dot. */
-  pixel: boolean;
+  /** The bit of code this particle is drawn as. */
+  glyph: string;
+  /** Its angle: the way the butterfly was heading when it left it, so the trail follows the flight path. */
+  rot: number;
+  /** Time left until the glyph mutates into another one, like a stream of data. */
+  flip: number;
   color: string;
 }
 
-const MAX_TRAIL = 240;
+const MAX_TRAIL = 200;
+/** What the butterflies leave behind: a stream of code. Mostly bits, then brackets, operators and the odd keyword. */
+const BITS = [
+  "0", "1",
+  "00", "01", "10", "11",
+  "0b", "0x",
+];
+const BRACKETS = [
+  "{", "}", "[", "]", "(", ")", "<", ">",
+  "</>", "{}", "[]", "()", "<>", "{;}",
+  "{{", "}}", "[[", "]]", "<<", ">>",
+  "<T>", "<TKey>", "<TValue>", "<TResult>",
+  "<TEntity>", "<TRequest>", "<TResponse>",
+  "{ }", "[ ]", "( )", "< >",
+  "?.", "?[", "=>", "::", "/* */", "//",
+  "[FromBody]", "[FromQuery]", "[FromRoute]",
+  "[ApiController]", "[HttpGet]", "[HttpPost]",
+  "[Key]", "[Required]", "[Column]", "[Table]",
+];
+const OPERATORS = [
+  "=>", "->", "&&", "||", "++", "--",
+  "==", "===", "!=", "!==", "<=", ">=",
+  ";", ":", "::", "?:", "??", "?.",
+  "+=", "-=", "*=", "/=", "%", "&", "|",
+  "^", "~", "!", "..", "...",
+
+  "??=", "&&=", "||=", "is", "as",
+  "==>", ">>", "<<", ">>=", "<<=",
+  "??", "?.", "!.", "^=", "&=", "|=",
+  "?? throw", "await", "yield", "nameof",
+  "typeof", "default", "checked", "unchecked",
+  "ref", "out", "in", "params", "scoped",
+  "== null", "!= null", "is not", "is null",
+  "?.", "??", "=>", "::", "global::",
+  "await using", "await foreach",
+];
+const WORDS = [
+  // C# keywords and types
+  "var", "int", "long", "short", "byte", "sbyte",
+  "uint", "ulong", "ushort", "float", "double",
+  "decimal", "bool", "char", "string", "object",
+  "dynamic", "void", "nint", "nuint",
+  "null", "true", "false", "default",
+  "class", "struct", "record", "interface", "enum",
+  "public", "private", "protected", "internal",
+  "static", "readonly", "const", "volatile",
+  "abstract", "sealed", "virtual", "override",
+  "partial", "extern", "unsafe", "async", "await",
+  "new", "this", "base", "ref", "out", "in",
+  "params", "scoped", "required", "init",
+  "get", "set", "add", "remove", "event",
+  "delegate", "operator", "implicit", "explicit",
+  "is", "as", "typeof", "sizeof", "nameof",
+  "checked", "unchecked", "fixed", "stackalloc",
+  "using", "namespace", "global", "file",
+  "yield", "return", "throw", "try", "catch",
+  "finally", "when", "if", "else", "switch",
+  "case", "for", "foreach", "while", "do",
+  "break", "continue", "goto", "lock",
+  "out var", "var _", "default!", "null!",
+
+  // .NET runtime and BCL
+  ".NET", "CLR", "CoreCLR", "BCL", "FCL",
+  "GC", "JIT", "IL", "CIL", "MSIL", "AOT",
+  "R2R", "Tier0", "Tier1", "LOH", "SOH",
+  "POH", "Span<T>", "Memory<T>", "ReadOnlySpan<T>",
+  "ArrayPool<T>", "ValueTask<T>", "Task<T>",
+  "IEnumerable<T>", "IAsyncEnumerable<T>",
+  "IEnumerator<T>", "IAsyncEnumerator<T>",
+  "ICollection<T>", "IReadOnlyList<T>",
+  "IList<T>", "IDictionary<TKey,TValue>",
+  "IQueryable<T>", "IObservable<T>",
+  "IAsyncDisposable", "IDisposable",
+  "CancellationToken", "CancellationTokenSource",
+  "SemaphoreSlim", "ConcurrentDictionary<TKey,TValue>",
+  "Interlocked", "Monitor", "Thread", "ThreadPool",
+  "Task.Run", "Task.WhenAll", "Task.WhenAny",
+  "ConfigureAwait(false)", "ValueTask",
+  "Activator", "Reflection", "Attribute",
+  "Assembly", "Type", "MethodInfo", "PropertyInfo",
+  "InvalidOperationException", "ArgumentNullException",
+  "NullReferenceException", "AggregateException",
+  "OperationCanceledException", "TargetInvocationException",
+  "System", "System.IO", "System.Linq",
+  "System.Threading", "System.Threading.Tasks",
+  "System.Collections.Generic", "System.Reflection",
+  "System.Net.Http", "System.Text.Json",
+  "System.Diagnostics", "System.Runtime",
+
+  // ASP.NET Core
+  "ASP.NET", "ASP.NET Core", "WebApplication",
+  "WebApplicationBuilder", "WebApplication.CreateBuilder",
+  "IServiceCollection", "IServiceProvider",
+  "IApplicationBuilder", "HttpContext",
+  "HttpRequest", "HttpResponse", "HttpClient",
+  "IResult", "Results", "TypedResults",
+  "IActionResult", "ActionResult<T>",
+  "ControllerBase", "Controller", "ApiController",
+  "Route", "HttpGet", "HttpPost", "HttpPut",
+  "HttpPatch", "HttpDelete", "FromBody", "FromQuery",
+  "FromRoute", "FromServices", "FromHeader",
+  "ProducesResponseType", "Authorize", "AllowAnonymous",
+  "AddControllers", "MapControllers", "MapGet",
+  "MapPost", "MapPut", "MapDelete", "MapGroup",
+  "UseRouting", "UseAuthentication",
+  "UseAuthorization", "UseMiddleware",
+  "UseExceptionHandler", "UseHttpsRedirection",
+  "UseCors", "UseResponseCaching",
+  "AddScoped", "AddTransient", "AddSingleton",
+  "AddDbContext", "AddHttpClient",
+  "AddAuthentication", "AddAuthorization",
+  "AddProblemDetails", "ProblemDetails",
+  "IExceptionHandler", "IMiddleware",
+  "RequestDelegate", "Endpoint", "EndpointFilter",
+  "ModelState", "ModelState.IsValid",
+  "Action", "Func", "Predicate",
+  "Kestrel", "IIS", "IIS Express",
+  "appsettings.json", "Program.cs", "launchSettings.json",
+
+  // Entity Framework Core
+  "EF", "EF Core", "DbContext", "DbSet<T>",
+  "DbContextOptions<TContext>", "OnConfiguring",
+  "OnModelCreating", "ModelBuilder",
+  "EntityTypeBuilder<T>", "PropertyBuilder<T>",
+  "HasKey", "HasIndex", "HasOne", "HasMany",
+  "WithOne", "WithMany", "HasForeignKey",
+  "HasPrincipalKey", "OwnsOne", "OwnsMany",
+  "HasConversion", "HasQueryFilter",
+  "Include", "ThenInclude", "AsNoTracking",
+  "AsTracking", "AsSplitQuery", "AsSingleQuery",
+  "ExecuteUpdate", "ExecuteDelete",
+  "SaveChanges", "SaveChangesAsync",
+  "ToListAsync", "FirstOrDefaultAsync",
+  "SingleOrDefaultAsync", "AnyAsync", "CountAsync",
+  "FindAsync", "Where", "Select", "SelectMany",
+  "OrderBy", "ThenBy", "GroupBy", "Join",
+  "Skip", "Take", "Contains", "Any", "All",
+  "First", "Single", "Distinct", "ToDictionary",
+  "Migration", "MigrateAsync", "EnsureCreated",
+  "IDesignTimeDbContextFactory<TContext>",
+  "DbUpdateException", "DbUpdateConcurrencyException",
+  "ChangeTracker", "EntityState", "Added",
+  "Modified", "Deleted", "Unchanged", "Detached",
+  "ConcurrencyToken", "RowVersion",
+  "UseSqlServer", "UseNpgsql", "UseMySql",
+  "UseSqlite", "HasDefaultValue", "HasMaxLength",
+  "IsRequired", "ValueGeneratedOnAdd",
+  "ExecuteSqlRaw", "FromSqlInterpolated",
+
+  // SQL and database tokens
+  "SELECT", "FROM", "WHERE", "JOIN", "ON",
+  "INNER", "LEFT", "RIGHT", "FULL", "CROSS",
+  "GROUP BY", "ORDER BY", "HAVING", "DISTINCT",
+  "INSERT", "INTO", "VALUES", "UPDATE", "SET",
+  "DELETE", "CREATE", "ALTER", "DROP", "TRUNCATE",
+  "TABLE", "VIEW", "INDEX", "UNIQUE", "CLUSTERED",
+  "PRIMARY KEY", "FOREIGN KEY", "REFERENCES",
+  "NOT NULL", "IDENTITY", "DEFAULT", "CHECK",
+  "BEGIN TRAN", "COMMIT", "ROLLBACK", "SAVE TRAN",
+  "WITH", "CTE", "UNION", "UNION ALL",
+  "EXISTS", "BETWEEN", "LIKE", "IN", "CASE",
+  "WHEN", "THEN", "ELSE", "END", "COUNT(*)",
+  "COUNT", "SUM", "AVG", "MIN", "MAX",
+  "ROW_NUMBER", "OVER", "PARTITION BY",
+  "OFFSET", "FETCH NEXT", "TOP", "LIMIT",
+  "GETDATE()", "NEWID()", "COALESCE", "ISNULL",
+  "NULLIF", "CAST", "CONVERT", "TRY_CONVERT",
+  "SCOPE_IDENTITY()", "@@ROWCOUNT", "@@IDENTITY",
+  "NOLOCK", "READ COMMITTED", "SERIALIZABLE",
+  "DEADLOCK", "LOCK", "MVCC", "ACID",
+  "SQL Server", "PostgreSQL", "MySQL", "SQLite",
+  "JSONB", "NVARCHAR", "VARCHAR", "BIGINT",
+  "UNIQUEIDENTIFIER", "DATETIME2", "VARBINARY",
+  "IDENT_CURRENT", "sp_executesql", "tempdb",
+  "sys.objects", "INFORMATION_SCHEMA", "dbo.",
+
+  // Git tokens and commands
+  "git", "HEAD", "ORIG_HEAD", "FETCH_HEAD",
+  "refs/heads/", "refs/tags/", "refs/remotes/",
+  "refs/stash", ".git", ".gitignore",
+  "git init", "git clone", "git fetch",
+  "git pull", "git push", "git commit",
+  "git status", "git diff", "git log",
+  "git merge", "git rebase", "git reset",
+  "git restore", "git checkout", "git switch",
+  "git stash", "git cherry-pick", "git revert",
+  "git reflog", "git bisect", "git blame",
+  "git worktree", "git submodule",
+  "git add -A", "git commit --amend",
+  "git reset --soft", "git reset --hard",
+  "git push --force-with-lease",
+  "HEAD~1", "HEAD~2", "HEAD^", "HEAD^^",
+  "origin/main", "origin/HEAD", "main", "master",
+  "feature/", "fix/", "hotfix/", "release/",
+  "SHA", "SHA-1", "SHA-256", "commit hash",
+  "index.lock", "MERGE_HEAD", "REBASE_HEAD",
+
+  // .NET tooling and configuration
+  "dotnet", "dotnet build", "dotnet run",
+  "dotnet test", "dotnet publish", "dotnet restore",
+  "dotnet clean", "dotnet format", "dotnet watch",
+  "dotnet ef", "dotnet tool", "dotnet nuget",
+  "dotnet --info", "dotnet --list-sdks",
+  "NuGet", "MSBuild", "Roslyn", "VSTest",
+  "global.json", "Directory.Build.props",
+  "Directory.Packages.props", "NuGet.Config",
+  ".csproj", ".sln", ".slnx", ".props", ".targets",
+  "TargetFramework", "TargetFrameworks",
+  "PackageReference", "ProjectReference",
+  "ImplicitUsings", "Nullable", "LangVersion",
+  "TreatWarningsAsErrors", "NoWarn",
+  "Debug", "Release", "AnyCPU", "x64", "x86",
+
+  // Logging and diagnostics
+  "ILogger<T>", "ILoggerFactory", "LogLevel",
+  "LogTrace", "LogDebug", "LogInformation",
+  "LogWarning", "LogError", "LogCritical",
+  "EventId", "Activity", "ActivitySource",
+  "DiagnosticListener", "Meter", "Counter<T>",
+  "Histogram<T>", "OpenTelemetry", "Serilog",
+  "TraceId", "SpanId", "CorrelationId",
+  "RequestId", "stacktrace", "InnerException",
+  "0x80004005", "0x80131500", "HRESULT",
+
+  // Common C# attributes
+  "[Serializable]", "[Obsolete]", "[Flags]",
+  "[Required]", "[Key]", "[NotMapped]",
+  "[ForeignKey]", "[Index]", "[Owned]",
+  "[JsonIgnore]", "[JsonPropertyName]",
+  "[JsonConstructor]", "[GeneratedRegex]",
+  "[Conditional]", "[CallerMemberName]",
+  "[DebuggerDisplay]", "[assembly:]",
+
+  // Common code fragments
+  "=> null", "=> default", "=> new()",
+  "??= default", "is not null", "is null",
+  "await using", "await foreach",
+  "nameof(T)", "typeof(T)", "default(T)",
+  "Task.FromResult", "Task.CompletedTask",
+  "CancellationToken.None", "DateTime.UtcNow",
+  "Guid.NewGuid()", "string.Empty",
+  "Array.Empty<T>()", "Enumerable.Empty<T>()",
+  "ArgumentNullException.ThrowIfNull",
+  "ObjectDisposedException.ThrowIf",
+  "ConfigureAwait(false)", "ConfigureAwait(true)",
+  "IServiceScope", "IOptions<T>", "IOptionsSnapshot<T>",
+  "IOptionsMonitor<T>", "IConfiguration",
+  "IConfigurationSection", "IHostEnvironment",
+  "IWebHostEnvironment", "IHostedService",
+  "BackgroundService", "PeriodicTimer",
+
+  // Short identifiers and literals
+  "T", "TKey", "TValue", "TResult", "TEntity",
+  "TRequest", "TResponse", "TContext", "TModel",
+  "ctx", "db", "dbx", "svc", "dto", "req", "res",
+  "id", "uid", "pid", "cid", "key", "val", "tmp",
+  "cfg", "env", "arg", "args", "ex", "err", "msg",
+  "src", "dst", "idx", "len", "buf", "arr", "obj",
+  "_", "__", "_id", "_ctx", "_db", "_logger",
+  "0x00", "0x01", "0xFF", "0xDEAD", "0xBEEF",
+  "0b0001", "0b0010", "0b0100", "0b1000",
+  "NaN", "Infinity", "Guid.Empty", "DateTime.MinValue",
+  "DateTime.MaxValue", "TimeSpan.Zero",
+  "CancellationToken.None", "Environment.ExitCode",
+];
+/** Only short ones are drawn, so the trail stays a light scatter of symbols, never words. */
+const MAX_GLYPH_LENGTH = 4;
+const shortOnly = (list: string[]) => list.filter((glyph) => glyph.length <= MAX_GLYPH_LENGTH);
+const SHORT = { bits: shortOnly(BITS), brackets: shortOnly(BRACKETS), operators: shortOnly(OPERATORS), words: shortOnly(WORDS) };
+function codeGlyph(): string {
+  const r = Math.random();
+  const pool = r < 0.3 ? SHORT.bits : r < 0.5 ? SHORT.brackets : r < 0.72 ? SHORT.operators : SHORT.words;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 /** How long a message stays up: this much, plus a little per character so longer ones can be read. */
 const SAY_BASE_MS = 3600;
 const SAY_PER_CHAR_MS = 60;
@@ -319,6 +596,7 @@ export function CyberButterfly() {
         "#ffffff",
       ];
 
+      const mono = css.getPropertyValue("--font-mono").trim() || "monospace";
       const trail: Trail[] = [];
       let mode: "fly" | "charging" = "fly";
       let pointer: { x: number; y: number } | null = null;
@@ -347,7 +625,10 @@ export function CyberButterfly() {
           const back = flight.heading + Math.PI;
           const a = burst ? Math.random() * Math.PI * 2 : back + (Math.random() - 0.5) * 1.6;
           const s = burst ? 40 + Math.random() * 160 : 10 + Math.random() * 40;
-          const life = 0.45 + Math.random() * 0.8;
+          const life = 0.8 + Math.random() * 1;
+          // Written along the direction of travel (a burst: along its own); never upside down.
+          let rot = burst ? a : flight.heading;
+          if (Math.cos(rot) < 0) rot += Math.PI;
           trail.push({
             x: flight.x + (Math.random() - 0.5) * spread,
             y: flight.y + (Math.random() - 0.5) * spread,
@@ -355,8 +636,10 @@ export function CyberButterfly() {
             vy: Math.sin(a) * s,
             life,
             max: life,
-            size: 1.5 + Math.random() * 2.5,
-            pixel: Math.random() < 0.45,
+            size: 7 + Math.random() * 3,
+            glyph: codeGlyph(),
+            rot,
+            flip: 0.15 + Math.random() * 0.4,
             color: colors[Math.floor(Math.random() * colors.length)],
           });
         }
@@ -519,7 +802,7 @@ export function CyberButterfly() {
           }
 
           if (mode === "fly" && !calm && !flight.hanging && flight.visible(v)) {
-            bug.spawn += dt * (6 + Math.min(16, flight.speed / 16));
+            bug.spawn += dt * (4 + Math.min(10, flight.speed / 24));
             while (bug.spawn >= 1) {
               emit(bug, 1, 12);
               bug.spawn -= 1;
@@ -531,6 +814,8 @@ export function CyberButterfly() {
         const off = calm ? 0 : window.scrollY;
         ctx.clearRect(0, 0, W, H);
         ctx.globalCompositeOperation = "lighter";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         for (let i = trail.length - 1; i >= 0; i--) {
           const p = trail[i];
           p.life -= dt;
@@ -542,19 +827,22 @@ export function CyberButterfly() {
           p.y += p.vy * dt;
           p.vx *= 1 - 1.2 * dt;
           p.vy *= 1 - 1.2 * dt;
+          p.flip -= dt;
+          if (p.flip <= 0) {
+            p.glyph = codeGlyph();
+            p.flip = 0.15 + Math.random() * 0.4;
+          }
           const k = p.life / p.max;
           const dy = p.y - off;
           if (dy < -20 || dy > H + 20) continue;
-          ctx.globalAlpha = k * 0.9;
+          ctx.globalAlpha = k * 0.85;
           ctx.fillStyle = p.color;
-          if (p.pixel) {
-            const s = Math.max(2, Math.round(p.size));
-            ctx.fillRect(Math.round(p.x / 3) * 3, Math.round(dy / 3) * 3, s, s);
-          } else {
-            ctx.beginPath();
-            ctx.arc(p.x, dy, p.size * (0.4 + k * 0.6), 0, Math.PI * 2);
-            ctx.fill();
-          }
+          ctx.font = `${Math.round(p.size)}px ${mono}`;
+          ctx.save();
+          ctx.translate(p.x, dy);
+          ctx.rotate(p.rot);
+          ctx.fillText(p.glyph, 0, 0);
+          ctx.restore();
         }
         ctx.globalAlpha = 1;
         ctx.globalCompositeOperation = "source-over";
