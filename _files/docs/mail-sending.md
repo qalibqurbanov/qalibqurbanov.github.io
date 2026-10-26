@@ -82,7 +82,7 @@ The `VITE_` settings are read when the website is built. After changing one, re-
 **Change the mail design or subject**
 1. Edit `worker/index.js` (`renderHtml` is the design, the subject is in the Resend call near the bottom).
 2. Deploy it, either way:
-   - Fast: double-click `scripts/deploy-mail.bat`. It installs what is missing, asks for the Cloudflare login the first time (opens the browser), then deploys. The settings and secrets in the Cloudflare dashboard are kept. (By terminal: `node scripts/deploy-mail.mjs`.)
+   - Fast: double-click `scripts/upload-mail-sender-to-cloudflare.bat`. It installs what is missing, asks for the Cloudflare login the first time (opens the browser), then deploys. The settings and secrets in the Cloudflare dashboard are kept. (By terminal: `node scripts/upload-mail-sender-keeping-keys.mjs`.)
    - By hand: Cloudflare > Workers & Pages > `portfolio-mail` > Edit code > select all, delete, paste the whole file > Deploy.
 3. The website does not need a redeploy for this.
 
@@ -92,7 +92,7 @@ Mail apps ignore most CSS, so the design uses tables and inline styles only.
 
 **Replace a leaked or old Resend key:** create a new key in Resend (Sending access), delete the old one, put the new one in `RESEND_API_KEY` in Cloudflare (Variables and Secrets), Deploy.
 
-**Deploying the Cloudflare Worker without losing its settings:** always use `scripts/deploy-mail.bat`. It reads the variables of the version that is live (names and values, never printed), and gives them to `wrangler deploy` again. A plain `wrangler deploy` can remove the variables that were typed into the Cloudflare dashboard: that happened twice and mail stopped until the settings were restored (with `npx wrangler rollback <version>` to a version that still had them, then deploying with the script). Do not save the Variables page in the dashboard while the live version and the newest version differ: the page may start from the newest one.
+**Deploying the Cloudflare Worker without losing its settings:** always use `scripts/upload-mail-sender-to-cloudflare.bat`. It reads the variables of the version that is live (names and values, never printed), and gives them to `wrangler deploy` again. A plain `wrangler deploy` can remove the variables that were typed into the Cloudflare dashboard: that happened twice and mail stopped until the settings were restored (with `npx wrangler rollback <version>` to a version that still had them, then deploying with the script). Do not save the Variables page in the dashboard while the live version and the newest version differ: the page may start from the newest one.
 
 **Change the success or error texts shown on the site:** `website/src/content/en.ts` (and `az.ts`, `ru.ts`), section `contactModal`.
 
