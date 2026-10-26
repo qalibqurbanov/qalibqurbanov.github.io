@@ -27,7 +27,7 @@ if not errorlevel 1 (
 )
 
 echo Deploying the mail Cloudflare Worker...
-call npm run deploy
+call node "%~dp0deploy-mail.mjs"
 if errorlevel 1 (
     echo.
     echo Deploy failed.

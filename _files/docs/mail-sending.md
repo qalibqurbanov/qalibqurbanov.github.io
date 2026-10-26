@@ -36,7 +36,7 @@ Three layers, from the visitor's side to the inbox:
 
 1. **Form in the browser** (weak, only stops casual spam): a hidden trap field, no send within 2.5 s of opening, 30 s between sends, 3 per hour.
 2. **Cloudflare Turnstile** (free invisible captcha): the form shows nothing unless it doubts the visitor. The Send button waits until the check passes. The check's token goes to the Cloudflare Worker, which verifies it with Cloudflare before sending anything. Needs `VITE_TURNSTILE_SITE_KEY` (site) and `TURNSTILE_SECRET` (Cloudflare Worker secret). Without them the check is simply off.
-3. **Limit per visitor in the Cloudflare Worker**: at most 5 messages per hour from one IP address, counted in a small Cloudflare store (the `RATE` KV namespace in `worker/wrangler.toml`). Over the limit the visitor sees the "please wait" message.
+3. **Limit per visitor in the Cloudflare Worker**: at most 3 messages per hour from one IP address (the same number as the browser limit, so the form never says two different numbers), counted in a small Cloudflare store (the `RATE` KV namespace in `worker/wrangler.toml`). Over the limit the visitor sees the "please wait" message.
 
 Also: the Cloudflare Worker only accepts requests from the live site and localhost, and the recipient is fixed (`TO_EMAIL`), so nobody can use it to mail other people.
 
@@ -61,9 +61,9 @@ Cloudflare Worker address: `https://portfolio-mail.qalibqurbanow.workers.dev/`
 | `VITE_CONTACT_FALLBACK_ENDPOINT` | same place | backup address (Web3Forms), tried only if the first fails |
 | `VITE_CONTACT_ACCESS_KEY` | same place, Secrets | the Web3Forms key (it ends up public in the site anyway) |
 | `RESEND_API_KEY` | Cloudflare > the Cloudflare Worker > Settings > Variables and Secrets | the Resend key, never in the repo |
+| `TURNSTILE_SECRET` | same place | the Turnstile secret key; without it the Cloudflare Worker does not check tokens |
 | `TO_EMAIL` | same place | where messages are delivered |
 | `FROM_EMAIL` | same place (optional) | sender, default `Portfolio <onboarding@resend.dev>` |
-| `TURNSTILE_SECRET` | same place (secret) | the Turnstile secret key; without it the Cloudflare Worker does not check tokens |
 | `VITE_TURNSTILE_SITE_KEY` | GitHub repo > Variables | the Turnstile site key (public); without it the form shows no check |
 
 The `VITE_` settings are read when the website is built. After changing one, re-run the "Deploy to GitHub Pages" workflow (Actions tab).
@@ -82,15 +82,17 @@ The `VITE_` settings are read when the website is built. After changing one, re-
 **Change the mail design or subject**
 1. Edit `worker/index.js` (`renderHtml` is the design, the subject is in the Resend call near the bottom).
 2. Deploy it, either way:
-   - Fast: double-click `scripts/deploy-mail.bat`. It installs what is missing, asks for the Cloudflare login the first time (opens the browser), then deploys. The settings and secrets in the Cloudflare dashboard are kept. (By terminal: `cd worker`, `npm run deploy`.)
+   - Fast: double-click `scripts/deploy-mail.bat`. It installs what is missing, asks for the Cloudflare login the first time (opens the browser), then deploys. The settings and secrets in the Cloudflare dashboard are kept. (By terminal: `node scripts/deploy-mail.mjs`.)
    - By hand: Cloudflare > Workers & Pages > `portfolio-mail` > Edit code > select all, delete, paste the whole file > Deploy.
 3. The website does not need a redeploy for this.
 
 Mail apps ignore most CSS, so the design uses tables and inline styles only.
 
-**Change where mail goes:** edit `TO_EMAIL` in Cloudflare, then Deploy.
+**Change where mail goes:** edit `TO_EMAIL` in Cloudflare (Variables and Secrets), then Deploy there.
 
-**Replace a leaked or old Resend key:** create a new key in Resend (Sending access), delete the old one, put the new one in `RESEND_API_KEY` in Cloudflare, Deploy.
+**Replace a leaked or old Resend key:** create a new key in Resend (Sending access), delete the old one, put the new one in `RESEND_API_KEY` in Cloudflare (Variables and Secrets), Deploy.
+
+**Deploying the Cloudflare Worker without losing its settings:** always use `scripts/deploy-mail.bat`. It reads the variables of the version that is live (names and values, never printed), and gives them to `wrangler deploy` again. A plain `wrangler deploy` can remove the variables that were typed into the Cloudflare dashboard: that happened twice and mail stopped until the settings were restored (with `npx wrangler rollback <version>` to a version that still had them, then deploying with the script). Do not save the Variables page in the dashboard while the live version and the newest version differ: the page may start from the newest one.
 
 **Change the success or error texts shown on the site:** `website/src/content/en.ts` (and `az.ts`, `ru.ts`), section `contactModal`.
 
@@ -103,7 +105,7 @@ Mail apps ignore most CSS, so the design uses tables and inline styles only.
 | The form shows an error | Open the Cloudflare Worker address in a browser. It should answer `{"ok":false,"error":"method"}`. If it does not, the Cloudflare Worker or the endpoint variable is wrong. |
 | Cloudflare Worker answers but mail does not come | Cloudflare > the Cloudflare Worker > Logs. `error: send` means Resend refused: wrong or missing key, or `TO_EMAIL` is not the Resend signup address. |
 | `error: check` (403) | The Turnstile check failed: wrong secret, or the site's address is not listed in the Turnstile widget's hostnames. |
-| `error: rate` (429) | More than 5 messages from this IP address in an hour. |
+| `error: rate` (429) | More than 3 messages from this IP address in an hour. |
 | `error: origin` | The site's address is missing from `ALLOWED_ORIGINS`. |
 | Mail is in spam | See "Good to know". |
 | The form opens my mail app instead of sending | The endpoint was empty when the site was built. Set it and re-run the deploy. |
