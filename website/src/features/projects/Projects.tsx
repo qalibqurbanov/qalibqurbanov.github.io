@@ -85,7 +85,7 @@ export function Projects() {
                     className={`${CHIP} ${
                       active
                         ? "border-accent bg-accent/10 text-accent"
-                        : "border-border text-muted hover:border-accent/50 hover:text-text"
+                        : "border-muted/40 bg-surface-2/60 text-text/80 hover:border-accent hover:text-accent"
                     }`}
                   >
                     {name ?? ui.projectList.filterAll}
@@ -97,8 +97,8 @@ export function Projects() {
             <div
               role="group"
               aria-label={ui.projectList.matchLabel}
-              className={`inline-flex items-center gap-0.5 rounded-md border border-border p-0.5 font-mono text-xs transition-opacity sm:ml-auto ${
-                selected.length > 1 ? "" : "opacity-60"
+              className={`inline-flex items-center gap-0.5 rounded-md border border-muted/40 bg-surface-2/60 p-0.5 font-mono text-xs transition-opacity sm:ml-auto ${
+                selected.length > 1 ? "" : "opacity-80"
               }`}
             >
               {(["any", "all"] as const).map((option) => (
@@ -109,7 +109,7 @@ export function Projects() {
                   title={option === "any" ? ui.projectList.matchAnyHint : ui.projectList.matchAllHint}
                   onClick={() => animated(() => setMode(option))}
                   className={`${SEGMENT} ${
-                    mode === option ? "bg-accent/10 text-accent" : "text-muted hover:text-text"
+                    mode === option ? "bg-accent/10 text-accent" : "text-text/70 hover:text-text"
                   }`}
                 >
                   {option === "any" ? ui.projectList.matchAny : ui.projectList.matchAll}
