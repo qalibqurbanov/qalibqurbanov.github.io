@@ -159,7 +159,7 @@ export function MotionToggle() {
               {/* The same balloon as the site's other hints, with its arrow on the button. */}
               <div
                 data-side="bottom"
-                className="tip-balloon relative !pointer-events-auto !p-4"
+                className="tip-balloon glitch-float relative !pointer-events-auto !p-4"
                 style={{ "--tip-arrow": `${anchor.arrow}px` } as React.CSSProperties}
               >
                 <div className="flex items-baseline justify-between gap-3 font-mono text-xs">

@@ -129,8 +129,16 @@ export function signalLoss(duration = 5000): () => void {
   };
 
   const corrupt = (item: Item, chance: number) => {
-    // Skip text that something else rewrote in the meantime (a typing terminal).
-    if (item.noise && item.node.nodeValue !== item.noise) return;
+    // Text that something else rewrote since it was gathered (a typing terminal, or the page
+    // changing it in answer to a click) is the new truth: take it as the text to put back, and
+    // leave it alone this round, so the old wording is never restored over it.
+    const current = item.node.nodeValue ?? "";
+    if (item.noise ? current !== item.noise : current !== item.text) {
+      item.text = current;
+      item.noise = "";
+      item.el.classList.remove("signal-dead");
+      return;
+    }
     let out = "";
     for (const ch of item.text) {
       out +=

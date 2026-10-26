@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { getDisturbanceRect, subscribeDisturbance } from "@/lib/dragDisturbance";
+import { pageDisturbed } from "@/lib/pageDisturbed";
 
 interface Tip {
   text: string;
@@ -19,6 +20,8 @@ const SHOW_DELAY_MS = 250;
 const RECENT_MS = 1500;
 /** The dragged window's snap-back takes 0.4s (useDraggableWindow); wait it out. */
 const SETTLE_MS = 450;
+/** While a page effect shakes the page, the pointer has to really travel this far (px) from where the balloon came up to dismiss it. */
+const EFFECT_LEAVE_PX = 48;
 
 /**
  * Replaces the browser's native `title` tooltip with the site's balloon: any
@@ -39,6 +42,9 @@ export function TooltipLayer() {
     let dragging = false;
     let resume: { target: HTMLElement; text: string } | null = null;
     let recent: { target: HTMLElement; text: string; at: number } | null = null;
+    // The last real pointer position, and where it was when the balloon came up (null until it is known).
+    let pointer: { x: number; y: number } | null = null;
+    let shownAt: { x: number; y: number } | null = null;
 
     const restore = () => {
       const el = active.current;
@@ -52,6 +58,7 @@ export function TooltipLayer() {
     /** Puts the balloon up (unplaced: the effect below measures and places it). */
     const present = (target: HTMLElement, text: string) => {
       if (!target.isConnected) return;
+      shownAt = pointer;
       setPending({ target, text });
       setTip({ text, theme: target.closest("[data-theme]")?.getAttribute("data-theme") ?? null, left: 0, top: 0, arrow: 0, side: "top" });
     };
@@ -63,7 +70,8 @@ export function TooltipLayer() {
       setTip(null);
     };
     const show = (event: Event, instant: boolean) => {
-      if (dragging) return;
+      // Fake mouse-overs from an effect moving things under a still pointer must not swap the balloon.
+      if (dragging || (pageDisturbed() && active.current)) return;
       const target = (event.target as Element | null)?.closest?.<HTMLElement>("[title]");
       if (!target || target === active.current) return;
       const text = target.getAttribute("title")?.trim();
@@ -105,15 +113,28 @@ export function TooltipLayer() {
     const onOver = (e: Event) => show(e, false);
     const onFocus = (e: Event) => show(e, true);
     const onOut = (e: Event) => {
+      if (pageDisturbed()) return;
       const el = active.current;
       const next = (e as MouseEvent).relatedTarget as Node | null;
       if (el && !(next && el.contains(next))) hide();
     };
 
+    // Real movement is the one thing an effect cannot fake: during one, the balloon goes only once the pointer has travelled away.
+    const onMove = (e: MouseEvent) => {
+      pointer = { x: e.clientX, y: e.clientY };
+      if (!active.current || !pageDisturbed()) return;
+      shownAt ??= pointer;
+      if (Math.hypot(pointer.x - shownAt.x, pointer.y - shownAt.y) > EFFECT_LEAVE_PX) hide();
+    };
+    document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseover", onOver);
     document.addEventListener("mouseout", onOut);
     document.addEventListener("focusin", onFocus);
-    document.addEventListener("focusout", hide);
+    // A focus change caused by an effect is no reason to take the balloon down.
+    const onFocusOut = () => {
+      if (!pageDisturbed()) hide();
+    };
+    document.addEventListener("focusout", onFocusOut);
     document.addEventListener("mousedown", hide);
     document.addEventListener("keydown", hide);
     window.addEventListener("scroll", hide, true);
@@ -122,10 +143,11 @@ export function TooltipLayer() {
       window.clearTimeout(settleTimer);
       unsubscribe();
       hide();
+      document.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseover", onOver);
       document.removeEventListener("mouseout", onOut);
       document.removeEventListener("focusin", onFocus);
-      document.removeEventListener("focusout", hide);
+      document.removeEventListener("focusout", onFocusOut);
       document.removeEventListener("mousedown", hide);
       document.removeEventListener("keydown", hide);
       window.removeEventListener("scroll", hide, true);
@@ -154,7 +176,7 @@ export function TooltipLayer() {
       role="tooltip"
       data-theme={tip.theme ?? undefined}
       data-side={tip.side}
-      className={`tip-balloon tip-floating ${shown ? "is-shown" : ""}`}
+      className={`tip-balloon tip-floating glitch-float ${shown ? "is-shown" : ""}`}
       style={{ left: tip.left, top: tip.top, ["--tip-arrow" as string]: `${tip.arrow}px` }}
     >
       {tip.text}
