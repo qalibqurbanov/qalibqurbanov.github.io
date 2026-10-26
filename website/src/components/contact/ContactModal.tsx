@@ -560,6 +560,9 @@ export function ContactModal() {
                 <Dialog.Description className="mt-1 text-sm text-muted">
                   {t.description}
                 </Dialog.Description>
+                <p className="mt-2 font-mono text-[11px] leading-relaxed text-muted/80">
+                  {format(t.limits, { count: String(MAX_PER_WINDOW), seconds: String(MIN_GAP_MS / 1000), chars: String(MESSAGE_MAX) })}
+                </p>
               </div>
 
               <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
@@ -751,9 +754,6 @@ export function ContactModal() {
                       : format(t.sentCount, { sent: String(sentTimes.length), count: String(MAX_PER_WINDOW) })}
                   </p>
                 )}
-                <p className="text-muted">
-                  {format(t.limits, { count: String(MAX_PER_WINDOW), seconds: String(MIN_GAP_MS / 1000), chars: String(MESSAGE_MAX) })}
-                </p>
               </div>
             </form>
           )}
