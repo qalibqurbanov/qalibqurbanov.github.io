@@ -1,5 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { CheckCircle2, CircleAlert, Clock, Mail, Paperclip, Send, X } from "lucide-react";
+import { Check, CheckCircle2, CircleAlert, Clock, Mail, Paperclip, Send, X } from "lucide-react";
 import type { CSSProperties, DragEvent, FormEvent, ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -34,8 +34,8 @@ const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 /** Attachments need a plan that accepts files (the free tiers of the usual services do not): they are only offered when this is switched on. */
 const ATTACHMENTS = import.meta.env.VITE_CONTACT_ATTACHMENTS === "true";
 
-/** After a message is sent the window closes itself this long after; a bar shows the time left. */
-const AUTO_CLOSE_MS = 6000;
+/** After a message is sent the tick stays on the button this long, then the window closes itself. */
+const TICK_MS = 1800;
 /** How long the window glitches before it closes. */
 const GLITCH_MS = 450;
 
@@ -180,47 +180,35 @@ async function deliver(
   }
 }
 
-/** The countdown under the thank-you: a bar that runs down and the seconds left. When it
- * ends the window glitches, then `onDone` closes it. */
-function AutoClose({ label, onDone }: { label: string; onDone: () => void }) {
-  const rootRef = useRef<HTMLDivElement>(null);
+/** After a message is sent the window stays a moment, with a tick on its button, then its border
+ * glitches and `onDone` closes it. It draws nothing itself. */
+function CloseSoon({ onDone }: { onDone: () => void }) {
+  const rootRef = useRef<HTMLSpanElement>(null);
   const doneRef = useRef(onDone);
-  const [running, setRunning] = useState(false);
-  const [seconds, setSeconds] = useState(Math.ceil(AUTO_CLOSE_MS / 1000));
 
   useEffect(() => {
     doneRef.current = onDone;
   });
 
   useEffect(() => {
-    const start = Date.now();
-    const frame = window.requestAnimationFrame(() => setRunning(true));
-    const tick = window.setInterval(() => setSeconds(Math.max(1, Math.ceil((AUTO_CLOSE_MS - (Date.now() - start)) / 1000))), 250);
     let closeTimer = 0;
     const end = window.setTimeout(() => {
       const win = rootRef.current?.closest<HTMLElement>(".glitch-border");
       if (win) borderBurst(win, 14);
       closeTimer = window.setTimeout(() => doneRef.current(), GLITCH_MS);
-    }, AUTO_CLOSE_MS);
+    }, TICK_MS);
     return () => {
-      window.cancelAnimationFrame(frame);
-      window.clearInterval(tick);
       window.clearTimeout(end);
       window.clearTimeout(closeTimer);
     };
   }, []);
 
-  return (
-    <div ref={rootRef} className="mt-3 flex w-full flex-col items-center gap-2">
-      <div className="h-1 w-full overflow-hidden rounded-full bg-surface-2" role="presentation">
-        <div
-          className="h-full origin-left rounded-full bg-gradient-to-r from-accent to-accent-2"
-          style={{ transform: running ? "scaleX(0)" : "scaleX(1)", transition: running ? `transform ${AUTO_CLOSE_MS}ms linear` : "none" }}
-        />
-      </div>
-      <span className="font-mono text-xs text-muted">{format(label, { seconds: String(seconds) })}</span>
-    </div>
-  );
+  return <span ref={rootRef} hidden />;
+}
+
+/** What the Send button shows once the message is sent: a tick that pops in and draws itself (see .sent-tick). */
+function SentTick({ label }: { label: string }) {
+  return <Check size={20} strokeWidth={3} role="img" aria-label={label} className="sent-tick" />;
 }
 
 type Field = "name" | "email" | "message";
@@ -437,6 +425,8 @@ export function ContactModal() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    // Already sent (the tick is showing): a second press does nothing.
+    if (status === "sending" || status === "sent" || status === "mail") return;
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
     // Honeypot: real users never see or fill this field.
@@ -528,245 +518,229 @@ export function ContactModal() {
         onClose={close}
       >
         <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-6">
-          {done ? (
-            <div className="flex flex-col items-center gap-3 py-6 text-center">
-              {status === "mail" ? (
-                <Mail size={40} className="text-accent" />
-              ) : (
-                <CheckCircle2 size={40} className="text-accent" />
-              )}
+          <form
+            noValidate
+            onSubmit={handleSubmit}
+            onInput={(event) => {
+              const field = (event.target as HTMLInputElement).name;
+              setInvalid((list) => list.filter((name) => name !== field));
+            }}
+            className="flex flex-col gap-4"
+          >
+            <div>
               <Dialog.Title className="text-xl font-bold text-text">
-                {status === "mail" ? t.mailTitle : t.successTitle}
+                {t.title}
               </Dialog.Title>
-              <Dialog.Description className="text-sm text-muted">
-                {status === "mail" ? format(t.mailBody, { email: profile.email }) : t.successBody}
+              <Dialog.Description className="mt-1 text-sm text-muted">
+                {t.description}
               </Dialog.Description>
-              <AutoClose label={t.closingIn} onDone={close} />
+              <p className="mt-2 font-mono text-[11px] leading-relaxed text-muted/80">
+                {format(t.limits, { count: String(MAX_PER_WINDOW), seconds: String(MIN_GAP_MS / 1000), chars: String(MESSAGE_MAX) })}
+              </p>
             </div>
-          ) : (
-            <form
-              noValidate
-              onSubmit={handleSubmit}
-              onInput={(event) => {
-                const field = (event.target as HTMLInputElement).name;
-                setInvalid((list) => list.filter((name) => name !== field));
-              }}
-              className="flex flex-col gap-4"
-            >
-              <div>
-                <Dialog.Title className="text-xl font-bold text-text">
-                  {t.title}
-                </Dialog.Title>
-                <Dialog.Description className="mt-1 text-sm text-muted">
-                  {t.description}
-                </Dialog.Description>
-                <p className="mt-2 font-mono text-[11px] leading-relaxed text-muted/80">
-                  {format(t.limits, { count: String(MAX_PER_WINDOW), seconds: String(MIN_GAP_MS / 1000), chars: String(MESSAGE_MAX) })}
-                </p>
-              </div>
 
-              <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
-                {t.nameLabel}
-                <input
-                  name="name"
-                  required
-                  maxLength={100}
-                  autoComplete="name"
-                  aria-invalid={invalid.includes("name")}
-                  className={fieldClass("name")}
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
-                {t.emailLabel}
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  maxLength={200}
-                  autoComplete="email"
-                  aria-invalid={invalid.includes("email")}
-                  className={fieldClass("email")}
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
-                {t.messageLabel}
-                <textarea
-                  name="message"
-                  required
-                  rows={5}
-                  maxLength={MESSAGE_MAX}
-                  aria-invalid={invalid.includes("message")}
-                  className={fieldClass("message", "custom-scrollbar [--scrollbar-track:var(--color-surface-2)] resize-none")}
-                />
-              </label>
-              {canAttach && (
-                <div className="flex flex-col gap-1.5 font-mono text-xs text-muted">
-                  {t.attachLabel}
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => inputRef.current?.click()}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        inputRef.current?.click();
-                      }
-                    }}
-                    onDragOver={(event) => {
-                      event.preventDefault();
-                      setDragging(true);
-                    }}
-                    onDragLeave={() => setDragging(false)}
-                    onDrop={handleDrop}
-                    className={`flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-4 text-center transition ${
-                      dragging
-                        ? "border-accent bg-accent/10 text-accent"
-                        : "border-border bg-surface-2 hover:border-accent"
-                    }`}
-                  >
-                    <Paperclip size={14} className="shrink-0" />
-                    {dragging ? t.dropActive : t.dropHint}
-                  </div>
-                  <input
-                    ref={inputRef}
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={(event) => {
-                      if (event.target.files) addFiles(event.target.files);
-                      event.target.value = "";
-                    }}
-                  />
-                  {fileError && (
-                    <p role="alert" className="text-danger">
-                      {format(t.filesTooLarge, {
-                        max: formatSize(MAX_TOTAL_BYTES),
-                        count: String(MAX_FILES),
-                      })}
-                    </p>
-                  )}
-                  {files.length > 0 && (
-                    <ul className="flex flex-col gap-1">
-                      {files.map((file) => (
-                        <li
-                          key={`${file.name}-${file.size}`}
-                          className="flex items-center justify-between gap-2 rounded-md bg-surface-2 px-2.5 py-1.5 text-text"
-                        >
-                          <span className="min-w-0 truncate">{file.name}</span>
-                          <span className="flex shrink-0 items-center gap-2 text-muted">
-                            {formatSize(file.size)}
-                            <button
-                              type="button"
-                              aria-label={t.removeFile}
-                              onClick={() =>
-                                setFiles((current) =>
-                                  current.filter((f) => f !== file),
-                                )
-                              }
-                              className="-m-2 rounded p-2.5 transition hover:text-danger"
-                            >
-                              <X size={12} />
-                            </button>
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-              {/* Honeypot: off-screen and out of the tab order. A person never sees it; a script that fills every field does. */}
+            <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
+              {t.nameLabel}
               <input
-                name="hp_field"
-                tabIndex={-1}
-                autoComplete="off"
-                aria-hidden="true"
-                className="absolute -left-[9999px] h-0 w-0 opacity-0"
+                name="name"
+                required
+                maxLength={100}
+                autoComplete="name"
+                aria-invalid={invalid.includes("name")}
+                className={fieldClass("name")}
               />
-
-              {SITE_KEY && canSend && (
-                <Turnstile
-                  siteKey={SITE_KEY}
-                  resetKey={checkRound}
-                  onToken={(token) => {
-                    checkToken.current = token;
-                    setCheck("ready");
+            </label>
+            <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
+              {t.emailLabel}
+              <input
+                name="email"
+                type="email"
+                required
+                maxLength={200}
+                autoComplete="email"
+                aria-invalid={invalid.includes("email")}
+                className={fieldClass("email")}
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
+              {t.messageLabel}
+              <textarea
+                name="message"
+                required
+                rows={5}
+                maxLength={MESSAGE_MAX}
+                aria-invalid={invalid.includes("message")}
+                className={fieldClass("message", "custom-scrollbar [--scrollbar-track:var(--color-surface-2)] resize-none")}
+              />
+            </label>
+            {canAttach && (
+              <div className="flex flex-col gap-1.5 font-mono text-xs text-muted">
+                {t.attachLabel}
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => inputRef.current?.click()}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      inputRef.current?.click();
+                    }
                   }}
-                  onExpire={() => {
-                    checkToken.current = null;
-                    setCheck("pending");
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    setDragging(true);
                   }}
-                  onUnavailable={() => setCheck("unavailable")}
-                />
-              )}
-
-              {problems.length > 0 ? (
-                <Notice key={`problems-${round}`} tone="danger" icon={<CircleAlert size={16} />} lifeMs={NOTICE_MS} onClose={() => setProblems([])}>
-                  <ul className="flex flex-col gap-0.5">
-                    {problems.map((problem) => (
-                      <li key={problem.field}>{problem.text}</li>
-                    ))}
-                  </ul>
-                </Notice>
-              ) : status === "error" ? (
-                <Notice key={`error-${round}`} tone="danger" icon={<CircleAlert size={16} />} lifeMs={NOTICE_MS} onClose={() => setStatus("idle")}>
-                  {t.error}{" "}
-                  <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
-                    {t.emailInstead}
-                  </a>
-                </Notice>
-              ) : status === "tooMany" ? (
-                <Notice key={`toomany-${round}`} tone="info" icon={<Clock size={16} />} lifeMs={NOTICE_MS} onClose={() => setStatus("idle")}>
-                  {format(t.tooMany, { count: String(SERVER_LIMIT) })}{" "}
-                  <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
-                    {t.emailInstead}
-                  </a>
-                </Notice>
-              ) : waitText ? (
-                <Notice
-                  key={`wait-${round}`}
-                  tone="info"
-                  icon={<Clock size={16} />}
-                  lifeMs={waitTotalMs}
-                  from={waitFrom}
-                  onClose={() => {
-                    clearWait();
-                    setStatus("idle");
-                    setWaitMs(0);
-                  }}
+                  onDragLeave={() => setDragging(false)}
+                  onDrop={handleDrop}
+                  className={`flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-4 text-center transition ${
+                    dragging
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-border bg-surface-2 hover:border-accent"
+                  }`}
                 >
-                  {waitText}
-                </Notice>
-              ) : null}
-
-              <button
-                type="submit"
-                disabled={status === "sending" || check === "pending"}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-accent px-5 py-2.5 font-mono text-sm font-medium text-bg transition hover:brightness-110 disabled:opacity-60"
-              >
-                {canSend ? <Send size={14} /> : <Mail size={14} />}
-                {status === "sending" ? <ScrambleText text={t.sending} /> : canSend ? t.send : t.mailSend}
-              </button>
-              {sentTimes.length > 0 && (
-                  // A small panel of its own, with one dot for each message of the hour (filled once used), so it reads as a status and not as one more rule.
-                  <p
-                    className={`-mt-1 inline-flex items-center gap-2.5 self-center rounded-md border bg-surface-2 px-3 py-1.5 font-mono text-xs ${
-                      sentTimes.length >= MAX_PER_WINDOW ? "border-accent/60 text-accent" : "border-border text-text"
-                    }`}
-                  >
-                    <span className="flex shrink-0 gap-1" aria-hidden="true">
-                      {Array.from({ length: MAX_PER_WINDOW }, (_, i) => (
-                        <i key={i} className={`h-2 w-2 rounded-full border ${i < sentTimes.length ? "border-accent bg-accent" : "border-muted/60"}`} />
-                      ))}
-                    </span>
-                    <span className="text-left">
-                      {sentTimes.length >= MAX_PER_WINDOW
-                        ? format(t.sentAll, { count: String(MAX_PER_WINDOW), clock: formatClock([...sentTimes].sort((a, b) => a - b)[sentTimes.length - MAX_PER_WINDOW] + WINDOW_MS, bcp47) })
-                        : format(t.sentCount, { sent: String(sentTimes.length), count: String(MAX_PER_WINDOW) })}
-                    </span>
+                  <Paperclip size={14} className="shrink-0" />
+                  {dragging ? t.dropActive : t.dropHint}
+                </div>
+                <input
+                  ref={inputRef}
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={(event) => {
+                    if (event.target.files) addFiles(event.target.files);
+                    event.target.value = "";
+                  }}
+                />
+                {fileError && (
+                  <p role="alert" className="text-danger">
+                    {format(t.filesTooLarge, {
+                      max: formatSize(MAX_TOTAL_BYTES),
+                      count: String(MAX_FILES),
+                    })}
                   </p>
                 )}
-            </form>
-          )}
+                {files.length > 0 && (
+                  <ul className="flex flex-col gap-1">
+                    {files.map((file) => (
+                      <li
+                        key={`${file.name}-${file.size}`}
+                        className="flex items-center justify-between gap-2 rounded-md bg-surface-2 px-2.5 py-1.5 text-text"
+                      >
+                        <span className="min-w-0 truncate">{file.name}</span>
+                        <span className="flex shrink-0 items-center gap-2 text-muted">
+                          {formatSize(file.size)}
+                          <button
+                            type="button"
+                            aria-label={t.removeFile}
+                            onClick={() =>
+                              setFiles((current) =>
+                                current.filter((f) => f !== file),
+                              )
+                            }
+                            className="-m-2 rounded p-2.5 transition hover:text-danger"
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+            {/* Honeypot: off-screen and out of the tab order. A person never sees it; a script that fills every field does. */}
+            <input
+              name="hp_field"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              className="absolute -left-[9999px] h-0 w-0 opacity-0"
+            />
+
+            {SITE_KEY && canSend && (
+              <Turnstile
+                siteKey={SITE_KEY}
+                resetKey={checkRound}
+                onToken={(token) => {
+                  checkToken.current = token;
+                  setCheck("ready");
+                }}
+                onExpire={() => {
+                  checkToken.current = null;
+                  setCheck("pending");
+                }}
+                onUnavailable={() => setCheck("unavailable")}
+              />
+            )}
+
+            {problems.length > 0 ? (
+              <Notice key={`problems-${round}`} tone="danger" icon={<CircleAlert size={16} />} lifeMs={NOTICE_MS} onClose={() => setProblems([])}>
+                <ul className="flex flex-col gap-0.5">
+                  {problems.map((problem) => (
+                    <li key={problem.field}>{problem.text}</li>
+                  ))}
+                </ul>
+              </Notice>
+            ) : status === "error" ? (
+              <Notice key={`error-${round}`} tone="danger" icon={<CircleAlert size={16} />} lifeMs={NOTICE_MS} onClose={() => setStatus("idle")}>
+                {t.error}{" "}
+                <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
+                  {t.emailInstead}
+                </a>
+              </Notice>
+            ) : status === "tooMany" ? (
+              <Notice key={`toomany-${round}`} tone="info" icon={<Clock size={16} />} lifeMs={NOTICE_MS} onClose={() => setStatus("idle")}>
+                {format(t.tooMany, { count: String(SERVER_LIMIT) })}{" "}
+                <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
+                  {t.emailInstead}
+                </a>
+              </Notice>
+            ) : waitText ? (
+              <Notice
+                key={`wait-${round}`}
+                tone="info"
+                icon={<Clock size={16} />}
+                lifeMs={waitTotalMs}
+                from={waitFrom}
+                onClose={() => {
+                  clearWait();
+                  setStatus("idle");
+                  setWaitMs(0);
+                }}
+              >
+                {waitText}
+              </Notice>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={status === "sending" || done || check === "pending"}
+              className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-accent px-5 py-2.5 font-mono text-sm font-medium text-bg transition hover:brightness-110 disabled:opacity-60 ${done ? "disabled:opacity-100" : ""}`}
+            >
+              {!done && (canSend ? <Send size={14} /> : <Mail size={14} />)}
+              {status === "sending" ? <ScrambleText text={t.sending} /> : done ? <SentTick label={t.successTitle} /> : canSend ? t.send : t.mailSend}
+            </button>
+            {done && <CloseSoon onDone={close} />}
+            {sentTimes.length > 0 && (
+                // A small panel of its own, with one dot for each message of the hour (filled once used), so it reads as a status and not as one more rule.
+                <p
+                  className={`-mt-1 inline-flex items-center gap-2.5 self-center rounded-md border bg-surface-2 px-3 py-1.5 font-mono text-xs ${
+                    sentTimes.length >= MAX_PER_WINDOW ? "border-accent/60 text-accent" : "border-border text-text"
+                  }`}
+                >
+                  <span className="flex shrink-0 gap-1" aria-hidden="true">
+                    {Array.from({ length: MAX_PER_WINDOW }, (_, i) => (
+                      <i key={i} className={`h-2 w-2 rounded-full border ${i < sentTimes.length ? "border-accent bg-accent" : "border-muted/60"}`} />
+                    ))}
+                  </span>
+                  <span className="text-left">
+                    {sentTimes.length >= MAX_PER_WINDOW
+                      ? format(t.sentAll, { count: String(MAX_PER_WINDOW), clock: formatClock([...sentTimes].sort((a, b) => a - b)[sentTimes.length - MAX_PER_WINDOW] + WINDOW_MS, bcp47) })
+                      : format(t.sentCount, { sent: String(sentTimes.length), count: String(MAX_PER_WINDOW) })}
+                  </span>
+                </p>
+              )}
+          </form>
         </div>
       </CodeWindow>
       )}

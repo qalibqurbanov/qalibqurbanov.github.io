@@ -224,8 +224,6 @@ export interface UiStrings {
     /** `{email}` is filled in. */
     mailBody: string;
     mailSend: string;
-    /** Under the thank-you while the window counts down to closing; `{seconds}` is filled in. */
-    closingIn: string;
     close: string;
   };
   nav: {

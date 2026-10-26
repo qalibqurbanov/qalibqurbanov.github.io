@@ -924,6 +924,41 @@ html::-webkit-scrollbar-button,
   }
 }
 
+/* The tick on the Send button once a message is sent (see SentTick in ContactModal): it pops in
+   and its stroke is drawn from start to end, so the swap from the word to the tick is smooth. */
+@keyframes tick-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes tick-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.sent-tick {
+  animation: tick-pop 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.sent-tick path {
+  stroke-dasharray: 24;
+  animation: tick-draw 340ms ease-out 80ms both;
+}
+
 /* The popup at the top right of the screen (see Notice in ContactModal): it glitches in
    and glitches out, a few jumps and flickers around its real position. */
 @keyframes notice-in {

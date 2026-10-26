@@ -235,7 +235,6 @@ const az: Content = {
       mailTitle: "E-poçt tətbiqiniz açılır",
       mailBody: "Mesaj e-poçt tətbiqinizdən göndərilməyə hazırdır. Heç nə açılmadısa, birbaşa {email} ünvanına yazın.",
       mailSend: "E-poçt tətbiqində aç",
-      closingIn: "{seconds} saniyəyə bağlanır",
       close: "Bağla",
     },
     skillGroups: {
