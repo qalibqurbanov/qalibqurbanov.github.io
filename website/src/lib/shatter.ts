@@ -2,6 +2,7 @@
 import { glitchScreen } from "@/hooks/glitch";
 import { glitchStorm } from "@/lib/effects";
 import { isLightTheme } from "@/lib/themeMode";
+import { clamp, easeOutCubic } from "@/lib/math";
 
 /** The shard-based demolition behind the cyber butterfly (see demolition.ts).
  *
@@ -126,8 +127,6 @@ interface Emitter {
   color: string;
 }
 
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
-const ease = (t: number) => 1 - Math.pow(1 - clamp(t, 0, 1), 3);
 const TAU = Math.PI * 2;
 
 const T_ACTIVATE = 650;
@@ -1148,7 +1147,7 @@ class Shatter {
     s.x += s.vx * dt;
     s.y += s.vy * dt;
     s.a += s.om * dt;
-    s.sc = 1 + (s.k - 1) * ease(s.age / 0.9);
+    s.sc = 1 + (s.k - 1) * easeOutCubic(s.age / 0.9);
     const [hw, hh] = this.extents(s, s.a);
     if (s.x - hw < 0) {
       s.x = hw;
@@ -1605,7 +1604,7 @@ class Shatter {
   }
 
   private updateReboot(now: number): void {
-    const p = ease((now - this.rebootAt) / T_REBOOT);
+    const p = easeOutCubic((now - this.rebootAt) / T_REBOOT);
     this.shakeX = this.shakeY = 0;
     this.scrollTo(this.camReboot * (1 - p));
     this.updateParticles(0.016);
@@ -1821,7 +1820,7 @@ class Shatter {
     const termH = termStrip + cardPad + hintLines.length * 18 * u + 10 * u + 22 * u + 20 * u + cardPad * 0.5;
     const bodyH = pad + headH + gap + cardH + gap + integH + gap + termH + pad;
     const h = titleH + bodyH + statusH;
-    const open = ease(t / 380);
+    const open = easeOutCubic(t / 380);
     // Something is broken, so the window never sits still: a burst every second or so.
     const glitch = this.clock % 1300 < 170 || this.clock % 3700 < 330;
     const x = Math.round((this.W - w) / 2) + (glitch ? (Math.random() - 0.5) * 9 : 0);

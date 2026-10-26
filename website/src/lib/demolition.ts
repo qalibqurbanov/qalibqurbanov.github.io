@@ -2,6 +2,7 @@ import { glitchScreen, prefersReducedMotion } from "@/hooks/glitch";
 import { glitchStorm } from "@/lib/effects";
 import { shatter } from "@/lib/shatter";
 import { isLightTheme } from "@/lib/themeMode";
+import { clamp, easeOutCubic, rand } from "@/lib/math";
 
 /** The "city demolition" behind the cyber butterfly (see CyberButterfly).
  *
@@ -149,9 +150,6 @@ interface Flash {
   color: string;
 }
 
-const rand = (min: number, max: number) => min + Math.random() * (max - min);
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
-const ease = (t: number) => 1 - Math.pow(1 - clamp(t, 0, 1), 3);
 const TAU = Math.PI * 2;
 
 const T_ACTIVATE = 650;
@@ -1154,7 +1152,7 @@ class Demolition {
   }
 
   private updateReboot(now: number): void {
-    const p = ease((now - this.rebootAt) / T_REBOOT);
+    const p = easeOutCubic((now - this.rebootAt) / T_REBOOT);
     this.shakeX = this.shakeY = 0;
     // The camera travels back to where the visitor was.
     this.scrollTo(this.camReboot + (this.scroll0 - this.camReboot) * p);

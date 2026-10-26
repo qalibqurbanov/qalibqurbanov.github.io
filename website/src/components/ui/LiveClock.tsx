@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import { subscribeTick } from "@/lib/ticker";
+import { prefersReducedMotion } from "@/hooks/glitch";
 
 const pad = (value: number, length = 2) => String(value).padStart(length, "0");
 
@@ -20,7 +21,7 @@ export function LiveClock() {
     const el = ref.current;
     if (!el) return;
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (prefersReducedMotion()) {
       const update = () => {
         el.textContent = formatTime(new Date(), false);
       };

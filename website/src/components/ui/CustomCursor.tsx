@@ -1,15 +1,12 @@
 import { useEffect, useRef } from "react";
 
 import { idleProgress, idleShow, wake } from "@/lib/idle";
+import { FIELD, GRAB, LINK } from "@/lib/interactive";
 import { subscribeTick } from "@/lib/ticker";
+import { prefersReducedMotion } from "@/hooks/glitch";
 
 type CursorState = "default" | "link" | "field" | "code" | "grab";
 
-const FIELD =
-  'input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="button"]):not([type="submit"]), textarea, [contenteditable="true"]';
-const LINK =
-  'a[href], button:not(:disabled), summary, select, label[for], [role="button"], [role="tab"], [role="option"], [role="menuitem"], [role="radio"], [role="checkbox"], .cursor-pointer';
-const GRAB = ".cursor-grab, .cursor-grabbing";
 const CODE = 'pre, code, .terminal-scroll, .selectable, [data-cursor="code"]';
 
 /** How far the trailing ring closes the gap to the pointer each frame. */
@@ -41,7 +38,7 @@ export function CustomCursor() {
     const dot = dotRef.current;
     if (!root || !ring || !dot) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    const ease = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1 : RING_EASE;
+    const ease = prefersReducedMotion() ? 1 : RING_EASE;
 
     let x = 0;
     let y = 0;

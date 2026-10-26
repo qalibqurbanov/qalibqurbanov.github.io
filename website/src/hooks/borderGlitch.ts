@@ -6,9 +6,10 @@
  * delegation, so every surface behaves identically with no per-component
  * wiring. */
 
-const SURFACE = ".card-surface, .btn-pulse";
+import { rand } from "@/lib/math";
+import { prefersReducedMotion } from "@/hooks/glitch";
 
-const rand = (min: number, max: number) => min + Math.random() * (max - min);
+const SURFACE = ".card-surface, .btn-pulse";
 
 function resolveSurface(target: EventTarget | null): HTMLElement | null {
   if (!(target instanceof Element)) return null;
@@ -79,7 +80,7 @@ function clear(el: HTMLElement) {
 }
 
 export function installBorderGlitch(): void {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (prefersReducedMotion()) return;
 
   const timers = new WeakMap<HTMLElement, number>();
 
@@ -135,7 +136,7 @@ export function installBorderGlitch(): void {
  * a view opens. `el` needs the same markup the hover glitch draws on
  * (`.card-surface`, `.btn-pulse` or `.glitch-border`). */
 export function borderBurst(el: HTMLElement, frames = 7): void {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (prefersReducedMotion()) return;
   let left = frames;
   const run = () => {
     if (left-- <= 0 || !el.isConnected) {
@@ -154,7 +155,7 @@ export function borderBurst(el: HTMLElement, frames = 7): void {
  * function is called (which also leaves `el` clean). Same markup requirement
  * as `borderBurst`. */
 export function borderGlitchLoop(el: HTMLElement): () => void {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return () => {};
+  if (prefersReducedMotion()) return () => {};
   let timer = 0;
   const burst = (frames: number) => {
     if (frames <= 0) {

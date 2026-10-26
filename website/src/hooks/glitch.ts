@@ -5,8 +5,8 @@
  * draws from; every frame is re-rolled, so no two bursts look alike. The two
  * ghost colours are always the theme's accent and accent-2. */
 
-const rand = (min: number, max: number) => min + Math.random() * (max - min);
-const sign = () => (Math.random() < 0.5 ? -1 : 1);
+import { rand, sign } from "@/lib/math";
+
 
 export function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;

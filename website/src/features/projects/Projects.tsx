@@ -9,6 +9,7 @@ import { useContent } from "@/i18n/context";
 import type { MoreVariant } from "./MoreProjects";
 import { MoreProjects } from "./MoreProjects";
 import { ProjectCard } from "./ProjectCard";
+import { prefersReducedMotion } from "@/hooks/glitch";
 
 const CHIP = "rounded-md border px-2.5 py-1 font-mono text-xs transition-colors [@media(pointer:coarse)]:py-2";
 const SEGMENT = "rounded px-2.5 py-1 transition-colors [@media(pointer:coarse)]:py-2";
@@ -48,7 +49,7 @@ export function Projects() {
   // exists; elsewhere (or with reduced motion) the grid just updates.
   function animated(change: () => void) {
     const doc = document as Document & { startViewTransition?: (update: () => void) => unknown };
-    if (doc.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (doc.startViewTransition && !prefersReducedMotion()) {
       doc.startViewTransition(() => flushSync(change));
     } else {
       change();

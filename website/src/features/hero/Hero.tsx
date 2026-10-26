@@ -32,6 +32,7 @@ import { useDraggableWindow } from "@/hooks/useDraggableWindow";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
 import { useInView } from "@/hooks/useInView";
 import { useTilt } from "@/hooks/useTilt";
+import { prefersReducedMotion } from "@/hooks/glitch";
 
 const TOTAL_CODE_LINES = 8;
 const LINE_STEP_MS = 220;
@@ -263,7 +264,7 @@ export function Hero() {
   const [plusX, setPlusX] = useState<number | null>(null);
   // The window boots on first load (see HeroBoot); the code tab types itself
   // out once that is over. Reduced motion skips the boot altogether.
-  const [booted, setBooted] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const [booted, setBooted] = useState(() => prefersReducedMotion());
   const handleBooted = useCallback(() => setBooted(true), []);
   const noTabs = !codeOpen && terminals.length === 0;
   const tabCount = terminals.length + (codeOpen ? 1 : 0);

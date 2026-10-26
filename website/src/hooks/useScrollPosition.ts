@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { prefersReducedMotion } from "@/hooks/glitch";
 
 /** Returns true once the page has scrolled past `threshold` pixels. */
 export function useScrolledPast(threshold = 8): boolean {
@@ -53,7 +54,7 @@ export function useScrollProgress(): number {
 export function useScrollParallax(): void {
   useEffect(() => {
     const root = document.documentElement;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (prefersReducedMotion()) {
       root.style.setProperty("--scroll-y", "0");
       return;
     }

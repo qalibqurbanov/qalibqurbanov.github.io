@@ -2,8 +2,7 @@ import { useEffect, useRef } from "react";
 
 import { decodeText, prefersReducedMotion, registerGlitch, ruleBurst, textBurst } from "@/hooks/glitch";
 import { belowNavbarMargin } from "@/lib/viewport";
-
-const rand = (min: number, max: number) => min + Math.random() * (max - min);
+import { rand } from "@/lib/math";
 
 /** Calls `onChange` whenever `el` crosses the visibility threshold; the area
  * under the fixed navbar doesn't count as visible. */

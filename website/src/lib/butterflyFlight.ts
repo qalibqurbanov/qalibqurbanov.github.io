@@ -10,9 +10,8 @@
  * seen when its wandering happens to cross the screen. Now and then it
  * dawdles almost in place or slips off the side of the page and comes back. */
 
-const rand = (min: number, max: number) => min + Math.random() * (max - min);
-const wrap = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+import { clamp, rand, smooth, wrapAngle } from "@/lib/math";
+
 
 export interface View {
   /** Page width and the visible height. */
@@ -29,11 +28,6 @@ type Mode = "fly" | "hover" | "away" | "land" | "hang" | "orbit";
 export type Perch = () => { x: number; y: number } | null;
 /** Picks something to hang from near a point of the page, if anything suits. */
 export type PerchFinder = (x: number, y: number) => Perch | null;
-
-const smooth = (t: number) => {
-  const k = clamp(t, 0, 1);
-  return k * k * (3 - 2 * k);
-};
 
 /** How long a butterfly stays hanging, in seconds. */
 const HANG_MIN = 15;
@@ -256,7 +250,7 @@ export class ButterflyFlight {
     const landing = this.mode === "land";
     const wander = landing ? 0 : Math.sin(this.t * 0.7 + this.pA) * 0.3 + Math.sin(this.t * 1.7 + this.pB) * 0.12;
     const swirl = this.mode === "hover" ? Math.sin(this.t * 1.2 + this.pC) * 0.6 : 0;
-    const diff = wrap(toGoal + wander + swirl - this.heading);
+    const diff = wrapAngle(toGoal + wander + swirl - this.heading);
     const orbiting = this.mode === "orbit";
     const maxTurn = landing ? (dist < 110 ? 2.4 : 1.0) : orbiting ? 1.8 : this.mode === "hover" ? 1.1 : 0.85;
     const wanted = clamp(diff * (orbiting ? 1.6 : 1.1), -maxTurn, maxTurn);
@@ -282,7 +276,7 @@ export class ButterflyFlight {
     const pad = this.pad() * 3;
     if (!orbiting && (this.x < -pad || this.x > view.w + pad || this.y < -pad || this.y > view.docH + pad)) this.nextGoal(view, true);
 
-    this.angle += wrap(this.heading + Math.PI / 2 - this.angle) * Math.min(1, dt * 2.5);
+    this.angle += wrapAngle(this.heading + Math.PI / 2 - this.angle) * Math.min(1, dt * 2.5);
     this.bob = Math.sin(this.t * 6.3) * (1.5 + Math.min(3, this.speed * 0.02)) * (1 - this.fold);
   }
 
@@ -327,7 +321,7 @@ export class ButterflyFlight {
     this.speed = 0;
     this.turn = 0;
     this.heading = -Math.PI / 2;
-    this.angle += wrap(theta - this.angle) * Math.min(1, dt * 5);
+    this.angle += wrapAngle(theta - this.angle) * Math.min(1, dt * 5);
     this.bob = Math.sin(this.t * 1.4) * 0.8;
   }
 
@@ -379,7 +373,7 @@ export class ButterflyFlight {
       const x = clamp(this.x + Math.cos(ahead) * reach, view.w * 0.04, view.w * 0.96);
       const y = clamp(this.y + Math.sin(ahead) * reach, 40, Math.max(80, view.docH - 40));
       if (Math.hypot(x - this.x, y - this.y) < 200) continue;
-      const turn = Math.abs(wrap(Math.atan2(y - this.y, x - this.x) - this.heading));
+      const turn = Math.abs(wrapAngle(Math.atan2(y - this.y, x - this.x) - this.heading));
       if (turn < bestTurn) {
         best = [x, y];
         bestTurn = turn;

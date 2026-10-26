@@ -4,6 +4,8 @@
  * other transforms, and event delegation so every button behaves the same
  * with no per-component wiring. Fine pointers only. */
 
+import { prefersReducedMotion } from "@/hooks/glitch";
+
 const PULL = 0.28;
 const MAX_X = 9;
 const MAX_Y = 6;
@@ -12,7 +14,7 @@ const clamp = (value: number, limit: number) => Math.max(-limit, Math.min(limit,
 
 export function installMagnetic(): void {
   if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (prefersReducedMotion()) return;
 
   let current: HTMLElement | null = null;
   let shiftX = 0;

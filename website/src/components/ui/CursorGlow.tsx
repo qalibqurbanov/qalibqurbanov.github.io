@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { prefersReducedMotion } from "@/hooks/glitch";
 
 /** A soft accent glow that follows the cursor behind the page, with the
  * background grid lighting up around it. Mouse-like pointers only; the
@@ -11,7 +12,7 @@ export function CursorGlow() {
     const el = ref.current;
     if (!el) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (prefersReducedMotion()) return;
 
     let frame = 0;
     let x = 0;

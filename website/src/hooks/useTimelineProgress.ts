@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { prefersReducedMotion } from "@/hooks/glitch";
 
 /** Makes a vertical timeline draw itself as the page scrolls: publishes how
  * far down the list the viewport has reached as `--tl` (0–1) and marks each
@@ -13,7 +14,7 @@ export function useTimelineProgress<T extends HTMLElement>() {
     if (!el) return;
     const dots = Array.from(el.querySelectorAll<HTMLElement>("[data-dot]"));
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (prefersReducedMotion()) {
       el.style.setProperty("--tl", "1");
       dots.forEach((dot) => dot.setAttribute("data-reached", ""));
       return;

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import type { MouseEvent } from "react";
+import { prefersReducedMotion } from "@/hooks/glitch";
 
 /** Tilts an element toward the cursor on mouse move, like it's a physical card catching light. */
 export function useTilt<T extends HTMLElement>(maxDeg = 6) {
@@ -7,7 +8,7 @@ export function useTilt<T extends HTMLElement>(maxDeg = 6) {
 
   function handleMouseMove(event: MouseEvent<T>) {
     const node = ref.current;
-    if (!node || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!node || prefersReducedMotion()) return;
 
     const rect = node.getBoundingClientRect();
     const px = (event.clientX - rect.left) / rect.width - 0.5;

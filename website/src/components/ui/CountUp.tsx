@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { useInView } from "@/hooks/useInView";
+import { prefersReducedMotion } from "@/hooks/glitch";
 
 const DURATION_MS = 1100;
 
@@ -10,7 +11,7 @@ const DURATION_MS = 1100;
 export function CountUp({ value }: { value: string }) {
   const match = /^(\d+)(.*)$/.exec(value);
   const target = match ? Number(match[1]) : 0;
-  const reduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced = typeof window !== "undefined" && prefersReducedMotion();
   const { ref, isInView } = useInView<HTMLSpanElement>({ threshold: 0.6 });
   const [count, setCount] = useState(reduced ? target : 0);
 

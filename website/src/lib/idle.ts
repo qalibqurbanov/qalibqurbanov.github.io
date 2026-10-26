@@ -1,3 +1,5 @@
+import { CLICKABLE } from "@/lib/interactive";
+
 /** How long the visitor has been idle (no pointer, key, scroll or touch input).
  * One clock shared by everything that reacts to it: the butterflies that come
  * to circle the cursor, the cursor's own countdown, and the fireflies. */
@@ -7,10 +9,6 @@ export const IDLE_MS = 30000;
 /** The countdown only shows after this much stillness, and fades in over the next 0.6 s. */
 const SHOW_AFTER_MS = 10000;
 
-/** What counts as something to click (the same set the custom cursor reacts to).
- * A pointer resting on one is not idle: the visitor is about to use it. */
-const CLICKABLE =
-  'input:not([type="hidden"]), textarea, select, [contenteditable="true"], a[href], button:not(:disabled), summary, label[for], [role="button"], [role="tab"], [role="option"], [role="menuitem"], [role="radio"], [role="checkbox"], .cursor-pointer, .cursor-grab, .cursor-grabbing';
 /** How often the element under a resting pointer is looked up. */
 const HOVER_CHECK_MS = 150;
 
@@ -26,6 +24,7 @@ function trackPointer(event: PointerEvent): void {
   wake();
 }
 
+/** A pointer resting on something clickable is not idle: the visitor is about to use it. */
 function overClickable(): boolean {
   if (pointerX < 0) return false;
   const el = document.elementFromPoint(pointerX, pointerY);

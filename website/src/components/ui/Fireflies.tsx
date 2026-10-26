@@ -4,13 +4,12 @@ import { createPortal } from "react-dom";
 import { prefersReducedMotion } from "@/hooks/glitch";
 import { idleFor, IDLE_MS } from "@/lib/idle";
 import { subscribeTick } from "@/lib/ticker";
+import { clamp, rand } from "@/lib/math";
 
 const COUNT = 10;
 /** The idle clock shows nothing for the first stretch; fireflies leave one by one after it. */
 const FIRST_CALL_MS = 10000;
 
-const rand = (min: number, max: number) => min + Math.random() * (max - min);
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
 interface Fly {
   /** Where it lives (fractions of the screen) and how it drifts about there. */
