@@ -1,5 +1,5 @@
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
 import type { Motion } from "@/lib/motion";
 import { MOTION_ICONS } from "@/motion/labels";
@@ -15,28 +15,28 @@ interface MotionSliderProps {
   levelName: (level: Motion) => string;
 }
 
-/** A slider with one stop per motion level, each marked with its icon and name. The thumb glides
- * between stops: it follows the pointer while it is dragged and settles on the nearest stop when
- * it is let go. Keys: ←/↓ and →/↑ step, Home and End jump. */
+/** A slider with one stop per motion level. The slider is split into one column per stop, each with
+ * its icon above the track and its name below, and the thumb can only rest on a stop: pressing or
+ * dragging anywhere sends it gliding to the stop of the column the pointer is in. Keys: ←/↓ and
+ * →/↑ step, Home and End jump. */
 export function MotionSlider({ stops, value, onChange, label, levelName }: MotionSliderProps) {
-  const trackRef = useRef<HTMLDivElement>(null);
-  // Where the thumb is while it is being dragged, as a share of the track (0–100); null otherwise.
-  const [dragAt, setDragAt] = useState<number | null>(null);
-  const last = stops.length - 1;
+  const stripRef = useRef<HTMLDivElement>(null);
+  const pressed = useRef(false);
+  const count = stops.length;
   const index = stops.indexOf(value);
-  const at = dragAt ?? (index / last) * 100;
+  /** Where stop `position` sits along the strip, as a percentage: the middle of its column. */
+  const at = (position: number) => ((position * 2 + 1) / (count * 2)) * 100;
 
-  function ratioOf(event: ReactPointerEvent) {
-    const rect = trackRef.current?.getBoundingClientRect();
-    if (!rect || rect.width === 0) return 0;
-    return Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+  function choose(position: number) {
+    const next = stops[position];
+    if (next !== value) onChange(next);
   }
 
-  function follow(event: ReactPointerEvent) {
-    const ratio = ratioOf(event);
-    setDragAt(ratio * 100);
-    const next = stops[Math.round(ratio * last)];
-    if (next !== value) onChange(next);
+  function chooseAt(event: ReactPointerEvent) {
+    const rect = stripRef.current?.getBoundingClientRect();
+    if (!rect || rect.width === 0) return;
+    const column = Math.floor(((event.clientX - rect.left) / rect.width) * count);
+    choose(Math.min(count - 1, Math.max(0, column)));
   }
 
   function handleKeyDown(event: ReactKeyboardEvent) {
@@ -54,60 +54,58 @@ export function MotionSlider({ stops, value, onChange, label, levelName }: Motio
         target = 0;
         break;
       case "End":
-        target = last;
+        target = count - 1;
         break;
       default:
         return;
     }
     event.preventDefault();
-    target = Math.min(last, Math.max(0, target));
-    if (target !== index) onChange(stops[target]);
+    choose(Math.min(count - 1, Math.max(0, target)));
   }
 
   return (
-    <div className="mx-2 mt-3 select-none">
-      <div className="relative h-12">
-        {stops.map((level, position) => {
+    <div className="select-none">
+      <div className="grid" style={{ gridTemplateColumns: `repeat(${count}, 1fr)` }}>
+        {stops.map((level) => {
           const Icon = MOTION_ICONS[level];
           return (
             <button
               key={level}
               type="button"
               tabIndex={-1}
+              aria-label={levelName(level)}
               onClick={() => onChange(level)}
-              style={{ left: `${(position / last) * 100}%` }}
-              className={`absolute top-0 flex -translate-x-1/2 flex-col items-center gap-1 transition-colors hover:text-accent ${level === value ? "text-accent" : "text-muted"}`}
+              className={`flex justify-center py-1 transition-colors hover:text-accent ${level === value ? "text-accent" : "text-muted"}`}
             >
-              <Icon size={18} />
-              <span className="font-mono text-xs capitalize">{levelName(level)}</span>
+              <Icon size={20} />
             </button>
           );
         })}
       </div>
 
       <div
-        ref={trackRef}
-        className="relative h-6 cursor-pointer touch-none"
+        ref={stripRef}
+        className="relative h-7 cursor-pointer touch-none"
         onPointerDown={(event) => {
+          pressed.current = true;
           event.currentTarget.setPointerCapture(event.pointerId);
-          follow(event);
+          chooseAt(event);
         }}
-        onPointerMove={(event) => dragAt !== null && follow(event)}
-        onPointerUp={() => setDragAt(null)}
-        onPointerCancel={() => setDragAt(null)}
+        onPointerMove={(event) => pressed.current && chooseAt(event)}
+        onPointerUp={() => (pressed.current = false)}
+        onPointerCancel={() => (pressed.current = false)}
       >
-        <div className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-border" />
+        <div className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-border" style={{ left: `${at(0)}%`, right: `${100 - at(count - 1)}%` }} />
         <div
-          data-dragging={dragAt !== null}
-          className="motion-slider-move absolute left-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-accent"
-          style={{ width: `${at}%` }}
+          className="motion-slider-move absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-accent"
+          style={{ left: `${at(0)}%`, width: `${at(index) - at(0)}%` }}
         />
         {stops.map((level, position) => (
           <span
             key={level}
             aria-hidden="true"
-            className={`absolute top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full ${position <= index ? "bg-accent" : "bg-border"}`}
-            style={{ left: `${(position / last) * 100}%` }}
+            className={`absolute top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors ${position <= index ? "bg-accent" : "bg-border"}`}
+            style={{ left: `${at(position)}%` }}
           />
         ))}
         <div
@@ -115,14 +113,27 @@ export function MotionSlider({ stops, value, onChange, label, levelName }: Motio
           tabIndex={0}
           aria-label={label}
           aria-valuemin={0}
-          aria-valuemax={last}
+          aria-valuemax={count - 1}
           aria-valuenow={index}
           aria-valuetext={levelName(value)}
-          data-dragging={dragAt !== null}
           onKeyDown={handleKeyDown}
           className="motion-slider-move absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-bg bg-accent outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-          style={{ left: `${at}%`, boxShadow: "0 0 10px var(--glow-accent)" }}
+          style={{ left: `${at(index)}%`, boxShadow: "0 0 10px var(--glow-accent)" }}
         />
+      </div>
+
+      <div className="grid" style={{ gridTemplateColumns: `repeat(${count}, 1fr)` }}>
+        {stops.map((level) => (
+          <button
+            key={level}
+            type="button"
+            tabIndex={-1}
+            onClick={() => onChange(level)}
+            className={`pt-1 text-center font-mono text-xs capitalize transition-colors hover:text-accent ${level === value ? "text-accent" : "text-muted"}`}
+          >
+            {levelName(level)}
+          </button>
+        ))}
       </div>
     </div>
   );

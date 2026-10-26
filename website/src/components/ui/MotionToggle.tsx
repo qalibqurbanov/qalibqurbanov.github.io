@@ -1,5 +1,6 @@
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { useContent } from "@/i18n/context";
 import { format } from "@/lib/format";
@@ -12,22 +13,37 @@ import { MotionSlider } from "./MotionSlider";
 /** The stops of the slider, from the calmest page on the left to the fullest on the right. */
 const STOPS: readonly Motion[] = ["off", "light", "full"];
 
-/** How long the popup waits after the pointer leaves before it closes, so the pointer can cross the gap to it. */
+/** How long the popup waits after the pointer has left before it closes. */
 const CLOSE_DELAY_MS = 220;
+
+const POPUP_WIDTH = 256;
+const EDGE_GAP = 8;
+
+interface Anchor {
+  /** Distance from the window's right edge to the popup's right edge. */
+  right: number;
+  /** Distance from the popup's left edge to its arrow's tip. */
+  arrow: number;
+  top: number;
+}
 
 /** The navbar's animation control. A click steps through the levels (full, light, off) where a
  * pointer can hover; hovering or focusing it opens a small popup with a three-stop slider for
- * choosing the level directly. Where there is no hover (touch), a tap opens the popup instead. */
+ * choosing the level directly. Where there is no hover (touch), a tap opens the popup instead.
+ *
+ * The popup is drawn on the page itself, not inside the navbar, and placed with fixed coordinates:
+ * the page effects (signal loss, the storm, the demolition) tear, shake and move the navbar, and a
+ * popup inside it would be dragged along. And it closes only from real pointer movement, never
+ * from an element sliding out from under a pointer that has not moved. */
 export function MotionToggle() {
   const { motion, setMotion, cycleMotion } = useMotion();
   const { ui } = useContent();
   const levelName = useMotionLabel();
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
+  const [anchor, setAnchor] = useState<Anchor | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef(0);
-  // Where the popup's arrow sits, so it points at the middle of the button.
-  const [buttonCenter, setButtonCenter] = useState(20);
 
   const label = format(ui.labels.motion, { level: levelName(motion) });
   const Icon = MOTION_ICONS[motion];
@@ -39,28 +55,56 @@ export function MotionToggle() {
 
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
+  // Place the popup under the button, with its arrow on the middle of the button, kept inside the window.
   useLayoutEffect(() => {
-    if (open && buttonRef.current) setButtonCenter(buttonRef.current.offsetWidth / 2);
+    if (!open) return;
+    function place() {
+      const rect = buttonRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const right = Math.max(0, Math.min(window.innerWidth - rect.right, window.innerWidth - EDGE_GAP - POPUP_WIDTH));
+      const centre = rect.left + rect.width / 2;
+      setAnchor({ right, arrow: POPUP_WIDTH - (window.innerWidth - centre - right), top: rect.bottom });
+    }
+    place();
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
   }, [open]);
 
-  // A tap outside closes it (where there is no pointer leaving to do so).
   useEffect(() => {
     if (!open) return;
-    function handlePointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+
+    function inside(x: number, y: number) {
+      return [buttonRef.current, popupRef.current].some((el) => {
+        const rect = el?.getBoundingClientRect();
+        return rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+      });
     }
+    function hideSoon() {
+      window.clearTimeout(closeTimer.current);
+      closeTimer.current = window.setTimeout(() => setOpen(false), CLOSE_DELAY_MS);
+    }
+    function handlePointerMove(event: PointerEvent) {
+      if (event.pointerType !== "mouse") return;
+      if (inside(event.clientX, event.clientY)) window.clearTimeout(closeTimer.current);
+      else hideSoon();
+    }
+    function handlePointerDown(event: PointerEvent) {
+      if (!inside(event.clientX, event.clientY)) setOpen(false);
+    }
+
+    document.addEventListener("pointermove", handlePointerMove);
     document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
+    document.documentElement.addEventListener("mouseleave", hideSoon);
+    return () => {
+      document.removeEventListener("pointermove", handlePointerMove);
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.documentElement.removeEventListener("mouseleave", hideSoon);
+    };
   }, [open]);
 
   function show() {
     window.clearTimeout(closeTimer.current);
     setOpen(true);
-  }
-
-  function hideSoon() {
-    window.clearTimeout(closeTimer.current);
-    closeTimer.current = window.setTimeout(() => setOpen(false), CLOSE_DELAY_MS);
   }
 
   function handleKeyDown(event: ReactKeyboardEvent) {
@@ -77,16 +121,15 @@ export function MotionToggle() {
 
   return (
     <div
-      ref={rootRef}
-      className="relative"
+      className="inline-flex items-center"
       onPointerEnter={(event) => event.pointerType === "mouse" && show()}
-      onPointerLeave={(event) => event.pointerType === "mouse" && hideSoon()}
+      onKeyDown={handleKeyDown}
       // Only keyboard focus opens it: a tap or click also focuses the button, and the tap handler decides then.
       onFocus={(event) => event.target.matches(":focus-visible") && show()}
       onBlur={(event) => {
-        if (!rootRef.current?.contains(event.relatedTarget as Node | null)) setOpen(false);
+        const next = event.relatedTarget as Node | null;
+        if (!event.currentTarget.contains(next) && !popupRef.current?.contains(next)) setOpen(false);
       }}
-      onKeyDown={handleKeyDown}
     >
       <button
         ref={buttonRef}
@@ -99,31 +142,39 @@ export function MotionToggle() {
         <Icon size={19} />
       </button>
 
-      {open ? (
-        <div
-          role="group"
-          aria-label={ui.labels.motionTitle}
-          className="absolute right-0 top-full z-50 w-60 pt-3 animate-popover-in"
-          style={{ transformOrigin: "top right" }}
-        >
-          {/* The same balloon as the site's other hints, with its arrow on the button. */}
-          <div
-            data-side="bottom"
-            className="tip-balloon relative !pointer-events-auto !p-4"
-            style={{ "--tip-arrow": `calc(100% - ${buttonCenter}px)` } as React.CSSProperties}
-          >
-            <p className="font-mono text-xs text-muted">{ui.labels.motionTitle}</p>
-            <MotionSlider
-              stops={STOPS}
-              value={motion}
-              onChange={setMotion}
-              label={ui.labels.motionTitle}
-              levelName={levelName}
-            />
-            <p className="mt-3 border-t border-border pt-3 text-xs leading-relaxed text-muted">{hints[motion]}</p>
-          </div>
-        </div>
-      ) : null}
+      {open && anchor
+        ? createPortal(
+            <div
+              ref={popupRef}
+              role="group"
+              aria-label={ui.labels.motionTitle}
+              onKeyDown={handleKeyDown}
+              onBlur={(event) => {
+                const next = event.relatedTarget as Node | null;
+                if (!event.currentTarget.contains(next) && !buttonRef.current?.contains(next)) setOpen(false);
+              }}
+              className="fixed z-[60] animate-popover-in pt-3"
+              style={{ right: anchor.right, top: anchor.top, width: POPUP_WIDTH, transformOrigin: `${anchor.arrow}px 0` }}
+            >
+              {/* The same balloon as the site's other hints, with its arrow on the button. */}
+              <div
+                data-side="bottom"
+                className="tip-balloon relative !pointer-events-auto !p-4"
+                style={{ "--tip-arrow": `${anchor.arrow}px` } as React.CSSProperties}
+              >
+                <div className="flex items-baseline justify-between gap-3 font-mono text-xs">
+                  <span className="uppercase tracking-wider text-muted">{ui.labels.motionTitle}</span>
+                  <span className="capitalize text-accent">{levelName(motion)}</span>
+                </div>
+                <div className="mt-3">
+                  <MotionSlider stops={STOPS} value={motion} onChange={setMotion} label={ui.labels.motionTitle} levelName={levelName} />
+                </div>
+                <p className="mt-3 border-t border-border pt-3 text-center text-xs leading-relaxed text-muted">{hints[motion]}</p>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
