@@ -1,11 +1,13 @@
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { useContent } from "@/i18n/context";
 import { format } from "@/lib/format";
 import type { Motion } from "@/lib/motion";
 import { useMotion } from "@/motion/context";
 import { MOTION_ICONS, useMotionLabel } from "@/motion/labels";
+
+import { MotionSlider } from "./MotionSlider";
 
 /** The stops of the slider, from the calmest page on the left to the fullest on the right. */
 const STOPS: readonly Motion[] = ["off", "light", "full"];
@@ -24,10 +26,11 @@ export function MotionToggle() {
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const closeTimer = useRef(0);
+  // Where the popup's arrow sits, so it points at the middle of the button.
+  const [buttonCenter, setButtonCenter] = useState(20);
 
   const label = format(ui.labels.motion, { level: levelName(motion) });
   const Icon = MOTION_ICONS[motion];
-  const stop = STOPS.indexOf(motion);
   const hints: Record<Motion, string> = {
     full: ui.labels.motionHintFull,
     light: ui.labels.motionHintLight,
@@ -35,6 +38,10 @@ export function MotionToggle() {
   };
 
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
+
+  useLayoutEffect(() => {
+    if (open && buttonRef.current) setButtonCenter(buttonRef.current.offsetWidth / 2);
+  }, [open]);
 
   // A tap outside closes it (where there is no pointer leaving to do so).
   useEffect(() => {
@@ -88,7 +95,6 @@ export function MotionToggle() {
         onClick={handleClick}
         aria-label={label}
         aria-expanded={open}
-        title={label}
       >
         <Icon size={19} />
       </button>
@@ -100,33 +106,20 @@ export function MotionToggle() {
           className="absolute right-0 top-full z-50 w-60 pt-3 animate-popover-in"
           style={{ transformOrigin: "top right" }}
         >
-          <div className="rounded-lg border border-border bg-surface p-4 shadow-lg">
+          {/* The same balloon as the site's other hints, with its arrow on the button. */}
+          <div
+            data-side="bottom"
+            className="tip-balloon relative !pointer-events-auto !p-4"
+            style={{ "--tip-arrow": `calc(100% - ${buttonCenter}px)` } as React.CSSProperties}
+          >
             <p className="font-mono text-xs text-muted">{ui.labels.motionTitle}</p>
-            <input
-              type="range"
-              min={0}
-              max={STOPS.length - 1}
-              step={1}
-              value={stop}
-              onChange={(event) => setMotion(STOPS[Number(event.target.value)])}
-              aria-label={ui.labels.motionTitle}
-              aria-valuetext={levelName(motion)}
-              className="motion-range mt-3"
-              style={{ "--fill": `${(stop / (STOPS.length - 1)) * 100}%` } as React.CSSProperties}
+            <MotionSlider
+              stops={STOPS}
+              value={motion}
+              onChange={setMotion}
+              label={ui.labels.motionTitle}
+              levelName={levelName}
             />
-            <div className="mt-1 flex justify-between font-mono text-xs">
-              {STOPS.map((level) => (
-                <button
-                  key={level}
-                  type="button"
-                  tabIndex={-1}
-                  onClick={() => setMotion(level)}
-                  className={`capitalize transition-colors hover:text-accent ${level === motion ? "text-accent" : "text-muted"}`}
-                >
-                  {levelName(level)}
-                </button>
-              ))}
-            </div>
             <p className="mt-3 border-t border-border pt-3 text-xs leading-relaxed text-muted">{hints[motion]}</p>
           </div>
         </div>
