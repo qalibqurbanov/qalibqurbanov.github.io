@@ -37,7 +37,78 @@ export function glitchStorm(duration = 2200): void {
   }, duration);
 }
 
-const RAIN_GLYPHS = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉ0123456789<>/{}=+*";
+const NOISE_GLYPHS = "#%&$@?/\\<>[]{}=+*0123456789";
+let signalActive = false;
+
+/** Signal loss, same as the 404 page: in bursts, the header, the page and
+ * the footer tear sideways, and a good share of the text on screen turns
+ * to noise for a moment before snapping back. Runs for `duration`. */
+export function signalLoss(duration = 7000): void {
+  if (signalActive || prefersReducedMotion()) return;
+  signalActive = true;
+
+  const root = document.documentElement;
+  const items: Array<{ node: Text; text: string; noise: string; el: Element }> = [];
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) => {
+      const el = node.parentElement;
+      if (!el || !node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
+      return el.closest("script, style, canvas, input, textarea, .tabular-nums, .matrix-rain")
+        ? NodeFilter.FILTER_REJECT
+        : NodeFilter.FILTER_ACCEPT;
+    },
+  });
+  while (walker.nextNode()) {
+    const node = walker.currentNode as Text;
+    items.push({ node, text: node.nodeValue ?? "", noise: "", el: node.parentElement as Element });
+  }
+
+  const corrupt = (item: (typeof items)[number]) => {
+    // Skip text that something else rewrote in the meantime (a typing terminal).
+    if (item.noise && item.node.nodeValue !== item.noise) return;
+    let out = "";
+    for (const ch of item.text) {
+      out += ch !== " " && Math.random() < 0.35 ? NOISE_GLYPHS[Math.floor(Math.random() * NOISE_GLYPHS.length)] : ch;
+    }
+    item.noise = out;
+    item.node.nodeValue = out;
+    item.el.classList.add("signal-dead");
+  };
+  const restore = () => {
+    for (const item of items) {
+      if (item.noise && item.node.nodeValue === item.noise) item.node.nodeValue = item.text;
+      item.noise = "";
+      item.el.classList.remove("signal-dead");
+    }
+  };
+
+  const end = Date.now() + duration;
+  const burst = () => {
+    if (Date.now() >= end) {
+      signalActive = false;
+      return;
+    }
+    root.classList.remove("signal-loss");
+    void root.offsetWidth;
+    root.classList.add("signal-loss");
+    const picked = items.filter((item) => item.node.isConnected && Math.random() < 0.55);
+    let frames = 0;
+    const frame = () => {
+      if (frames++ < 5) {
+        picked.forEach(corrupt);
+        window.setTimeout(frame, 70);
+      } else {
+        restore();
+        root.classList.remove("signal-loss");
+      }
+    };
+    frame();
+    window.setTimeout(burst, 700 + Math.random() * 1600);
+  };
+  burst();
+}
+
+const RAIN_GLYPHS ="ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉ0123456789<>/{}=+*";
 let rainActive = false;
 
 /** Falling-glyph rain in the accent colour, just above the page background and behind all content. Ends on its own

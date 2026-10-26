@@ -379,12 +379,14 @@ export interface UiStrings {
         language: string;
         glitch: string;
         matrix: string;
+        signal: string;
       };
     };
     notFound: string;
     permissionDenied: string;
     glitchOn: string;
     matrixOn: string;
+    signalOn: string;
     /** Toast shown when the Konami code is entered anywhere on the page. */
     konami: string;
     openingProject: string;

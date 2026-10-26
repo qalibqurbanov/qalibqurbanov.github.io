@@ -5,7 +5,7 @@ import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { isLocale, SUPPORTED_LOCALES } from "@/i18n/locale";
 import { colorizeBrackets } from "@/lib/brackets";
-import { glitchStorm, matrixRain } from "@/lib/effects";
+import { glitchStorm, matrixRain, signalLoss } from "@/lib/effects";
 import { format } from "@/lib/format";
 import { scrollToTop } from "@/lib/scroll";
 import type { Theme } from "@/theme/context";
@@ -177,6 +177,13 @@ export function HeroTerminal({ onCommand, initialCommand, theme, onToggleTheme }
             action: () => {
               print(ui.terminal.matrixOn);
               matrixRain();
+            },
+          },
+          {
+            label: items.signal,
+            action: () => {
+              print(ui.terminal.signalOn);
+              signalLoss();
             },
           },
         ],
