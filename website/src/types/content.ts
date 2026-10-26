@@ -276,6 +276,11 @@ export interface UiStrings {
     motionFull: string;
     motionLight: string;
     motionOff: string;
+    /** The title of the animation slider's popup, and one line describing each level. */
+    motionTitle: string;
+    motionHintFull: string;
+    motionHintLight: string;
+    motionHintOff: string;
     terminalInput: string;
     /** Contains "{title}". */
     repository: string;
