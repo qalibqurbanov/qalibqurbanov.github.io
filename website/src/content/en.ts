@@ -1,6 +1,6 @@
 import type { Content, Profile } from "@/types/content";
 
-import { email, resumeUrl, socials } from "./shared";
+import { crocusoftFacts, email, projectFacts, resumeUrl, socials } from "./shared";
 
 const enProfile: Profile = {
   name: "Galib Gurbanov",
@@ -32,10 +32,8 @@ const en: Content = {
   experience: [
     {
       role: "Backend Developer",
-      org: "Crocusoft",
+      ...crocusoftFacts,
       period: "Dec 2023 — Present",
-      start: "2023-12",
-      current: true,
       description:
         "At Crocusoft, I develop and maintain backend solutions with the modern .NET stack for both public and internal systems.",
       projectsIntro: "Some of the public projects I have worked on here include:",
@@ -57,40 +55,29 @@ const en: Content = {
         "Enhanced application responsiveness and reliability through caching, asynchronous processing, monitoring, logging and metrics.",
         "Containerized applications with Docker to ensure consistent and reliable deployments.",
       ],
-      tags: ["C#", "ASP.NET Web API", "EF Core", "Dapper", "Redis", "SignalR", "Docker", "PostgreSQL"],
     },
   ],
   projects: [
     {
-      slug: "soundcloud-artwork-downloader",
-      filename: "README.md",
+      ...projectFacts["soundcloud-artwork-downloader"],
       title: "SoundCloud Artwork Downloader",
       description:
         "A Windows desktop tool that scrapes a SoundCloud track page for its cover art and downloads the full-resolution original — no SoundCloud API key needed.",
-      tags: ["C#", "WinForms", "HtmlAgilityPack"],
-      repoUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader",
-      liveUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader/releases",
       problem:
         "SoundCloud doesn't expose an easy way to grab a track's full-resolution artwork — the API requires registration, and the site only serves small thumbnail sizes by default.",
       approach:
         "Built a WinForms app that validates the pasted track URL with a regex, loads the track page with HtmlAgilityPack, and pulls the artwork <img> tag's src — then rewrites the URL's size suffix to \"-original\" to get the uncropped, full-resolution version before downloading it in the size the user picked.",
-      stack: ["C#", ".NET Framework 4.5.2", "WinForms", "HtmlAgilityPack", "MetroModernUI", "ini-parser"],
       outcome:
         "A small, single-purpose utility that saves an artwork image in a few clicks, and remembers the user's last-used folder and naming preference via an INI config file.",
     },
     {
-      slug: "imager",
-      filename: "README.md",
+      ...projectFacts["imager"],
       title: "Imager",
       description: "A Windows desktop app for uploading images to ImgBB in bulk and instantly getting shareable links back.",
-      tags: ["C#", "WinForms", "ImgBB API"],
-      repoUrl: "https://github.com/qalibqurbanov/Imager",
-      liveUrl: "https://github.com/qalibqurbanov/Imager/releases",
       problem:
         "Uploading a batch of images to a hosting site and collecting each one's link individually is slow and repetitive when you just want to quickly share a few screenshots.",
       approach:
         "A WinForms app where you drag and drop images (or whole folders) onto a drop zone. Each file is checked against the allowed extensions, uploaded to the ImgBB API in sequence, and the JSON response is parsed for its hosted URL — the finished links are copied to the clipboard in one pass. It also has a light/dark theme and can minimize to the system tray.",
-      stack: ["C#", ".NET Framework 4.7.2", "WinForms", "Newtonsoft.Json", "MaterialSkin"],
       outcome: "Turns a multi-step manual upload-and-copy-link routine into a single drag-and-drop-and-go action.",
     },
   ],

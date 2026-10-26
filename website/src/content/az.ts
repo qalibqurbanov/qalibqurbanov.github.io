@@ -1,6 +1,6 @@
 import type { Content, Profile } from "@/types/content";
 
-import { email, resumeUrl, socials } from "./shared";
+import { crocusoftFacts, email, projectFacts, resumeUrl, socials } from "./shared";
 
 const azProfile: Profile = {
   name: "Qalib Qurbanov",
@@ -32,10 +32,8 @@ const az: Content = {
   experience: [
     {
       role: "Backend Developeri",
-      org: "Crocusoft",
+      ...crocusoftFacts,
       period: "Dekabr 2023 — İndiyədək",
-      start: "2023-12",
-      current: true,
       description:
         "Crocusoft-da mən həm hər kəsə açıq, həm də daxili sistemlər üçün müasir .NET stack-i ilə backend həlləri qurur və dəstəkləyirəm.",
       projectsIntro: "Burada üzərində işlədiyim, hər kəsə açıq layihələrdən bəziləri:",
@@ -57,41 +55,30 @@ const az: Content = {
         "Keşləmə, asinxron emal, monitorinq, loglama və metriklər vasitəsilə tətbiqin sürətini və etibarlılığını artırmışam.",
         "Sabit və etibarlı yerləşdirmələri təmin etmək üçün tətbiqləri Docker ilə konteynerləşdirmişəm.",
       ],
-      tags: ["C#", "ASP.NET Web API", "EF Core", "Dapper", "Redis", "SignalR", "Docker", "PostgreSQL"],
     },
   ],
   projects: [
     {
-      slug: "soundcloud-artwork-downloader",
-      filename: "README.md",
+      ...projectFacts["soundcloud-artwork-downloader"],
       title: "SoundCloud Artwork Downloader",
       description:
         "SoundCloud trek səhifəsini parse edərək üz qabığı şəklini orijinal ölçüdə yükləyən Windows desktop tətbiqi — SoundCloud API açarı tələb olunmur.",
-      tags: ["C#", "WinForms", "HtmlAgilityPack"],
-      repoUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader",
-      liveUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader/releases",
       problem:
         "SoundCloud trekin tam ölçülü üz qabığı şəklini əldə etməyin asan yolunu təklif etmir — API qeydiyyat tələb edir, sayt isə default olaraq yalnız kiçik önizləmə ölçülərini verir.",
       approach:
         "Yapışdırılan trek linkini regex ilə yoxlayan, HtmlAgilityPack ilə trek səhifəsini yükləyən və üz qabığı <img> teqinin src-ni çıxaran WinForms tətbiqi yazdım — sonra tam ölçülü, kəsilməmiş versiyanı almaq üçün URL-in ölçü şəkilçisini \"-original\"-a dəyişdirir və istifadəçinin seçdiyi ölçüdə yükləyir.",
-      stack: ["C#", ".NET Framework 4.5.2", "WinForms", "HtmlAgilityPack", "MetroModernUI", "ini-parser"],
       outcome:
         "Bir neçə klikdə şəkli yadda saxlayan, son istifadə olunan qovluğu və adlandırma seçimini INI konfiqurasiya faylı vasitəsilə yadda saxlayan kiçik, tək məqsədli alət.",
     },
     {
-      slug: "imager",
-      filename: "README.md",
+      ...projectFacts["imager"],
       title: "Imager",
       description:
         "Şəkilləri toplu şəkildə ImgBB-yə yükləyən və dərhal paylaşıla bilən linklər verən Windows desktop tətbiqi.",
-      tags: ["C#", "WinForms", "ImgBB API"],
-      repoUrl: "https://github.com/qalibqurbanov/Imager",
-      liveUrl: "https://github.com/qalibqurbanov/Imager/releases",
       problem:
         "Bir neçə şəkli hostinq saytına yükləyib hər birinin linkini ayrı-ayrı toplamaq, bir neçə skrinşotu tez paylaşmaq istəyəndə yavaş və təkrarlanandır.",
       approach:
         "Şəkilləri (və ya bütöv qovluqları) drop zonasına sürükləyib buraxdığın WinForms tətbiqi. Hər fayl icazə verilən uzantılara görə yoxlanılır, ImgBB API-yə ardıcıl yüklənir və JSON cavabı parse edilərək yüklənmiş şəklin linki çıxarılır — hazır linklər bir keçiddə clipboard-a kopyalanır. Həmçinin açıq/tünd tema və sistem trayına yığılma dəstəyi var.",
-      stack: ["C#", ".NET Framework 4.7.2", "WinForms", "Newtonsoft.Json", "MaterialSkin"],
       outcome: "Çoxaddımlı əl ilə yükləmə-linki-kopyala rutinini tək bir sürükləyib-burax əməliyyatına çevirir.",
     },
   ],

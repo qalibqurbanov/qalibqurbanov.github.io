@@ -1,6 +1,6 @@
 import type { Content, Profile } from "@/types/content";
 
-import { email, resumeUrl, socials } from "./shared";
+import { crocusoftFacts, email, projectFacts, resumeUrl, socials } from "./shared";
 
 const ruProfile: Profile = {
   name: "Галиб Гурбанов",
@@ -32,10 +32,8 @@ const ru: Content = {
   experience: [
     {
       role: "Backend-разработчик",
-      org: "Crocusoft",
+      ...crocusoftFacts,
       period: "Декабрь 2023 — Настоящее время",
-      start: "2023-12",
-      current: true,
       description:
         "В Crocusoft я разрабатываю и поддерживаю backend-решения на современном стеке .NET для публичных и внутренних систем.",
       projectsIntro: "Некоторые публичные проекты, над которыми я здесь работал:",
@@ -57,41 +55,30 @@ const ru: Content = {
         "Повышал отзывчивость и надёжность приложений за счёт кеширования, асинхронной обработки, мониторинга, логирования и метрик.",
         "Контейнеризировал приложения с помощью Docker для обеспечения стабильных и надёжных развёртываний.",
       ],
-      tags: ["C#", "ASP.NET Web API", "EF Core", "Dapper", "Redis", "SignalR", "Docker", "PostgreSQL"],
     },
   ],
   projects: [
     {
-      slug: "soundcloud-artwork-downloader",
-      filename: "README.md",
+      ...projectFacts["soundcloud-artwork-downloader"],
       title: "SoundCloud Artwork Downloader",
       description:
         "Десктопное приложение для Windows, которое парсит страницу трека SoundCloud и скачивает обложку в оригинальном разрешении — без ключа SoundCloud API.",
-      tags: ["C#", "WinForms", "HtmlAgilityPack"],
-      repoUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader",
-      liveUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader/releases",
       problem:
         "SoundCloud не даёт простого способа получить обложку трека в полном разрешении — API требует регистрации, а сайт по умолчанию отдаёт только маленькие превью.",
       approach:
         "Написал WinForms-приложение, которое проверяет вставленную ссылку на трек регулярным выражением, загружает страницу трека через HtmlAgilityPack и достаёт src из тега <img> с обложкой — затем переписывает суффикс размера в URL на «-original», чтобы получить некадрированную версию в полном разрешении, и скачивает её в выбранном пользователем размере.",
-      stack: ["C#", ".NET Framework 4.5.2", "WinForms", "HtmlAgilityPack", "MetroModernUI", "ini-parser"],
       outcome:
         "Небольшая узкоспециализированная утилита, которая сохраняет обложку в пару кликов и запоминает последнюю выбранную папку и настройки именования через INI-файл конфигурации.",
     },
     {
-      slug: "imager",
-      filename: "README.md",
+      ...projectFacts["imager"],
       title: "Imager",
       description:
         "Десктопное приложение для Windows для массовой загрузки изображений на ImgBB с мгновенным получением ссылок для шаринга.",
-      tags: ["C#", "WinForms", "ImgBB API"],
-      repoUrl: "https://github.com/qalibqurbanov/Imager",
-      liveUrl: "https://github.com/qalibqurbanov/Imager/releases",
       problem:
         "Загружать пачку изображений на хостинг и собирать ссылку на каждое по отдельности медленно и утомительно, когда нужно быстро поделиться парой скриншотов.",
       approach:
         "WinForms-приложение, в котором изображения (или целые папки) перетаскиваются в drop-зону. Каждый файл проверяется по допустимым расширениям, последовательно загружается в ImgBB API, а из JSON-ответа извлекается ссылка на загруженное изображение — готовые ссылки копируются в буфер обмена за один проход. Также есть светлая/тёмная тема и сворачивание в системный трей.",
-      stack: ["C#", ".NET Framework 4.7.2", "WinForms", "Newtonsoft.Json", "MaterialSkin"],
       outcome: "Превращает многошаговую рутину «загрузить и скопировать ссылку» в одно действие — перетащил и готово.",
     },
   ],
