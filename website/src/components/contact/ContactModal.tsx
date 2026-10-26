@@ -496,7 +496,7 @@ export function ContactModal() {
     status === "limited"
       ? format(waitTemplate, {
           time: formatWait(Math.max(1, Math.ceil(waitMs / 1000)), bcp47),
-          clock: new Intl.DateTimeFormat(bcp47, { hour: "2-digit", minute: "2-digit" }).format(waitEndsAt),
+          clock: new Intl.DateTimeFormat(bcp47, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(waitEndsAt),
           seconds: String(MIN_GAP_MS / 1000),
           count: String(waitKind === "server" ? SERVER_LIMIT : MAX_PER_WINDOW),
         })
