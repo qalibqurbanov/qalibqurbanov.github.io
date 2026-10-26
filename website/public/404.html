@@ -24,7 +24,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Onest:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Onest:wght@600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
       :root {
         --bg: #07060d;
@@ -35,11 +35,9 @@
         --accent-2: #22d3ee;
         --text: #ebe9f5;
         --muted: #8d89a6;
-        --danger: #f87171;
         --grid: rgba(190, 170, 255, 0.05);
         --glow: rgba(177, 133, 255, 0.18);
         --glow-2: rgba(34, 211, 238, 0.14);
-        --shadow: rgba(0, 0, 0, 0.55);
         --mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
       }
       :root[data-theme="light"] {
@@ -51,21 +49,17 @@
         --accent-2: #0e7490;
         --text: #16131f;
         --muted: #656079;
-        --danger: #dc2626;
         --grid: rgba(30, 10, 80, 0.05);
         --glow: rgba(109, 40, 217, 0.1);
         --glow-2: rgba(14, 116, 144, 0.1);
-        --shadow: rgba(40, 20, 90, 0.25);
       }
       * { box-sizing: border-box; margin: 0; }
       html { -webkit-text-size-adjust: 100%; }
       body {
-        height: 100vh;
-        height: 100dvh;
-        display: grid;
-        place-items: center;
-        padding: 12px 16px;
-        overflow: hidden;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
         color: var(--text);
         font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
         background:
@@ -76,340 +70,379 @@
           var(--bg);
       }
 
-      /* Sized by whichever is tighter, width or height, so everything fits the
-         viewport without scrolling. Type inside scales with it (container units). */
-      .pc {
-        width: min(720px, 100%, calc((100dvh - 170px) * 1.6));
-        min-width: 280px;
-        padding-top: 62px;
-        container-type: inline-size;
-      }
-      .stage { position: relative; }
-
-      /* ---------- The window (same chrome as the hero window) ---------- */
-      .win {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        aspect-ratio: 16 / 10;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        overflow: hidden;
-        background: var(--surface);
-        box-shadow: 0 30px 70px -28px var(--shadow), 0 0 70px -24px var(--glow);
-        animation: appear 0.5s ease-out both;
-      }
-      @keyframes appear { from { opacity: 0; transform: translateY(8px); } }
-      .titlebar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 5px 6px 5px 14px;
-        background: var(--surface-2);
-        border-bottom: 1px solid var(--border);
-      }
-      .file {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font: 400 11px var(--mono);
-        color: var(--muted);
-        min-width: 0;
-      }
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 16px; height: 16px;
-        border-radius: 4px;
-        border: 1px solid var(--border);
-        font: 700 8px var(--mono);
-        background-image: linear-gradient(90deg, var(--accent), var(--accent-2));
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        flex: none;
-      }
-      .controls { display: flex; gap: 2px; flex: none; }
-      .ctl {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 22px; height: 22px;
-        border-radius: 4px;
-        color: var(--muted);
-        opacity: 0.45;
-        cursor: not-allowed;
-        transition: background-color 0.15s, color 0.15s;
-      }
-      .ctl:hover { background: var(--border); color: var(--text); }
-      .ctl.close:hover { background: #e81123; color: #fff; }
-      .ctl svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
-
-      .content {
+      main {
         flex: 1;
-        min-height: 0;
         display: flex;
         flex-direction: column;
+        align-items: center;
         justify-content: center;
-        padding: clamp(8px, 3cqw, 26px) clamp(14px, 4.5cqw, 38px);
+        padding: 28px 20px;
+        text-align: center;
+        animation: appear 0.6s ease-out both;
       }
+      @keyframes appear { from { opacity: 0; transform: translateY(10px); } }
+
+      .eyebrow {
+        font: 500 12px var(--mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .eyebrow::before { content: "// "; color: var(--accent); }
+
+      /* Broken-signal feel: faint static scanlines over the page. */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.14) 0 1px, transparent 1px 3px);
+        opacity: 0.35;
+      }
+      :root[data-theme="light"] body::before { opacity: 0.08; }
+
+      /* Dead-signal grain: tiny static that jitters, never rolls. */
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        opacity: 0.07;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 -0.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+        animation: grain 0.5s steps(1) infinite;
+      }
+      :root[data-theme="light"] body::after { opacity: 0.05; filter: invert(1); }
+      @keyframes grain {
+        0% { background-position: 0 0; }
+        25% { background-position: -40px 30px; }
+        50% { background-position: 30px -50px; }
+        75% { background-position: -20px -10px; }
+      }
+
+      /* A burst of signal loss, switched on from the script at random moments. */
+      .tear .stage { animation: tear 0.42s steps(1); }
+      .tear .site-header { animation: tear-h 0.42s steps(1); }
+      .tear .site-footer { animation: tear-f 0.42s steps(1); }
+      .tear body::before { opacity: 0.9; }
+      .tear body::after { opacity: 0.2; }
+      @keyframes tear-h {
+        0% { transform: translateX(14px); }
+        20% { transform: translateX(-9px) skewX(-4deg); }
+        45% { transform: translateX(6px); clip-path: inset(0 0 40% 0); }
+        70% { transform: translateX(-3px); clip-path: none; }
+        100% { transform: none; }
+      }
+      @keyframes tear-f {
+        0% { transform: translateX(-12px) skewX(3deg); }
+        25% { transform: translateX(10px); clip-path: inset(40% 0 0 0); }
+        55% { transform: translateX(-5px) skewX(-3deg); clip-path: none; }
+        80% { transform: translateX(2px); }
+        100% { transform: none; }
+      }
+      .dead { text-shadow: 2px 0 var(--accent-2), -2px 0 #f87171; }
+      @keyframes tear {
+        0% { transform: translate(-8px, 0) skewX(6deg); filter: hue-rotate(-30deg) contrast(1.4); }
+        14% { transform: translate(10px, 0) skewX(-5deg); filter: hue-rotate(40deg) saturate(2); }
+        28% { transform: translate(-4px, 2px); filter: none; clip-path: inset(0 0 55% 0); }
+        42% { transform: translate(6px, -2px) skewX(3deg); filter: invert(0.15); clip-path: inset(45% 0 0 0); }
+        58% { transform: translate(-12px, 0); filter: hue-rotate(90deg); clip-path: none; }
+        72% { transform: translate(3px, 0); filter: none; }
+        86% { transform: translate(-2px, 1px) skewX(-2deg); }
+        100% { transform: none; filter: none; }
+      }
+
       .code {
-        font: 800 clamp(40px, 14cqw, 112px) / 0.95 "Onest", ui-sans-serif, sans-serif;
-        letter-spacing: -0.04em;
+        position: relative;
+        margin: 10px auto 0;
         width: fit-content;
+        font: 800 clamp(96px, 28vw, 168px) / 1 "Onest", ui-sans-serif, sans-serif;
+        letter-spacing: -0.05em;
         color: transparent;
         background: linear-gradient(90deg, var(--accent), var(--accent-2));
         -webkit-background-clip: text;
         background-clip: text;
-        animation: glitch 5s infinite steps(1);
+        animation: jolt 5s infinite steps(1), flicker 7s infinite steps(1);
       }
-      @keyframes glitch {
-        0%, 92%, 100% { transform: none; filter: none; }
-        93% { transform: translate(-3px, 0) skewX(-4deg); filter: drop-shadow(3px 0 var(--danger)); }
-        95% { transform: translate(3px, 1px); filter: drop-shadow(-3px 0 var(--accent-2)); }
-        97% { transform: translate(-1px, 0); filter: none; }
-      }
-      h1 {
-        margin-top: 6px;
-        font: 700 clamp(14px, 3cqw, 22px) "Onest", ui-sans-serif, sans-serif;
-      }
-      .term {
-        margin-top: clamp(6px, 1.8cqw, 16px);
-        font: 400 clamp(9.5px, 1.7cqw, 13px) / 1.75 var(--mono);
-        color: var(--muted);
-        word-break: break-all;
-      }
-      .term div { min-height: 1.75em; }
-      .term b { color: var(--accent-2); font-weight: 500; }
-      .term .err { color: var(--danger); }
-      .term .path { color: var(--text); }
-      .term .ls a { color: var(--accent); text-decoration: none; margin-right: 12px; border-bottom: 1px dashed transparent; }
-      .term .ls a:hover, .term .ls a:focus-visible { border-color: currentColor; outline: none; }
-      .cursor {
-        display: inline-block;
-        width: 0.55em; height: 1.05em;
-        vertical-align: text-bottom;
-        background: var(--accent);
-        animation: blink 1s steps(1) infinite;
-      }
-      @keyframes blink { 50% { opacity: 0; } }
-
-      .actions { margin-top: clamp(6px, 1.8cqw, 16px); display: flex; flex-wrap: wrap; gap: 8px; opacity: 0; transform: translateY(6px); transition: opacity 0.4s, transform 0.4s; }
-      .actions.show { opacity: 1; transform: none; }
-      a.btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 7px 14px;
-        border-radius: 7px;
-        border: 1px solid var(--border);
-        font: 500 clamp(9.5px, 1.6cqw, 12px) var(--mono);
-        color: var(--text);
-        text-decoration: none;
-        transition: border-color 0.15s, color 0.15s, transform 0.15s, filter 0.15s;
-      }
-      a.btn:hover, a.btn:focus-visible { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); outline: none; }
-      a.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-      a.btn.primary:hover, a.btn.primary:focus-visible { color: var(--bg); filter: brightness(1.12); }
-
-      .status {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 4px 14px;
-        border-top: 1px solid var(--border);
-        background: var(--surface-2);
-        font: 400 10px var(--mono);
-        color: var(--muted);
-      }
-      .status .bad { color: var(--danger); }
-
-      .keyhint {
-        margin-top: 16px;
-        text-align: center;
-        font: 500 11px var(--mono);
-        color: var(--muted);
-      }
-      kbd {
-        font: inherit;
-        padding: 2px 7px;
-        border: 1px solid var(--border);
-        border-bottom-width: 2px;
-        border-radius: 5px;
-        background: var(--surface-2);
-        color: var(--text);
-      }
-
-      /* ---------- The sleeping butterfly (the site's cyber butterfly) ---------- */
-      .sleeper {
+      /* Two colour-split copies, each sliced into bands that jump around. */
+      .code::before, .code::after {
+        content: attr(data-text);
         position: absolute;
-        right: 14%;
-        /* The body ends ~13px above the SVG's bottom edge, so this sits it on the title bar. */
-        bottom: calc(100% - 6px);
-        width: 80px;
-        height: 80px;
-        z-index: 3;
+        inset: 0;
         pointer-events: none;
-        transform: rotate(-5deg);
-        transform-origin: 50% 90%;
-        animation: breathe 4.5s ease-in-out infinite;
+        -webkit-text-fill-color: currentColor;
+        background: none;
       }
-      .sleeper svg {
-        display: block;
-        width: 100%;
-        height: 100%;
-        overflow: visible;
-        filter: drop-shadow(0 0 4px var(--accent-2)) drop-shadow(0 0 12px var(--accent));
+      .code::before { color: var(--accent-2); animation: slice-a 2.6s infinite steps(1); }
+      .code::after { color: var(--accent); animation: slice-b 3.1s infinite steps(1); }
+      @keyframes slice-a {
+        0%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+        6%  { clip-path: inset(8% 0 72% 0); transform: translate(-7px, 0); }
+        9%  { clip-path: inset(46% 0 30% 0); transform: translate(6px, 0); }
+        12% { clip-path: inset(0 0 100% 0); }
+        58% { clip-path: inset(66% 0 8% 0); transform: translate(-5px, 0); }
+        61% { clip-path: inset(24% 0 52% 0); transform: translate(8px, 0); }
+        64% { clip-path: inset(0 0 100% 0); }
       }
-      @keyframes breathe { 50% { transform: rotate(-5deg) scale(1.035, 1.02); } }
-      .bf-wings { transform-origin: 60px 60px; animation: wings 4.5s ease-in-out infinite; }
-      @keyframes wings { 0%, 100% { transform: scaleX(0.3); } 50% { transform: scaleX(0.38); } }
-      .bf-core { animation: core 2.4s ease-in-out infinite; }
-      @keyframes core { 50% { opacity: 0.3; } }
+      @keyframes slice-b {
+        0%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+        20% { clip-path: inset(54% 0 22% 0); transform: translate(7px, 0); }
+        23% { clip-path: inset(12% 0 68% 0); transform: translate(-6px, 0); }
+        26% { clip-path: inset(0 0 100% 0); }
+        74% { clip-path: inset(34% 0 44% 0); transform: translate(6px, 0); }
+        77% { clip-path: inset(72% 0 4% 0); transform: translate(-8px, 0); }
+        80% { clip-path: inset(0 0 100% 0); }
+      }
+      @keyframes jolt {
+        0%, 91%, 100% { transform: none; }
+        92% { transform: translate(-4px, 0) skewX(-6deg); }
+        94% { transform: translate(4px, 1px) skewX(3deg); }
+        96% { transform: translate(-1px, 0); }
+      }
+      @keyframes flicker {
+        0%, 62%, 66%, 100% { opacity: 1; }
+        63% { opacity: 0.35; }
+        64% { opacity: 1; }
+        65% { opacity: 0.55; }
+      }
 
-      .zzz {
-        position: absolute;
-        left: 68%;
-        top: 6%;
-        font: 700 15px var(--mono);
-        color: var(--accent-2);
-        text-shadow: 0 0 8px var(--accent-2);
-        opacity: 0;
-        animation: zzz 3.6s ease-in infinite;
+      /* The sentence and label glitch too, less often and less hard. */
+      .eyebrow { animation: tick 6s infinite steps(1); }
+      @keyframes tick {
+        0%, 48%, 52%, 100% { opacity: 1; transform: none; }
+        49% { opacity: 0.4; transform: translateX(-3px); }
+        50% { opacity: 1; transform: translateX(2px); }
       }
-      .zzz:nth-of-type(2) { animation-delay: 1.2s; font-size: 19px; }
-      .zzz:nth-of-type(3) { animation-delay: 2.4s; font-size: 24px; }
-      @keyframes zzz {
-        0% { transform: translate(0, 4px) rotate(-8deg) scale(0.7); opacity: 0; }
-        15% { opacity: 0.95; }
-        100% { transform: translate(22px, -34px) rotate(10deg) scale(1.15); opacity: 0; }
+      h1 { animation: tear 8s infinite steps(1); }
+      @keyframes tear {
+        0%, 81%, 85%, 100% { transform: none; text-shadow: none; }
+        82% { transform: translateX(-4px); text-shadow: 3px 0 var(--accent-2), -3px 0 var(--accent); }
+        83% { transform: translateX(3px); text-shadow: -3px 0 var(--accent-2), 3px 0 var(--accent); }
+        84% { transform: translateX(-1px); text-shadow: none; }
       }
 
-      @media (max-width: 520px) {
-        .win { aspect-ratio: 3 / 4; }
-        .keyhint { display: none; }
-        .status span:last-child { display: none; }
-        .pc { padding-top: 50px; }
-        .sleeper { width: 64px; height: 64px; bottom: calc(100% - 5px); }
+      h1 {
+        margin-top: 8px;
+        font: 600 clamp(17px, 4.4vw, 22px) / 1.8 "Onest", ui-sans-serif, sans-serif;
       }
+      h1 span {
+        padding: 2px 8px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+        font: 400 0.8em var(--mono);
+        color: var(--accent);
+        overflow-wrap: anywhere;
+      }
+
+      .back {
+        margin-top: 10px;
+        font-size: 15px;
+        line-height: 1.7;
+        color: var(--muted);
+      }
+      .back a {
+        color: var(--accent);
+        text-decoration: none;
+        border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+        transition: border-color 0.15s, color 0.15s;
+      }
+      .back a:hover, .back a:focus-visible { color: var(--accent-2); border-color: var(--accent-2); outline: none; }
+
+
+      /* ---------- Site header (same as the website's navbar) ---------- */
+      .site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 50; }
+      .site-nav {
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: 16px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        font: 400 14px / 20px var(--mono);
+      }
+      @media (min-width: 640px) { .site-nav { padding-left: 24px; padding-right: 24px; } }
+      .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; letter-spacing: -0.025em; }
+      .brand .ping { position: relative; display: flex; width: 8px; height: 8px; }
+      .brand .ping i { position: absolute; inset: 0; border-radius: 50%; background: var(--accent); }
+      .brand .ping i:first-child { opacity: 0.75; animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
+      @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+      .brand .gt { color: var(--accent); }
+      .links { display: none; list-style: none; padding: 0; gap: 32px; color: var(--muted); }
+      @media (min-width: 768px) { .links { display: flex; } }
+      .links a { position: relative; padding: 4px 0; color: inherit; text-decoration: none; transition: color 0.15s; }
+      .links a b { font-weight: 400; margin-right: 2px; color: color-mix(in srgb, var(--accent) 70%, transparent); }
+      .links a::after { content: ""; position: absolute; left: 0; bottom: -2px; height: 1px; width: 0; background: var(--accent); transition: width 0.3s; }
+      .links a:hover, .links a:focus-visible { color: var(--accent); outline: none; }
+      .links a:hover::after, .links a:focus-visible::after { width: 100%; }
+      .tools { display: flex; align-items: center; gap: 4px; }
+      @media (min-width: 640px) { .tools { gap: 16px; } }
+      .tool {
+        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        background: none; color: var(--muted); cursor: pointer; outline: none;
+        font: 400 12px / 16px var(--mono); transition: color 0.15s, border-color 0.15s;
+      }
+      .tool:hover, .tool:focus-visible { color: var(--accent); }
+      .tool.boxed { border: 1px solid var(--border); border-radius: 4px; }
+      .tool.boxed:hover, .tool.boxed:focus-visible, .lang.open .tool { border-color: var(--accent); }
+      .tool.sq { width: 28px; height: 28px; }
+      .tool.lng { padding: 4px 8px; }
+      .tool.icon { width: 40px; height: 40px; border: 0; }
+      @media (min-width: 768px) { .tool.icon { width: auto; height: auto; } .burger { display: none !important; } }
+      .tool svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .only-md { display: none !important; }
+      @media (min-width: 768px) { .only-md { display: inline-flex !important; } }
+      .lang { position: relative; }
+      .lang-list, .mobile-list {
+        display: none; position: absolute; right: 0; top: 100%; margin-top: 6px; min-width: 120px; padding: 4px;
+        border: 1px solid var(--border); border-radius: 8px; background: var(--surface);
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.45); font: 400 12px var(--mono);
+      }
+      .lang.open .lang-list, .mobile-open .mobile-list { display: block; }
+      .lang-list a, .mobile-list a { display: block; padding: 6px 10px; border-radius: 6px; color: var(--text); text-decoration: none; white-space: nowrap; }
+      .lang-list a:hover, .mobile-list a:hover, .lang-list a[aria-current] { background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); }
+      .mobile-list { min-width: 180px; }
+      .mobile-list a b { font-weight: 400; margin-right: 6px; color: color-mix(in srgb, var(--accent) 70%, transparent); }
+      #sun2 { display: none; }
+      :root[data-theme="light"] #sun2 { display: block; }
+      :root[data-theme="light"] #moon2 { display: none; }
+
+      html, body { overflow-x: clip; }
+      .stage { overflow: clip; flex: 1; display: grid; place-items: center; padding: 88px 24px 32px; }
+
+      /* ---------- Site footer (same as the website's footer) ---------- */
+      .site-footer { overflow-x: clip; border-top: 1px solid var(--border); background: var(--surface-2); color: var(--muted); font: 400 12px / 16px var(--mono); }
+      .foot {
+        max-width: 72rem; margin: 0 auto; padding: 12px 24px;
+        display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 12px;
+      }
+      @media (min-width: 640px) { .foot { flex-direction: row; } }
+      .foot a { color: inherit; text-decoration: none; }
+      .foot .row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 16px; }
+      .foot .row.r { gap: 12px 16px; }
+      .foot .acc { color: var(--accent); }
+      .foot .ic { display: inline-flex; align-items: center; gap: 6px; }
+      .foot svg.l { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .foot .sep { display: none; color: var(--border); }
+      @media (min-width: 640px) { .foot .sep { display: inline; } }
+      .pill { display: flex; align-items: center; gap: 16px; height: 36px; padding: 0 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
+      .pill.g8 { gap: 8px; }
+      .pill a, .pill button { display: inline-flex; align-items: center; background: none; border: 0; color: inherit; cursor: pointer; transition: color 0.15s, background-color 0.15s; }
+      .pill a:hover, .pill button:hover { color: var(--accent); }
+      .pill .chip { justify-content: center; padding: 6px; border-radius: 50%; }
+      .pill .chip.a { background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); }
+      .pill .chip.a:hover { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+      .pill .chip.d { background: color-mix(in srgb, #f87171 10%, transparent); color: #f87171; }
+      .pill .chip.d:hover { background: color-mix(in srgb, #f87171 20%, transparent); color: #f87171; }
+      .pill .chip.b { background: color-mix(in srgb, var(--accent-2) 10%, transparent); color: var(--accent-2); }
+      .pill .chip.b:hover { background: color-mix(in srgb, var(--accent-2) 20%, transparent); color: var(--accent-2); }
+      .pill svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .pill svg.f { fill: currentColor; stroke: none; }
+
       @media (prefers-reduced-motion: reduce) {
-        .win, .code, .cursor, .sleeper, .bf-wings, .bf-core { animation: none; }
-        .bf-wings { transform: scaleX(0.32); }
-        .zzz { animation: none; opacity: 0.8; }
-        .zzz:nth-of-type(2) { transform: translate(10px, -14px); }
-        .zzz:nth-of-type(3) { transform: translate(20px, -30px); }
-        .actions { transition: none; }
+        main, .code, .code::before, .code::after, .eyebrow, h1, body::after, .tear .stage, .tear .site-header, .tear .site-footer { animation: none; }
+        .code::before, .code::after { display: none; }
       }
     </style>
   </head>
   <body>
-    <div class="pc">
-      <div class="stage">
-        <div class="sleeper" aria-hidden="true">
-          <svg viewBox="0 0 120 120" focusable="false">
-            <defs>
-              <linearGradient id="bf-grad" x1="0" y1="0" x2="1" y2="1" spreadMethod="reflect">
-                <stop offset="0" stop-color="var(--accent-2)" />
-                <stop offset="0.5" stop-color="var(--accent)" />
-                <stop offset="1" stop-color="var(--accent-2)" />
-                <animateTransform attributeName="gradientTransform" type="translate" from="-0.6 -0.6" to="0.6 0.6" dur="3.4s" repeatCount="indefinite" />
-              </linearGradient>
-              <pattern id="bf-scan" width="4" height="3" patternUnits="userSpaceOnUse">
-                <rect width="4" height="1" fill="#fff" fill-opacity="0.22" />
-              </pattern>
-              <g id="bf-half">
-                <polygon points="64,54 78,28 104,10 117,24 109,52 90,63 65,62" fill="url(#bf-grad)" fill-opacity="0.3" stroke="url(#bf-grad)" stroke-width="1.5" stroke-linejoin="round" />
-                <polygon points="65,66 91,71 103,93 90,111 72,98 63,78" fill="url(#bf-grad)" fill-opacity="0.22" stroke="url(#bf-grad)" stroke-width="1.5" stroke-linejoin="round" />
-                <polygon points="64,54 78,28 104,10 117,24 109,52 90,63 65,62" fill="url(#bf-scan)" />
-                <polygon points="65,66 91,71 103,93 90,111 72,98 63,78" fill="url(#bf-scan)" />
-                <path d="M66 56 L88 30 L104 17 M82 53 L99 35 L112 27 M69 68 L92 80 L99 94 M76 80 L85 99" fill="none" stroke="#fff" stroke-opacity="0.8" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" />
-                <circle cx="104" cy="17" r="1.9" fill="#fff" />
-                <circle cx="112" cy="27" r="1.6" fill="#fff" />
-                <circle cx="99" cy="94" r="1.8" fill="#fff" />
-                <circle cx="85" cy="99" r="1.5" fill="#fff" />
-              </g>
-            </defs>
-            <g class="bf-wings">
-              <use href="#bf-half" />
-              <use href="#bf-half" transform="translate(120 0) scale(-1 1)" />
-            </g>
-            <path d="M60 36 Q64 41 63.5 60 Q63 82 60 95 Q57 82 56.5 60 Q56 41 60 36Z" fill="#fff" fill-opacity="0.9" stroke="var(--accent-2)" stroke-width="1" />
-            <circle cx="60" cy="32.5" r="4.2" fill="#fff" stroke="var(--accent-2)" stroke-width="1" />
-            <path d="M58.6 29.5 Q52 18 44 9 M61.4 29.5 Q68 18 76 9" fill="none" stroke="var(--accent-2)" stroke-width="1.1" stroke-linecap="round" />
-            <circle cx="44" cy="9" r="1.7" fill="var(--accent)" />
-            <circle cx="76" cy="9" r="1.7" fill="var(--accent)" />
-            <circle class="bf-core" cx="60" cy="58" r="2.6" fill="var(--accent-2)" />
-          </svg>
-          <span class="zzz">z</span><span class="zzz">z</span><span class="zzz">Z</span>
-        </div>
-
-        <div class="win">
-          <div class="titlebar">
-            <span class="file"><span class="badge" aria-hidden="true">QQ</span>404.html</span>
-            <span class="controls" aria-hidden="true">
-              <span class="ctl"><svg viewBox="0 0 12 12"><path d="M2 6h8" /></svg></span>
-              <span class="ctl"><svg viewBox="0 0 12 12"><rect x="2.5" y="2.5" width="7" height="7" /></svg></span>
-              <span class="ctl close"><svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" /></svg></span>
-            </span>
+    <header class="site-header">
+      <nav class="site-nav">
+        <a class="brand" id="brand" href="/en/"><span class="ping" aria-hidden="true"><i></i><i></i></span><span class="gt">&gt;</span><span>Galib Gurbanov</span></a>
+        <ul class="links" id="links"></ul>
+        <div class="tools">
+          <div class="lang only-md" id="lang">
+            <button type="button" class="tool boxed lng" id="langBtn" aria-label="Language" aria-haspopup="listbox" aria-expanded="false"><span id="langCur">EN</span><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+            <div class="lang-list" id="langList" role="listbox"></div>
           </div>
-          <main class="content">
-            <div class="code" aria-hidden="true">404</div>
-            <h1 id="title">Page not found</h1>
-            <div class="term">
-              <div id="l1"></div>
-              <div class="err" id="l2"></div>
-              <div id="l3"></div>
-              <div class="ls" id="l4"></div>
-              <div id="l5"><b>$</b> <span class="cursor"></span></div>
-            </div>
-            <div class="actions" id="actions">
-              <a class="btn primary" id="home" href="/en/"></a>
-              <a class="btn" id="back" href="#"></a>
-            </div>
-          </main>
-          <div class="status">
-            <span class="bad">● HTTP 404</span>
-            <span id="where"></span>
+          <button type="button" class="tool icon" id="theme2">
+            <svg id="moon2" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+            <svg id="sun2" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          </button>
+          <div class="burger" id="burger" style="position:relative">
+            <button type="button" class="tool icon" id="burgerBtn" aria-label="Menu" aria-expanded="false" style="color:var(--text)"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h16"/></svg></button>
+            <div class="mobile-list" id="mobileList"></div>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <div class="stage">
+    <main>
+      <p class="eyebrow" id="eyebrow">Error</p>
+      <div class="code" data-text="404" aria-hidden="true">404</div>
+      <h1 id="title"></h1>
+      <p class="back" id="back"></p>
+    </main>
+    </div>
+    <footer class="site-footer">
+      <div class="foot">
+        <div class="row">
+          <a class="ic acc" href="https://github.com/qalibqurbanov/qalibqurbanov.github.io" target="_blank" rel="noreferrer"><svg class="l" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M15 6a9 9 0 0 0-9 9V3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/></svg>main</a>
+          <span class="sep">|</span><span>UTF-8</span>
+          <span class="sep">|</span><span>LF</span>
+          <span class="sep">|</span><span class="ic acc"><svg class="l" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/></svg>0 problems</span>
+          <span class="sep">|</span><span class="ic"><svg class="l" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span id="clock" style="font-variant-numeric:tabular-nums"></span></span>
+          <span class="sep">|</span><span>© 2026 Galib Gurbanov</span>
+        </div>
+        <div class="row r">
+          <div class="pill" role="group" aria-label="Social media">
+            <a href="https://github.com/qalibqurbanov" target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub"><svg class="f" viewBox="0 0 24 24" width="18" height="18"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.02 1.75 2.68 1.25 3.34.96.1-.74.4-1.25.72-1.54-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.04 11.04 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.59.24 2.76.12 3.05.74.8 1.19 1.83 1.19 3.09 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .31.21.67.79.56A10.51 10.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg></a>
+            <a href="https://stackoverflow.com/users/13249741/qalibqurbanov" target="_blank" rel="noreferrer" aria-label="Stack Overflow" title="Stack Overflow"><svg class="f" viewBox="0 0 24 24" width="18" height="18"><rect x="5" y="18" width="14" height="2.3" rx="0.3"/><polygon points="9,4.6 16,10.7 14.8,12.1 7.8,6"/><polygon points="7.7,8 17,12.6 16.2,14.2 6.9,9.6"/><polygon points="6.6,11.6 17.9,14.4 17.4,16.2 6.1,13.4"/><polygon points="6,15.3 18.3,17.1 18,18.9 5.7,17.1"/></svg></a>
+            <a href="https://medium.com/@qalibqurbanov" target="_blank" rel="noreferrer" aria-label="Medium" title="Medium"><svg class="f" viewBox="0 0 24 24" width="18" height="18"><circle cx="6.5" cy="12" r="5.5"/><ellipse cx="15.8" cy="12" rx="3" ry="5.5"/><ellipse cx="21.5" cy="12" rx="1.3" ry="5.2"/></svg></a>
+            <a href="https://www.linkedin.com/in/qalibqurbanov/" target="_blank" rel="noreferrer" aria-label="LinkedIn" title="LinkedIn"><svg class="f" viewBox="0 0 24 24" width="18" height="18"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45Z"/></svg></a>
+            <a href="https://t.me/inde_irae" target="_blank" rel="noreferrer" aria-label="Telegram" title="Telegram"><svg class="f" viewBox="0 0 24 24" width="18" height="18"><path d="M23.5 2.5 20 21.4c-.26 1.16-.96 1.44-1.94.9l-5.36-3.95-2.59 2.49c-.29.29-.53.53-1.08.53l.38-5.46L19.3 6.3c.42-.37-.1-.58-.65-.21L6.4 13.9l-5.32-1.66c-1.16-.36-1.18-1.16.24-1.72L22.05.98c.96-.36 1.8.22 1.45 1.52Z"/></svg></a>
+            <a href="/en/#contact" id="mail" aria-label="Email" title="Email"><svg viewBox="0 0 24 24" width="18" height="18"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg></a>
+          </div>
+          <div class="pill" role="group" aria-label="Resume">
+            <a class="chip a" href="/en/#/resume" id="resume" aria-label="Resume" title="Resume"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10 9H8M16 13H8M16 17H8"/></svg></a>
+          </div>
+          <div class="pill g8" role="group" aria-label="Project">
+            <a class="chip d" href="#" id="bug" target="_blank" rel="noreferrer" aria-label="Report a bug" title="Report a bug"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2M21 21a4 4 0 0 0-3.81-4M21 5a4 4 0 0 1-3.55 3.97M22 13h-4M3 21a4 4 0 0 1 3.81-4M3 5a4 4 0 0 0 3.55 3.97M6 13H2M8 2l1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg></a>
+            <a class="chip b" href="https://github.com/qalibqurbanov/qalibqurbanov.github.io" target="_blank" rel="noreferrer" aria-label="View source on GitHub" title="View source on GitHub"><svg class="f" viewBox="0 0 24 24" width="16" height="16"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.02 1.75 2.68 1.25 3.34.96.1-.74.4-1.25.72-1.54-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.04 11.04 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.59.24 2.76.12 3.05.74.8 1.19 1.83 1.19 3.09 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .31.21.67.79.56A10.51 10.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg></a>
           </div>
         </div>
       </div>
-      <p class="keyhint"><kbd>Enter</kbd> <span id="hintText"></span></p>
-    </div>
+    </footer>
 
     <script>
       (function () {
         var T = {
           en: {
-            title: "Page not found",
+            msg: ["Sorry, we couldn't find ", "."],
             doc: "404 | Page not found",
-            err: "bash: no such file or directory",
-            ls: ["about", "experience", "projects", "skills", "contact"],
-            home: "cd ~ (home)",
-            back: "go back",
-            hint: "to head home",
+            eyebrow: "Error",
+            home: ["Let's take you back to the ", "home page", "."],
+            file: "File", view: "View", go: "Go", help: "Help",
+            homeItem: "Home page", theme: "Toggle light / dark", none: "Nothing open yet",
+            source: "View source on GitHub", bug: "Report a bug",
+            menuLabel: "Window menu", statusBar: "Status bar", tabs: "Tabs: 0",
+            light: "Switch to light mode", dark: "Switch to dark mode",
           },
           az: {
-            title: "Səhifə tapılmadı",
+            msg: ["Üzr istəyirik, ", " səhifəsini tapa bilmədik."],
             doc: "404 | Səhifə tapılmadı",
-            err: "bash: belə fayl və ya qovluq yoxdur",
-            ls: ["haqqımda", "təcrübə", "layihələr", "bacarıqlar", "əlaqə"],
-            home: "cd ~ (ana səhifə)",
-            back: "geri qayıt",
-            hint: "ana səhifəyə keçmək üçün",
+            eyebrow: "Xəta",
+            home: ["Gəl səni ", "ana səhifəyə", " qaytaraq."],
+            file: "Fayl", view: "Görünüş", go: "Keçid", help: "Kömək",
+            homeItem: "Ana səhifə", theme: "İşıqlı / qaranlıq rejim", none: "Açıq tab yoxdur",
+            source: "GitHub-da mənbə koduna bax", bug: "Xəta bildir",
+            menuLabel: "Pəncərə menyusu", statusBar: "Status sətri", tabs: "Vərəqlər: 0",
+            light: "İşıqlı rejimə keç", dark: "Qaranlıq rejimə keç",
           },
           ru: {
-            title: "Страница не найдена",
+            msg: ["Извините, не удалось найти страницу ", "."],
             doc: "404 | Страница не найдена",
-            err: "bash: нет такого файла или каталога",
-            ls: ["обо-мне", "опыт", "проекты", "навыки", "контакты"],
-            home: "cd ~ (на главную)",
-            back: "назад",
-            hint: "чтобы вернуться на главную",
+            eyebrow: "Ошибка",
+            home: ["Давайте вернёмся на ", "главную страницу", "."],
+            file: "Файл", view: "Вид", go: "Перейти", help: "Справка",
+            homeItem: "Главная страница", theme: "Светлая / тёмная тема", none: "Пока ничего не открыто",
+            source: "Исходный код на GitHub", bug: "Сообщить об ошибке",
+            menuLabel: "Меню окна", statusBar: "Строка состояния", tabs: "Вкладок: 0",
+            light: "Включить светлую тему", dark: "Включить тёмную тему",
           },
         };
-        var ANCHORS = ["about", "experience", "projects", "skills", "contact"];
 
         var locale = "en";
         var segment = (location.pathname.split("/")[1] || "").toLowerCase();
@@ -431,66 +464,128 @@
 
         var t = T[locale];
         var homeUrl = "/" + locale + "/";
-        var path = location.pathname.replace(/^\//, "") || "index";
         var $ = function (id) { return document.getElementById(id); };
 
         document.documentElement.lang = locale;
         document.title = t.doc;
-        $("title").textContent = t.title;
-        $("hintText").textContent = t.hint;
-        $("where").textContent = location.host + location.pathname;
-        var home = $("home");
-        home.textContent = t.home;
+        $("eyebrow").textContent = t.eyebrow;
+        var pathEl = document.createElement("span");
+        pathEl.textContent = location.pathname;
+        $("title").append(t.msg[0], pathEl, t.msg[1]);
+        var home = document.createElement("a");
+        home.textContent = t.home[1];
         home.href = homeUrl;
-        var back = $("back");
-        back.textContent = t.back;
-        back.addEventListener("click", function (event) {
-          event.preventDefault();
-          if (history.length > 1) history.back();
-          else location.href = homeUrl;
+        $("back").append(t.home[0], home, t.home[2]);
+        var isLight = function () { return document.documentElement.getAttribute("data-theme") === "light"; };
+        var toggleTheme = function () {
+          var next = isLight() ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", next);
+          try { localStorage.setItem("theme", next); } catch (e) {}
+        };
+        var REPO = "https://github.com/qalibqurbanov/qalibqurbanov.github.io";
+        var bugUrl = REPO + "/issues/new?labels=bug&body=" +
+          encodeURIComponent("**Page:** " + location.href + "\n\n**What happened:**\n");
+
+        // Header and footer, same as the website's.
+        var NAMES = {
+          en: ["About", "Experience", "Projects", "Skills", "Contact"],
+          az: ["Haqqımda", "Təcrübə", "Layihələr", "Bacarıqlar", "Əlaqə"],
+          ru: ["Обо мне", "Опыт", "Проекты", "Навыки", "Контакты"],
+        };
+        var ANCHORS = ["about", "experience", "projects", "skills", "contact"];
+        $("brand").href = homeUrl;
+        $("mail").href = homeUrl + "#contact";
+        $("resume").href = homeUrl + "#/resume";
+        $("bug").href = bugUrl;
+        NAMES[locale].forEach(function (name, i) {
+          var li = document.createElement("li");
+          var a = document.createElement("a");
+          a.href = homeUrl + "#" + ANCHORS[i];
+          var b = document.createElement("b");
+          b.textContent = "0" + (i + 1) + ".";
+          a.append(b, name);
+          li.appendChild(a);
+          $("links").appendChild(li);
+          $("mobileList").appendChild(a.cloneNode(true));
         });
-        document.addEventListener("keydown", function (event) {
-          if (event.key === "Enter" && !event.target.closest("a")) location.href = homeUrl;
+        var rest = location.pathname.replace(/^\/(en|az|ru)(?=\/|$)/i, "");
+        $("langCur").textContent = locale.toUpperCase();
+        ["en", "az", "ru"].forEach(function (code) {
+          var a = document.createElement("a");
+          a.href = "/" + code + (rest || "/");
+          a.textContent = code.toUpperCase();
+          a.setAttribute("role", "option");
+          if (code === locale) a.setAttribute("aria-current", "true");
+          $("langList").appendChild(a);
         });
-
-        // Typed-out terminal session.
-        var prompt = "<b>$</b> ";
-        var esc = function (s) { return s.replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); };
-        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        var cursor = '<span class="cursor"></span>';
-        var l5 = $("l5");
-        l5.innerHTML = prompt + cursor;
-
-        function lsHtml() {
-          return t.ls.map(function (name, i) {
-            return '<a href="' + homeUrl + "#" + ANCHORS[i] + '">' + esc(name) + "/</a>";
-          }).join("");
+        var langBox = $("lang"), burger = $("burger");
+        $("langBtn").addEventListener("click", function () {
+          var on = langBox.classList.toggle("open");
+          $("langBtn").setAttribute("aria-expanded", on ? "true" : "false");
+        });
+        $("burgerBtn").addEventListener("click", function () {
+          var on = burger.classList.toggle("mobile-open");
+          $("burgerBtn").setAttribute("aria-expanded", on ? "true" : "false");
+        });
+        document.addEventListener("pointerdown", function (e) {
+          if (!langBox.contains(e.target)) langBox.classList.remove("open");
+          if (!burger.contains(e.target)) burger.classList.remove("mobile-open");
+        });
+        $("theme2").addEventListener("click", toggleTheme);
+        function syncTheme2() {
+          var label = isLight() ? t.dark : t.light;
+          $("theme2").title = label;
+          $("theme2").setAttribute("aria-label", label);
         }
+        syncTheme2();
+        new MutationObserver(syncTheme2).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+        var pad = function (n, w) { return String(n).padStart(w || 2, "0"); };
+        (function tick() {
+          var d = new Date();
+          $("clock").textContent = pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds()) + "." + pad(d.getMilliseconds(), 3);
+          setTimeout(tick, 47);
+        })();
 
-        function type(el, text, done) {
-          if (reduce) { el.innerHTML = prompt + '<span class="path">' + esc(text) + "</span>"; done(); return; }
-          var n = 0;
-          (function step() {
-            el.innerHTML = prompt + '<span class="path">' + esc(text.slice(0, n)) + "</span>" + cursor;
-            if (n++ < text.length) setTimeout(step, 28 + Math.random() * 40);
-            else setTimeout(function () { el.innerHTML = prompt + '<span class="path">' + esc(text) + "</span>"; done(); }, 120);
-          })();
-        }
-
-        function run() {
-          l5.style.visibility = "hidden";
-          type($("l1"), "cat " + path, function () {
-            $("l2").textContent = t.err;
-            setTimeout(function () {
-              type($("l3"), "ls ~", function () {
-                $("l4").innerHTML = lsHtml();
-                l5.style.visibility = "visible";
-                $("actions").classList.add("show");
-              });
-            }, reduce ? 0 : 350);
+        // Random moments of signal loss: the whole page tears and its text corrupts.
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          var GLYPHS = "#%&$@?/\\<>[]{}=+*0123456789";
+          var items = [];
+          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+            acceptNode: function (n) {
+              var el = n.parentElement;
+              if (!el || !n.nodeValue.trim() || el.closest("script, style, #clock, .code")) return NodeFilter.FILTER_REJECT;
+              return NodeFilter.FILTER_ACCEPT;
+            },
           });
+          while (walker.nextNode()) items.push({ node: walker.currentNode, text: walker.currentNode.nodeValue, el: walker.currentNode.parentElement });
+          var corrupt = function (item) {
+            var out = "";
+            for (var i = 0; i < item.text.length; i++) {
+              var ch = item.text.charAt(i);
+              out += ch !== " " && Math.random() < 0.35 ? GLYPHS.charAt(Math.floor(Math.random() * GLYPHS.length)) : ch;
+            }
+            item.node.nodeValue = out;
+          };
+          var burst = function () {
+            var root = document.documentElement;
+            root.classList.remove("tear");
+            void root.offsetWidth;
+            root.classList.add("tear");
+            var picked = items.filter(function () { return Math.random() < 0.55; });
+            var frames = 0;
+            (function frame() {
+              if (frames++ < 5) {
+                picked.forEach(function (item) { corrupt(item); item.el.classList.add("dead"); });
+                setTimeout(frame, 70);
+              } else {
+                items.forEach(function (item) { item.node.nodeValue = item.text; item.el.classList.remove("dead"); });
+                root.classList.remove("tear");
+              }
+            })();
+            setTimeout(burst, 700 + Math.random() * 1600);
+          };
+          setTimeout(burst, 900);
         }
-        setTimeout(run, reduce ? 0 : 500);
       })();
     </script>
   </body>
