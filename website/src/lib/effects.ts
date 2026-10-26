@@ -16,10 +16,10 @@ export function showToast(message: string, duration = 2800): void {
 
 let stormActive = false;
 
-/** Everything glitches at once for a couple of seconds: the page jitters and
+/** Everything glitches at once for five seconds: the page jitters and
  * shifts hue, screen flashes keep firing, and every glitching element on the
  * page (titles, rules, links) fires too. */
-export function glitchStorm(duration = 2200): void {
+export function glitchStorm(duration = 5000): void {
   if (stormActive || prefersReducedMotion()) return;
   stormActive = true;
   const root = document.documentElement;
@@ -43,7 +43,7 @@ let signalActive = false;
 /** Signal loss, same as the 404 page: in bursts, the header, the page and
  * the footer tear sideways, and a good share of the text on screen turns
  * to noise for a moment before snapping back. Runs for `duration`. */
-export function signalLoss(duration = 7000): void {
+export function signalLoss(duration = 5000): void {
   if (signalActive || prefersReducedMotion()) return;
   signalActive = true;
 
@@ -113,7 +113,7 @@ let rainActive = false;
 
 /** Falling-glyph rain in the accent colour, just above the page background and behind all content. Ends on its own
  * after `duration`, or at once on a key press, click or Escape. */
-export function matrixRain(duration = 7000): void {
+export function matrixRain(duration = 5000): void {
   if (rainActive || prefersReducedMotion()) return;
   rainActive = true;
 
