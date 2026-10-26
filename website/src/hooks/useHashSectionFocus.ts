@@ -31,14 +31,38 @@ function playFocusHighlight(section: HTMLElement) {
 export function useHashSectionFocus(): void {
   useEffect(() => {
     let cancelScrollWait: (() => void) | undefined;
+    let stopWatching: (() => void) | undefined;
+
+    /** The lazy sections mount a moment after the first render, so a fresh
+     * visit to `/#skills` finds nothing yet. Watches the page until the target
+     * shows up (or gives up), then runs the usual scroll. */
+    function waitForTarget(id: string) {
+      stopWatching?.();
+      const observer = new MutationObserver(() => {
+        if (!document.getElementById(id)) return;
+        stopWatching?.();
+        focusFromHash();
+      });
+      const timer = window.setTimeout(() => stopWatching?.(), 5000);
+      observer.observe(document.body, { childList: true, subtree: true });
+      stopWatching = () => {
+        observer.disconnect();
+        window.clearTimeout(timer);
+        stopWatching = undefined;
+      };
+    }
 
     function focusFromHash() {
       cancelScrollWait?.();
+      stopWatching?.();
       const id = window.location.hash.slice(1);
       if (!id) return;
 
       const el = document.getElementById(id);
-      if (!el) return;
+      if (!el) {
+        waitForTarget(id);
+        return;
+      }
 
       // Centre the section on screen. One taller than the viewport can't be
       // centred without cutting off its heading, so it's aligned to the top.
@@ -86,6 +110,7 @@ export function useHashSectionFocus(): void {
     document.addEventListener("click", handleClick);
     return () => {
       cancelScrollWait?.();
+      stopWatching?.();
       window.removeEventListener("hashchange", focusFromHash);
       document.removeEventListener("click", handleClick);
     };
