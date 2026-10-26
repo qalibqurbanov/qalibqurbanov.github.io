@@ -1,4 +1,23 @@
 @echo off
+REM ============================================================================
+REM  WHAT THIS FILE DOES (in simple words)
+REM
+REM  Your website sends contact messages through a small program that runs on
+REM  Cloudflare (a service that runs it for you). The code of that program is
+REM  the file  worker\index.js  on your computer.
+REM
+REM  When you change worker\index.js, NOTHING changes online until you upload
+REM  it to Cloudflare. Double-click THIS file to upload it. That is all.
+REM
+REM  While uploading it also:
+REM   - installs what it needs (only the first time),
+REM   - asks you to log in to Cloudflare (only the first time),
+REM   - keeps your 3 keys (Resend key, spam-check key, your email address).
+REM     Always upload with this file: a normal upload erases those keys.
+REM
+REM  WHEN TO USE IT: only after you change worker\index.js.
+REM  Changes to the website itself do not need it (GitHub does those by itself).
+REM ============================================================================
 setlocal
 cd /d "%~dp0..\worker"
 

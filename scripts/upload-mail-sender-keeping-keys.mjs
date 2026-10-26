@@ -1,10 +1,19 @@
-// Deploys the mail Cloudflare Worker and keeps its settings.
+// WHAT THIS FILE DOES (in simple words)
 //
-// A plain deploy removes the variables that were entered in the Cloudflare dashboard (the Resend key, the
-// Turnstile secret, the address that receives the mail). So before deploying, this reads the variables of the
-// version that is live now and hands them to the deploy again. Their values are never printed.
+// You never need to open or run this file yourself. The file
+// "upload-mail-sender-to-cloudflare.bat" starts it for you.
 //
-// Any extra argument goes to `wrangler deploy` (for example --dry-run, which builds without uploading).
+// The mail-sending program (worker\index.js) lives on Cloudflare. To upload a new version of it, the
+// normal upload command has one bad habit: it erases your 3 keys that are saved on Cloudflare (the Resend
+// key, the spam-check key and the email address that receives the mail). Without them, no mail is sent.
+//
+// So this file does 3 things, in this order:
+//   1. Looks at the version that is running on Cloudflare right now and reads your 3 keys from it.
+//   2. Uploads the new version and gives the 3 keys back to it, so nothing is lost.
+//   3. Hides the keys on the screen, so they are never shown.
+//
+// For developers: any extra argument goes to `wrangler deploy` (for example --dry-run, which builds
+// without uploading anything).
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
