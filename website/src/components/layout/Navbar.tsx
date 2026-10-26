@@ -6,7 +6,9 @@ import { GlitchText } from "@/components/ui/GlitchText";
 import { Knockable } from "@/components/ui/Knockable";
 import { MotionToggle } from "@/components/ui/MotionToggle";
 import { useViewBar } from "@/components/ui/viewBar";
-import { useContent } from "@/i18n/context";
+import { useContent, useLocale } from "@/i18n/context";
+import { pathForLocale } from "@/i18n/locale";
+import { isNotFoundPage } from "@/lib/notFound";
 import { format } from "@/lib/format";
 import { useGlitchBar } from "@/hooks/useGlitch";
 import { useScrolledPast, useScrollProgress } from "@/hooks/useScrollPosition";
@@ -21,6 +23,8 @@ export function Navbar() {
   const progress = useScrollProgress();
   const { theme, toggleTheme } = useTheme();
   const { profile, navigation, ui } = useContent();
+  const { locale } = useLocale();
+  const notFound = isNotFoundPage();
   const barRef = useGlitchBar<HTMLDivElement>();
   const viewBar = useViewBar();
   const inView = viewBar !== null;
@@ -55,8 +59,9 @@ export function Navbar() {
             className={`inline-flex items-center ${FADE} ${inView ? "opacity-0 -translate-x-3 pointer-events-none" : ""}`}
           >
             <a
-              href="#"
+              href={notFound ? pathForLocale(locale) : "#"}
               onClick={(event) => {
+                if (notFound) return;
                 event.preventDefault();
                 scrollToTop();
               }}

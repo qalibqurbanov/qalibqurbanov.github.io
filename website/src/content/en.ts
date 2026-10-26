@@ -409,6 +409,13 @@ const en: Content = {
       liveData: "Live from GitHub",
       cachedData: "Saved copy — GitHub can't be reached right now",
     },
+    notFound: {
+      eyebrow: "Error",
+      title: "Page not found",
+      message: "Sorry, we couldn't find {path}.",
+      back: "Let's take you back to the {home}.",
+      home: "home page",
+    },
     commandPalette: {
       placeholder: "Type a command or search…",
       empty: "No results found.",

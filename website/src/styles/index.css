@@ -1680,7 +1680,10 @@ html.has-cursor * {
   transform: none;
 }
 
-/* Easter-egg effects (lib/effects.ts). */
+/* Easter-egg effects (lib/effects.ts). Every offset, tilt, tint and shadow below is scaled
+   by a strength variable the script eases from 0 up to 1 and back to 0 (--storm-i for the
+   storm, --signal-i for each burst of signal loss), so an effect fades in and out instead of
+   switching on and off. */
 @keyframes storm-jitter {
   0%,
   100% {
@@ -1688,28 +1691,28 @@ html.has-cursor * {
     filter: none;
   }
   12% {
-    translate: -6px 2px;
-    filter: hue-rotate(40deg) saturate(1.6);
+    translate: calc(var(--storm-i, 0) * -6px) calc(var(--storm-i, 0) * 2px);
+    filter: hue-rotate(calc(var(--storm-i, 0) * 40deg)) saturate(calc(1 + var(--storm-i, 0) * 0.6));
   }
   25% {
-    translate: 5px -3px;
-    filter: hue-rotate(-60deg);
+    translate: calc(var(--storm-i, 0) * 5px) calc(var(--storm-i, 0) * -3px);
+    filter: hue-rotate(calc(var(--storm-i, 0) * -60deg));
   }
   40% {
-    translate: -3px 0;
-    filter: invert(0.08);
+    translate: calc(var(--storm-i, 0) * -3px) 0;
+    filter: invert(calc(var(--storm-i, 0) * 0.08));
   }
   55% {
-    translate: 7px 1px;
-    filter: hue-rotate(90deg);
+    translate: calc(var(--storm-i, 0) * 7px) calc(var(--storm-i, 0) * 1px);
+    filter: hue-rotate(calc(var(--storm-i, 0) * 90deg));
   }
   70% {
-    translate: -4px -2px;
+    translate: calc(var(--storm-i, 0) * -4px) calc(var(--storm-i, 0) * -2px);
     filter: none;
   }
   85% {
-    translate: 3px 3px;
-    filter: hue-rotate(-30deg) saturate(1.8);
+    translate: calc(var(--storm-i, 0) * 3px) calc(var(--storm-i, 0) * 3px);
+    filter: hue-rotate(calc(var(--storm-i, 0) * -30deg)) saturate(calc(1 + var(--storm-i, 0) * 0.8));
   }
 }
 
@@ -1722,30 +1725,30 @@ html.glitch-storm footer {
    each tear their own way while the text turns to noise. */
 @keyframes signal-tear-main {
   0% {
-    transform: translate(-8px, 0) skewX(6deg);
-    filter: hue-rotate(-30deg) contrast(1.4);
+    transform: translate(calc(var(--signal-i, 0) * -8px), 0) skewX(calc(var(--signal-i, 0) * 6deg));
+    filter: hue-rotate(calc(var(--signal-i, 0) * -30deg)) contrast(calc(1 + var(--signal-i, 0) * 0.4));
   }
   14% {
-    transform: translate(10px, 0) skewX(-5deg);
-    filter: hue-rotate(40deg) saturate(2);
+    transform: translate(calc(var(--signal-i, 0) * 10px), 0) skewX(calc(var(--signal-i, 0) * -5deg));
+    filter: hue-rotate(calc(var(--signal-i, 0) * 40deg)) saturate(calc(1 + var(--signal-i, 0)));
   }
   28% {
-    transform: translate(-4px, 2px);
+    transform: translate(calc(var(--signal-i, 0) * -4px), calc(var(--signal-i, 0) * 2px));
     filter: none;
-    clip-path: inset(0 0 55% 0);
+    clip-path: inset(0 0 calc(var(--signal-i, 0) * 55%) 0);
   }
   42% {
-    transform: translate(6px, -2px) skewX(3deg);
-    filter: invert(0.15);
-    clip-path: inset(45% 0 0 0);
+    transform: translate(calc(var(--signal-i, 0) * 6px), calc(var(--signal-i, 0) * -2px)) skewX(calc(var(--signal-i, 0) * 3deg));
+    filter: invert(calc(var(--signal-i, 0) * 0.15));
+    clip-path: inset(calc(var(--signal-i, 0) * 45%) 0 0 0);
   }
   58% {
-    transform: translate(-12px, 0);
-    filter: hue-rotate(90deg);
+    transform: translate(calc(var(--signal-i, 0) * -12px), 0);
+    filter: hue-rotate(calc(var(--signal-i, 0) * 90deg));
     clip-path: none;
   }
   72% {
-    transform: translate(3px, 0);
+    transform: translate(calc(var(--signal-i, 0) * 3px), 0);
     filter: none;
   }
   100% {
@@ -1756,17 +1759,17 @@ html.glitch-storm footer {
 
 @keyframes signal-tear-header {
   0% {
-    transform: translateX(14px);
+    transform: translateX(calc(var(--signal-i, 0) * 14px));
   }
   20% {
-    transform: translateX(-9px) skewX(-4deg);
+    transform: translateX(calc(var(--signal-i, 0) * -9px)) skewX(calc(var(--signal-i, 0) * -4deg));
   }
   45% {
-    transform: translateX(6px);
-    clip-path: inset(0 0 40% 0);
+    transform: translateX(calc(var(--signal-i, 0) * 6px));
+    clip-path: inset(0 0 calc(var(--signal-i, 0) * 40%) 0);
   }
   70% {
-    transform: translateX(-3px);
+    transform: translateX(calc(var(--signal-i, 0) * -3px));
     clip-path: none;
   }
   100% {
@@ -1776,18 +1779,18 @@ html.glitch-storm footer {
 
 @keyframes signal-tear-footer {
   0% {
-    transform: translateX(-12px) skewX(3deg);
+    transform: translateX(calc(var(--signal-i, 0) * -12px)) skewX(calc(var(--signal-i, 0) * 3deg));
   }
   25% {
-    transform: translateX(10px);
-    clip-path: inset(40% 0 0 0);
+    transform: translateX(calc(var(--signal-i, 0) * 10px));
+    clip-path: inset(calc(var(--signal-i, 0) * 40%) 0 0 0);
   }
   55% {
-    transform: translateX(-5px) skewX(-3deg);
+    transform: translateX(calc(var(--signal-i, 0) * -5px)) skewX(calc(var(--signal-i, 0) * -3deg));
     clip-path: none;
   }
   80% {
-    transform: translateX(2px);
+    transform: translateX(calc(var(--signal-i, 0) * 2px));
   }
   100% {
     transform: none;
@@ -1795,21 +1798,21 @@ html.glitch-storm footer {
 }
 
 html.signal-loss main {
-  animation: signal-tear-main 0.42s steps(1, end);
+  animation: signal-tear-main var(--signal-d, 0.42s) steps(1, end);
 }
 
 html.signal-loss header {
-  animation: signal-tear-header 0.42s steps(1, end);
+  animation: signal-tear-header var(--signal-d, 0.42s) steps(1, end);
 }
 
 html.signal-loss footer {
-  animation: signal-tear-footer 0.42s steps(1, end);
+  animation: signal-tear-footer var(--signal-d, 0.42s) steps(1, end);
 }
 
 .signal-dead {
   text-shadow:
-    2px 0 var(--color-accent-2),
-    -2px 0 var(--color-danger);
+    calc(var(--signal-i, 0) * 2px) 0 var(--color-accent-2),
+    calc(var(--signal-i, 0) * -2px) 0 var(--color-danger);
 }
 
 @keyframes toast-in {

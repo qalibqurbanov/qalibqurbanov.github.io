@@ -410,6 +410,13 @@ const az: Content = {
       liveData: "GitHub-dan canlı",
       cachedData: "Saxlanmış nüsxə — hazırda GitHub-a qoşulmaq mümkün deyil",
     },
+    notFound: {
+      eyebrow: "Xəta",
+      title: "Səhifə tapılmadı",
+      message: "Üzr istəyirik, {path} səhifəsini tapa bilmədik.",
+      back: "Gəl səni {home} qaytaraq.",
+      home: "ana səhifəyə",
+    },
     commandPalette: {
       placeholder: "Əmr yazın və ya axtarın…",
       empty: "Nəticə tapılmadı.",

@@ -6,6 +6,7 @@ import { preloadDialogs, preloadSections } from "@/app/sections";
 import { loadContent } from "@/content";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { resolveInitialLocale } from "@/i18n/locale";
+import { isNotFoundPage } from "@/lib/notFound";
 import { MotionProvider } from "@/motion/MotionProvider";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
@@ -55,7 +56,9 @@ if (!rootElement) {
 // paints empty or in the wrong language.
 const initialLocale = resolveInitialLocale();
 // A link into the page (a section or a project) also waits for the section chunks, so its target exists.
-const ready = Promise.all([loadContent(initialLocale), window.location.hash ? preloadSections().catch(() => null) : null]);
+// The 404 page has none of the sections, so it loads none of them.
+const notFound = isNotFoundPage();
+const ready = Promise.all([loadContent(initialLocale), window.location.hash && !notFound ? preloadSections().catch(() => null) : null]);
 void ready.then(([initialContent]) => {
   createRoot(rootElement).render(
     <StrictMode>
@@ -72,5 +75,5 @@ void ready.then(([initialContent]) => {
   window.setTimeout(glitchScreen, 250);
   // Fetch the rest of the page once the first screen has painted.
   const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1200));
-  idle(() => void preloadSections().then(preloadDialogs).catch(() => null));
+  if (!notFound) idle(() => void preloadSections().then(preloadDialogs).catch(() => null));
 });

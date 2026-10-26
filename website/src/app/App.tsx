@@ -17,7 +17,10 @@ import { useEasterEggs } from "@/hooks/useEasterEggs";
 import { useHashSectionFocus } from "@/hooks/useHashSectionFocus";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useMotion } from "@/motion/context";
-import { useContent } from "@/i18n/context";
+import { NotFound } from "@/features/not-found/NotFound";
+import { useNotFoundRedirect } from "@/hooks/useNotFoundRedirect";
+import { useContent, useLocale } from "@/i18n/context";
+import { isNotFoundPage } from "@/lib/notFound";
 import { Suspense } from "react";
 
 export function App() {
@@ -26,6 +29,9 @@ export function App() {
   const activeProject = activeSlug ? (projects.find((project) => project.slug === activeSlug) ?? null) : undefined;
   // The heavy decoration only runs at the full level; it is taken off the page as soon as the level drops.
   const decorated = useMotion().motion === "full";
+  const { locale } = useLocale();
+  const notFound = isNotFoundPage();
+  useNotFoundRedirect(locale);
   useHashSectionFocus();
   useEasterEggs(ui.terminal.konami);
 
@@ -41,23 +47,29 @@ export function App() {
 
       <Navbar />
       <main>
-        <Hero />
-        <About />
-        <Suspense fallback={null}>
-          <Experience />
-          <Projects />
-          <Skills />
-          {/* <Blog /> */}
-          <Contact />
-        </Suspense>
+        {notFound ? (
+          <NotFound />
+        ) : (
+          <>
+            <Hero />
+            <About />
+            <Suspense fallback={null}>
+              <Experience />
+              <Projects />
+              <Skills />
+              {/* <Blog /> */}
+              <Contact />
+            </Suspense>
+          </>
+        )}
       </main>
       <Footer />
-      <BackToTop />
+      {notFound ? null : <BackToTop />}
       <Suspense fallback={null}>
         {decorated ? <CyberButterfly /> : null}
         {decorated ? <Fireflies /> : null}
 
-        {resumeOpen ? (
+        {notFound ? null : resumeOpen ? (
           <ResumeViewer onBack={closeProject} />
         ) : activeProject !== undefined ? (
           <ProjectDetail project={activeProject} onBack={closeProject} />

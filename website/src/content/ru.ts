@@ -410,6 +410,13 @@ const ru: Content = {
       liveData: "Данные GitHub в реальном времени",
       cachedData: "Сохранённая копия — GitHub сейчас недоступен",
     },
+    notFound: {
+      eyebrow: "Ошибка",
+      title: "Страница не найдена",
+      message: "Извините, не удалось найти страницу {path}.",
+      back: "Давайте вернёмся на {home}.",
+      home: "главную страницу",
+    },
     commandPalette: {
       placeholder: "Введите команду или начните поиск…",
       empty: "Ничего не найдено.",

@@ -40,7 +40,7 @@ export function glitchStorm(duration = 5000): void {
 const NOISE_GLYPHS = "#%&$@?/\\<>[]{}=+*0123456789";
 let signalActive = false;
 
-/** Signal loss, same as the 404 page: in bursts, the header, the page and
+/** Signal loss: in bursts, the header, the page and
  * the footer tear sideways, and a good share of the text on screen turns
  * to noise for a moment before snapping back. Runs for `duration`. */
 export function signalLoss(duration = 5000): void {

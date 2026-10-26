@@ -290,6 +290,14 @@ export interface UiStrings {
     /** Tooltip of that dot while GitHub cannot be reached and a saved copy is shown. */
     cachedData: string;
   };
+  /** The 404 page. "message" contains "{path}", "back" contains "{home}", which becomes a link worded "home". */
+  notFound: {
+    eyebrow: string;
+    title: string;
+    message: string;
+    back: string;
+    home: string;
+  };
   commandPalette: {
     placeholder: string;
     empty: string;

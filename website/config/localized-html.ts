@@ -170,6 +170,19 @@ function localize(template: string, page: LocalePage, assets: string[]): string 
     .replace('<div id="root"></div>', `<div id="root"></div>\n${plainText}`);
 }
 
+/** The 404 page: the same page as the rest of the site, marked so the app shows its not-found view
+ * (see src/lib/notFound.ts). GitHub Pages serves it, with a 404 status, for every address that does
+ * not exist, at any depth, so it only uses absolute paths. It stays out of search results. */
+export function notFoundHtml(template: string): string {
+  const message = "<noscript><h1>404 | Page not found</h1><p><a href=\"/en/\">Home</a></p></noscript>";
+  return template
+    .replace(/<html lang="[^"]*"/, '<html lang="en" data-page="not-found"')
+    .replace(/<title>[^<]*<\/title>/, "<title>404 | Page not found</title>")
+    .replace(/<meta name="description" content="[^"]*" \/>\s*/, "")
+    .replace("</head>", '    <meta name="robots" content="noindex" />\n  </head>')
+    .replace('<div id="root"></div>', `<div id="root"></div>\n    ${message}`);
+}
+
 export function localizedHtml(): Plugin {
   let outDir = "dist";
 
@@ -182,6 +195,8 @@ export function localizedHtml(): Plugin {
     closeBundle() {
       const template = fs.readFileSync(path.join(outDir, "index.html"), "utf-8");
       const assets = fs.existsSync(path.join(outDir, "assets")) ? fs.readdirSync(path.join(outDir, "assets")) : [];
+
+      fs.writeFileSync(path.join(outDir, "404.html"), notFoundHtml(template));
 
       const english = PAGES.find((page) => page.code === "en");
       if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english, assets));

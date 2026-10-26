@@ -4,9 +4,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import react from "@vitejs/plugin-react";
-import { defineConfig, type Connect, type Plugin } from "vite";
+import { defineConfig, type Connect, type Plugin, type ViteDevServer } from "vite";
 
-import { localizedHtml } from "./localized-html.ts";
+import { localizedHtml, notFoundHtml } from "./localized-html.ts";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -95,30 +95,37 @@ async function fetchRepoStats() {
 
 const repoStats = await fetchRepoStats();
 
-// GitHub Pages serves public/404.html for unknown URLs; Vite's dev and preview
-// servers would instead answer them with the SPA. This mirrors Pages locally:
-// only the real pages (/, /en/, /az/, /ru/) and file requests get through,
-// anything else is answered with 404.html and a 404 status.
+// GitHub Pages serves the build's 404.html (the site itself in its not-found mode, see
+// localized-html.ts) for unknown URLs; Vite's dev and preview servers would instead answer them
+// with the plain SPA. This mirrors Pages locally: only the real pages (/, /en/, /az/, /ru/) and
+// file requests get through, anything else is answered with the 404 page and a 404 status.
 function notFoundPage(): Plugin {
   const pages = new Set(["/", "/index.html", "/en/", "/az/", "/ru/"]);
-  const middleware: Connect.NextHandleFunction = (req, res, next) => {
-    const pathname = (req.url ?? "/").split(/[?#]/)[0];
-    // Dev-only internals (/@vite, /src/..., /node_modules/...) and anything with an extension.
-    const passthrough = pages.has(pathname) || /\.[a-z0-9]+$/i.test(pathname) || /^\/(@|src\/|node_modules\/)/.test(pathname);
-    if (passthrough) return next();
-    try {
-      const html = fs.readFileSync(path.resolve(dirname, "../public/404.html"));
-      res.statusCode = 404;
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.end(html);
-    } catch {
-      next();
-    }
+  const handler =
+    (read: (url: string) => Promise<string>): Connect.NextHandleFunction =>
+    async (req, res, next) => {
+      const pathname = (req.url ?? "/").split(/[?#]/)[0];
+      // Dev-only internals (/@vite, /src/..., /node_modules/...) and anything with an extension.
+      const passthrough = pages.has(pathname) || /\.[a-z0-9]+$/i.test(pathname) || /^\/(@|src\/|node_modules\/)/.test(pathname);
+      if (passthrough) return next();
+      try {
+        const html = await read(req.url ?? "/");
+        res.statusCode = 404;
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        res.end(html);
+      } catch {
+        next();
+      }
+    };
+  const readDev = (server: ViteDevServer) => async (url: string) => {
+    const template = fs.readFileSync(path.resolve(dirname, "../index.html"), "utf8");
+    return notFoundHtml(await server.transformIndexHtml(url, template));
   };
+  const readBuilt = async () => fs.readFileSync(path.resolve(dirname, "../dist/404.html"), "utf8");
   return {
     name: "not-found-page",
-    configureServer: (server) => void server.middlewares.use(middleware),
-    configurePreviewServer: (server) => void server.middlewares.use(middleware),
+    configureServer: (server) => void server.middlewares.use(handler(readDev(server))),
+    configurePreviewServer: (server) => void server.middlewares.use(handler(readBuilt)),
   };
 }
 
