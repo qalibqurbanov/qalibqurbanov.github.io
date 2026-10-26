@@ -21,6 +21,14 @@ interface LocalePage {
   /** Path the locale is served from. */
   path: string;
   ogLocale: string;
+  /** Name and job title as written in this language, for the structured data. */
+  name: string;
+  jobTitle: string;
+  /** Where the person is based and a short intro, for the plain-text copy of the page. */
+  location: string;
+  summary: string;
+  /** Label for the resume link in the plain-text copy. */
+  resumeLabel: string;
   title: string;
   description: string;
 }
@@ -30,6 +38,12 @@ const PAGES: LocalePage[] = [
     code: "en",
     path: "/en/",
     ogLocale: "en_US",
+    name: "Galib Gurbanov",
+    jobTitle: "Software Developer",
+    location: "Baku, Azerbaijan",
+    summary:
+      "I build software end-to-end — from backend APIs and databases to polished web frontends and mobile apps. I like turning ideas into fast, reliable, well-designed products.",
+    resumeLabel: "Resume (PDF)",
     title: "Galib Gurbanov | Software Developer",
     description:
       "Galib Gurbanov — Full Stack, Backend, Frontend & Mobile Developer. Portfolio, projects, and experience.",
@@ -38,6 +52,12 @@ const PAGES: LocalePage[] = [
     code: "az",
     path: "/az/",
     ogLocale: "az_AZ",
+    name: "Qalib Qurbanov",
+    jobTitle: "Proqram təminatı tərtibatçısı",
+    location: "Bakı, Azərbaycan",
+    summary:
+      "Mən proqram təminatını başdan sona hazırlayıram — backend API-lardan və verilənlər bazalarından tutmuş, zərif veb interfeyslərə və mobil tətbiqlərə qədər. Fikirləri sürətli, etibarlı və yaxşı dizayn edilmiş məhsullara çevirməyi sevirəm.",
+    resumeLabel: "CV (PDF)",
     title: "Qalib Qurbanov | Proqram təminatı tərtibatçısı",
     description:
       "Qalib Qurbanov — Full Stack, Backend, Frontend və Mobil tərtibatçı. Portfolio, layihələr və təcrübə.",
@@ -46,10 +66,31 @@ const PAGES: LocalePage[] = [
     code: "ru",
     path: "/ru/",
     ogLocale: "ru_RU",
+    name: "Галиб Гурбанов",
+    jobTitle: "Разработчик программного обеспечения",
+    location: "Баку, Азербайджан",
+    summary:
+      "Я разрабатываю программное обеспечение полного цикла — от backend API и баз данных до отточенных веб-интерфейсов и мобильных приложений. Мне нравится превращать идеи в быстрые, надёжные и хорошо продуманные продукты.",
+    resumeLabel: "Резюме (PDF)",
     title: "Галиб Гурбанов | Разработчик программного обеспечения",
     description:
       "Галиб Гурбанов — Full Stack, Backend, Frontend и мобильный разработчик. Портфолио, проекты и опыт.",
   },
+];
+
+// Where else the person can be found; search engines use these to connect the profiles to one identity.
+const SAME_AS = [
+  "https://github.com/qalibqurbanov",
+  "https://www.linkedin.com/in/qalibqurbanov/",
+  "https://stackoverflow.com/users/13249741/qalibqurbanov",
+  "https://medium.com/@qalibqurbanov",
+];
+
+const PROFILE_LINKS: Array<[label: string, url: string]> = [
+  ["GitHub", "https://github.com/qalibqurbanov"],
+  ["LinkedIn", "https://www.linkedin.com/in/qalibqurbanov/"],
+  ["Stack Overflow", "https://stackoverflow.com/users/13249741/qalibqurbanov"],
+  ["Medium", "https://medium.com/@qalibqurbanov"],
 ];
 
 const escapeAttr = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
@@ -76,6 +117,18 @@ function localize(template: string, page: LocalePage, assets: string[]): string 
   );
   alternates.push(`    <link rel="alternate" hreflang="x-default" href="${SITE_URL}/" />`);
 
+  const person = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: page.name,
+    jobTitle: page.jobTitle,
+    url,
+    address: { "@type": "PostalAddress", addressLocality: "Baku", addressCountry: "AZ" },
+    sameAs: SAME_AS,
+  };
+  // "<" is escaped so no value can ever close the script tag early.
+  const structuredData = `    <script type="application/ld+json">${JSON.stringify(person).replace(/</g, "\u003c")}</script>`;
+
   const head = [
     ...fontPreloads(assets, page.code),
     `    <link rel="canonical" href="${url}" />`,
@@ -88,6 +141,22 @@ function localize(template: string, page: LocalePage, assets: string[]): string 
     ...PAGES.filter((p) => p !== page).map(
       (p) => `    <meta property="og:locale:alternate" content="${p.ogLocale}" />`,
     ),
+    structuredData,
+  ].join("\n");
+
+  // The page itself is drawn by JavaScript, so a program that only reads the raw HTML (some
+  // recruiter and job-site tools, link scanners, text-only browsers) would otherwise find it
+  // empty. This short copy gives it the essentials; visitors with JavaScript never see it.
+  const plainText = [
+    "    <noscript>",
+    `      <h1>${page.name} — ${page.jobTitle}</h1>`,
+    `      <p>${page.location}</p>`,
+    `      <p>${page.summary}</p>`,
+    "      <ul>",
+    `        <li><a href="${SITE_URL}/resume.pdf">${page.resumeLabel}</a></li>`,
+    ...PROFILE_LINKS.map(([label, href]) => `        <li><a href="${href}">${label}</a></li>`),
+    "      </ul>",
+    "    </noscript>",
   ].join("\n");
 
   return template
@@ -97,7 +166,8 @@ function localize(template: string, page: LocalePage, assets: string[]): string 
       /<meta name="description" content="[^"]*" \/>/,
       `<meta name="description" content="${escapeAttr(page.description)}" />`,
     )
-    .replace("</head>", `${head}\n  </head>`);
+    .replace("</head>", `${head}\n  </head>`)
+    .replace('<div id="root"></div>', `<div id="root"></div>\n${plainText}`);
 }
 
 export function localizedHtml(): Plugin {
