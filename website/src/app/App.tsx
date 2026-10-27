@@ -36,7 +36,7 @@ export function App() {
   useEasterEggs(ui.terminal.konami);
 
   return (
-    <div className="relative min-h-screen">
+    <div className={notFound ? "nf-shell relative" : "relative min-h-screen"}>
       <AmbientBackground />
       {decorated ? <CursorGlow /> : null}
       {decorated ? <CustomCursor /> : null}

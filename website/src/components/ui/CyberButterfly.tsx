@@ -8,6 +8,8 @@ import type { View } from "@/lib/butterflyFlight";
 import type { Perch } from "@/lib/butterflyFlight";
 import { ButterflyFlight } from "@/lib/butterflyFlight";
 import { idleFor, IDLE_MS, wake } from "@/lib/idle";
+import { quakeCount, quaking } from "@/lib/flyerGlitch";
+import { isNotFoundPage } from "@/lib/notFound";
 
 /** One of the roaming butterflies, each with its own flight and state. */
 interface Bug {
@@ -43,6 +45,8 @@ interface Bug {
   dodgeAt: number;
   /** Wings beat fast until then. */
   startleUntil: number;
+  /** The last page quake it was shoved by (see lib/flyerGlitch.ts). */
+  quake: number;
 }
 
 interface Trail {
@@ -354,6 +358,8 @@ const SAY_TAIL = 22;
 /** Wings beat fast this long after the pointer touches it. */
 const STARTLE_MS = 1200;
 const STARTLED_FLAP = 0.08;
+/** Wings beat this fast while the page shakes. */
+const QUAKE_FLAP = 0.05;
 /** How many butterflies roam the page. */
 const COUNT = 5;
 const BUTTERFLIES = Array.from({ length: COUNT }, (_, n) => n);
@@ -579,7 +585,7 @@ export function CyberButterfly() {
         const flight = new ButterflyFlight(size, view());
         flight.finder = calm ? null : (x, y) => findPerch(x, y, size, docH);
         if (i > 0) flight.scatter(view());
-        return { flight, body, hit, size, sleep: 0, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0, hoverSay: false, sayW: 0, sayH: 0, sayBelow: false, nextHoverSay: 0, dodges: 0, dodgeResetAt: 0, dodgeAt: 0, startleUntil: 0 };
+        return { flight, body, hit, size, sleep: 0, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0, hoverSay: false, sayW: 0, sayH: 0, sayBelow: false, nextHoverSay: 0, dodges: 0, dodgeResetAt: 0, dodgeAt: 0, startleUntil: 0, quake: quakeCount() };
       });
       const rest = () => {
         bugs.forEach((b, i) => {
@@ -691,8 +697,16 @@ export function CyberButterfly() {
         const v = view();
 
         const idle = !calm && mode === "fly" && pointer !== null && idleFor(now) > IDLE_MS;
+        const shaking = mode === "fly" && quaking(now);
         for (const bug of bugs) {
           const { flight, body, hit } = bug;
+          // A burst of signal loss is an earthquake: shoved off course once, then shaking and flickering until it passes.
+          if (shaking && bug.quake !== quakeCount()) {
+            bug.quake = quakeCount();
+            if (!flight.orbiting && !flight.hanging) flight.heading += (Math.random() - 0.5) * 3.2;
+            flight.speed = Math.max(flight.speed, 260 + Math.random() * 120);
+            emit(bug, 14, 10, true);
+          }
           if (mode === "fly") {
             flight.orbit = idle && pointer ? { x: pointer.x, y: pointer.y + window.scrollY } : null;
             if (!calm) {
@@ -706,7 +720,7 @@ export function CyberButterfly() {
               }
             }
             const startled = bug.hover || now < bug.startleUntil;
-            const wanted = calm ? 0.45 : startled ? STARTLED_FLAP : Math.min(0.34, Math.max(0.15, 0.4 - flight.speed / 700));
+            const wanted = calm ? 0.45 : shaking ? QUAKE_FLAP : startled ? STARTLED_FLAP : Math.min(0.34, Math.max(0.15, 0.4 - flight.speed / 700));
             if (Math.abs(wanted - bug.flap) > 0.015) {
               bug.flap = wanted;
               body.style.setProperty("--bf-flap", `${bug.flap.toFixed(3)}s`);
@@ -744,7 +758,9 @@ export function CyberButterfly() {
             emit(bug, 3, 28, true);
           }
 
-          body.style.transform = `translate3d(${(flight.x - hit / 2).toFixed(1)}px, ${(flight.y + flight.bob - hit / 2).toFixed(1)}px, 0) rotate(${flight.angle.toFixed(3)}rad)`;
+          body.style.transform = `translate3d(${(flight.x - hit / 2).toFixed(1)}px, ${(flight.y + flight.bob - hit / 2).toFixed(1)}px, 0) rotate(${(flight.angle + (shaking ? (Math.random() - 0.5) * 0.7 : 0)).toFixed(3)}rad)`;
+          body.style.translate = shaking ? `${((Math.random() - 0.5) * 14).toFixed(1)}px ${((Math.random() - 0.5) * 10).toFixed(1)}px` : "";
+          body.style.opacity = shaking && Math.random() < 0.35 ? "0.3" : "";
 
           if (mode === "fly") {
             // Wings close and open gradually as it lands on and leaves its thread.
@@ -861,7 +877,8 @@ export function CyberButterfly() {
       };
       const onDown = (event: PointerEvent) => {
         wake();
-        if (mode !== "fly") return;
+        // The 404 page has no demolition: the butterflies are only there to fly about.
+        if (mode !== "fly" || isNotFoundPage()) return;
         const v = view();
         const target = bugs.find((b) => b.flight.visible(v) && overButterfly(b, event.clientX, event.clientY));
         if (!target || occludedAt(event.clientX, event.clientY)) return;

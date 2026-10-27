@@ -3,6 +3,7 @@ import {
   prefersReducedMotion,
   triggerGlitch,
 } from "@/hooks/glitch";
+import { quakeFlyers } from "@/lib/flyerGlitch";
 
 /** Small one-off page effects behind the site's easter eggs (the Konami code
  * and the hero terminal's `glitch` / `matrix` commands). */
@@ -180,6 +181,7 @@ export function signalLoss(duration = 5000): () => void {
     let nextNoise = 0;
     root.style.setProperty("--signal-d", `${Math.round(length)}ms`);
     root.classList.add("signal-loss");
+    quakeFlyers();
     ramp(
       "--signal-i",
       length,

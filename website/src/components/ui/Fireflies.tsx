@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { prefersReducedMotion } from "@/hooks/glitch";
 import { idleFor, IDLE_MS } from "@/lib/idle";
 import { subscribeTick } from "@/lib/ticker";
+import { quakeCount, quaking } from "@/lib/flyerGlitch";
 import { clamp, rand } from "@/lib/math";
 
 const COUNT = 10;
@@ -114,6 +115,7 @@ export function Fireflies() {
     window.addEventListener("pointermove", onMove, { passive: true });
     document.documentElement.addEventListener("pointerleave", onLeave);
 
+    let seen = quakeCount();
     let last = performance.now();
     let t = 0;
     const frame = (now: number) => {
@@ -131,6 +133,10 @@ export function Fireflies() {
       const M = 40;
       const span = H + 2 * M;
 
+      // A burst of signal loss shoves each of them once, then they shake and flicker until it passes.
+      const shaking = quaking(now);
+      const shove = shaking && seen !== quakeCount();
+      if (shove) seen = quakeCount();
       ctx.clearRect(0, 0, W, H);
       ctx.globalCompositeOperation = "lighter";
       flies.forEach((f, i) => {
@@ -169,19 +175,28 @@ export function Fireflies() {
           f.vx *= cap / sp;
           f.vy *= cap / sp;
         }
+        if (shove) {
+          const a = rand(0, 6.28);
+          const kick = rand(260, 520);
+          f.vx += Math.cos(a) * kick;
+          f.vy += Math.sin(a) * kick;
+        }
         f.x += f.vx * dt;
         f.y += f.vy * dt;
 
         const pulse = 0.5 + 0.5 * Math.sin(t * f.blink * 2.4 + f.ph[1]);
-        const alpha = clamp((0.28 + 0.34 * pulse) * (1 - f.g) + (0.7 + 0.3 * pulse) * f.g, 0, 1);
+        let alpha = clamp((0.28 + 0.34 * pulse) * (1 - f.g) + (0.7 + 0.3 * pulse) * f.g, 0, 1);
         const size = f.size * (1 + f.g * 0.25);
         const sy = ((((f.y - scrollY + M) % span) + span) % span) - M;
+        const gx = shaking ? f.x + rand(-5, 5) : f.x;
+        const gy = shaking ? sy + rand(-5, 5) : sy;
+        if (shaking) alpha = Math.random() < 0.4 ? 1 : alpha * 0.3;
         ctx.globalAlpha = alpha;
-        ctx.drawImage(sprite, f.x - size * 3, sy - size * 3, size * 6, size * 6);
+        ctx.drawImage(sprite, gx - size * 3, gy - size * 3, size * 6, size * 6);
         ctx.globalAlpha = Math.min(1, alpha + 0.2);
         ctx.beginPath();
         ctx.fillStyle = "#fff6c2";
-        ctx.arc(f.x, sy, size * 0.5, 0, Math.PI * 2);
+        ctx.arc(gx, gy, size * 0.5, 0, Math.PI * 2);
         ctx.fill();
       });
       ctx.globalAlpha = 1;
