@@ -564,6 +564,7 @@ export function CyberButterfly() {
       if (!layer || !canvas || !ctx || bodies.length === 0 || threads.length !== bodies.length || says.length !== bodies.length) return;
 
       const calm = prefersReducedMotion();
+      const notFound = isNotFoundPage();
       const baseSize = window.innerWidth < 640 ? 32 : 42;
       // Each one is a different size.
       // Sizes spread evenly from small to large, then shuffled between the butterflies.
@@ -696,7 +697,8 @@ export function CyberButterfly() {
         last = now;
         const v = view();
 
-        const idle = !calm && mode === "fly" && pointer !== null && idleFor(now) > IDLE_MS;
+        // The 404 page never calls them to the cursor.
+        const idle = !calm && !notFound && mode === "fly" && pointer !== null && idleFor(now) > IDLE_MS;
         const shaking = mode === "fly" && quaking(now);
         for (const bug of bugs) {
           const { flight, body, hit } = bug;

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 
 import { prefersReducedMotion } from "@/hooks/glitch";
 import { idleFor, IDLE_MS } from "@/lib/idle";
+import { isNotFoundPage } from "@/lib/notFound";
 import { subscribeTick } from "@/lib/ticker";
 import { quakeCount, quaking } from "@/lib/flyerGlitch";
 import { clamp, rand } from "@/lib/math";
@@ -116,6 +117,8 @@ export function Fireflies() {
     document.documentElement.addEventListener("pointerleave", onLeave);
 
     let seen = quakeCount();
+    // The 404 page never calls them to the cursor.
+    const notFound = isNotFoundPage();
     let last = performance.now();
     let t = 0;
     const frame = (now: number) => {
@@ -125,7 +128,7 @@ export function Fireflies() {
 
       // One firefly leaves every second of the countdown, the first after a short wait.
       const idle = idleFor(now);
-      const called = pointer && idle > FIRST_CALL_MS ? Math.min(COUNT, 1 + Math.floor(((idle - FIRST_CALL_MS) / (IDLE_MS - FIRST_CALL_MS)) * COUNT)) : 0;
+      const called = pointer && !notFound && idle > FIRST_CALL_MS ? Math.min(COUNT, 1 + Math.floor(((idle - FIRST_CALL_MS) / (IDLE_MS - FIRST_CALL_MS)) * COUNT)) : 0;
 
       // Fireflies live in page coordinates, wrapped every screen height plus a margin, so
       // they scroll with the page like everything else and never run out.

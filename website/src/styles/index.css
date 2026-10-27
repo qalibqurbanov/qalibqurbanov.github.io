@@ -1718,6 +1718,75 @@ html.has-cursor * {
   transform: translateX(-5px);
 }
 
+/* Signal loss (signalLoss in lib/effects.ts) replaces the whole cursor with a tag that reads ERROR,
+   which tears sideways and flickers. Everything scales by --signal-i, so it fades in and out with
+   the burst; the dot, the ring and the idle butterfly step aside for it. */
+.custom-cursor-error {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  padding: 2px 5px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-danger) 50%, transparent);
+  text-shadow:
+    1.5px 0 var(--color-accent-2),
+    -1.5px 0 var(--color-accent);
+  opacity: 0;
+  white-space: nowrap;
+}
+
+@keyframes cursor-error-tear {
+  0% {
+    margin: 0 0 0 calc(var(--signal-i, 0) * -8px);
+    opacity: 1;
+    clip-path: inset(0 0 calc(var(--signal-i, 0) * 45%) 0);
+  }
+  20% {
+    margin: calc(var(--signal-i, 0) * -2px) 0 0 calc(var(--signal-i, 0) * 10px);
+    opacity: 0.35;
+    clip-path: none;
+  }
+  40% {
+    margin: calc(var(--signal-i, 0) * 2px) 0 0 calc(var(--signal-i, 0) * -4px);
+    opacity: 1;
+    clip-path: inset(calc(var(--signal-i, 0) * 40%) 0 0 0);
+  }
+  60% {
+    margin: 0 0 0 calc(var(--signal-i, 0) * 7px);
+    opacity: 0.7;
+    clip-path: none;
+  }
+  80% {
+    margin: calc(var(--signal-i, 0) * 1px) 0 0 calc(var(--signal-i, 0) * -10px);
+    opacity: 1;
+    clip-path: inset(0 0 calc(var(--signal-i, 0) * 30%) 0);
+  }
+  100% {
+    margin: 0;
+    opacity: 1;
+    clip-path: none;
+  }
+}
+
+html.signal-loss .custom-cursor-dot,
+html.signal-loss .custom-cursor-ring,
+html.signal-loss .custom-cursor-bf {
+  visibility: hidden;
+}
+
+html.signal-loss .custom-cursor-error {
+  opacity: 1;
+  animation: cursor-error-tear 0.2s steps(1, end) infinite;
+}
+
 .custom-cursor.is-down .custom-cursor-dot {
   scale: 0.7;
 }

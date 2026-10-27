@@ -110,7 +110,7 @@ export function signalLoss(duration = 5000): () => void {
           const el = node.parentElement;
           if (!el || !node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
           return el.closest(
-            "script, style, canvas, input, textarea, .tabular-nums, .matrix-rain",
+            "script, style, canvas, input, textarea, .tabular-nums, .matrix-rain, .custom-cursor",
           )
             ? NodeFilter.FILTER_REJECT
             : NodeFilter.FILTER_ACCEPT;

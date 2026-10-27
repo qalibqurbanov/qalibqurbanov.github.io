@@ -4,6 +4,7 @@ import { idleProgress, idleShow, wake } from "@/lib/idle";
 import { FIELD, GRAB, LINK } from "@/lib/interactive";
 import { subscribeTick } from "@/lib/ticker";
 import { prefersReducedMotion } from "@/hooks/glitch";
+import { isNotFoundPage } from "@/lib/notFound";
 
 type CursorState = "default" | "link" | "field" | "code" | "grab";
 
@@ -69,7 +70,8 @@ export function CustomCursor() {
       const broken = document.documentElement.classList.contains("demolishing");
       if (wasBroken && !broken) wake();
       wasBroken = broken;
-      const target = broken ? 0 : idleShow(now);
+      // The 404 page never turns the cursor into the idle countdown.
+      const target = broken || isNotFoundPage() ? 0 : idleShow(now);
       shown += (target - shown) * (1 - Math.exp(-(target > shown ? 14 : 12) * dt));
       if (target === 0 && shown < 0.003) shown = 0;
       if (target > 0.01) heldP = idleProgress(now);
@@ -164,6 +166,7 @@ export function CustomCursor() {
       </span>
       <span ref={dotRef} className="custom-cursor-pos">
         <span className="custom-cursor-dot" />
+        <span className="custom-cursor-error">ERROR</span>
         <svg className="custom-cursor-bf" viewBox="0 0 120 120" focusable="false">
           <g className="custom-cursor-bf-wings">
             <g className="custom-cursor-bf-wing">
