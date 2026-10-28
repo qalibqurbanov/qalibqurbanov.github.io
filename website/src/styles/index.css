@@ -1359,6 +1359,111 @@ html::-webkit-scrollbar-button,
   );
 }
 
+/* 404 page: source code fixed in the background, uncovered by the same circle as the light. The
+   text stays where it is; only the mask follows the cursor, fading out towards its rim. */
+.cursor-glow-code {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  padding: 14px 22px;
+  /* The line height is also LINE_PX in lib/codeReveal.ts, which fits slices to the screen with it. */
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 18px;
+  white-space: pre;
+  color: color-mix(in srgb, var(--color-muted) 80%, var(--color-accent-2));
+  text-shadow: 0 0 6px color-mix(in srgb, var(--color-accent-2) 35%, transparent);
+  -webkit-mask-image: radial-gradient(
+    250px circle at var(--cx, 50%) var(--cy, 50%),
+    #000 0,
+    rgb(0 0 0 / 0.55) 45%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    250px circle at var(--cx, 50%) var(--cy, 50%),
+    #000 0,
+    rgb(0 0 0 / 0.55) 45%,
+    transparent 100%
+  );
+}
+
+.cursor-glow-code > div {
+  min-height: 18px;
+}
+
+.cg-info {
+  color: #4ade80;
+}
+
+.cg-dbug {
+  color: var(--color-muted);
+}
+
+.cg-warn {
+  color: #fbbf24;
+}
+
+.cg-fail {
+  color: var(--color-danger);
+}
+
+.cg-keyword {
+  color: #c084fc;
+}
+
+.cg-type {
+  color: #5eead4;
+}
+
+.cg-method {
+  color: #fde68a;
+}
+
+.cg-attr {
+  color: #67e8f9;
+}
+
+.cg-string {
+  color: #86efac;
+}
+
+.cg-number {
+  color: #fbbf24;
+}
+
+.cg-comment {
+  color: color-mix(in srgb, #6ee7b7 45%, var(--color-muted));
+  font-style: italic;
+}
+
+:root[data-theme="light"] .cursor-glow-code {
+  text-shadow: none;
+}
+
+:root[data-theme="light"] .cg-keyword {
+  color: #7e22ce;
+}
+
+:root[data-theme="light"] .cg-type {
+  color: #0f766e;
+}
+
+:root[data-theme="light"] .cg-method {
+  color: #a16207;
+}
+
+:root[data-theme="light"] .cg-attr {
+  color: #0e7490;
+}
+
+:root[data-theme="light"] .cg-string {
+  color: #15803d;
+}
+
+:root[data-theme="light"] .cg-number {
+  color: #b45309;
+}
+
 /* The "+" button's heartbeat while it is still being pointed out: two quick
    beats (lub-dub), a ring sent out after the second, then a rest. */
 @keyframes heartbeat {
@@ -2865,4 +2970,32 @@ html.signal-loss .nf-code::after {
 html[data-page="not-found"][data-motion="off"] body::after,
 html[data-page="not-found"][data-motion="light"] body::after {
   animation: none;
+}
+
+/* A skill in the skills section: a small outlined chip that lights up on hover. */
+.skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--color-accent) 4%, transparent);
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.skill-chip-compact {
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.4rem;
+}
+.skill-chip:hover {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-border));
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  transform: translateY(-1px);
 }

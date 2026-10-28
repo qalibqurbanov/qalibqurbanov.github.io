@@ -80,7 +80,7 @@ export interface Project {
   outcome?: string;
 }
 
-export type SkillCategory = "backend" | "frontend" | "mobile" | "tools";
+export type SkillCategory = "backend" | "tools";
 
 export type SkillGroups = Record<SkillCategory, string[]>;
 
@@ -177,6 +177,8 @@ export interface UiStrings {
     contact: SectionHeadingText;
   };
   skillGroups: Record<SkillCategory, string>;
+  /** The box that stands in for the front-end and mobile skills: a title and a sentence, no list of tools. */
+  skillsClient: { title: string; text: string };
   contact: {
     heading: string;
     body: string;

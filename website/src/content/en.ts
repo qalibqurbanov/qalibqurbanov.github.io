@@ -88,7 +88,7 @@ const en: Content = {
       "ASP.NET MVC",
       "ASP.NET Web API",
       "EF Core",
-      "Dapper ORM",
+      "Dapper",
       "SignalR",
       "Redis",
       "Serilog",
@@ -103,8 +103,6 @@ const en: Content = {
       "PostgreSQL",
       "MongoDB",
     ],
-    frontend: ["React", "Next.js", "TypeScript", "Tailwind CSS", "HTML/CSS"],
-    mobile: ["React Native", "Flutter", "Android (Kotlin)", "iOS (Swift)"],
     tools: ["Git", "GitLab", "GitHub", "Docker", "Linux"],
   },
   blogPosts: [
@@ -238,9 +236,11 @@ const en: Content = {
     },
     skillGroups: {
       backend: "Backend",
-      frontend: "Frontend",
-      mobile: "Mobile",
       tools: "Tools",
+    },
+    skillsClient: {
+      title: "Frontend & Mobile",
+      text: "Backend is my home ground. When a project also needs a web or mobile front end, I take that on as well and choose whatever tools fit the job best.",
     },
     contact: {
       heading: "Get In Touch",

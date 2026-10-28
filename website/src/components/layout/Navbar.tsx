@@ -38,7 +38,8 @@ export function Navbar() {
   return (
     <header
       className={`fixed top-0 inset-x-0 ${inView ? "z-[70]" : "z-50"} transition-all duration-300 ${
-        scrolled || inView
+        // The 404 page never scrolls, so its bar has the scrolled look from the start: the code under it shows through blurred.
+        scrolled || inView || notFound
           ? "bg-bg/75 backdrop-blur-md border-b border-border shadow-lg shadow-black/10"
           : "bg-transparent border-b border-transparent"
       }`}

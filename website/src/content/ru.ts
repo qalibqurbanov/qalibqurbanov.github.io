@@ -89,7 +89,7 @@ const ru: Content = {
       "ASP.NET MVC",
       "ASP.NET Web API",
       "EF Core",
-      "Dapper ORM",
+      "Dapper",
       "SignalR",
       "Redis",
       "Serilog",
@@ -104,8 +104,6 @@ const ru: Content = {
       "PostgreSQL",
       "MongoDB",
     ],
-    frontend: ["React", "Next.js", "TypeScript", "Tailwind CSS", "HTML/CSS"],
-    mobile: ["React Native", "Flutter", "Android (Kotlin)", "iOS (Swift)"],
     tools: ["Git", "GitLab", "GitHub", "Docker", "Linux"],
   },
   blogPosts: [
@@ -239,9 +237,11 @@ const ru: Content = {
     },
     skillGroups: {
       backend: "Backend",
-      frontend: "Frontend",
-      mobile: "Mobile",
       tools: "Инструменты",
+    },
+    skillsClient: {
+      title: "Frontend и Mobile",
+      text: "Backend — моя основная область. Когда проекту нужна ещё и веб- или мобильная часть, я беру её на себя и выбираю инструменты, которые лучше всего подходят для задачи.",
     },
     contact: {
       heading: "Связаться со мной",

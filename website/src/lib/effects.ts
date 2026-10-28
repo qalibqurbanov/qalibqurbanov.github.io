@@ -110,7 +110,7 @@ export function signalLoss(duration = 5000): () => void {
           const el = node.parentElement;
           if (!el || !node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
           return el.closest(
-            "script, style, canvas, input, textarea, .tabular-nums, .matrix-rain, .custom-cursor",
+            "script, style, canvas, input, textarea, .tabular-nums, .matrix-rain, .custom-cursor, .cursor-glow-code",
           )
             ? NodeFilter.FILTER_REJECT
             : NodeFilter.FILTER_ACCEPT;
@@ -182,6 +182,8 @@ export function signalLoss(duration = 5000): () => void {
     root.style.setProperty("--signal-d", `${Math.round(length)}ms`);
     root.classList.add("signal-loss");
     quakeFlyers();
+    // Whatever else wants to follow the bursts (the code under the 404 page's light) listens for this.
+    document.dispatchEvent(new Event("signalburst"));
     ramp(
       "--signal-i",
       length,
