@@ -238,6 +238,7 @@ const en: Content = {
       backend: "Backend",
       tools: "Tools",
     },
+    sectionLink: { copy: "Copy link to this section", copied: "Link copied to clipboard" },
     skillsClient: {
       title: "Frontend & Mobile",
       text: "Backend is my home ground. When a project also needs a web or mobile front end, I take that on as well and choose whatever tools fit the job best.",

@@ -8,10 +8,10 @@ import { quakeFlyers } from "@/lib/flyerGlitch";
 /** Small one-off page effects behind the site's easter eggs (the Konami code
  * and the hero terminal's `glitch` / `matrix` commands). */
 
-/** A short message pinned to the bottom of the screen. */
-export function showToast(message: string, duration = 2800): void {
+/** A short message pinned to the bottom of the screen, or to the top right with `corner`. */
+export function showToast(message: string, duration = 2800, corner = false): void {
   const el = document.createElement("div");
-  el.className = "site-toast";
+  el.className = corner ? "site-toast site-toast-corner" : "site-toast";
   el.setAttribute("role", "status");
   el.textContent = message;
   document.body.appendChild(el);

@@ -2147,6 +2147,61 @@ html.signal-loss footer {
   animation: toast-out 0.25s ease-in both;
 }
 
+/* The corner variant sits below the navbar at the top right and slides in from the right. */
+@keyframes toast-corner-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-corner-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+.site-toast.site-toast-corner {
+  top: 5rem;
+  right: 1rem;
+  bottom: auto;
+  left: auto;
+  max-width: min(26rem, calc(100vw - 2rem));
+  overflow-wrap: anywhere;
+  animation: toast-corner-in 0.25s ease-out both;
+}
+
+.site-toast.site-toast-corner.is-leaving {
+  animation: toast-corner-out 0.25s ease-in both;
+}
+
+.section-copy {
+  opacity: 0;
+  transition:
+    opacity 0.2s ease,
+    color 0.2s ease;
+}
+
+.section-heading:hover .section-copy,
+.section-copy:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .section-copy {
+    opacity: 0.6;
+  }
+}
+
 .matrix-rain {
   position: fixed;
   inset: 0;

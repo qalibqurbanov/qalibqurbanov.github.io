@@ -179,6 +179,8 @@ export interface UiStrings {
   skillGroups: Record<SkillCategory, string>;
   /** The box that stands in for the front-end and mobile skills: a title and a sentence, no list of tools. */
   skillsClient: { title: string; text: string };
+  /** The copy button beside a section's name: its tooltip, and the toast that names the copied link. */
+  sectionLink: { copy: string; copied: string };
   contact: {
     heading: string;
     body: string;

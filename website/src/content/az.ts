@@ -239,6 +239,7 @@ const az: Content = {
       backend: "Backend",
       tools: "Alətlər",
     },
+    sectionLink: { copy: "Bölmənin linkini kopyala", copied: "Link mübadilə buferinə kopyalandı" },
     skillsClient: {
       title: "Frontend və Mobil",
       text: "Backend mənim əsas sahəmdir. Layihənin veb və ya mobil tərəfinə də ehtiyac olanda, onu da öz üzərimə götürürəm və işə ən uyğun alətləri seçirəm.",
