@@ -24,11 +24,38 @@ function trackPointer(event: PointerEvent): void {
   wake();
 }
 
-/** A pointer resting on something clickable is not idle: the visitor is about to use it. */
-function overClickable(): boolean {
+/** True for an element that is only a layout box: it holds no text of its own and paints nothing
+ * (no fill, border, image or shadow), so the visitor sees the site's background through it. */
+function isBare(el: Element): boolean {
+  if (el instanceof HTMLCanvasElement) return true;
+  if (el.closest(CLICKABLE) !== null) return false;
+  if (el instanceof SVGElement || el instanceof HTMLImageElement || el instanceof HTMLVideoElement) return false;
+  for (const node of el.childNodes) if (node.nodeType === Node.TEXT_NODE && node.nodeValue?.trim()) return false;
+  // Not itself, and not any box around it (a card's padding, the navbar's gaps), may paint anything.
+  for (let node: Element | null = el; node && node !== document.body; node = node.parentElement) {
+    if (paints(node)) return false;
+  }
+  return true;
+}
+
+function paints(el: Element): boolean {
+  const style = getComputedStyle(el);
+  return !(
+    (style.backgroundColor === "rgba(0, 0, 0, 0)" || style.backgroundColor === "transparent") &&
+    // Gradients are the site's own backdrop (a section's grid); only a picture is content.
+    !style.backgroundImage.includes("url(") &&
+    style.boxShadow === "none" &&
+    style.backdropFilter === "none" &&
+    parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth) + parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth) === 0
+  );
+}
+
+/** A pointer resting on any content (text, a card, a button, the navbar) is not idle: the visitor
+ * is reading or about to use it. Only a pointer over the bare site background counts as idle. */
+function overContent(): boolean {
   if (pointerX < 0) return false;
   const el = document.elementFromPoint(pointerX, pointerY);
-  return el !== null && el.closest(CLICKABLE) !== null;
+  return el !== null && !isBare(el);
 }
 
 /** Marks the visitor as active right now. */
@@ -52,7 +79,7 @@ export function idleFor(now: number = performance.now()): number {
   install();
   if (now - lastCheck > HOVER_CHECK_MS) {
     lastCheck = now;
-    if (overClickable()) lastActive = now;
+    if (overContent()) lastActive = now;
   }
   return Math.max(0, now - lastActive);
 }

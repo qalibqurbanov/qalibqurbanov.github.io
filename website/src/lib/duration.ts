@@ -39,10 +39,11 @@ export function yearWord(count: number, locale: Locale): string {
   return forms[new Intl.PluralRules(locale).select(count)] ?? forms.other;
 }
 
-/** Length of a job as whole years with a plus, e.g. "2+ years" (or plain
- * months, e.g. "8 months", while it is under a year). `start`/`end` are
- * "YYYY-MM"; a missing `end` means "until now". Both the first and the last
- * month are counted, so Dec 2023 → Oct 2026 is 2 years 11 months → "2+ years". */
+/** Length of a job in years and months, e.g. "2 years 11 months": only the
+ * months while it is under a year ("8 months"), and only the years when the
+ * months come out even ("3 years"). `start`/`end` are "YYYY-MM"; a missing
+ * `end` means "until now". Both the first and the last month are counted, so
+ * Dec 2023 → Oct 2026 is 35 months → "2 years 11 months". */
 export function formatDuration(
   start: string,
   end: string | undefined,
@@ -56,6 +57,8 @@ export function formatDuration(
   const years = Math.floor(total / 12);
   const months = total % 12;
 
-  if (years > 0) return `${years}+ ${yearWord(years, locale)}`;
-  return unit(months, UNITS[locale].month, locale);
+  const yearsText = unit(years, UNITS[locale].year, locale);
+  const monthsText = unit(months, UNITS[locale].month, locale);
+  if (years === 0) return monthsText;
+  return months === 0 ? yearsText : `${yearsText} ${monthsText}`;
 }
