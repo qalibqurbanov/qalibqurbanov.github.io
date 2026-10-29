@@ -70,6 +70,7 @@ const ru: Content = {
     {
       ...projectFacts["soundcloud-artwork-downloader"],
       title: "SoundCloud Artwork Downloader",
+      kind: "Настольный инструмент для Windows",
       description:
         "Десктопное приложение для Windows, которое парсит страницу трека SoundCloud и скачивает обложку в оригинальном разрешении — без ключа SoundCloud API.",
       problem:
@@ -82,6 +83,7 @@ const ru: Content = {
     {
       ...projectFacts["imager"],
       title: "Imager",
+      kind: "Настольное приложение для Windows",
       description:
         "Десктопное приложение для Windows для массовой загрузки изображений на ImgBB с мгновенным получением ссылок для шаринга.",
       problem:
@@ -452,10 +454,15 @@ const ru: Content = {
       repository: "Репозиторий {title}",
       liveDemo: "Демо {title}",
       download: "{title}: скачать",
-      stars: "Звёзды",
-      downloads: "Загрузки",
-      liveData: "Данные GitHub в реальном времени",
-      cachedData: "Сохранённая копия — GitHub сейчас недоступен",
+      downloadButton: "Скачать",
+      liveDemoButton: "Демо",
+      stars: "Звёзды GitHub: сколько человек отметили этот репозиторий",
+      statusData: "Данные с GitHub, обновляются каждый час",
+      statusBranch: "Ветка: основная ветка репозитория на GitHub",
+      statusCommit: "Последний коммит: короткий хеш и дата. Нажмите, чтобы открыть на GitHub",
+      downloads: "Загрузки: сколько раз скачивали файлы релизов",
+      liveData: "Живые данные: читаются с GitHub и обновляются каждую минуту",
+      cachedData: "Сохранённая копия: GitHub сейчас недоступен, цифры могут быть устаревшими",
     },
     notFound: {
       eyebrow: "Ошибка",

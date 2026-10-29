@@ -74,6 +74,8 @@ export interface Project {
    * e.g. a non-JS/TS project whose first tag doesn't slugify into anything
    * readable (a "C#" tag alone becomes just "c"). */
   filename?: string;
+  /** The short line under the title on its card, e.g. "Windows desktop tool". */
+  kind: string;
   title: string;
   description: string;
   tags: string[];
@@ -314,7 +316,15 @@ export interface UiStrings {
     liveDemo: string;
     /** Contains "{title}". */
     download: string;
+    /** The short texts on a project card's buttons. */
+    downloadButton: string;
+    liveDemoButton: string;
     stars: string;
+    /** Hover texts of the project card status bar: the branch and the newest commit. */
+    /** The status bar's dot: where the numbers come from and how fresh they are. */
+    statusData: string;
+    statusBranch: string;
+    statusCommit: string;
     downloads: string;
     /** Tooltip of the dot beside a project's stats while they are being kept up to date from GitHub. */
     liveData: string;

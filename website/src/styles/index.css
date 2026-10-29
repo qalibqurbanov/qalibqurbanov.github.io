@@ -261,10 +261,14 @@ html::-webkit-scrollbar-button,
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
+  /* `translate` and `scale` are listed because Tailwind lifts and grows a card with those
+     properties, not `transform`; left out, the lift would jump instead of glide. */
   transition:
-    border-color 0.3s ease,
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+    border-color 0.45s ease,
+    translate 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    scale 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s ease;
 }
 
 .card-surface:hover,

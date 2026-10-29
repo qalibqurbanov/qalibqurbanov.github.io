@@ -3,10 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: ["main"]
-  # Rebuild every few hours with no commit, so the GitHub numbers baked into the
-  # page (first paint, and the fallback when a visitor is rate limited) stay fresh.
+  # Rebuild every hour with no commit: the GitHub numbers on the project cards are
+  # read once per build, so this is how often they are refreshed for every visitor.
   schedule:
-    - cron: "17 */4 * * *"
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:

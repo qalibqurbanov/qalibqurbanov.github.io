@@ -70,6 +70,7 @@ const en: Content = {
     {
       ...projectFacts["soundcloud-artwork-downloader"],
       title: "SoundCloud Artwork Downloader",
+      kind: "Windows desktop tool",
       description:
         "A Windows desktop tool that scrapes a SoundCloud track page for its cover art and downloads the full-resolution original — no SoundCloud API key needed.",
       problem:
@@ -82,6 +83,7 @@ const en: Content = {
     {
       ...projectFacts["imager"],
       title: "Imager",
+      kind: "Windows desktop app",
       description: "A Windows desktop app for uploading images to ImgBB in bulk and instantly getting shareable links back.",
       problem:
         "Uploading a batch of images to a hosting site and collecting each one's link individually is slow and repetitive when you just want to quickly share a few screenshots.",
@@ -451,10 +453,15 @@ const en: Content = {
       repository: "{title} repository",
       liveDemo: "{title} live demo",
       download: "{title} download",
-      stars: "Stars",
-      downloads: "Downloads",
-      liveData: "Live from GitHub",
-      cachedData: "Saved copy — GitHub can't be reached right now",
+      downloadButton: "Download",
+      liveDemoButton: "Live demo",
+      stars: "GitHub stars: how many people starred this repository",
+      statusData: "Data from GitHub, refreshed every hour",
+      statusBranch: "Branch: the repository's main branch on GitHub",
+      statusCommit: "Newest commit: its short hash and date. Click to open it on GitHub",
+      downloads: "Downloads: how many times the release files were downloaded",
+      liveData: "Live data: read from GitHub and refreshed every minute",
+      cachedData: "Saved copy: GitHub can't be reached right now, so these numbers may be out of date",
     },
     notFound: {
       eyebrow: "Error",

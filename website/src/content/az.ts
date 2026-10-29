@@ -70,6 +70,7 @@ const az: Content = {
     {
       ...projectFacts["soundcloud-artwork-downloader"],
       title: "SoundCloud Artwork Downloader",
+      kind: "Windows masaüstü aləti",
       description:
         "SoundCloud trek səhifəsini parse edərək üz qabığı şəklini orijinal ölçüdə yükləyən Windows desktop tətbiqi — SoundCloud API açarı tələb olunmur.",
       problem:
@@ -82,6 +83,7 @@ const az: Content = {
     {
       ...projectFacts["imager"],
       title: "Imager",
+      kind: "Windows masaüstü tətbiqi",
       description:
         "Şəkilləri toplu şəkildə ImgBB-yə yükləyən və dərhal paylaşıla bilən linklər verən Windows desktop tətbiqi.",
       problem:
@@ -452,10 +454,15 @@ const az: Content = {
       repository: "{title} repozitoriyası",
       liveDemo: "{title} canlı demo",
       download: "{title} — yüklə",
-      stars: "Ulduzlar",
-      downloads: "Yükləmələr",
-      liveData: "GitHub-dan canlı",
-      cachedData: "Saxlanmış nüsxə — hazırda GitHub-a qoşulmaq mümkün deyil",
+      downloadButton: "Yüklə",
+      liveDemoButton: "Canlı demo",
+      stars: "GitHub ulduzları: bu repozitoriyanı neçə nəfər ulduzlayıb",
+      statusData: "GitHub-dan alınan məlumat, hər saat yenilənir",
+      statusBranch: "Branch: repozitoriyanın GitHub-dakı əsas branch-ı",
+      statusCommit: "Son commit: qısa hash və tarix. GitHub-da açmaq üçün klikləyin",
+      downloads: "Yükləmələr: buraxılış fayllarının neçə dəfə yükləndiyi",
+      liveData: "Canlı məlumat: GitHub-dan oxunur və hər dəqiqə yenilənir",
+      cachedData: "Saxlanmış nüsxə: hazırda GitHub-a qoşulmaq mümkün deyil, rəqəmlər köhnə ola bilər",
     },
     notFound: {
       eyebrow: "Xəta",

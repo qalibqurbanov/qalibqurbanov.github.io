@@ -38,7 +38,7 @@ const buildInfo = {
 async function fetchRepoStats() {
   const stats: Record<
     string,
-    { branch: string; pushedAt: string; stars: number; downloads: number }
+    { branch: string; commitSha: string | null; commitDate: string | null; stars: number; downloads: number }
   > = {};
   let source = "";
   try {
@@ -62,10 +62,20 @@ async function fetchRepoStats() {
       try {
         const info = (await get(`https://api.github.com/repos/${repo}`)) as {
           default_branch?: string;
-          pushed_at?: string;
-          updated_at: string;
           stargazers_count?: number;
         };
+        let commitSha: string | null = null;
+        let commitDate: string | null = null;
+        try {
+          const commit = (await get(`https://api.github.com/repos/${repo}/commits/${info.default_branch ?? "HEAD"}`)) as {
+            sha: string;
+            commit: { committer?: { date?: string } };
+          };
+          commitSha = commit.sha;
+          commitDate = commit.commit.committer?.date ?? null;
+        } catch {
+          // The newest commit is optional; keep the rest.
+        }
         let downloads = 0;
         try {
           const releases = (await get(`https://api.github.com/repos/${repo}/releases?per_page=100`)) as Array<{
@@ -79,7 +89,8 @@ async function fetchRepoStats() {
         }
         stats[repo.toLowerCase()] = {
           branch: info.default_branch ?? "main",
-          pushedAt: info.pushed_at ?? info.updated_at,
+          commitSha,
+          commitDate,
           stars: info.stargazers_count ?? 0,
           downloads,
         };
