@@ -38,14 +38,23 @@ const ru: Content = {
         "В Crocusoft я разрабатываю и поддерживаю backend-решения на современном стеке .NET для публичных и внутренних систем.",
       projectsIntro: "Некоторые публичные проекты, над которыми я здесь работал:",
       projects: [
-        { label: "Сайт Crocusoft", url: "https://crocusoft.com" },
+        {
+          label: "Сайт Crocusoft",
+          url: "https://crocusoft.com",
+          logo: "/logos/crocusoft.png",
+          description: "Публичный сайт о компании и её работах",
+        },
         {
           label: "HR-платформа Kapital Bank",
           url: "https://crocusoft.com/en/Project/Details/hr.kapitalbank.az",
+          logo: "/logos/kapital-bank.png",
+          description: "Внутренняя HR-платформа банка",
         },
         {
           label: "SANAT Art Center",
           url: "https://crocusoft.com/en/Project/Details/sanat-art-center",
+          logo: "/logos/sanat.png",
+          description: "Сайт арт-центра",
         },
       ],
       highlightsIntro: "В этих проектах я занимался следующим:",
@@ -240,6 +249,7 @@ const ru: Content = {
       tools: "Инструменты",
     },
     sectionLink: { copy: "Скопировать ссылку на раздел", copied: "Ссылка скопирована в буфер обмена" },
+    experienceLabels: { now: "сейчас", publicProjects: "Публичные проекты", stack: "Стек" },
     skillsClient: {
       title: "Frontend и Mobile",
       text: "Backend — моя основная область. Когда проекту нужна ещё и веб- или мобильная часть, я беру её на себя и выбираю инструменты, которые лучше всего подходят для задачи.",

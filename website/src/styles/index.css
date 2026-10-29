@@ -1916,42 +1916,6 @@ html.signal-loss .custom-cursor-error {
   animation: none;
 }
 
-/* Experience timeline: the accent line grows down the rail with the scroll
-   (--tl, see useTimelineProgress) and each dot lights up once it is reached. */
-.timeline-rail::after {
-  content: "";
-  position: absolute;
-  left: -1px;
-  top: 0;
-  width: 2px;
-  height: calc(var(--tl, 0) * 100%);
-  background: linear-gradient(
-    to bottom,
-    var(--color-accent),
-    var(--color-accent-2)
-  );
-  box-shadow: 0 0 10px var(--glow-accent);
-  pointer-events: none;
-}
-
-.timeline-dot {
-  background: var(--color-border);
-  box-shadow: 0 0 0 4px var(--color-bg);
-  transform: scale(0.78);
-  transition:
-    background-color 0.4s ease,
-    box-shadow 0.4s ease,
-    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-[data-dot][data-reached] .timeline-dot {
-  background: var(--color-accent);
-  box-shadow:
-    0 0 0 4px var(--color-bg),
-    0 0 16px 5px var(--glow-accent);
-  transform: none;
-}
-
 /* Easter-egg effects (lib/effects.ts). Every offset, tilt, tint and shadow below is scaled
    by a strength variable the script eases from 0 up to 1 and back to 0 (--storm-i for the
    storm, --signal-i for each burst of signal loss), so an effect fades in and out instead of
@@ -2145,43 +2109,6 @@ html.signal-loss footer {
 
 .site-toast.is-leaving {
   animation: toast-out 0.25s ease-in both;
-}
-
-/* The corner variant sits below the navbar at the top right and slides in from the right. */
-@keyframes toast-corner-in {
-  from {
-    opacity: 0;
-    transform: translateX(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes toast-corner-out {
-  from {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(16px);
-  }
-}
-
-.site-toast.site-toast-corner {
-  top: 5rem;
-  right: 1rem;
-  bottom: auto;
-  left: auto;
-  max-width: min(26rem, calc(100vw - 2rem));
-  overflow-wrap: anywhere;
-  animation: toast-corner-in 0.25s ease-out both;
-}
-
-.site-toast.site-toast-corner.is-leaving {
-  animation: toast-corner-out 0.25s ease-in both;
 }
 
 .section-copy {

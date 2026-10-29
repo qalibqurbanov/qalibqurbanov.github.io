@@ -40,7 +40,8 @@ export const projectFacts = {
 /** The same for the Crocusoft job. */
 export const crocusoftFacts = {
   org: "Crocusoft",
+  logo: "/logos/crocusoft.png",
   start: "2023-12",
   current: true,
   tags: ["C#", "ASP.NET Web API", "EF Core", "Dapper", "Redis", "SignalR", "Docker", "PostgreSQL"],
-} satisfies Pick<ExperienceItem, "org" | "start" | "current" | "tags">;
+} satisfies Pick<ExperienceItem, "org" | "logo" | "start" | "current" | "tags">;

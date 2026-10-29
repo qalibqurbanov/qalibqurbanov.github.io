@@ -35,11 +35,17 @@ export interface AboutContent {
 export interface ExperienceLink {
   label: string;
   url: string;
+  /** A short line under the name saying what the project is. */
+  description?: string;
+  /** The project's own logo (a path under public/); its initials stand in without one. */
+  logo?: string;
 }
 
 export interface ExperienceItem {
   role: string;
   org: string;
+  /** Company logo (a path under public/), shown in the job row; the first letter of `org` stands in without one. */
+  logo?: string;
   period: string;
   /** First month of the role, "YYYY-MM"; drives the "(2 years 11 months)" length. */
   start: string;
@@ -181,6 +187,8 @@ export interface UiStrings {
   skillsClient: { title: string; text: string };
   /** The copy button beside a section's name: its tooltip, and the toast that names the copied link. */
   sectionLink: { copy: string; copied: string };
+  /** Labels in the experience list: the "current job" pill and the two detail captions. */
+  experienceLabels: { now: string; publicProjects: string; stack: string };
   contact: {
     heading: string;
     body: string;

@@ -1,10 +1,12 @@
-import { Link2 } from "lucide-react";
+import { CheckCircle2, Link2 } from "lucide-react";
+import { useState } from "react";
+import { createPortal } from "react-dom";
 
 import { GlitchRule } from "@/components/ui/GlitchRule";
 import { GlitchText } from "@/components/ui/GlitchText";
+import { Notice, NOTICE_MS } from "@/components/ui/Notice";
 import { Reveal } from "@/components/ui/Reveal";
 import { useContent } from "@/i18n/context";
-import { showToast } from "@/lib/effects";
 
 interface SectionHeadingProps {
   /** Id of the section this heading belongs to; the title links to it. */
@@ -15,14 +17,16 @@ interface SectionHeadingProps {
 
 export function SectionHeading({ id, index, title }: SectionHeadingProps) {
   const { ui } = useContent();
+  const [copied, setCopied] = useState<{ id: number; url: string } | null>(null);
 
   function copyLink() {
     const url = `${window.location.origin}${window.location.pathname}#${id}`;
     navigator.clipboard.writeText(url).catch(() => {});
-    showToast(`${ui.sectionLink.copied}: ${url}`, 2800, true);
+    setCopied({ id: Date.now(), url });
   }
 
   return (
+    <>
     <Reveal replay className="section-heading mb-12">
       <p className="font-mono text-sm mb-2">
         <span className="text-muted">{"// "}</span>
@@ -53,5 +57,14 @@ export function SectionHeading({ id, index, title }: SectionHeadingProps) {
         </span>
       </div>
     </Reveal>
+    {copied &&
+      createPortal(
+        <Notice key={copied.id} tone="success" icon={<CheckCircle2 size={16} />} lifeMs={NOTICE_MS} filename="link.log" onClose={() => setCopied(null)}>
+          <p className="font-semibold">{ui.sectionLink.copied}</p>
+          <p className="mt-0.5 break-all text-muted">{copied.url}</p>
+        </Notice>,
+        document.body,
+      )}
+    </>
   );
 }

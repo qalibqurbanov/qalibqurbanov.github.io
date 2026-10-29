@@ -38,14 +38,23 @@ const az: Content = {
         "Crocusoft-da mən həm hər kəsə açıq, həm də daxili sistemlər üçün müasir .NET stack-i ilə backend həlləri qurur və dəstəkləyirəm.",
       projectsIntro: "Burada üzərində işlədiyim, hər kəsə açıq layihələrdən bəziləri:",
       projects: [
-        { label: "Crocusoft Veb Saytı", url: "https://crocusoft.com" },
+        {
+          label: "Crocusoft Veb Saytı",
+          url: "https://crocusoft.com",
+          logo: "/logos/crocusoft.png",
+          description: "Şirkəti və işlərini təqdim edən açıq sayt",
+        },
         {
           label: "Kapital Bank HR Platforması",
           url: "https://crocusoft.com/en/Project/Details/hr.kapitalbank.az",
+          logo: "/logos/kapital-bank.png",
+          description: "Bank üçün daxili HR platforması",
         },
         {
           label: "SANAT Art Center",
           url: "https://crocusoft.com/en/Project/Details/sanat-art-center",
+          logo: "/logos/sanat.png",
+          description: "İncəsənət mərkəzi üçün sayt",
         },
       ],
       highlightsIntro: "Bu layihələrdə aşağıdakılarla məşğul olmuşam:",
@@ -240,6 +249,7 @@ const az: Content = {
       tools: "Alətlər",
     },
     sectionLink: { copy: "Bölmənin linkini kopyala", copied: "Link mübadilə buferinə kopyalandı" },
+    experienceLabels: { now: "indi", publicProjects: "Açıq layihələr", stack: "Texnologiyalar" },
     skillsClient: {
       title: "Frontend və Mobil",
       text: "Backend mənim əsas sahəmdir. Layihənin veb və ya mobil tərəfinə də ehtiyac olanda, onu da öz üzərimə götürürəm və işə ən uyğun alətləri seçirəm.",

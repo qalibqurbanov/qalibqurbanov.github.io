@@ -38,14 +38,23 @@ const en: Content = {
         "At Crocusoft, I develop and maintain backend solutions with the modern .NET stack for both public and internal systems.",
       projectsIntro: "Some of the public projects I have worked on here include:",
       projects: [
-        { label: "Crocusoft Website", url: "https://crocusoft.com" },
+        {
+          label: "Crocusoft Website",
+          url: "https://crocusoft.com",
+          logo: "/logos/crocusoft.png",
+          description: "Public site presenting the company and its work",
+        },
         {
           label: "Kapital Bank HR Platform",
           url: "https://crocusoft.com/en/Project/Details/hr.kapitalbank.az",
+          logo: "/logos/kapital-bank.png",
+          description: "Internal HR platform for the bank",
         },
         {
           label: "SANAT Art Center",
           url: "https://crocusoft.com/en/Project/Details/sanat-art-center",
+          logo: "/logos/sanat.png",
+          description: "Site for an art center",
         },
       ],
       highlightsIntro: "In these projects, I worked with the following:",
@@ -239,6 +248,7 @@ const en: Content = {
       tools: "Tools",
     },
     sectionLink: { copy: "Copy link to this section", copied: "Link copied to clipboard" },
+    experienceLabels: { now: "now", publicProjects: "Public projects", stack: "Stack" },
     skillsClient: {
       title: "Frontend & Mobile",
       text: "Backend is my home ground. When a project also needs a web or mobile front end, I take that on as well and choose whatever tools fit the job best.",
