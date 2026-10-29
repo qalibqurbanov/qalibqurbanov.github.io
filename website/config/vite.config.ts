@@ -41,6 +41,14 @@ async function fetchRepoStats() {
     { branch: string; commitSha: string | null; commitDate: string | null; stars: number; downloads: number }
   > = {};
   // The repository links live with the facts shared by every language, and in the English content for any project that is not listed there.
+  // The last numbers that were read, so a build or dev start that GitHub refuses (rate limit, offline) still has something to show.
+  const cacheFile = path.resolve(dirname, "../node_modules/.cache/repo-stats.json");
+  let saved: typeof stats = {};
+  try {
+    saved = JSON.parse(fs.readFileSync(cacheFile, "utf8"));
+  } catch {
+    // No saved copy yet.
+  }
   let source = "";
   try {
     for (const file of ["shared.ts", "en.ts"]) source += fs.readFileSync(path.resolve(dirname, "../src/content", file), "utf8");
@@ -96,10 +104,20 @@ async function fetchRepoStats() {
           downloads,
         };
       } catch {
-        // Offline, rate limited, or renamed: leave this repository out.
+        // Offline, rate limited, or renamed: use the saved copy of this repository, if there is one.
+        const key = repo.toLowerCase();
+        if (saved[key]) stats[key] = saved[key];
       }
     }),
   );
+  if (Object.keys(stats).length > 0) {
+    try {
+      fs.mkdirSync(path.dirname(cacheFile), { recursive: true });
+      fs.writeFileSync(cacheFile, JSON.stringify(stats));
+    } catch {
+      // The saved copy is only a convenience.
+    }
+  }
   return stats;
 }
 

@@ -35,7 +35,7 @@ export function ProjectStatusBar({ repoUrl }: { repoUrl: string }) {
             title={ui.labels.statusCommit}
             className="transition-colors hover:text-accent"
           >
-            <span className="text-accent">{stats.commitSha.slice(0, 7)}</span>
+            {stats.commitSha.slice(0, 7)}
             {stats.commitDate && ` · ${formatDate(stats.commitDate, getLocaleMeta(locale).bcp47)}`}
           </a>
         )}
