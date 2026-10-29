@@ -34,7 +34,7 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
       <div className="card-hit group h-full">
         <article
           data-project-slug={project.slug}
-          className="card-surface flex flex-col justify-between h-full rounded-xl overflow-hidden group-hover:-translate-y-1.5 group-hover:scale-[1.015]"
+          className="card-surface flex flex-col justify-between h-full rounded-xl overflow-hidden group-hover:-translate-y-2"
         >
           <div className="flex items-center justify-between gap-4 pl-5 pr-1.5 py-1.5 bg-surface-2 border-b border-border transition-colors duration-300 group-hover:border-accent/40">
             <span className="flex items-center gap-2 font-mono text-xs text-muted truncate">
