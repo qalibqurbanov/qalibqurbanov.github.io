@@ -209,7 +209,7 @@ export function Skills() {
           <div role="tabpanel" id="skills-panel" aria-labelledby={`skills-tab-${active}`} className="px-3 pb-3 pt-1 md:px-5 md:pb-4">
             <div key={active} className="skills-panel-in">
               {active === "client" ? (
-                <div className="max-w-prose px-1 py-5">
+                <div className="px-1 py-5">
                   <h3 className="mb-2 font-mono text-[13px] text-text">{ui.skillsClient.title}</h3>
                   <p className="text-sm leading-relaxed text-muted">{ui.skillsClient.text}</p>
                 </div>
