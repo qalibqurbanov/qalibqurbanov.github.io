@@ -699,12 +699,12 @@ export function Hero() {
           </Reveal>
         </div>
 
-        <Reveal delayMs={250} className="hidden lg:block animate-float-slow">
+        <Reveal delayMs={250} className="hidden lg:flex lg:items-center animate-float-slow">
           <div
             ref={tiltRef}
             onMouseMove={dragging || !booted ? undefined : handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="glitch-in [--gi-delay:450ms] [--gi-duration:900ms] relative transition-transform duration-300 ease-out will-change-transform"
+            className="glitch-in [--gi-delay:450ms] [--gi-duration:900ms] relative w-full transition-transform duration-300 ease-out will-change-transform"
           >
             <HeroMinimizedEasterEgg visible={minimized} countdown={countdown} />
             {closeToast && (
