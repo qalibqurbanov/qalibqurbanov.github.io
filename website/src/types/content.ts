@@ -195,9 +195,18 @@ export interface UiStrings {
   /** Labels in the experience list: the "current job" pill and the two detail captions. */
   experienceLabels: { now: string; publicProjects: string; stack: string };
   contact: {
-    heading: string;
+    /** The big headline, in two parts: the second one gets the colour gradient. */
+    headlineLead: string;
+    headlineAccent: string;
     body: string;
-    ctaPrefix: string;
+    /** On the contact card: the status line, the kinds of work, and the buttons. */
+    status: string;
+    openTo: string[];
+    send: string;
+    copy: string;
+    copied: string;
+    basedIn: string;
+    emailLabel: string;
   };
   contactModal: {
     title: string;

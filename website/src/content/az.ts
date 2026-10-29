@@ -280,9 +280,16 @@ const az: Content = {
       text: "Backend mənim əsas sahəmdir. Layihənin veb və ya mobil tərəfinə də ehtiyac olanda, onu da öz üzərimə götürürəm və işə ən uyğun alətləri seçirəm.",
     },
     contact: {
-      heading: "Əlaqə Saxlayın",
+      headlineLead: "Gəlin birlikdə",
+      headlineAccent: "yaxşı bir şey quraq.",
       body: "Hazırda yeni imkanlara və maraqlı layihələrə açığam — backend, frontend və ya mobil. Sualınız varsa və ya sadəcə salam vermək istəyirsinizsə, qutum həmişə açıqdır.",
-      ctaPrefix: "Mənə yazın —",
+      status: "Yeni işə açığam",
+      openTo: ["Tam ştat","Freelance","Uzaqdan"],
+      send: "Mesaj göndər",
+      copy: "E-poçtu kopyala",
+      copied: "Kopyalandı",
+      basedIn: "Yerləşdiyi yer",
+      emailLabel: "E-poçt",
     },
     nav: {
       toggleMenu: "Menyunu aç/bağla",

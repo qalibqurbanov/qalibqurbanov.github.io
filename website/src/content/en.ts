@@ -279,9 +279,16 @@ const en: Content = {
       text: "Backend is my home ground. When a project also needs a web or mobile front end, I take that on as well and choose whatever tools fit the job best.",
     },
     contact: {
-      heading: "Get In Touch",
+      headlineLead: "Let's build",
+      headlineAccent: "something good.",
       body: "I'm currently open to new opportunities and interesting projects — backend, frontend, or mobile. Whether you have a question or just want to say hi, my inbox is always open.",
-      ctaPrefix: "Drop Me A Line —",
+      status: "Open to new work",
+      openTo: ["Full-time","Freelance","Remote"],
+      send: "Send a message",
+      copy: "Copy email",
+      copied: "Copied",
+      basedIn: "Based in",
+      emailLabel: "Email",
     },
     nav: {
       toggleMenu: "Toggle menu",
