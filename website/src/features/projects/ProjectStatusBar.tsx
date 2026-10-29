@@ -1,24 +1,18 @@
 import { Download, GitBranch, Star } from "lucide-react";
 
-import { useClock } from "@/hooks/useClock";
 import { useLiveSource } from "@/hooks/useLiveSource";
-import { useContent, useLocale } from "@/i18n/context";
-import { getLocaleMeta } from "@/i18n/locale";
-import { relativeTime } from "@/lib/relativeTime";
+import { useContent } from "@/i18n/context";
 import { repoStatsSource } from "@/lib/repoStats";
 
 /** The thin editor-style status bar along a project card's bottom edge: branch,
- * language, how long ago it was last pushed to, stars and downloads. It paints at
- * once from the last known numbers, then keeps itself current by polling the
- * GitHub API for as long as the page is open (see lib/liveSource.ts). The dot at
- * its left says which it is: pulsing while the numbers are live, dim when GitHub
- * could not be reached and a saved copy is shown. A card whose repository has
- * never been reachable simply has no bar. */
+ * stars and downloads. It paints at once from the last known numbers, then keeps
+ * itself current by polling the GitHub API for as long as the page is open (see
+ * lib/liveSource.ts). The dot at its left says which it is: pulsing while the
+ * numbers are live, dim when GitHub could not be reached and a saved copy is
+ * shown. A card whose repository has never been reachable simply has no bar. */
 export function ProjectStatusBar({ repoUrl }: { repoUrl: string }) {
   const { ui } = useContent();
-  const { locale } = useLocale();
   const { value: stats, live } = useLiveSource(repoStatsSource(repoUrl));
-  useClock(); // re-renders so "3 days ago" keeps counting between fetches
   if (!stats) return null;
 
   return (
@@ -34,16 +28,12 @@ export function ProjectStatusBar({ repoUrl }: { repoUrl: string }) {
           <GitBranch size={11} aria-hidden="true" />
           {stats.branch}
         </span>
-        {stats.language && <span>{stats.language}</span>}
       </span>
       <span className="inline-flex items-center gap-3">
-        <span title={ui.labels.lastCommit}>{relativeTime(stats.pushedAt, getLocaleMeta(locale).bcp47)}</span>
-        {stats.stars > 0 && (
-          <span className="inline-flex items-center gap-1" title={ui.labels.stars}>
-            <Star size={11} aria-hidden="true" />
-            {stats.stars}
-          </span>
-        )}
+        <span className="inline-flex items-center gap-1" title={ui.labels.stars}>
+          <Star size={11} aria-hidden="true" />
+          {stats.stars}
+        </span>
         {stats.downloads > 0 && (
           <span className="inline-flex items-center gap-1" title={ui.labels.downloads}>
             <Download size={11} aria-hidden="true" />

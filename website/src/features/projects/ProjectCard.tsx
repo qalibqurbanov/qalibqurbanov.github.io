@@ -3,7 +3,6 @@ import { ArrowUpRight, Download, ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/icons/BrandIcons";
 import { FileIcon } from "@/components/ui/FileIcon";
 import { Reveal } from "@/components/ui/Reveal";
-import { Tag } from "@/components/ui/Tag";
 import { WindowControls } from "@/components/ui/WindowControls";
 import { projectHref } from "@/hooks/useProjectRoute";
 import { useContent } from "@/i18n/context";
@@ -73,12 +72,7 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 mt-6">
-              <div className="flex flex-wrap gap-2">
-                {project.tags.map((tag) => (
-                  <Tag key={tag}>{tag}</Tag>
-                ))}
-              </div>
+            <div className="flex flex-wrap items-center justify-end gap-2 mt-6">
               <a
                 href={projectHref(project.slug)}
                 className="tap inline-flex items-center gap-1 font-mono text-xs text-muted group-hover:text-accent transition-colors shrink-0"

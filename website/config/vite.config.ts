@@ -29,7 +29,7 @@ const buildInfo = {
   message: git("log", "-1", "--format=%s"),
 };
 
-// A snapshot of the branch, language, stars and downloads of every repository
+// A snapshot of the branch, stars and downloads of every repository
 // the projects link to. It is only the first paint and the fallback: the site
 // refreshes the numbers itself from the GitHub API in the visitor's browser (see
 // src/lib/repoStats.ts), so they do not go stale between deploys. The deploy
@@ -38,7 +38,7 @@ const buildInfo = {
 async function fetchRepoStats() {
   const stats: Record<
     string,
-    { branch: string; language: string | null; pushedAt: string; stars: number; downloads: number }
+    { branch: string; pushedAt: string; stars: number; downloads: number }
   > = {};
   let source = "";
   try {
@@ -62,7 +62,6 @@ async function fetchRepoStats() {
       try {
         const info = (await get(`https://api.github.com/repos/${repo}`)) as {
           default_branch?: string;
-          language?: string | null;
           pushed_at?: string;
           updated_at: string;
           stargazers_count?: number;
@@ -80,7 +79,6 @@ async function fetchRepoStats() {
         }
         stats[repo.toLowerCase()] = {
           branch: info.default_branch ?? "main",
-          language: info.language ?? null,
           pushedAt: info.pushed_at ?? info.updated_at,
           stars: info.stargazers_count ?? 0,
           downloads,

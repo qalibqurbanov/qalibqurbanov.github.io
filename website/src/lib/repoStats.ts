@@ -1,10 +1,9 @@
 import { getGithubJson, LiveSource } from "@/lib/liveSource";
 
-/** What is shown about a GitHub repository: the branch, language, last push,
+/** What is shown about a GitHub repository: the branch, last push,
  * stars and downloads in a project card's status bar. */
 export interface RepoStats {
   branch: string;
-  language: string | null;
   /** ISO date of the last push. */
   pushedAt: string;
   stars: number;
@@ -24,7 +23,6 @@ export function repoKey(repoUrl: string): string | null {
 async function loadRepoStats(key: string, previous: RepoStats | null): Promise<RepoStats> {
   const info = await getGithubJson<{
     default_branch?: string;
-    language?: string | null;
     pushed_at?: string;
     updated_at: string;
     stargazers_count?: number;
@@ -46,7 +44,6 @@ async function loadRepoStats(key: string, previous: RepoStats | null): Promise<R
 
   return {
     branch: info.default_branch ?? "main",
-    language: info.language ?? null,
     pushedAt: info.pushed_at ?? info.updated_at,
     stars: info.stargazers_count ?? 0,
     downloads,
