@@ -72,7 +72,7 @@ The `VITE_` settings are read when the website is built. After changing one, re-
 
 - Resend's free test sender only delivers to the address I signed up to Resend with. To mail any address I would need my own domain verified in Resend.
 - Mails from `onboarding@resend.dev` can land in spam. Fix: Gmail filter, from that address, "never send to spam".
-- The Cloudflare Worker only accepts requests from the live site and localhost ports 1337 and 1338 (`ALLOWED_ORIGINS` at the top of the file).
+- The Cloudflare Worker only accepts requests from the live site and localhost port 1337 (`ALLOWED_ORIGINS` at the top of the file).
 - The form protects itself in the browser: a hidden trap field, no send within 2.5 s of opening, 30 s between sends, 3 per hour. The Cloudflare Worker also checks the fields and their length.
 - The visitor's address is the reply-to, so pressing Reply writes back to them.
 - Without any endpoint (for example local development without `website/.env.local`), the form opens the visitor's own mail app instead (`mailto:`).

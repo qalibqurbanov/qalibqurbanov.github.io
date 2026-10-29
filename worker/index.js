@@ -7,7 +7,7 @@
 //                           valid Turnstile token (the spam check on the form).
 // Binding (wrangler.toml): RATE, a KV namespace that counts messages per IP address. Without it there is no limit.
 
-const ALLOWED_ORIGINS = ["https://qalibqurbanov.github.io", "http://localhost:1337", "http://localhost:1338"];
+const ALLOWED_ORIGINS = ["https://qalibqurbanov.github.io", "http://localhost:1337"];
 /** At most this many messages from one IP address per window. */
 const LIMIT = 3;
 const WINDOW_SECONDS = 60 * 60;
