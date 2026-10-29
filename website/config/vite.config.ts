@@ -40,9 +40,10 @@ async function fetchRepoStats() {
     string,
     { branch: string; commitSha: string | null; commitDate: string | null; stars: number; downloads: number }
   > = {};
+  // The repository links live with the facts shared by every language, and in the English content for any project that is not listed there.
   let source = "";
   try {
-    source = fs.readFileSync(path.resolve(dirname, "../src/content/en.ts"), "utf8");
+    for (const file of ["shared.ts", "en.ts"]) source += fs.readFileSync(path.resolve(dirname, "../src/content", file), "utf8");
   } catch {
     return stats;
   }
