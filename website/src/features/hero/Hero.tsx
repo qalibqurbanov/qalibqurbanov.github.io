@@ -706,7 +706,7 @@ export function Hero() {
             ref={tiltRef}
             onMouseMove={dragging || !booted ? undefined : handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="glitch-in [--gi-delay:450ms] [--gi-duration:900ms] relative w-full transition-transform duration-300 ease-out will-change-transform"
+            className="glitch-in [--gi-delay:450ms] [--gi-duration:900ms] relative w-full transition-transform duration-300 ease-out"
           >
             <HeroMinimizedEasterEgg visible={minimized} countdown={countdown} />
             {closeToast && (

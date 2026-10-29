@@ -19,7 +19,7 @@ export function useTilt<T extends HTMLElement>(maxDeg = 6) {
   function handleMouseLeave() {
     const node = ref.current;
     if (!node) return;
-    node.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg)";
+    node.style.transform = "none";
   }
 
   return { ref, handleMouseMove, handleMouseLeave };
