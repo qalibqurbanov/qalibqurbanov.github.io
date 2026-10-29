@@ -1524,9 +1524,11 @@ html.has-cursor * {
   translate: -50% -50%;
 }
 
+/* The trailing ring only shows during the idle countdown (see lib/idle). */
 .custom-cursor-ring {
   width: 24px;
   height: 24px;
+  opacity: min(1, calc(var(--idle-show, 0) * 4));
   border-radius: 9999px;
   border: 1px solid color-mix(in srgb, var(--color-accent) 65%, transparent);
   box-shadow:
@@ -1541,11 +1543,11 @@ html.has-cursor * {
 }
 
 .custom-cursor-dot {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
   border-radius: 9999px;
-  background: var(--color-accent);
-  box-shadow: 0 0 8px var(--color-accent);
+  background: var(--color-text);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent-2) 65%, transparent);
   transition:
     width 0.18s ease,
     height 0.18s ease,
@@ -1555,83 +1557,136 @@ html.has-cursor * {
     scale 0.15s ease;
 }
 
-/* Over anything clickable the ring opens into [ • ] brackets. */
-.custom-cursor-ring::before,
-.custom-cursor-ring::after {
+/* The silk ribbon the dot trails behind it, drawn on its own canvas. */
+.custom-cursor-ribbon {
   position: absolute;
-  top: 50%;
-  translate: 0 -50%;
-  font-family: var(--font-mono);
-  font-size: 22px;
-  font-weight: 300;
-  line-height: 1;
-  color: var(--color-accent-2);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Over things the dot turns into a thin line glyph that says what the thing does. */
+.custom-cursor:not([data-state="default"]) .custom-cursor-dot {
   opacity: 0;
+  scale: 0.3;
+}
+
+.custom-cursor-glyph {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  width: 18px;
+  height: 18px;
+  color: var(--color-text);
+  opacity: 0;
+  scale: 0.7;
+  pointer-events: none;
+  filter: drop-shadow(0 0 1px color-mix(in srgb, var(--color-bg) 75%, transparent))
+    drop-shadow(0 0 8px color-mix(in srgb, var(--color-accent) 35%, transparent));
   transition:
-    transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
-    opacity 0.2s ease;
+    opacity 0.18s ease,
+    scale 0.32s cubic-bezier(0.2, 1.2, 0.3, 1);
 }
 
-.custom-cursor-ring::before {
-  content: "[";
-  left: -4px;
-  transform: translateX(10px);
+.custom-cursor-glyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
 }
 
-.custom-cursor-ring::after {
-  content: "]";
-  right: -4px;
-  transform: translateX(-10px);
+.custom-cursor-glyph path {
+  vector-effect: non-scaling-stroke;
 }
 
-.custom-cursor[data-state="link"] .custom-cursor-ring {
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.custom-cursor[data-state="link"] .custom-cursor-ring::before,
-.custom-cursor[data-state="link"] .custom-cursor-ring::after {
-  opacity: 1;
-  transform: none;
-}
-
-.custom-cursor[data-state="link"] .custom-cursor-dot {
-  background: var(--color-accent-2);
-  box-shadow: 0 0 8px var(--color-accent-2);
-}
-
-/* Code and the terminal get a block caret, text fields an editor I-beam; both
-   blink and the ring steps aside. */
-.custom-cursor[data-state="code"] .custom-cursor-ring,
-.custom-cursor[data-state="field"] .custom-cursor-ring {
-  opacity: 0;
-  scale: 0.5;
-}
-
-.custom-cursor[data-state="code"] .custom-cursor-dot {
+/* The I-beam is as tall as the text under it (--caret-h is set from script). */
+.custom-cursor-glyph[data-g="text"] {
   width: 8px;
-  height: 17px;
-  border-radius: 1px;
-  background: color-mix(in srgb, var(--color-accent-2) 85%, transparent);
-  box-shadow: 0 0 10px var(--glow-accent-2);
-  animation: cursor-blink 1.1s ease-in-out infinite;
+  height: var(--caret-h, 18px);
 }
 
-.custom-cursor[data-state="field"] .custom-cursor-dot {
-  width: 2px;
+.custom-cursor-glyph[data-g="grab"] {
+  width: 20px;
   height: 20px;
-  border-radius: 1px;
-  animation: cursor-blink 1.1s ease-in-out infinite;
 }
 
-@keyframes cursor-blink {
-  0%,
-  45% {
-    opacity: 1;
+.custom-cursor-glyph[data-g="hold"] {
+  width: 14px;
+  height: 14px;
+  color: var(--color-accent-2);
+}
+
+.custom-cursor-glyph[data-g="no"] {
+  width: 16px;
+  height: 16px;
+  color: var(--color-danger);
+}
+
+.custom-cursor-glyph[data-g="help"] {
+  width: 20px;
+  height: 20px;
+}
+
+.custom-cursor[data-state="link"] .custom-cursor-glyph[data-g="link"],
+.custom-cursor[data-state="field"] .custom-cursor-glyph[data-g="text"],
+.custom-cursor[data-state="code"] .custom-cursor-glyph[data-g="text"],
+.custom-cursor[data-state="grab"] .custom-cursor-glyph[data-g="grab"],
+.custom-cursor[data-state="no"] .custom-cursor-glyph[data-g="no"],
+.custom-cursor[data-state="help"] .custom-cursor-glyph[data-g="help"],
+.custom-cursor[data-state="download"] .custom-cursor-glyph[data-g="download"] {
+  opacity: 1;
+  scale: 1;
+}
+
+/* Holding a draggable thing: the move cross closes in. */
+.custom-cursor[data-state="grab"].is-down .custom-cursor-glyph[data-g="grab"] {
+  opacity: 0;
+  scale: 0.6;
+}
+
+.custom-cursor[data-state="grab"].is-down .custom-cursor-glyph[data-g="hold"] {
+  opacity: 1;
+  scale: 1;
+}
+
+.custom-cursor.is-down .custom-cursor-glyph {
+  scale: 0.9;
+}
+
+/* Small movements that say what each glyph is for. */
+.custom-cursor[data-state="link"] .custom-cursor-glyph[data-g="link"] svg {
+  animation: cursor-nudge 1.3s ease-in-out infinite;
+}
+
+.custom-cursor[data-state="download"] .custom-cursor-glyph[data-g="download"] svg {
+  animation: cursor-bob 1.3s ease-in-out infinite;
+}
+
+.custom-cursor[data-state="grab"]:not(.is-down) .custom-cursor-glyph[data-g="grab"] svg {
+  animation: cursor-breathe 1.4s ease-in-out infinite;
+}
+
+@keyframes cursor-nudge {
+  50% {
+    transform: translate(1.2px, -1.2px);
   }
-  75%,
-  100% {
-    opacity: 0.2;
+}
+
+@keyframes cursor-bob {
+  50% {
+    transform: translateY(1.5px);
+  }
+}
+
+@keyframes cursor-breathe {
+  50% {
+    transform: scale(1.1);
   }
 }
 
@@ -1788,29 +1843,6 @@ html.has-cursor * {
   display: none;
 }
 
-/* The draggable window: the ring tightens into a grip. */
-.custom-cursor[data-state="grab"] .custom-cursor-ring {
-  scale: 0.78;
-  border-color: var(--color-accent-2);
-}
-
-.custom-cursor.is-down .custom-cursor-ring {
-  scale: 0.8;
-}
-
-.custom-cursor[data-state="grab"].is-down .custom-cursor-ring {
-  scale: 0.55;
-  background: color-mix(in srgb, var(--color-accent-2) 22%, transparent);
-}
-
-.custom-cursor[data-state="link"].is-down .custom-cursor-ring::before {
-  transform: translateX(5px);
-}
-
-.custom-cursor[data-state="link"].is-down .custom-cursor-ring::after {
-  transform: translateX(-5px);
-}
-
 /* Signal loss (signalLoss in lib/effects.ts) replaces the whole cursor with a tag that reads ERROR,
    which tears sideways and flickers. Everything scales by --signal-i, so it fades in and out with
    the burst; the dot, the ring and the idle butterfly step aside for it. */
@@ -1886,22 +1918,17 @@ html.signal-loss .custom-cursor-error {
 
 :root[data-motion="light"] .custom-cursor-ring,
 :root[data-motion="light"] .custom-cursor-dot,
-:root[data-motion="light"] .custom-cursor-ring::before,
-:root[data-motion="light"] .custom-cursor-ring::after,
+:root[data-motion="light"] .custom-cursor-glyph,
 :root[data-motion="off"] .custom-cursor-ring,
 :root[data-motion="off"] .custom-cursor-dot,
-:root[data-motion="off"] .custom-cursor-ring::before,
-:root[data-motion="off"] .custom-cursor-ring::after {
+:root[data-motion="off"] .custom-cursor-glyph {
   transition: none;
 }
 
-:root[data-motion="light"] .custom-cursor[data-state="code"] .custom-cursor-dot,
-:root[data-motion="light"]
-  .custom-cursor[data-state="field"]
-  .custom-cursor-dot,
-:root[data-motion="off"] .custom-cursor[data-state="code"] .custom-cursor-dot,
-:root[data-motion="off"] .custom-cursor[data-state="field"] .custom-cursor-dot {
-  animation: none;
+/* A burst of signal loss hides the ribbon and the glyphs too, like the dot. */
+html.signal-loss .custom-cursor-ribbon,
+html.signal-loss .custom-cursor-glyph {
+  visibility: hidden;
 }
 
 /* Easter-egg effects (lib/effects.ts). Every offset, tilt, tint and shadow below is scaled
