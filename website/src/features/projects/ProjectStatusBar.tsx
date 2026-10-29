@@ -19,12 +19,10 @@ export function ProjectStatusBar({ repoUrl }: { repoUrl: string }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-border bg-surface-2/70 px-4 py-1.5 font-mono text-[11px] text-muted transition-colors duration-300 group-hover:border-accent/40">
       <span className="inline-flex items-center gap-3">
-        {/* The padding makes the small dot an easier target for its hover text. */}
-        <span role="img" aria-label={ui.labels.statusData} title={ui.labels.statusData} className="-m-1.5 cursor-help p-1.5">
-          <span className="block h-1.5 w-1.5 rounded-full bg-accent" />
-        </span>
-        <span className="inline-flex cursor-help items-center gap-1" title={ui.labels.statusBranch}>
+        <span role="img" aria-label={ui.labels.statusData} className="block h-1.5 w-1.5 rounded-full bg-accent" />
+        <span className="inline-flex items-center gap-1">
           <GitBranch size={11} aria-hidden="true" />
+          <span className="sr-only">{ui.labels.statusBranch}</span>
           {stats.branch}
         </span>
         {stats.commitSha && (
@@ -32,7 +30,6 @@ export function ProjectStatusBar({ repoUrl }: { repoUrl: string }) {
             href={`${repoUrl.replace(/\/+$/, "")}/commit/${stats.commitSha}`}
             target="_blank"
             rel="noreferrer"
-            title={ui.labels.statusCommit}
             className="transition-colors hover:text-accent"
           >
             {stats.commitSha.slice(0, 7)}
@@ -41,13 +38,15 @@ export function ProjectStatusBar({ repoUrl }: { repoUrl: string }) {
         )}
       </span>
       <span className="inline-flex items-center gap-3">
-        <span className="inline-flex cursor-help items-center gap-1" title={ui.labels.stars}>
+        <span className="inline-flex items-center gap-1">
           <Star size={11} aria-hidden="true" />
+          <span className="sr-only">{ui.labels.stars}</span>
           {stats.stars}
         </span>
         {stats.downloads > 0 && (
-          <span className="inline-flex cursor-help items-center gap-1" title={ui.labels.downloads}>
+          <span className="inline-flex items-center gap-1">
             <Download size={11} aria-hidden="true" />
+            <span className="sr-only">{ui.labels.downloads}</span>
             {stats.downloads}
           </span>
         )}
