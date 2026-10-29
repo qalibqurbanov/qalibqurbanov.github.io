@@ -505,21 +505,6 @@ html::-webkit-scrollbar-button,
   animation: hud-burst 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Slow diagonal crawl of the hero's dot grid, so the backdrop never sits
-   perfectly still even when nothing else on screen is moving. */
-@keyframes grid-pan {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 44px 44px;
-  }
-}
-
-.bg-grid {
-  animation: grid-pan 7s linear infinite;
-}
-
 /* Shifts the two-stop gradient used by `.text-gradient` across itself for a
    slow shimmer, instead of a static color. */
 @keyframes gradient-shift {
@@ -909,7 +894,6 @@ html::-webkit-scrollbar-button,
 
 :root[data-motion="light"] .animate-float-slow,
 :root[data-motion="light"] .hud-ripple,
-:root[data-motion="light"] .bg-grid,
 :root[data-motion="light"] .text-gradient,
 :root[data-motion="light"] .blob-drift-a,
 :root[data-motion="light"] .blob-drift-b,

@@ -19,6 +19,7 @@ import { WindowControls } from "@/components/ui/WindowControls";
 import { HeroMinimizedEasterEgg } from "@/features/hero/HeroMinimizedEasterEgg";
 import { HeroBoot } from "@/features/hero/HeroBoot";
 import { HeroBootAura } from "@/features/hero/HeroBootAura";
+import { HeroScan } from "@/features/hero/HeroScan";
 import type { MenuDef, MenuEntry } from "@/features/hero/HeroMenuBar";
 import { HeroMenuBar } from "@/features/hero/HeroMenuBar";
 import { HeroStatusBar } from "@/features/hero/HeroStatusBar";
@@ -555,6 +556,7 @@ export function Hero() {
 
   return (
     <section id="top" ref={sectionRef} className="relative min-h-screen flex items-center bg-grid overflow-hidden">
+      <HeroScan />
       <div className="pointer-events-none absolute -top-40 left-1/4 -translate-x-1/2 w-[640px] h-[640px] rounded-full bg-accent/15 blur-3xl will-change-transform blob-drift-a" />
       <div className="pointer-events-none absolute top-1/3 right-0 w-[420px] h-[420px] rounded-full bg-accent-2/10 blur-3xl will-change-transform blob-drift-b" />
 
