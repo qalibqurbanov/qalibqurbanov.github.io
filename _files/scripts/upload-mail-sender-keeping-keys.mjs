@@ -18,7 +18,7 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const worker = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "worker");
+const worker = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "worker");
 
 function run(args, options = {}) {
   return spawnSync("npx", ["wrangler", ...args], { cwd: worker, shell: true, encoding: "utf8", ...options });

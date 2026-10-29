@@ -4,7 +4,7 @@ compatibility_date = "2026-10-01"
 
 # Keep the settings entered in the Cloudflare dashboard (RESEND_API_KEY, TO_EMAIL, TURNSTILE_SECRET, FROM_EMAIL).
 # This line must stay above the [tables] below: a line placed under a table belongs to it and is ignored.
-# Deploy with scripts/upload-mail-sender-to-cloudflare.bat: it also hands the live settings to the deploy again, so none is lost.
+# Deploy with _files/scripts/upload-mail-sender-to-cloudflare.bat: it also hands the live settings to the deploy again, so none is lost.
 keep_vars = true
 
 # No separate preview address for each version: the one workers.dev address is enough.

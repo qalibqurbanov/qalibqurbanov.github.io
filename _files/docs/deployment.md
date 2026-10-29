@@ -14,7 +14,7 @@ GitHub Pages serves website/dist at https://qalibqurbanov.github.io/
 
 ## Things to remember
 
-- The site is a React + Vite project in `website/`. The repository root also holds `worker/` (the mail-sending Cloudflare Worker, see mail-sending.md), `scripts/` and `_files/`.
+- The site is a React + Vite project in `website/`. The repository root also holds `worker/` (the mail-sending Cloudflare Worker, see mail-sending.md) and `_files/` (docs, helper scripts, editor files).
 - Every push to `main` deploys automatically. It can also be started by hand: GitHub > Actions > "Deploy to GitHub Pages" > Run workflow.
 - GitHub Pages must have its source set to **GitHub Actions** (repo Settings > Pages). With "Deploy from a branch" GitHub builds the README with Jekyll instead and the real site never appears. This was the cause of the live site once showing the wrong page.
 - Settings that start with `VITE_` are read **while building**. Changing one on GitHub does nothing until the workflow runs again.

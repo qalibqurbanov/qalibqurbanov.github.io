@@ -19,7 +19,7 @@ REM  when you push your changes. It also does NOT touch the mail sender on
 REM  Cloudflare: for that use upload-mail-sender-to-cloudflare.bat.
 REM ============================================================================
 setlocal
-cd /d "%~dp0..\website"
+cd /d "%~dp0..\..\website"
 
 if not exist "node_modules" (
     echo Installing dependencies...

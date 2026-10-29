@@ -19,7 +19,7 @@ REM  WHEN TO USE IT: only after you change worker\index.js.
 REM  Changes to the website itself do not need it (GitHub does those by itself).
 REM ============================================================================
 setlocal
-cd /d "%~dp0..\worker"
+cd /d "%~dp0..\..\worker"
 
 if not exist "node_modules" (
     echo Installing dependencies...
