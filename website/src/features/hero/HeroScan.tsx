@@ -2,15 +2,16 @@ import { useEffect, useRef } from "react";
 
 import { prefersReducedMotion } from "@/hooks/glitch";
 import { rand } from "@/lib/math";
+import { setScanBand } from "@/lib/scanBand";
 import { subscribeTick } from "@/lib/ticker";
 import { useMotion } from "@/motion/context";
 
 /** Must match the cell size of `.bg-grid`. */
 const CELL = 44;
 /** Half the width of the scan band, in px, measured along its diagonal. */
-const BAND = 220;
+const BAND = 280;
 /** Pixels per millisecond the band travels. */
-const BAND_SPEED = 0.2;
+const BAND_SPEED = 0.15;
 /** Where each pass enters, going round like a clock (bit 1 = right, bit 2 = bottom): top-left,
  * top-right, bottom-right, bottom-left. The band crosses to the opposite corner. */
 const CLOCKWISE = [0, 1, 3, 2];
@@ -106,6 +107,7 @@ export function HeroScan() {
 
     const frame = (now: number) => {
       if (!visible || !W || !H) {
+        setScanBand(null);
         last = now;
         return;
       }
@@ -135,6 +137,9 @@ export function HeroScan() {
       const c1 = pos + BAND;
       /** Distance from the entry corner, measured along the diagonal the band moves across. */
       const U = (x: number, y: number) => Math.abs(x - cx0) + Math.abs(y - cy0);
+      // The fireflies and butterflies react while they are inside the band.
+      const box = host.getBoundingClientRect();
+      setScanBand({ left: box.left, top: box.top, w: W, h: H, cx0, cy0, pos, half: BAND, color: accent2 });
       const bandPath = (g: CanvasRenderingContext2D) => {
         g.moveTo(cx0 + sx * c0, cy0);
         g.lineTo(cx0 + sx * c1, cy0);
@@ -275,6 +280,7 @@ export function HeroScan() {
     const stop = subscribeTick(frame, 33, true);
     return () => {
       stop();
+      setScanBand(null);
       resizer.disconnect();
       watcher.disconnect();
       window.removeEventListener("pointermove", onMove);

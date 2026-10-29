@@ -10,6 +10,7 @@ import { ButterflyFlight } from "@/lib/butterflyFlight";
 import { idleFor, IDLE_MS, wake } from "@/lib/idle";
 import { quakeCount, quaking } from "@/lib/flyerGlitch";
 import { isNotFoundPage } from "@/lib/notFound";
+import { drawScanMark, ScanTrack } from "@/lib/scanBand";
 
 /** One of the roaming butterflies, each with its own flight and state. */
 interface Bug {
@@ -47,6 +48,8 @@ interface Bug {
   startleUntil: number;
   /** The last page quake it was shoved by (see lib/flyerGlitch.ts). */
   quake: number;
+  /** How the hero's scan band is affecting it (see lib/scanBand.ts). */
+  scan: ScanTrack;
 }
 
 interface Trail {
@@ -586,7 +589,7 @@ export function CyberButterfly() {
         const flight = new ButterflyFlight(size, view());
         flight.finder = calm ? null : (x, y) => findPerch(x, y, size, docH);
         if (i > 0) flight.scatter(view());
-        return { flight, body, hit, size, sleep: 0, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0, hoverSay: false, sayW: 0, sayH: 0, sayBelow: false, nextHoverSay: 0, dodges: 0, dodgeResetAt: 0, dodgeAt: 0, startleUntil: 0, quake: quakeCount() };
+        return { flight, body, hit, size, sleep: 0, thread: threads[i], fold: 0, threadOn: false, hover: false, flap: 0.2, spawn: 0, say: says[i], sayShown: false, sayUntil: 0, nextSay: 0, hoverSay: false, sayW: 0, sayH: 0, sayBelow: false, nextHoverSay: 0, dodges: 0, dodgeResetAt: 0, dodgeAt: 0, startleUntil: 0, quake: quakeCount(), scan: new ScanTrack(100 + i) };
       });
       const rest = () => {
         bugs.forEach((b, i) => {
@@ -760,9 +763,15 @@ export function CyberButterfly() {
             emit(bug, 3, 28, true);
           }
 
+          // Inside the hero's scan band it glitches (jitter, flicker, red and cyan ghosts) and gets
+          // scanned (the marks drawn below).
+          if (mode === "fly" && !calm) bug.scan.update(flight.x, flight.y + flight.bob - v.scrollY, now, dt);
+          // Everything it does scales with `g`, so the glitch fades in and out with the band.
+          const g = bug.scan.glitch;
           body.style.transform = `translate3d(${(flight.x - hit / 2).toFixed(1)}px, ${(flight.y + flight.bob - hit / 2).toFixed(1)}px, 0) rotate(${(flight.angle + (shaking ? (Math.random() - 0.5) * 0.7 : 0)).toFixed(3)}rad)`;
-          body.style.translate = shaking ? `${((Math.random() - 0.5) * 14).toFixed(1)}px ${((Math.random() - 0.5) * 10).toFixed(1)}px` : "";
-          body.style.opacity = shaking && Math.random() < 0.35 ? "0.3" : "";
+          body.style.translate = shaking ? `${((Math.random() - 0.5) * 14).toFixed(1)}px ${((Math.random() - 0.5) * 10).toFixed(1)}px` : g > 0 ? `${((Math.random() - 0.5) * 8 * g).toFixed(1)}px ${((Math.random() - 0.5) * 5 * g).toFixed(1)}px` : "";
+          body.style.opacity = shaking && Math.random() < 0.35 ? "0.3" : g > 0 && Math.random() < 0.18 * g ? "0.25" : "";
+          body.style.filter = g > 0.03 && Math.random() < 0.8 ? `drop-shadow(${((4 + Math.random() * 6) * g).toFixed(1)}px 0 0 rgba(255,60,120,${(0.7 * g).toFixed(2)})) drop-shadow(${((-4 - Math.random() * 6) * g).toFixed(1)}px 0 0 rgba(40,220,255,${(0.7 * g).toFixed(2)}))` : "";
 
           if (mode === "fly") {
             // Wings close and open gradually as it lands on and leaves its thread.
@@ -865,6 +874,14 @@ export function CyberButterfly() {
         ctx.globalAlpha = 1;
         ctx.globalCompositeOperation = "source-over";
 
+        // The scanned butterflies get a ring when the band reaches them, then brackets and a tag.
+        if (mode === "fly" && !calm) {
+          for (const bug of bugs) {
+            if (bug.scan.marked) {
+              drawScanMark(ctx, bug.flight.x, bug.flight.y + bug.flight.bob - v.scrollY, bug.size * 0.6, bug.scan, now, "BFLY");
+            }
+          }
+        }
       };
       const stop = subscribeTick(frame, 0, true);
 

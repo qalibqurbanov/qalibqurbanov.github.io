@@ -7,6 +7,7 @@ import { isNotFoundPage } from "@/lib/notFound";
 import { subscribeTick } from "@/lib/ticker";
 import { quakeCount, quaking } from "@/lib/flyerGlitch";
 import { clamp, rand } from "@/lib/math";
+import { drawScanMark, ScanTrack } from "@/lib/scanBand";
 
 const COUNT = 10;
 /** The idle clock shows nothing for the first stretch; fireflies leave one by one after it. */
@@ -35,6 +36,8 @@ interface Fly {
   /** Whether it was called last frame, and how far into the pull it is (0 → 1), so it sets off gently. */
   was: boolean;
   drive: number;
+  /** How the hero's scan band is affecting it. */
+  scan: ScanTrack;
 }
 
 /** A handful of fireflies that drift lazily about their own corners of the
@@ -89,6 +92,7 @@ export function Fireflies() {
         g: 0,
         was: false,
         drive: 1,
+        scan: new ScanTrack(i + 1),
       };
     });
 
@@ -191,9 +195,36 @@ export function Fireflies() {
         let alpha = clamp((0.28 + 0.34 * pulse) * (1 - f.g) + (0.7 + 0.3 * pulse) * f.g, 0, 1);
         const size = f.size * (1 + f.g * 0.25);
         const sy = ((((f.y - scrollY + M) % span) + span) % span) - M;
-        const gx = shaking ? f.x + rand(-5, 5) : f.x;
-        const gy = shaking ? sy + rand(-5, 5) : sy;
+        // Inside the hero's scan band it glitches and gets scanned (lib/scanBand.ts).
+        f.scan.update(f.x, sy, now, dt);
+        // Everything it does scales with `g`, so the glitch fades in and out with the band.
+        const g = f.scan.glitch;
+        const jitter = shaking ? 5 : 3 * g;
+        const gx = jitter ? f.x + rand(-jitter, jitter) : f.x;
+        const gy = jitter ? sy + rand(-jitter, jitter) : sy;
         if (shaking) alpha = Math.random() < 0.4 ? 1 : alpha * 0.3;
+        else if (g > 0 && Math.random() < 0.18 * g) alpha *= 0.25;
+        if (g > 0.03 && Math.random() < 0.8) {
+          // Red and cyan ghosts to either side, and now and then a strip of it torn sideways.
+          ctx.globalAlpha = Math.min(1, alpha + 0.3) * g;
+          ctx.fillStyle = "rgba(255,60,120,0.7)";
+          ctx.beginPath();
+          ctx.arc(gx + rand(4, 10) * g, gy + rand(-2, 2), size * 0.7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "rgba(40,220,255,0.7)";
+          ctx.beginPath();
+          ctx.arc(gx - rand(4, 10) * g, gy + rand(-2, 2), size * 0.7, 0, Math.PI * 2);
+          ctx.fill();
+          if (Math.random() < 0.35 * g) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(gx - 30, gy + rand(-8, 2), 60, rand(2, 5));
+            ctx.clip();
+            ctx.globalAlpha = g;
+            ctx.drawImage(sprite, gx - size * 3 + rand(-14, 14) * g, gy - size * 3, size * 6, size * 6);
+            ctx.restore();
+          }
+        }
         ctx.globalAlpha = alpha;
         ctx.drawImage(sprite, gx - size * 3, gy - size * 3, size * 6, size * 6);
         ctx.globalAlpha = Math.min(1, alpha + 0.2);
@@ -201,6 +232,11 @@ export function Fireflies() {
         ctx.fillStyle = "#fff6c2";
         ctx.arc(gx, gy, size * 0.5, 0, Math.PI * 2);
         ctx.fill();
+        if (f.scan.marked) {
+          ctx.globalCompositeOperation = "source-over";
+          drawScanMark(ctx, gx, gy, 16, f.scan, now, "FLY");
+          ctx.globalCompositeOperation = "lighter";
+        }
       });
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
