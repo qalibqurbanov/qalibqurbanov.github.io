@@ -2955,6 +2955,22 @@ html[data-page="not-found"][data-motion="light"] body::after {
 }
 
 /* A skill in the skills section: a small outlined chip that lights up on hover. */
+/* The panel of the Skills tabs fades in when another tab opens. */
+@keyframes skills-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.skills-panel-in {
+  animation: skills-panel-in 0.3s ease both;
+}
+
 .skill-chip {
   display: inline-flex;
   align-items: center;
