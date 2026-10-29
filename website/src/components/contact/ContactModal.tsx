@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { Check, CheckCircle2, CircleAlert, Clock, Mail, Paperclip, Send, X } from "lucide-react";
-import type { DragEvent, FormEvent, ReactNode } from "react";
+import type { DragEvent, FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
