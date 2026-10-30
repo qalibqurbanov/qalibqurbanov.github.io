@@ -1,0 +1,38 @@
+/* The canvas every theme scene draws on: behind the page, never in the way of it. */
+.theme-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* The objects scattered through the page sit above the backdrop, still behind the content. */
+.theme-scene-objects {
+  z-index: -9;
+}
+
+/* Real 3D models stand above the drawn objects, still behind the page. Where the text stands they are
+   shown at about half strength, so a model never competes with what is being read. */
+.theme-scene-models {
+  z-index: -8;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    #000 calc(50% - 640px),
+    rgba(0, 0, 0, var(--model-veil, 0.55)) calc(50% - 470px),
+    rgba(0, 0, 0, var(--model-veil, 0.55)) calc(50% + 470px),
+    #000 calc(50% + 640px),
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    #000 calc(50% - 640px),
+    rgba(0, 0, 0, var(--model-veil, 0.55)) calc(50% - 470px),
+    rgba(0, 0, 0, var(--model-veil, 0.55)) calc(50% + 470px),
+    #000 calc(50% + 640px),
+    #000 100%
+  );
+}

@@ -1,0 +1,44 @@
+/* The synthwave theme's own colours and fonts. They apply while the colour scheme is "Theme default";
+   a chosen scheme (shared/colour/colours.css) is loaded after this file and wins. */
+:root[data-style="synthwave"] {
+  --font-display: "Orbitron", "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Rajdhani", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Martian Mono", "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+
+:root[data-style="synthwave"][data-theme="dark"],
+:root[data-style="synthwave"] [data-theme="dark"] {
+  --color-bg: #0b0220;
+  --color-surface: #160636;
+  --color-surface-2: #220a4d;
+  --color-border: #4f1d8a;
+  --color-accent: #ff2a9d;
+  --color-accent-2: #22e5ff;
+  --color-text: #f8ecff;
+  --color-muted: #b79bdb;
+  --color-syn-type: #ff9e3d;
+  --color-syn-number: #fde047;
+
+  --grid-line: rgba(255, 42, 157, 0.09);
+  --glow-accent: rgba(255, 42, 157, 0.3);
+  --glow-accent-2: rgba(34, 229, 255, 0.2);
+}
+
+:root[data-style="synthwave"][data-theme="light"],
+:root[data-style="synthwave"] [data-theme="light"] {
+  --color-bg: #f6ecff;
+  --color-surface: #ffffff;
+  --color-surface-2: #eddcff;
+  --color-border: #d6b8f5;
+  --color-accent: #c4006f;
+  --color-accent-2: #0b7285;
+  --color-text: #220a40;
+  --color-muted: #6b4a94;
+  --color-syn-type: #c2410c;
+  --color-syn-number: #a16207;
+
+  --grid-line: rgba(120, 20, 160, 0.07);
+  --glow-accent: rgba(196, 0, 111, 0.14);
+  --glow-accent-2: rgba(11, 114, 133, 0.12);
+}
+

@@ -298,7 +298,7 @@ export interface UiStrings {
     palette: string;
     /** The label of the visual style switcher. */
     style: string;
-    paletteNames: Record<"violet" | "ocean" | "forest" | "sunset" | "rose", string>;
+    paletteNames: Record<"auto" | "violet" | "ocean" | "forest" | "sunset" | "rose", string>;
     minimize: string;
     close: string;
     home: string;

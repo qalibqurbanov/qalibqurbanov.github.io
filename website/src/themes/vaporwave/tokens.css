@@ -1,0 +1,44 @@
+/* The vaporwave theme's own colours and fonts. They apply while the colour scheme is "Theme default";
+   a chosen scheme (shared/colour/colours.css) is loaded after this file and wins. */
+:root[data-style="vaporwave"] {
+  --font-display: "Major Mono Display", "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Share Tech Mono", "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+
+:root[data-style="vaporwave"][data-theme="dark"],
+:root[data-style="vaporwave"] [data-theme="dark"] {
+  --color-bg: #1a0b34;
+  --color-surface: #271450;
+  --color-surface-2: #361d6b;
+  --color-border: #6a3fb0;
+  --color-accent: #ff71ce;
+  --color-accent-2: #01cdfe;
+  --color-text: #fff1ff;
+  --color-muted: #c3a5e8;
+  --color-syn-type: #b967ff;
+  --color-syn-number: #05ffa1;
+
+  --grid-line: rgba(255, 113, 206, 0.08);
+  --glow-accent: rgba(255, 113, 206, 0.26);
+  --glow-accent-2: rgba(1, 205, 254, 0.2);
+}
+
+:root[data-style="vaporwave"][data-theme="light"],
+:root[data-style="vaporwave"] [data-theme="light"] {
+  --color-bg: #fff0fa;
+  --color-surface: #ffffff;
+  --color-surface-2: #fde2f6;
+  --color-border: #f2c2e6;
+  --color-accent: #d6309a;
+  --color-accent-2: #0891b2;
+  --color-text: #3a1456;
+  --color-muted: #7a4f94;
+  --color-syn-type: #9333ea;
+  --color-syn-number: #059669;
+
+  --grid-line: rgba(214, 48, 154, 0.08);
+  --glow-accent: rgba(214, 48, 154, 0.14);
+  --glow-accent-2: rgba(8, 145, 178, 0.12);
+}
+

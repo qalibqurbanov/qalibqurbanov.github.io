@@ -1,0 +1,18 @@
+/* The layer every theme's opening animation plays on. Each theme's own keyframes are in its theme.css. */
+@property --ti-r {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+.theme-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.theme-intro * {
+  box-sizing: border-box;
+}

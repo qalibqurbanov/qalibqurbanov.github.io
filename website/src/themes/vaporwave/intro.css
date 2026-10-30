@@ -1,0 +1,102 @@
+/* The vaporwave opening (intro.ts) and the way the hero window arrives. Every time is scaled by --k. */
+
+.ti-vaporwave .tv-strip {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  top: calc(var(--i) * 10vh);
+  height: 10.1vh;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 40px, rgba(255, 255, 255, 0.18) 40px 41px),
+    repeating-linear-gradient(90deg, transparent 0 40px, rgba(255, 255, 255, 0.18) 40px 41px),
+    linear-gradient(180deg, #ff9be0 0%, #b967ff 55%, #01cdfe 100%);
+  background-size: 100% 100vh, 100% 100vh, 100% 100vh;
+  background-position: 0 calc(var(--i) * -10vh), 0 calc(var(--i) * -10vh), 0 calc(var(--i) * -10vh);
+  animation: tv-blind calc(520ms * var(--k)) cubic-bezier(0.7, 0, 0.8, 1) calc((1200ms + var(--i) * 45ms) * var(--k)) forwards;
+}
+
+@keyframes tv-blind {
+  to {
+    transform: translateX(calc(var(--dir) * 105%));
+  }
+}
+
+.ti-vaporwave .tv-win {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(340px, 82vw);
+  transform: translate(-50%, -50%);
+  background: #fdf1ff;
+  border: 2px solid #1a0b34;
+  box-shadow: 6px 6px 0 #ff71ce;
+  animation: tv-win calc(1400ms * var(--k)) steps(6, end) forwards;
+}
+
+@keyframes tv-win {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  14%,
+  78% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+.ti-vaporwave .tv-bar {
+  padding: 4px 8px;
+  font: 700 12px/1.4 "JetBrains Mono", monospace;
+  color: #fff;
+  background: linear-gradient(90deg, #ff71ce, #01cdfe);
+  white-space: nowrap;
+}
+
+.ti-vaporwave .tv-track {
+  margin: 20px 16px 10px;
+  height: 24px;
+  padding: 2px;
+  border: 2px solid #1a0b34;
+  background: #fff;
+}
+
+.ti-vaporwave .tv-fill {
+  height: 100%;
+  width: 0;
+  background: repeating-linear-gradient(90deg, #ff71ce 0 14px, transparent 14px 18px);
+  animation: tv-fill calc(950ms * var(--k)) steps(14, end) calc(150ms * var(--k)) forwards;
+}
+
+@keyframes tv-fill {
+  to {
+    width: 100%;
+  }
+}
+
+.ti-vaporwave .tv-note {
+  padding: 0 0 12px;
+  text-align: center;
+  font: 400 12px/1 "JetBrains Mono", monospace;
+  color: #7a4f94;
+}
+
+/* The hero window opens like an old desktop window: in a few hard steps. */
+:root[data-style="vaporwave"] .glitch-in {
+  animation: vapor-arrive var(--gi-duration, 900ms) steps(5, end) var(--gi-delay, 0ms) backwards;
+}
+
+@keyframes vapor-arrive {
+  from {
+    opacity: 0;
+    transform: scale(0.55) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

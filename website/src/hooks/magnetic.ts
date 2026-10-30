@@ -4,7 +4,7 @@
  * other transforms, and event delegation so every button behaves the same
  * with no per-component wiring. Fine pointers only. */
 
-import { prefersReducedMotion } from "@/hooks/glitch";
+import { isCyber, prefersReducedMotion } from "@/hooks/glitch";
 
 const PULL = 0.28;
 const MAX_X = 9;
@@ -30,7 +30,7 @@ export function installMagnetic(): void {
   document.addEventListener(
     "pointermove",
     (event) => {
-      const target = event.target instanceof Element ? event.target.closest<HTMLElement>(".btn-pulse") : null;
+      const target = isCyber() && event.target instanceof Element ? event.target.closest<HTMLElement>(".btn-pulse") : null;
       if (target !== current) {
         release();
         current = target;

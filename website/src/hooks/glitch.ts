@@ -7,11 +7,18 @@
 
 import { rand, sign } from "@/lib/math";
 import { currentMotion } from "@/lib/motion";
+import { playThemeIntro } from "@/themes/shared/intro";
 
 /** True unless the motion level is "full": the heavy effects check this before they start. The level
  * follows the device's reduce-motion setting until the visitor picks one (see MotionProvider). */
 export function prefersReducedMotion(): boolean {
   return currentMotion() !== "full";
+}
+
+/** The glitch family of effects (text splits, border glitches, scan wipes, magnetic buttons) belongs to the
+ * original style; every other style has its own motion language. */
+export function isCyber(): boolean {
+  return document.documentElement.getAttribute("data-style") === "cyber";
 }
 
 /** Runs `frames` rapid, irregular frames, with the odd clean frame between
@@ -47,6 +54,7 @@ function slice(): string {
  * `::after`, which read `data-text`) are cut into random bands and nudged
  * sideways in the two accent colours, while the text itself jitters. */
 export function textBurst(el: HTMLElement, frames = 6): () => void {
+  if (!isCyber()) return () => {};
   const set = (key: string, value: string) => el.style.setProperty(key, value);
   const step = () => {
     set("--gc-a", slice());
@@ -72,6 +80,7 @@ const rects = (segments: Segment[], y: number, height: number) =>
  * each one is cut out of the line and redrawn a few pixels above or below in
  * an accent colour, as if that stretch of the line had slipped a row. */
 export function ruleBurst(el: HTMLElement, frames = 6): () => void {
+  if (!isCyber()) return () => {};
   const set = (key: string, value: string) => el.style.setProperty(key, value);
   const step = () => {
     const width = el.clientWidth;
@@ -116,7 +125,7 @@ export function registerGlitch(el: Element, fire: () => void): () => void {
 }
 
 export function triggerGlitch(root: ParentNode): void {
-  if (prefersReducedMotion()) return;
+  if (prefersReducedMotion() || !isCyber()) return;
   root.querySelectorAll("[data-glitch]").forEach((el) => triggers.get(el)?.());
 }
 
@@ -124,6 +133,8 @@ export function triggerGlitch(root: ParentNode): void {
  * page for a third of a second. Fired on theme and language switches. */
 export function glitchScreen(): void {
   if (prefersReducedMotion()) return;
+  // Every style but the original has its own flash.
+  if (playThemeIntro(document.documentElement.getAttribute("data-style"), 0.3)) return;
   const overlay = document.createElement("div");
   overlay.className = "glitch-screen";
   overlay.setAttribute("aria-hidden", "true");
@@ -162,7 +173,7 @@ export const SCRAMBLE = "abcdefghijklmnopqrstuvwxyz0123456789#%&$@!?<>/[]{}=+*^~
  * for the duration so the noise doesn't shove neighbours around. */
 export function decodeText(el: HTMLElement, duration = 700): () => void {
   const node = el.firstChild;
-  if (!(node instanceof Text)) return () => {};
+  if (!isCyber() || !(node instanceof Text)) return () => {};
   const finalText = () => el.dataset.text ?? node.nodeValue ?? "";
   el.style.minWidth = `${el.offsetWidth}px`;
 
@@ -194,7 +205,7 @@ export function decodeText(el: HTMLElement, duration = 700): () => void {
 /** A bright scan line sweeping the screen top to bottom (or bottom to top),
  * played while the page jumps to another section. */
 export function scanWipe(direction: "down" | "up"): void {
-  if (prefersReducedMotion()) return;
+  if (prefersReducedMotion() || !isCyber()) return;
   const el = document.createElement("div");
   el.className = `scan-wipe scan-wipe-${direction}`;
   el.setAttribute("aria-hidden", "true");

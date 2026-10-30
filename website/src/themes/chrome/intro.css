@@ -1,0 +1,109 @@
+/* The chrome opening (intro.ts) and the way the hero window arrives. Every time is scaled by --k. */
+
+.ti-chrome .tr-sheet {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #f4f7fc 0%, #8a94a8 22%, #e8edf6 40%, #2f3644 58%, #cfd6e4 76%, #6e788c 100%) 0 0 / 220% 220%;
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent var(--ti-r), #000 calc(var(--ti-r) + 2.5%));
+  mask: radial-gradient(circle at 50% 50%, transparent var(--ti-r), #000 calc(var(--ti-r) + 2.5%));
+  animation:
+    tr-open calc(1300ms * var(--k)) cubic-bezier(0.55, 0, 0.25, 1) calc(350ms * var(--k)) forwards,
+    tr-flow calc(1700ms * var(--k)) linear forwards;
+}
+
+@keyframes tr-open {
+  from {
+    --ti-r: 0%;
+  }
+  to {
+    --ti-r: 100%;
+  }
+}
+
+@keyframes tr-flow {
+  to {
+    background-position: 100% 100%;
+  }
+}
+
+.ti-chrome .tr-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20vmax;
+  height: 20vmax;
+  margin: -10vmax 0 0 -10vmax;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.85), inset 0 0 30px rgba(170, 195, 255, 0.6);
+  opacity: 0;
+  transform: scale(0);
+  animation: tr-ring calc(1300ms * var(--k)) cubic-bezier(0.55, 0, 0.25, 1) calc(350ms * var(--k)) forwards;
+}
+
+.ti-chrome .tr-ring-2 {
+  border-width: 1px;
+  animation-delay: calc(480ms * var(--k));
+}
+
+@keyframes tr-ring {
+  0% {
+    opacity: 1;
+    transform: scale(0);
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(6.4);
+  }
+}
+
+.ti-chrome .tr-drop {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #fff 0 8%, #cdd5e6 22%, #4b5466 62%, #11151d 100%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  animation: tr-drop calc(520ms * var(--k)) cubic-bezier(0.5, 0, 0.9, 0.5) forwards;
+}
+
+@keyframes tr-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-40vh) scale(0.7);
+  }
+  15% {
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0) scale(1.9);
+  }
+}
+
+/* The hero window is poured in: it opens from a point, like a drop spreading on a mirror. */
+:root[data-style="chrome"] .glitch-in {
+  animation: chrome-arrive var(--gi-duration, 900ms) cubic-bezier(0.55, 0, 0.25, 1) var(--gi-delay, 0ms) backwards;
+}
+
+@keyframes chrome-arrive {
+  from {
+    clip-path: circle(0% at 50% 50%);
+    filter: brightness(1.8) contrast(1.2);
+  }
+  to {
+    clip-path: circle(80% at 50% 50%);
+    filter: none;
+  }
+}

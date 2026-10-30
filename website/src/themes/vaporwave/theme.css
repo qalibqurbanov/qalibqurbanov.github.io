@@ -1,0 +1,133 @@
+/* The vaporwave theme: how the sections, cards and controls look. Its background is the scene
+   (scene.ts); everything here sits on top of it. */
+
+:root[data-style="vaporwave"] .bg-grid {
+  background-image: none;
+}
+
+/* The display font is a single weight: never fake a bold one. */
+:root[data-style="vaporwave"] :is(h1, h2, h3, h4, .font-display) {
+  font-weight: 400;
+}
+
+:root[data-style="vaporwave"] h1 {
+  text-transform: lowercase;
+  text-shadow: 0 0 30px var(--glow-accent);
+}
+
+:root[data-style="vaporwave"] .section-heading h2 {
+  text-transform: lowercase;
+  text-shadow: 0 0 22px var(--glow-accent-2);
+}
+
+/* Cards are display panels: a thin lit edge, a gradient title strip and a dark glass body. */
+:root[data-style="vaporwave"] .card-surface {
+  border-radius: 0;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  background:
+    linear-gradient(90deg, var(--color-accent), var(--color-accent-2)) top left / 100% 4px no-repeat,
+    linear-gradient(180deg, color-mix(in srgb, var(--color-accent-2) 10%, transparent), transparent 45%),
+    color-mix(in srgb, var(--color-surface) 86%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 22px 44px -26px var(--glow-accent);
+}
+
+:root[data-style="vaporwave"] .card-surface:hover,
+:root[data-style="vaporwave"] .card-hit:hover > .card-surface {
+  border-color: var(--color-accent-2);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset, 0 0 40px -10px var(--glow-accent-2), 0 22px 44px -26px var(--glow-accent);
+}
+
+:root[data-style="vaporwave"] .btn-solid {
+  border-radius: 0;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+  color: var(--color-bg);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 28px -8px var(--glow-accent);
+}
+
+:root[data-style="vaporwave"] .btn-pulse:not(.btn-solid) {
+  border-radius: 0;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
+}
+
+/* A katakana watermark, standing vertical beside the sections. */
+:root[data-style="vaporwave"] section[id]:not(#top) {
+  position: relative;
+}
+
+:root[data-style="vaporwave"] #about::before,
+:root[data-style="vaporwave"] #experience::before,
+:root[data-style="vaporwave"] #projects::before,
+:root[data-style="vaporwave"] #skills::before,
+:root[data-style="vaporwave"] #contact::before {
+  position: absolute;
+  z-index: -1;
+  top: 5rem;
+  right: 1.5%;
+  writing-mode: vertical-rl;
+  font-family: var(--font-sans);
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--color-accent) 40%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+
+:root[data-style="vaporwave"] #about::before {
+  content: "美しい";
+}
+
+:root[data-style="vaporwave"] #experience::before {
+  content: "経験";
+  left: 1.5%;
+  right: auto;
+  -webkit-text-stroke-color: color-mix(in srgb, var(--color-accent-2) 45%, transparent);
+}
+
+:root[data-style="vaporwave"] #projects::before {
+  content: "作品集";
+}
+
+:root[data-style="vaporwave"] #skills::before {
+  content: "技術";
+  left: 1.5%;
+  right: auto;
+  -webkit-text-stroke-color: color-mix(in srgb, var(--color-accent-2) 45%, transparent);
+}
+
+:root[data-style="vaporwave"] #contact::before {
+  content: "連絡";
+}
+
+/* The footer is a task bar. */
+:root[data-style="vaporwave"] footer {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-surface-2) 94%, transparent), color-mix(in srgb, var(--color-surface) 94%, transparent));
+  border-top: 3px solid var(--color-accent);
+  box-shadow: 0 -6px 0 0 color-mix(in srgb, var(--color-accent-2) 70%, transparent);
+}
+
+:root[data-style="vaporwave"] ::selection {
+  background: var(--color-accent-2);
+  color: var(--color-bg);
+}
+
+/* Hover: a pool of pastel light follows the pointer across the panel and the title strip slides. */
+:root[data-style="vaporwave"] .card-surface:hover,
+:root[data-style="vaporwave"] .card-hit:hover > .card-surface {
+  background:
+    radial-gradient(circle 230px at var(--mx, 50%) var(--my, 30%), color-mix(in srgb, var(--color-accent) 30%, transparent), transparent 70%),
+    linear-gradient(90deg, var(--color-accent-2), var(--color-accent), var(--color-accent-2)) 0 0 / 200% 4px no-repeat,
+    linear-gradient(180deg, color-mix(in srgb, var(--color-accent-2) 10%, transparent), transparent 45%),
+    color-mix(in srgb, var(--color-surface) 86%, transparent);
+  animation: vapor-strip 2.4s linear infinite;
+}
+
+@keyframes vapor-strip {
+  to {
+    background-position: 0 0, -200% 0, 0 0, 0 0;
+  }
+}

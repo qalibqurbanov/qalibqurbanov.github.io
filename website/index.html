@@ -25,8 +25,12 @@
       (function () {
         try {
           var palette = localStorage.getItem("palette");
-          if (["violet", "ocean", "forest", "sunset", "rose"].indexOf(palette) !== -1) {
+          if (["auto", "violet", "ocean", "forest", "sunset", "rose"].indexOf(palette) !== -1) {
             document.documentElement.setAttribute("data-palette", palette);
+          }
+          var style = localStorage.getItem("style");
+          if (["cyber", "vaporwave", "synthwave", "monochrome", "chrome"].indexOf(style) !== -1) {
+            document.documentElement.setAttribute("data-style", style);
           }
         } catch (e) {}
       })();

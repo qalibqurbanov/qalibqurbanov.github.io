@@ -1,4 +1,5 @@
-export const PALETTES = ["violet", "ocean", "forest", "sunset", "rose"] as const;
+/** "auto" adds no colours of its own: each theme shows its own default colours. */
+export const PALETTES = ["auto", "violet", "ocean", "forest", "sunset", "rose"] as const;
 
 export type Palette = (typeof PALETTES)[number];
 
@@ -6,6 +7,7 @@ export const PALETTE_KEY = "palette";
 
 /** The two colours of each swatch: the palette's dark-theme accent and second accent. */
 export const PALETTE_SWATCHES: Record<Palette, readonly [string, string]> = {
+  auto: ["#f472b6", "#22d3ee"],
   violet: ["#b185ff", "#d8b4fe"],
   ocean: ["#38bdf8", "#7dd3fc"],
   forest: ["#34d399", "#86efac"],
@@ -24,5 +26,5 @@ export function getInitialPalette(): Palette {
   } catch {
     // Storage can be blocked; the default palette is fine.
   }
-  return "violet";
+  return "auto";
 }

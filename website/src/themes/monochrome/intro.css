@@ -1,0 +1,96 @@
+/* The monochrome opening (intro.ts) and the way the hero window arrives. Every time is scaled by --k. */
+
+.ti-monochrome .tm-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.2%;
+  background: var(--color-text);
+}
+
+.ti-monochrome .tm-left {
+  left: 0;
+  animation: tm-left calc(1700ms * var(--k)) cubic-bezier(0.8, 0, 0.2, 1) forwards;
+}
+
+.ti-monochrome .tm-right {
+  right: 0;
+  animation: tm-right calc(1700ms * var(--k)) cubic-bezier(0.8, 0, 0.2, 1) forwards;
+}
+
+@keyframes tm-left {
+  0%,
+  62% {
+    transform: none;
+  }
+  100% {
+    transform: translateY(-101%);
+  }
+}
+
+@keyframes tm-right {
+  0%,
+  62% {
+    transform: none;
+  }
+  100% {
+    transform: translateY(101%);
+  }
+}
+
+.ti-monochrome .tm-rule {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-bg);
+  opacity: 0.4;
+  animation: tm-fade calc(1700ms * var(--k)) steps(1, end) forwards;
+}
+
+.ti-monochrome .tm-count {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(5rem, 20vw, 15rem);
+  line-height: 1;
+  color: var(--color-bg);
+  font-variant-numeric: tabular-nums;
+  animation: tm-fade calc(1700ms * var(--k)) steps(1, end) forwards;
+}
+
+.ti-monochrome .tm-count::after {
+  content: "%";
+  font-size: 0.3em;
+  vertical-align: top;
+  margin-left: 0.1em;
+}
+
+@keyframes tm-fade {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  61%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The hero window is wiped in from the left, edge first, with no softness. */
+:root[data-style="monochrome"] .glitch-in {
+  animation: mono-arrive var(--gi-duration, 900ms) cubic-bezier(0.8, 0, 0.2, 1) var(--gi-delay, 0ms) backwards;
+}
+
+@keyframes mono-arrive {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}

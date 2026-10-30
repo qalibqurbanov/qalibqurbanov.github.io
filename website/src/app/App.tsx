@@ -22,6 +22,8 @@ import { useNotFoundRedirect } from "@/hooks/useNotFoundRedirect";
 import { useContent, useLocale } from "@/i18n/context";
 import { isNotFoundPage } from "@/lib/notFound";
 import { Suspense } from "react";
+import { ThemeScene } from "@/themes/shared/scene/ThemeScene";
+import { useStyle } from "@/themes/shared/style/context";
 
 export function App() {
   const { projects, ui } = useContent();
@@ -29,6 +31,8 @@ export function App() {
   const activeProject = activeSlug ? (projects.find((project) => project.slug === activeSlug) ?? null) : undefined;
   // The heavy decoration only runs at the full level; it is taken off the page as soon as the level drops.
   const decorated = useMotion().motion === "full";
+  // The original style decorates the page with its own components; every other style has a scene.
+  const original = useStyle().style === "cyber";
   const { locale } = useLocale();
   const notFound = isNotFoundPage();
   useNotFoundRedirect(locale);
@@ -37,9 +41,9 @@ export function App() {
 
   return (
     <div className={notFound ? "nf-shell relative" : "relative min-h-screen"}>
-      <AmbientBackground />
-      {decorated ? <CursorGlow /> : null}
-      {decorated ? <CustomCursor /> : null}
+      {original ? <AmbientBackground /> : <ThemeScene />}
+      {decorated && original ? <CursorGlow /> : null}
+      {decorated && original ? <CustomCursor /> : null}
       <OnDemand component={CommandPalette} event={OPEN_COMMAND_PALETTE_EVENT} shortcut={isPaletteShortcut} />
       <ContextMenu />
       <TooltipLayer />
@@ -66,8 +70,8 @@ export function App() {
       <Footer />
       {notFound ? null : <BackToTop />}
       <Suspense fallback={null}>
-        {decorated ? <CyberButterfly /> : null}
-        {decorated ? <Fireflies /> : null}
+        {decorated && original ? <CyberButterfly /> : null}
+        {decorated && original ? <Fireflies /> : null}
 
         {notFound ? null : resumeOpen ? (
           <ResumeViewer onBack={closeProject} />

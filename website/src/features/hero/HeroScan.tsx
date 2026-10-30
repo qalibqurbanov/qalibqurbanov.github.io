@@ -5,6 +5,7 @@ import { rand } from "@/lib/math";
 import { setScanBand } from "@/lib/scanBand";
 import { subscribeTick } from "@/lib/ticker";
 import { useMotion } from "@/motion/context";
+import { useStyle } from "@/themes/shared/style/context";
 
 /** Must match the cell size of `.bg-grid`. */
 const CELL = 44;
@@ -48,7 +49,9 @@ function readColor(name: string, fallback: Rgb): Rgb {
 export function HeroScan() {
   const { motion } = useMotion();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const on = motion === "full";
+  const { style } = useStyle();
+  // The scan band belongs to the original style.
+  const on = motion === "full" && style === "cyber";
 
   useEffect(() => {
     const canvas = canvasRef.current;

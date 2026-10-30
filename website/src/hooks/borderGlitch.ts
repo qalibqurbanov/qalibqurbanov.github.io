@@ -7,7 +7,7 @@
  * wiring. */
 
 import { rand } from "@/lib/math";
-import { prefersReducedMotion } from "@/hooks/glitch";
+import { isCyber, prefersReducedMotion } from "@/hooks/glitch";
 
 const SURFACE = ".card-surface, .btn-pulse";
 
@@ -114,7 +114,7 @@ export function installBorderGlitch(): void {
     "mouseenter",
     (e) => {
       const el = resolveSurface(e.target);
-      if (el && e.target instanceof Element && (e.target.matches(SURFACE) || e.target.matches(".card-hit"))) {
+      if (el && isCyber() && e.target instanceof Element && (e.target.matches(SURFACE) || e.target.matches(".card-hit"))) {
         if (!timers.has(el)) tick(el);
       }
     },
@@ -136,7 +136,7 @@ export function installBorderGlitch(): void {
  * a view opens. `el` needs the same markup the hover glitch draws on
  * (`.card-surface`, `.btn-pulse` or `.glitch-border`). */
 export function borderBurst(el: HTMLElement, frames = 7): void {
-  if (prefersReducedMotion()) return;
+  if (prefersReducedMotion() || !isCyber()) return;
   let left = frames;
   const run = () => {
     if (left-- <= 0 || !el.isConnected) {
@@ -155,7 +155,7 @@ export function borderBurst(el: HTMLElement, frames = 7): void {
  * function is called (which also leaves `el` clean). Same markup requirement
  * as `borderBurst`. */
 export function borderGlitchLoop(el: HTMLElement): () => void {
-  if (prefersReducedMotion()) return () => {};
+  if (prefersReducedMotion() || !isCyber()) return () => {};
   let timer = 0;
   const burst = (frames: number) => {
     if (frames <= 0) {

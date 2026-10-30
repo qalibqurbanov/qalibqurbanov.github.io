@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 
 import { useContent } from "@/i18n/context";
-import { format } from "@/lib/format";
 import type { Motion } from "@/lib/motion";
 import { useMotion } from "@/motion/context";
 import { useMotionLabel } from "@/motion/labels";
@@ -66,7 +65,7 @@ function Choice({ active, onSelect, swatch: icon, title, children }: { active: b
   );
 }
 
-/** The navbar's one settings button: a popup with the light/dark mode, the colour theme, the style
+/** The navbar's one settings button: a popup with the light/dark mode, the theme, the colour scheme
  * and the animation level. */
 export function SettingsMenu() {
   const { theme, toggleTheme, palette, setPalette } = useTheme();
@@ -110,7 +109,7 @@ export function SettingsMenu() {
         aria-label={ui.labels.settings}
         aria-haspopup="true"
         aria-expanded={open}
-        title={format(ui.labels.toggleTheme, { shortcut: "Alt+T" })}
+        title={ui.labels.settings}
       >
         <Settings size={19} />
       </button>

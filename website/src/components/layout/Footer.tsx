@@ -13,6 +13,7 @@ import { openContactModal } from "@/components/contact/openContact";
 import { useClock } from "@/hooks/useClock";
 import { useLiveSource } from "@/hooks/useLiveSource";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
+import { AssetCredits } from "@/components/layout/AssetCredits";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
 import { BUILD_INFO } from "@/lib/buildInfo";
@@ -179,6 +180,7 @@ export function Footer() {
           </div>
         </div>
       </div>
+      <AssetCredits />
     </footer>
   );
 }

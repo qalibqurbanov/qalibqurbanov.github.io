@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+/* Each style's own colours and fonts. They come before the colour schemes, so a chosen scheme wins. */
+@import "../themes/vaporwave/tokens.css";
+@import "../themes/synthwave/tokens.css";
+@import "../themes/monochrome/tokens.css";
+@import "../themes/chrome/tokens.css";
+
 @import "../themes/shared/colour/colours.css";
 @import "../themes/shared/base.css";
+@import "../themes/shared/scene/scene.css";
+@import "../themes/shared/intro/intro.css";
+@import "../themes/shared/neutral.css";
+
+/* The original style is the base; the others sit on top of it and only restyle what they change. */
 @import "../themes/cyber/theme.css";
+@import "../themes/vaporwave/theme.css";
+@import "../themes/vaporwave/intro.css";
+@import "../themes/synthwave/theme.css";
+@import "../themes/synthwave/intro.css";
+@import "../themes/monochrome/theme.css";
+@import "../themes/monochrome/intro.css";
+@import "../themes/chrome/theme.css";
+@import "../themes/chrome/intro.css";

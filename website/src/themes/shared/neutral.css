@@ -1,0 +1,5 @@
+/* Styles other than the original have their own motion language: the original's targeting frame and
+   scan line are not part of them. */
+:root:not([data-style="cyber"]) :is(.hud-ripple, .hud-bracket, .hud-burst, .scan-wipe, .glitch-screen) {
+  display: none;
+}

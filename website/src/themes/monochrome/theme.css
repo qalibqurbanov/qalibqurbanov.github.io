@@ -1,0 +1,145 @@
+/* The monochrome theme: how the sections, cards and controls look. Its background is the scene
+   (scene.ts); everything here sits on top of it. Black, white and nothing between but grey. */
+
+/* The display font has one weight: never fake a bold one. */
+:root[data-style="monochrome"] :is(h1, h2, h3, h4, .font-display) {
+  font-weight: 400;
+}
+
+:root[data-style="monochrome"] .bg-grid {
+  background-image: none;
+}
+
+/* Everything is square. */
+:root[data-style="monochrome"] :is(.card-surface, .btn-pulse, .btn-solid, .glitch-border, .tip-balloon) {
+  border-radius: 0;
+}
+
+:root[data-style="monochrome"] h1 {
+  font-size: clamp(3.4rem, 8vw, 6.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+:root[data-style="monochrome"] .section-heading h2 {
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-style: italic;
+}
+
+/* Cards are outlined rectangles; hovering one inverts it, instantly. */
+:root[data-style="monochrome"] .card-surface {
+  background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-text) 28%, transparent);
+  box-shadow: none;
+  transition: background-color 0.12s steps(2), color 0.12s steps(2), border-color 0.12s steps(2), transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root[data-style="monochrome"][data-theme="dark"] .card-surface:hover,
+:root[data-style="monochrome"][data-theme="dark"] .card-hit:hover > .card-surface {
+  --color-surface: #f4f4f4;
+  --color-text: #050505;
+  --color-muted: #4a4a4a;
+  --color-accent: #000;
+  --color-accent-2: #333;
+  --color-border: #000;
+  --color-syn-type: #222;
+  --color-syn-number: #444;
+  transform: translate(-3px, -3px);
+  background: #f4f4f4;
+  border-color: #f4f4f4;
+}
+
+:root[data-style="monochrome"][data-theme="light"] .card-surface:hover,
+:root[data-style="monochrome"][data-theme="light"] .card-hit:hover > .card-surface {
+  --color-surface: #0a0a0a;
+  --color-text: #f4f4f4;
+  --color-muted: #b0b0b0;
+  --color-accent: #fff;
+  --color-accent-2: #ccc;
+  --color-border: #fff;
+  --color-syn-type: #ddd;
+  --color-syn-number: #bbb;
+  transform: translate(-3px, -3px);
+  background: #0a0a0a;
+  border-color: #0a0a0a;
+}
+
+:root[data-style="monochrome"] .btn-solid {
+  background: var(--color-text);
+  color: var(--color-bg);
+  border: 1px solid var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: background-color 0.12s steps(2), color 0.12s steps(2);
+}
+
+:root[data-style="monochrome"] .btn-solid:hover {
+  background: transparent;
+  color: var(--color-text);
+  filter: none;
+}
+
+:root[data-style="monochrome"] .btn-pulse:not(.btn-solid) {
+  border: 1px solid var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: background-color 0.12s steps(2), color 0.12s steps(2);
+}
+
+:root[data-style="monochrome"] .btn-pulse:not(.btn-solid):hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+/* The name of each section, set huge and outlined, behind it. */
+:root[data-style="monochrome"] section[id]:not(#top) {
+  position: relative;
+  overflow-x: clip;
+}
+
+:root[data-style="monochrome"] section[id]:not(#top)::before {
+  content: attr(id);
+  position: absolute;
+  z-index: -1;
+  top: 1.5rem;
+  right: -1%;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(6rem, 20vw, 17rem);
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--color-text) 11%, transparent);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+:root[data-style="monochrome"] .section-heading > p {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.7rem;
+}
+
+:root[data-style="monochrome"] footer {
+  border-top: 1px solid var(--color-text);
+  background: transparent;
+}
+
+:root[data-style="monochrome"] ::selection {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+/* A slim page-length rule instead of the progress glow. */
+:root[data-style="monochrome"] header {
+  border-bottom-color: color-mix(in srgb, var(--color-text) 25%, transparent);
+}
+
+/* Hover: a hard shadow thrown away from the pointer, as if the page were lit from where you point. */
+:root[data-style="monochrome"] .card-surface:hover,
+:root[data-style="monochrome"] .card-hit:hover > .card-surface {
+  box-shadow: calc(var(--dx, 0) * -12px) calc(var(--dy, 0) * -12px) 0 0 var(--color-text);
+}

@@ -1,0 +1,2 @@
+3D models: Poly Haven (https://polyhaven.com), CC0.
+Car Concept: Eric Chadwick, Khronos glTF Sample Assets, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
