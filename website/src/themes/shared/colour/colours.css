@@ -1,0 +1,237 @@
+/* Colours shared by every style: the default tokens and the palettes (see ./palettes.ts). */
+@theme {
+  /* Three roles, all with Latin-ext (Azerbaijani ə, ı, ş…) and Cyrillic:
+     display = headings and big numbers, sans = running text, mono = code,
+     terminal and small technical labels. */
+  --font-display: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:
+    "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  /* dark theme (default) */
+  --color-bg: #080515;
+  --color-surface: #110c24;
+  --color-surface-2: #1a1236;
+  --color-border: #2e2257;
+  --color-accent: #b185ff;
+  --color-accent-2: #d8b4fe;
+  --color-text: #f0ebff;
+  --color-muted: #9d92c4;
+  /** Reserved for destructive/attention actions (e.g. "Report a bug") —
+   * everything else on the site uses accent/accent-2, so this stays a
+   * distinct, rarely-used signal. */
+  --color-danger: #f87171;
+  /** Code/terminal syntax colors on top of accent (strings) and accent-2
+   * (keywords): type and class names, then numbers and command arguments. */
+  --color-syn-type: #f0abfc;
+  --color-syn-number: #a5b4fc;
+
+  --grid-line: rgba(190, 170, 255, 0.05);
+  --glow-accent: rgba(177, 133, 255, 0.22);
+  --glow-accent-2: rgba(216,180,254, 0.14);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --color-bg: #f8f7fc;
+    --color-surface: #ffffff;
+    --color-surface-2: #f1eff8;
+    --color-border: #e3e0ef;
+    --color-accent: #6d28d9;
+    --color-accent-2: #9333ea;
+    --color-text: #16131f;
+    --color-muted: #656079;
+    --color-danger: #dc2626;
+    --color-syn-type: #a21caf;
+    --color-syn-number: #4338ca;
+
+    --grid-line: rgba(30, 10, 80, 0.05);
+    --glow-accent: rgba(109, 40, 217, 0.1);
+    --glow-accent-2: rgba(147,51,234, 0.1);
+  }
+}
+
+/* Not just on :root: the hero window carries its own data-theme, so it can
+   differ from the site's. The dark block exists for a dark window on a light
+   page (on a dark page it simply repeats the defaults). */
+[data-theme="dark"] {
+  --color-bg: #080515;
+  --color-surface: #110c24;
+  --color-surface-2: #1a1236;
+  --color-border: #2e2257;
+  --color-accent: #b185ff;
+  --color-accent-2: #d8b4fe;
+  --color-text: #f0ebff;
+  --color-muted: #9d92c4;
+  --color-danger: #f87171;
+  --color-syn-type: #f0abfc;
+  --color-syn-number: #a5b4fc;
+
+  --grid-line: rgba(190, 170, 255, 0.05);
+  --glow-accent: rgba(177, 133, 255, 0.22);
+  --glow-accent-2: rgba(216,180,254, 0.14);
+}
+
+[data-theme="light"] {
+  --color-bg: #f8f7fc;
+  --color-surface: #ffffff;
+  --color-surface-2: #f1eff8;
+  --color-border: #e3e0ef;
+  --color-accent: #6d28d9;
+  --color-accent-2: #9333ea;
+  --color-text: #16131f;
+  --color-muted: #656079;
+  --color-danger: #dc2626;
+  --color-syn-type: #a21caf;
+  --color-syn-number: #4338ca;
+
+  --grid-line: rgba(30, 10, 80, 0.05);
+  --glow-accent: rgba(109, 40, 217, 0.1);
+  --glow-accent-2: rgba(147,51,234, 0.1);
+}
+
+/* Colour palettes. The default is the violet one above; each other palette overrides the same
+   tokens for both modes. Also matches inside the hero window, which carries its own data-theme. */
+:root[data-palette="ocean"][data-theme="dark"],
+:root[data-palette="ocean"] [data-theme="dark"] {
+  --color-bg: #050d16;
+  --color-surface: #0a1824;
+  --color-surface-2: #11263a;
+  --color-border: #1f3d57;
+  --color-accent: #38bdf8;
+  --color-accent-2: #7dd3fc;
+  --color-text: #e8f4ff;
+  --color-muted: #8fb0c9;
+  --color-syn-type: #67e8f9;
+  --color-syn-number: #93c5fd;
+
+  --grid-line: rgba(125, 211, 252, 0.05);
+  --glow-accent: rgba(56, 189, 248, 0.22);
+  --glow-accent-2: rgba(125, 211, 252, 0.14);
+}
+
+:root[data-palette="ocean"][data-theme="light"],
+:root[data-palette="ocean"] [data-theme="light"] {
+  --color-bg: #f4f9fd;
+  --color-surface: #ffffff;
+  --color-surface-2: #e9f2f9;
+  --color-border: #d3e3ef;
+  --color-accent: #0369a1;
+  --color-accent-2: #0284c7;
+  --color-text: #0f1a24;
+  --color-muted: #52687a;
+  --color-syn-type: #0e7490;
+  --color-syn-number: #1d4ed8;
+
+  --grid-line: rgba(5, 50, 90, 0.05);
+  --glow-accent: rgba(3, 105, 161, 0.1);
+  --glow-accent-2: rgba(2, 132, 199, 0.1);
+}
+
+:root[data-palette="forest"][data-theme="dark"],
+:root[data-palette="forest"] [data-theme="dark"] {
+  --color-bg: #040f0a;
+  --color-surface: #0a1a12;
+  --color-surface-2: #11291c;
+  --color-border: #1f4430;
+  --color-accent: #34d399;
+  --color-accent-2: #86efac;
+  --color-text: #e8fff3;
+  --color-muted: #8cbba2;
+  --color-syn-type: #6ee7b7;
+  --color-syn-number: #5eead4;
+
+  --grid-line: rgba(134, 239, 172, 0.05);
+  --glow-accent: rgba(52, 211, 153, 0.22);
+  --glow-accent-2: rgba(134, 239, 172, 0.14);
+}
+
+:root[data-palette="forest"][data-theme="light"],
+:root[data-palette="forest"] [data-theme="light"] {
+  --color-bg: #f4fbf7;
+  --color-surface: #ffffff;
+  --color-surface-2: #e8f5ee;
+  --color-border: #d1e8da;
+  --color-accent: #047857;
+  --color-accent-2: #059669;
+  --color-text: #10201a;
+  --color-muted: #51695d;
+  --color-syn-type: #0f766e;
+  --color-syn-number: #15803d;
+
+  --grid-line: rgba(5, 70, 40, 0.05);
+  --glow-accent: rgba(4, 120, 87, 0.1);
+  --glow-accent-2: rgba(5, 150, 105, 0.1);
+}
+
+:root[data-palette="sunset"][data-theme="dark"],
+:root[data-palette="sunset"] [data-theme="dark"] {
+  --color-bg: #110805;
+  --color-surface: #1c0f0a;
+  --color-surface-2: #2c1810;
+  --color-border: #4d2c1b;
+  --color-accent: #fb923c;
+  --color-accent-2: #fcd34d;
+  --color-text: #fff3e8;
+  --color-muted: #c4a08a;
+  --color-syn-type: #fdba74;
+  --color-syn-number: #fde047;
+
+  --grid-line: rgba(253, 186, 116, 0.05);
+  --glow-accent: rgba(251, 146, 60, 0.22);
+  --glow-accent-2: rgba(252, 211, 77, 0.14);
+}
+
+:root[data-palette="sunset"][data-theme="light"],
+:root[data-palette="sunset"] [data-theme="light"] {
+  --color-bg: #fcf8f4;
+  --color-surface: #ffffff;
+  --color-surface-2: #f7ede4;
+  --color-border: #ecdccf;
+  --color-accent: #c2410c;
+  --color-accent-2: #d97706;
+  --color-text: #20140e;
+  --color-muted: #755f50;
+  --color-syn-type: #b45309;
+  --color-syn-number: #a16207;
+
+  --grid-line: rgba(90, 40, 10, 0.05);
+  --glow-accent: rgba(194, 65, 12, 0.1);
+  --glow-accent-2: rgba(217, 119, 6, 0.1);
+}
+
+:root[data-palette="rose"][data-theme="dark"],
+:root[data-palette="rose"] [data-theme="dark"] {
+  --color-bg: #14060d;
+  --color-surface: #200b15;
+  --color-surface-2: #33121f;
+  --color-border: #571f38;
+  --color-accent: #fb7185;
+  --color-accent-2: #f9a8d4;
+  --color-text: #fff0f5;
+  --color-muted: #c496a8;
+  --color-syn-type: #f0abfc;
+  --color-syn-number: #fda4af;
+
+  --grid-line: rgba(249, 168, 212, 0.05);
+  --glow-accent: rgba(251, 113, 133, 0.22);
+  --glow-accent-2: rgba(249, 168, 212, 0.14);
+}
+
+:root[data-palette="rose"][data-theme="light"],
+:root[data-palette="rose"] [data-theme="light"] {
+  --color-bg: #fdf6f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #f9ebf0;
+  --color-border: #f0d5de;
+  --color-accent: #be123c;
+  --color-accent-2: #db2777;
+  --color-text: #200e15;
+  --color-muted: #735462;
+  --color-syn-type: #a21caf;
+  --color-syn-number: #9f1239;
+
+  --grid-line: rgba(90, 10, 40, 0.05);
+  --glow-accent: rgba(190, 18, 60, 0.1);
+  --glow-accent-2: rgba(219, 39, 119, 0.1);
+}

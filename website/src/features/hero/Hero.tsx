@@ -28,7 +28,7 @@ import { useContent } from "@/i18n/context";
 import { format } from "@/lib/format";
 import { pauseWhenOffscreen } from "@/lib/offscreen";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
-import { useTheme, type Theme } from "@/theme/context";
+import { useTheme, type Theme } from "@/themes/shared/colour/context";
 import { useDraggableWindow } from "@/hooks/useDraggableWindow";
 import { RESUME_HREF } from "@/hooks/useProjectRoute";
 import { useInView } from "@/hooks/useInView";

@@ -101,6 +101,8 @@ export function HeroScan() {
     let corner = CLOCKWISE[passIdx];
     let travel = 0;
     let hover = 0;
+    let smx = -1e5;
+    let smy = -1e5;
     let nextGlitch = performance.now() + 500;
     let last = performance.now();
     let frames = 0;
@@ -153,9 +155,23 @@ export function HeroScan() {
       octx.clearRect(0, 0, W, H);
 
       // The cursor only moves the layers while it is inside the band; leaving it eases the effect out.
-      hover += ((Math.abs(U(mx, my) - pos) < BAND ? 1 : 0) - hover) * 0.08;
-      const nx = (mx / W - 0.5) * hover;
-      const ny = (my / H - 0.5) * hover;
+      // The cursor is followed with a short lag and the band edge fades the effect over a stretch,
+      // so the layers glide instead of jumping when the pointer moves or the band reaches it.
+      if (mx > -1e4) {
+        if (smx < -1e4) {
+          smx = mx;
+          smy = my;
+        } else {
+          const k = 1 - Math.exp(-dt / 120);
+          smx += (mx - smx) * k;
+          smy += (my - smy) * k;
+        }
+      }
+      const edge = Math.min(1, Math.max(0, (BAND - Math.abs(U(smx, smy) - pos)) / (BAND * 0.6)));
+      const want = edge * edge * (3 - 2 * edge);
+      hover += (want - hover) * (1 - Math.exp(-dt / 260));
+      const nx = (smx / W - 0.5) * hover;
+      const ny = (smy / H - 0.5) * hover;
       const sweep = pos / span;
       const layers: [number, Rgb, number, number, number][] = [
         [0.7, accent, 0.18, 50, 1],

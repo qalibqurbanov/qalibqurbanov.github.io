@@ -8,7 +8,8 @@ import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { resolveInitialLocale } from "@/i18n/locale";
 import { isNotFoundPage } from "@/lib/notFound";
 import { MotionProvider } from "@/motion/MotionProvider";
-import { ThemeProvider } from "@/theme/ThemeProvider";
+import { StyleProvider } from "@/themes/shared/style/StyleProvider";
+import { ThemeProvider } from "@/themes/shared/colour/ThemeProvider";
 
 import { installBorderGlitch } from "@/hooks/borderGlitch";
 import { glitchScreen } from "@/hooks/glitch";
@@ -62,6 +63,7 @@ const ready = Promise.all([loadContent(initialLocale), window.location.hash && !
 void ready.then(([initialContent]) => {
   createRoot(rootElement).render(
     <StrictMode>
+      <StyleProvider>
       <ThemeProvider>
         <MotionProvider>
           <LocaleProvider initialLocale={initialLocale} initialContent={initialContent}>
@@ -69,6 +71,7 @@ void ready.then(([initialContent]) => {
           </LocaleProvider>
         </MotionProvider>
       </ThemeProvider>
+      </StyleProvider>
     </StrictMode>,
   );
   // The page boots with a glitch: one flash across the screen.

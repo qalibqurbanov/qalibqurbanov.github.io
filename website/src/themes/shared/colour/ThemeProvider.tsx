@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { glitchScreen } from "@/hooks/glitch";
 
+import { getInitialPalette, PALETTE_KEY, type Palette } from "./palettes";
 import { getInitialTheme, STORAGE_KEY, ThemeContext, type Theme, type ThemeContextValue } from "./context";
 
 /**
@@ -18,6 +19,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
+
+  const [palette, setPalette] = useState<Palette>(getInitialPalette);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-palette", palette);
+    localStorage.setItem(PALETTE_KEY, palette);
+  }, [palette]);
 
   const toggleTheme = useCallback(() => {
     glitchScreen();
@@ -45,7 +53,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleTheme]);
 
-  const value = useMemo<ThemeContextValue>(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+  const value = useMemo<ThemeContextValue>(
+    () => ({ theme, toggleTheme, palette, setPalette }),
+    [theme, toggleTheme, palette],
+  );
 
   return <ThemeContext value={value}>{children}</ThemeContext>;
 }

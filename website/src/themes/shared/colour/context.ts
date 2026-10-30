@@ -1,5 +1,7 @@
 import { createContext, use } from "react";
 
+import type { Palette } from "./palettes";
+
 export type Theme = "light" | "dark";
 
 export const STORAGE_KEY = "theme";
@@ -17,6 +19,8 @@ export function getInitialTheme(): Theme {
 export interface ThemeContextValue {
   theme: Theme;
   toggleTheme: () => void;
+  palette: Palette;
+  setPalette: (palette: Palette) => void;
 }
 
 export const ThemeContext = createContext<ThemeContextValue | null>(null);

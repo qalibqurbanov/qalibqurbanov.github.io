@@ -293,6 +293,12 @@ export interface UiStrings {
     switchToDark: string;
     /** Contains "{shortcut}". */
     toggleTheme: string;
+    /** The colour palette switcher: its title, and the name of each palette. */
+    settings: string;
+    palette: string;
+    /** The label of the visual style switcher. */
+    style: string;
+    paletteNames: Record<"violet" | "ocean" | "forest" | "sunset" | "rose", string>;
     minimize: string;
     close: string;
     home: string;

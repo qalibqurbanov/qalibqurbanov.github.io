@@ -9,7 +9,7 @@ import { useContent, useLocale } from "@/i18n/context";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
 import { scrollToTop } from "@/lib/scroll";
-import { useTheme } from "@/theme/context";
+import { useTheme } from "@/themes/shared/colour/context";
 
 /** How long the "Copied!" swap stays up before the menu auto-closes. */
 const COPY_FEEDBACK_MS = 900;

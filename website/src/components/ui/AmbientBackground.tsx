@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 import { pauseWhenOffscreen } from "@/lib/offscreen";
-import { useThemeValue } from "@/theme/context";
+import { useThemeValue } from "@/themes/shared/colour/context";
 
 const STAR_COUNT = 34;
 

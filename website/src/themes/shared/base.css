@@ -1,0 +1,73 @@
+/* Foundations shared by every style: base typography, scroll locking and the scrollbar. */
+/* In the base layer so a utility like `font-mono` on a heading still wins. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Keeps the scrollbar gutter reserved at all times, so the viewport
+     doesn't widen when something (e.g. the Radix Select in the nav) locks
+     body scroll and hides the scrollbar — without this the fixed, centered
+     header visibly jumps sideways for as long as the popover is open. */
+  scrollbar-gutter: stable;
+}
+
+/* Radix's Select/Dialog/etc. wrap their open content in `react-remove-scroll`
+   unconditionally (it ignores `modal={false}`), which locks body scroll by
+   forcing `overflow: hidden` + a compensating `margin-right` on `<body>` via
+   its own injected stylesheet. The margin-right lands on top of the gutter
+   we already reserve above, so it shifts the page sideways all over again —
+   neutralize it here with higher specificity than the library's rule. */
+html body[data-scroll-locked] {
+  overflow: visible !important;
+  margin-right: 0 !important;
+}
+
+/* With body's own lock neutralized above, lock the page scroll on the root
+   instead while any modal is open: the gutter stays reserved (no layout
+   shift) and only scrollable areas inside the modal can scroll. */
+html:has(body[data-scroll-locked]) {
+  overflow: hidden;
+}
+
+/* Firefox (and any other browser without ::-webkit-scrollbar support) has no
+   way to draw the pill-shaped thumb below, so give it the closest thing its
+   standard scrollbar properties can express. Browsers that understand
+   ::-webkit-scrollbar get the fully custom treatment instead — Chromium
+   prefers the standard properties over the pseudo-elements when both are
+   set on the same element, which flattened the scrollbar back to default. */
+@supports not selector(::-webkit-scrollbar) {
+  html,
+  .custom-scrollbar,
+  .terminal-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--color-accent) 55%,
+        var(--color-accent-2) 45%
+      )
+      var(--scrollbar-track, var(--color-surface));
+  }
+
+  .terminal-scroll {
+    --scrollbar-track: var(--color-surface-2);
+  }
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+  user-select: text;
+  -webkit-user-select: text;
+}

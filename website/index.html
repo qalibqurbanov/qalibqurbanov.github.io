@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-style="cyber">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -18,6 +18,16 @@
                 ? "light"
                 : "dark";
           document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+      })();
+    </script>
+    <script>
+      (function () {
+        try {
+          var palette = localStorage.getItem("palette");
+          if (["violet", "ocean", "forest", "sunset", "rose"].indexOf(palette) !== -1) {
+            document.documentElement.setAttribute("data-palette", palette);
+          }
         } catch (e) {}
       })();
     </script>

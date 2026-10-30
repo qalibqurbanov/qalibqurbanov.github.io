@@ -32,7 +32,7 @@ import { reportBugUrl } from "@/lib/githubIssue";
 import { scrollToTop } from "@/lib/scroll";
 import { useMotion } from "@/motion/context";
 import { MOTION_ICONS, useMotionLabel } from "@/motion/labels";
-import { useTheme } from "@/theme/context";
+import { useTheme } from "@/themes/shared/colour/context";
 
 interface PaletteItem {
   id: string;

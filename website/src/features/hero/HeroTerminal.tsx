@@ -11,7 +11,7 @@ import { isMotion, MOTION_LEVELS } from "@/lib/motion";
 import { scrollToTop } from "@/lib/scroll";
 import { useMotion } from "@/motion/context";
 import { useMotionLabel } from "@/motion/labels";
-import type { Theme } from "@/theme/context";
+import type { Theme } from "@/themes/shared/colour/context";
 
 import type { MenuNode } from "./TerminalMenu";
 import { TerminalMenu } from "./TerminalMenu";

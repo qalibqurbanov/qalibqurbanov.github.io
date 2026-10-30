@@ -1,19 +1,17 @@
-import { ArrowLeft, Menu, Moon, Sun, X } from "lucide-react";
+import { ArrowLeft, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 import { CommandPaletteTrigger } from "@/components/command-palette/CommandPaletteTrigger";
 import { GlitchText } from "@/components/ui/GlitchText";
 import { Knockable } from "@/components/ui/Knockable";
-import { MotionToggle } from "@/components/ui/MotionToggle";
+import { SettingsMenu } from "@/components/ui/SettingsMenu";
 import { useViewBar } from "@/components/ui/viewBar";
 import { useContent, useLocale } from "@/i18n/context";
 import { pathForLocale } from "@/i18n/locale";
 import { isNotFoundPage } from "@/lib/notFound";
-import { format } from "@/lib/format";
 import { useGlitchBar } from "@/hooks/useGlitch";
 import { useScrolledPast, useScrollProgress } from "@/hooks/useScrollPosition";
 import { scrollToTop } from "@/lib/scroll";
-import { useTheme } from "@/theme/context";
 
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
@@ -21,7 +19,6 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const scrolled = useScrolledPast();
   const progress = useScrollProgress();
-  const { theme, toggleTheme } = useTheme();
   const { profile, navigation, ui } = useContent();
   const { locale } = useLocale();
   const notFound = isNotFoundPage();
@@ -119,25 +116,7 @@ export function Navbar() {
           </Knockable>
 
           <Knockable seed={94} className="inline-flex items-center">
-            <MotionToggle />
-          </Knockable>
-
-          <Knockable seed={92} className="inline-flex items-center">
-            <button
-              type="button"
-              className="inline-flex h-10 w-10 items-center justify-center text-muted hover:text-accent transition-colors md:h-auto md:w-auto"
-              onClick={toggleTheme}
-              aria-label={
-                theme === "dark"
-                  ? ui.labels.switchToLight
-                  : ui.labels.switchToDark
-              }
-              title={format(ui.labels.toggleTheme, {
-                shortcut: "Alt+T",
-              })}
-            >
-              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
-            </button>
+            <SettingsMenu />
           </Knockable>
 
           <Knockable seed={93} className="md:hidden inline-flex items-center">
