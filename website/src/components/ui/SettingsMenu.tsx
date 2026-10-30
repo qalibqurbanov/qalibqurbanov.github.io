@@ -21,15 +21,11 @@ function swatch([a, b]: readonly [string, string], size: string) {
   return <span className={`${size} shrink-0 rounded-full border border-border`} style={{ background: `linear-gradient(135deg, ${a}, ${b})` }} aria-hidden="true" />;
 }
 
-/** A row with the current choice whose options open under it on hover or tap. */
+/** A row with the current choice whose options open under it on click or tap. */
 function Submenu({ label, current, swatch: icon, children }: { label: string; current: string; swatch: ReactNode; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
-    <section
-      className="border-t border-border pt-3"
-      onPointerEnter={(event) => event.pointerType === "mouse" && setOpen(true)}
-      onPointerLeave={(event) => event.pointerType === "mouse" && setOpen(false)}
-    >
+    <section className="border-t border-border pt-3">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
