@@ -160,7 +160,7 @@ export function CustomCursor() {
     sizeWatcher.observe(canvas);
 
     const pts: { x: number; y: number; t: number }[] = [];
-    const colors: Record<Token, Rgb> = { accent: [177, 133, 255], accent2: [34, 211, 238], text: [235, 233, 245], danger: [248, 113, 113] };
+    const colors: Record<Token, Rgb> = { accent: [177, 133, 255], accent2: [216, 180, 254], text: [235, 233, 245], danger: [248, 113, 113] };
     let light = false;
     const readColors = () => {
       colors.accent = readRgb("--color-accent", colors.accent);

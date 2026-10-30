@@ -19,7 +19,7 @@ const BUILTIN_TYPES = new Set([
   "int", "bool", "double", "decimal", "Promise", "Array", "Record",
 ]);
 
-/** Keywords cyan, built-in and PascalCase (class/type) names amber, the rest plain. */
+/** Keywords lilac, built-in and PascalCase (class/type) names orchid, the rest plain. */
 function wordClass(word: string): string {
   if (KEYWORDS.has(word)) return "text-accent-2";
   if (BUILTIN_TYPES.has(word) || /^[A-Z][a-z]/.test(word)) return "text-syn-type";

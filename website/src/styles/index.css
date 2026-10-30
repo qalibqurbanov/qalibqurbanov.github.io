@@ -10,26 +10,26 @@
     "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
 
   /* dark theme (default) */
-  --color-bg: #07060d;
-  --color-surface: #100e19;
-  --color-surface-2: #161324;
-  --color-border: #282340;
+  --color-bg: #080515;
+  --color-surface: #110c24;
+  --color-surface-2: #1a1236;
+  --color-border: #2e2257;
   --color-accent: #b185ff;
-  --color-accent-2: #22d3ee;
-  --color-text: #ebe9f5;
-  --color-muted: #8d89a6;
+  --color-accent-2: #d8b4fe;
+  --color-text: #f0ebff;
+  --color-muted: #9d92c4;
   /** Reserved for destructive/attention actions (e.g. "Report a bug") —
    * everything else on the site uses accent/accent-2, so this stays a
    * distinct, rarely-used signal. */
   --color-danger: #f87171;
   /** Code/terminal syntax colors on top of accent (strings) and accent-2
    * (keywords): type and class names, then numbers and command arguments. */
-  --color-syn-type: #fcd34d;
-  --color-syn-number: #86efac;
+  --color-syn-type: #f0abfc;
+  --color-syn-number: #a5b4fc;
 
   --grid-line: rgba(190, 170, 255, 0.05);
-  --glow-accent: rgba(177, 133, 255, 0.18);
-  --glow-accent-2: rgba(34, 211, 238, 0.14);
+  --glow-accent: rgba(177, 133, 255, 0.22);
+  --glow-accent-2: rgba(216,180,254, 0.14);
 }
 
 @media (prefers-color-scheme: light) {
@@ -39,16 +39,16 @@
     --color-surface-2: #f1eff8;
     --color-border: #e3e0ef;
     --color-accent: #6d28d9;
-    --color-accent-2: #0e7490;
+    --color-accent-2: #9333ea;
     --color-text: #16131f;
     --color-muted: #656079;
     --color-danger: #dc2626;
-    --color-syn-type: #b45309;
-    --color-syn-number: #15803d;
+    --color-syn-type: #a21caf;
+    --color-syn-number: #4338ca;
 
     --grid-line: rgba(30, 10, 80, 0.05);
     --glow-accent: rgba(109, 40, 217, 0.1);
-    --glow-accent-2: rgba(14, 116, 144, 0.1);
+    --glow-accent-2: rgba(147,51,234, 0.1);
   }
 }
 
@@ -56,21 +56,21 @@
    differ from the site's. The dark block exists for a dark window on a light
    page (on a dark page it simply repeats the defaults). */
 [data-theme="dark"] {
-  --color-bg: #07060d;
-  --color-surface: #100e19;
-  --color-surface-2: #161324;
-  --color-border: #282340;
+  --color-bg: #080515;
+  --color-surface: #110c24;
+  --color-surface-2: #1a1236;
+  --color-border: #2e2257;
   --color-accent: #b185ff;
-  --color-accent-2: #22d3ee;
-  --color-text: #ebe9f5;
-  --color-muted: #8d89a6;
+  --color-accent-2: #d8b4fe;
+  --color-text: #f0ebff;
+  --color-muted: #9d92c4;
   --color-danger: #f87171;
-  --color-syn-type: #fcd34d;
-  --color-syn-number: #86efac;
+  --color-syn-type: #f0abfc;
+  --color-syn-number: #a5b4fc;
 
   --grid-line: rgba(190, 170, 255, 0.05);
-  --glow-accent: rgba(177, 133, 255, 0.18);
-  --glow-accent-2: rgba(34, 211, 238, 0.14);
+  --glow-accent: rgba(177, 133, 255, 0.22);
+  --glow-accent-2: rgba(216,180,254, 0.14);
 }
 
 [data-theme="light"] {
@@ -79,16 +79,16 @@
   --color-surface-2: #f1eff8;
   --color-border: #e3e0ef;
   --color-accent: #6d28d9;
-  --color-accent-2: #0e7490;
+  --color-accent-2: #9333ea;
   --color-text: #16131f;
   --color-muted: #656079;
   --color-danger: #dc2626;
-  --color-syn-type: #b45309;
-  --color-syn-number: #15803d;
+  --color-syn-type: #a21caf;
+  --color-syn-number: #4338ca;
 
   --grid-line: rgba(30, 10, 80, 0.05);
   --glow-accent: rgba(109, 40, 217, 0.1);
-  --glow-accent-2: rgba(14, 116, 144, 0.1);
+  --glow-accent-2: rgba(147,51,234, 0.1);
 }
 
 /* In the base layer so a utility like `font-mono` on a heading still wins. */
@@ -1404,15 +1404,15 @@ html::-webkit-scrollbar-button,
 }
 
 .cg-method {
-  color: #fde68a;
+  color: #f0abfc;
 }
 
 .cg-attr {
-  color: #67e8f9;
+  color: #e9d5ff;
 }
 
 .cg-string {
-  color: #86efac;
+  color: #a5b4fc;
 }
 
 .cg-number {
@@ -1437,19 +1437,19 @@ html::-webkit-scrollbar-button,
 }
 
 :root[data-theme="light"] .cg-method {
-  color: #a16207;
+  color: #a21caf;
 }
 
 :root[data-theme="light"] .cg-attr {
-  color: #0e7490;
+  color: #9333ea;
 }
 
 :root[data-theme="light"] .cg-string {
-  color: #15803d;
+  color: #4338ca;
 }
 
 :root[data-theme="light"] .cg-number {
-  color: #b45309;
+  color: #a21caf;
 }
 
 /* The "+" button's heartbeat while it is still being pointed out: two quick

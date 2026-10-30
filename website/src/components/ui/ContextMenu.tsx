@@ -33,7 +33,7 @@ interface MenuItemProps {
   hint?: string;
   /** Red instead of the accent — reserved for "Report a bug". */
   danger?: boolean;
-  /** Cyan (accent-2) instead of the accent — reserved for "View source on GitHub",
+  /** Lilac (accent-2) instead of the accent — reserved for "View source on GitHub",
    * matching its footer badge. */
   accent2?: boolean;
   onSelect: () => void;

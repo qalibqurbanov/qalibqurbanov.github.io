@@ -440,13 +440,13 @@ class Demolition {
 
     const css = getComputedStyle(document.documentElement);
     this.accent = css.getPropertyValue("--color-accent").trim() || "#b185ff";
-    this.accent2 = css.getPropertyValue("--color-accent-2").trim() || "#22d3ee";
-    this.warm = css.getPropertyValue("--color-syn-type").trim() || "#fcd34d";
+    this.accent2 = css.getPropertyValue("--color-accent-2").trim() || "#d8b4fe";
+    this.warm = css.getPropertyValue("--color-syn-type").trim() || "#f0abfc";
     this.maxChunks = this.mobile ? 200 : 460;
     this.maxPuffs = this.mobile ? 70 : 150;
     this.heights = new Float32Array(Math.ceil(this.W / BIN) + 2);
     this.puffSprite = this.sprite("rgba(150,140,175,1)", "rgba(60,52,90,0)");
-    this.warmSprite = this.sprite("rgba(255,220,150,1)", "rgba(255,120,60,0)");
+    this.warmSprite = this.sprite("rgba(245,200,255,1)", "rgba(200,100,255,0)");
     this.bodies = collect(this.W, this.H, this.mobile ? 130 : 260, true);
   }
 
@@ -1335,7 +1335,7 @@ class Demolition {
         ctx.beginPath();
         ctx.moveTo(crack.pts[0][0], crack.pts[0][1]);
         for (let i = 1; i < n; i++) ctx.lineTo(crack.pts[i][0], crack.pts[i][1]);
-        ctx.strokeStyle = "rgba(34,211,238,0.35)";
+        ctx.strokeStyle = "rgba(216,180,254,0.35)";
         ctx.lineWidth = 3.5;
         ctx.stroke();
         ctx.strokeStyle = "rgba(235,250,255,0.95)";

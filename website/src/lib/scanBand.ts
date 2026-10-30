@@ -116,7 +116,7 @@ export class ScanTrack {
  * while it stays inside. `r` is the bracket radius it settles at. */
 export function drawScanMark(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, track: ScanTrack, now: number, kind: string): void {
   if (!track.marked) return;
-  const [cr, cg, cb] = band?.color ?? [34, 211, 238];
+  const [cr, cg, cb] = band?.color ?? [216, 180, 254];
   const col = (a: number) => `rgba(${cr},${cg},${cb},${a})`;
   ctx.save();
   ctx.globalAlpha = 1;

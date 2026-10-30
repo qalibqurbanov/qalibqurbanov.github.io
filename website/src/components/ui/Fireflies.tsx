@@ -96,15 +96,15 @@ export function Fireflies() {
       };
     });
 
-    // A soft yellow glow, drawn once and stamped.
+    // A soft lavender glow, drawn once and stamped.
     const sprite = document.createElement("canvas");
     sprite.width = sprite.height = 48;
     const sg = sprite.getContext("2d");
     if (sg) {
       const grad = sg.createRadialGradient(24, 24, 0, 24, 24, 24);
-      grad.addColorStop(0, "rgba(255,244,170,1)");
-      grad.addColorStop(0.25, "rgba(255,214,90,0.7)");
-      grad.addColorStop(1, "rgba(255,190,60,0)");
+      grad.addColorStop(0, "rgba(246,236,255,1)");
+      grad.addColorStop(0.25, "rgba(205,165,255,0.7)");
+      grad.addColorStop(1, "rgba(170,110,255,0)");
       sg.fillStyle = grad;
       sg.fillRect(0, 0, 48, 48);
     }
@@ -205,13 +205,13 @@ export function Fireflies() {
         if (shaking) alpha = Math.random() < 0.4 ? 1 : alpha * 0.3;
         else if (g > 0 && Math.random() < 0.18 * g) alpha *= 0.25;
         if (g > 0.03 && Math.random() < 0.8) {
-          // Red and cyan ghosts to either side, and now and then a strip of it torn sideways.
+          // Red and lilac ghosts to either side, and now and then a strip of it torn sideways.
           ctx.globalAlpha = Math.min(1, alpha + 0.3) * g;
-          ctx.fillStyle = "rgba(255,60,120,0.7)";
+          ctx.fillStyle = "rgba(240,100,255,0.7)";
           ctx.beginPath();
           ctx.arc(gx + rand(4, 10) * g, gy + rand(-2, 2), size * 0.7, 0, Math.PI * 2);
           ctx.fill();
-          ctx.fillStyle = "rgba(40,220,255,0.7)";
+          ctx.fillStyle = "rgba(216,180,254,0.7)";
           ctx.beginPath();
           ctx.arc(gx - rand(4, 10) * g, gy + rand(-2, 2), size * 0.7, 0, Math.PI * 2);
           ctx.fill();
@@ -229,7 +229,7 @@ export function Fireflies() {
         ctx.drawImage(sprite, gx - size * 3, gy - size * 3, size * 6, size * 6);
         ctx.globalAlpha = Math.min(1, alpha + 0.2);
         ctx.beginPath();
-        ctx.fillStyle = "#fff6c2";
+        ctx.fillStyle = "#f6edff";
         ctx.arc(gx, gy, size * 0.5, 0, Math.PI * 2);
         ctx.fill();
         if (f.scan.marked) {

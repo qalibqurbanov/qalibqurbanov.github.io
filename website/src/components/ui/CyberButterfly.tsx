@@ -602,7 +602,7 @@ export function CyberButterfly() {
       const css = getComputedStyle(document.documentElement);
       const colors = [
         css.getPropertyValue("--color-accent").trim() || "#b185ff",
-        css.getPropertyValue("--color-accent-2").trim() || "#22d3ee",
+        css.getPropertyValue("--color-accent-2").trim() || "#d8b4fe",
         "#ffffff",
       ];
 
@@ -763,7 +763,7 @@ export function CyberButterfly() {
             emit(bug, 3, 28, true);
           }
 
-          // Inside the hero's scan band it glitches (jitter, flicker, red and cyan ghosts) and gets
+          // Inside the hero's scan band it glitches (jitter, flicker, red and lilac ghosts) and gets
           // scanned (the marks drawn below).
           if (mode === "fly" && !calm) bug.scan.update(flight.x, flight.y + flight.bob - v.scrollY, now, dt);
           // Everything it does scales with `g`, so the glitch fades in and out with the band.
@@ -771,7 +771,7 @@ export function CyberButterfly() {
           body.style.transform = `translate3d(${(flight.x - hit / 2).toFixed(1)}px, ${(flight.y + flight.bob - hit / 2).toFixed(1)}px, 0) rotate(${(flight.angle + (shaking ? (Math.random() - 0.5) * 0.7 : 0)).toFixed(3)}rad)`;
           body.style.translate = shaking ? `${((Math.random() - 0.5) * 14).toFixed(1)}px ${((Math.random() - 0.5) * 10).toFixed(1)}px` : g > 0 ? `${((Math.random() - 0.5) * 8 * g).toFixed(1)}px ${((Math.random() - 0.5) * 5 * g).toFixed(1)}px` : "";
           body.style.opacity = shaking && Math.random() < 0.35 ? "0.3" : g > 0 && Math.random() < 0.18 * g ? "0.25" : "";
-          body.style.filter = g > 0.03 && Math.random() < 0.8 ? `drop-shadow(${((4 + Math.random() * 6) * g).toFixed(1)}px 0 0 rgba(255,60,120,${(0.7 * g).toFixed(2)})) drop-shadow(${((-4 - Math.random() * 6) * g).toFixed(1)}px 0 0 rgba(40,220,255,${(0.7 * g).toFixed(2)}))` : "";
+          body.style.filter = g > 0.03 && Math.random() < 0.8 ? `drop-shadow(${((4 + Math.random() * 6) * g).toFixed(1)}px 0 0 rgba(240,100,255,${(0.7 * g).toFixed(2)})) drop-shadow(${((-4 - Math.random() * 6) * g).toFixed(1)}px 0 0 rgba(216,180,254,${(0.7 * g).toFixed(2)}))` : "";
 
           if (mode === "fly") {
             // Wings close and open gradually as it lands on and leaves its thread.

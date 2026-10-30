@@ -92,7 +92,7 @@ export function HeroScan() {
 
     let violet = readColor("--grid-line", [196, 170, 255]);
     let accent = readColor("--color-accent", [177, 133, 255]);
-    let accent2 = readColor("--color-accent-2", [34, 211, 238]);
+    let accent2 = readColor("--color-accent-2", [216, 180, 254]);
     const rgba = (c: Rgb, a: number) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 
     const bandCells = new Map<string, { step: number; on: boolean; c: Rgb }>();

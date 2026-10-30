@@ -278,8 +278,8 @@ class Shatter {
   private puffSprite!: HTMLCanvasElement;
   private warmSprite!: HTMLCanvasElement;
   private accent = "#b185ff";
-  private accent2 = "#22d3ee";
-  private warm = "#fcd34d";
+  private accent2 = "#d8b4fe";
+  private warm = "#f0abfc";
   private maxPuffs = 130;
   private hanging: Shard[] = [];
   private emitters: Emitter[] = [];
@@ -401,7 +401,7 @@ class Shatter {
     this.maxPuffs = this.mobile ? 60 : 130;
     this.heights = new Float32Array(Math.ceil(this.W / BIN) + 2);
     this.puffSprite = this.sprite("rgba(150,140,175,1)", "rgba(60,52,90,0)");
-    this.warmSprite = this.sprite("rgba(255,220,150,1)", "rgba(255,120,60,0)");
+    this.warmSprite = this.sprite("rgba(245,200,255,1)", "rgba(200,100,255,0)");
   }
 
   /** The foreground goes invisible; background layers inside it are kept visible. */
@@ -1449,7 +1449,7 @@ class Shatter {
         cy += Math.sin(ang) * len;
         g.lineTo(cx, cy);
       }
-      g.strokeStyle = "rgba(34,211,238,0.22)";
+      g.strokeStyle = "rgba(216,180,254,0.22)";
       g.lineWidth = 3.5;
       g.stroke();
       g.strokeStyle = "rgba(4,2,12,0.85)";
@@ -1477,8 +1477,8 @@ class Shatter {
     g.textBaseline = "middle";
     g.textAlign = "center";
     for (let i = 0; i < chars.length; i++) {
-      g.fillStyle = this.light ? "#0b7d57" : "#35f0a4";
-      g.shadowColor = this.light ? "#0b7d57" : "#35f0a4";
+      g.fillStyle = this.light ? "#4338ca" : "#a5b4fc";
+      g.shadowColor = this.light ? "#4338ca" : "#a5b4fc";
       g.shadowBlur = 4;
       g.fillText(chars[i], i * cw + cw / 2, ch / 2);
       g.fillStyle = this.light ? "#064e3b" : "#eafff6";
@@ -1731,7 +1731,7 @@ class Shatter {
     ctx.strokeStyle = "rgba(8,6,18,0.95)";
     ctx.lineWidth = 3.4;
     ctx.stroke();
-    ctx.strokeStyle = "rgba(34,211,238,0.35)";
+    ctx.strokeStyle = "rgba(216,180,254,0.35)";
     ctx.lineWidth = 1;
     ctx.stroke();
     ctx.restore();
@@ -1745,7 +1745,7 @@ class Shatter {
     ctx.moveTo(s.px[0], s.px[1]);
     for (let i = 2; i < s.px.length; i += 2) ctx.lineTo(s.px[i], s.px[i + 1]);
     ctx.closePath();
-    ctx.strokeStyle = "rgba(34,211,238,0.5)";
+    ctx.strokeStyle = "rgba(216,180,254,0.5)";
     ctx.lineWidth = 1.4;
     ctx.stroke();
     ctx.restore();
@@ -1772,15 +1772,15 @@ class Shatter {
       const css = getComputedStyle(document.documentElement);
       const v = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
       this.theme = {
-        bg: v("--color-bg", "#07060d"),
-        surface: v("--color-surface", "#100e19"),
-        surface2: v("--color-surface-2", "#161324"),
-        border: v("--color-border", "#282340"),
-        text: v("--color-text", "#ebe9f5"),
-        muted: v("--color-muted", "#8d89a6"),
+        bg: v("--color-bg", "#080515"),
+        surface: v("--color-surface", "#110c24"),
+        surface2: v("--color-surface-2", "#1a1236"),
+        border: v("--color-border", "#2e2257"),
+        text: v("--color-text", "#f0ebff"),
+        muted: v("--color-muted", "#9d92c4"),
         danger: v("--color-danger", "#f87171"),
-        ok: v("--color-syn-number", "#86efac"),
-        type: v("--color-syn-type", "#fcd34d"),
+        ok: v("--color-syn-number", "#a5b4fc"),
+        type: v("--color-syn-type", "#f0abfc"),
       };
     }
     return this.theme;
@@ -1944,7 +1944,7 @@ class Shatter {
     const sub = "layout tree collapsed";
     const hShown = Math.max(0, Math.floor((t - 150) / 38));
     ctx.font = `700 ${20 * u}px ${mono}`;
-    // A cyan and a red ghost of the headline, always on, stronger in a burst.
+    // A lilac and a red ghost of the headline, always on, stronger in a burst.
     const split = glitch ? 3 : 1.2 + Math.sin(this.clock * 0.004);
     ctx.globalAlpha = open * (glitch ? 0.85 : 0.4);
     ctx.fillStyle = this.accent2;
@@ -2129,7 +2129,7 @@ class Shatter {
     const n = s.px.length / 2;
     const upto = Math.max(2, Math.round(n * Math.min(1, p * 1.4)));
     stroke(s.px, upto, s.cx, s.cy);
-    ctx.strokeStyle = this.light ? "rgba(109,40,217,0.3)" : "rgba(34,211,238,0.35)";
+    ctx.strokeStyle = this.light ? "rgba(109,40,217,0.3)" : "rgba(216,180,254,0.35)";
     ctx.lineWidth = 3;
     ctx.stroke();
     ctx.strokeStyle = this.light ? "rgba(30,20,60,0.9)" : "rgba(235,250,255,0.9)";
@@ -2139,7 +2139,7 @@ class Shatter {
     for (const line of s.cracks) {
       const count = Math.max(2, Math.round((line.length / 2) * p));
       stroke(line, count, 0, 0);
-      ctx.strokeStyle = this.light ? "rgba(109,40,217,0.3)" : "rgba(34,211,238,0.35)";
+      ctx.strokeStyle = this.light ? "rgba(109,40,217,0.3)" : "rgba(216,180,254,0.35)";
       ctx.lineWidth = 3;
       ctx.stroke();
       ctx.strokeStyle = this.light ? "rgba(30,20,60,0.95)" : "rgba(235,250,255,0.95)";
