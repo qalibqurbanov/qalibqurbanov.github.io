@@ -138,16 +138,26 @@ export function CustomCursor() {
 
     // ---- The silk ribbon ----
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    let W = 0;
-    let H = 0;
+    // The drawing is sized from the canvas as it is displayed (the fixed layer stops at the
+    // scrollbar, so it is narrower than the window), and scaled to fill it exactly; otherwise the
+    // ribbon would drift away from the dot toward the right edge.
+    let W = 1;
+    let H = 1;
+    let scaleX = dpr;
+    let scaleY = dpr;
     const resizeCanvas = () => {
-      W = window.innerWidth;
-      H = window.innerHeight;
+      const box = canvas.getBoundingClientRect();
+      W = Math.max(1, box.width);
+      H = Math.max(1, box.height);
       canvas.width = Math.round(W * dpr);
       canvas.height = Math.round(H * dpr);
+      scaleX = canvas.width / W;
+      scaleY = canvas.height / H;
     };
     resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
+    // The scrollbar can appear or go away without the window being resized (a modal locks scrolling).
+    const sizeWatcher = new ResizeObserver(resizeCanvas);
+    sizeWatcher.observe(canvas);
 
     const pts: { x: number; y: number; t: number }[] = [];
     const colors: Record<Token, Rgb> = { accent: [177, 133, 255], accent2: [34, 211, 238], text: [235, 233, 245], danger: [248, 113, 113] };
@@ -184,7 +194,7 @@ export function CustomCursor() {
       const life = (340 + Math.min(480, speed * 0.8)) * look.life;
       while (pts.length && now - pts[0].t > life) pts.shift();
 
-      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      g.setTransform(scaleX, 0, 0, scaleY, 0, 0);
       g.clearRect(0, 0, W, H);
       const n = pts.length;
       if (n > 2) {
@@ -315,7 +325,7 @@ export function CustomCursor() {
       cancelAnimationFrame(scrollFrame);
       cancelAnimationFrame(ribbonFrame);
       stopIdle?.();
-      window.removeEventListener("resize", resizeCanvas);
+      sizeWatcher.disconnect();
       window.removeEventListener("pointermove", handleMove);
       window.removeEventListener("pointerdown", handleDown);
       window.removeEventListener("pointerup", handleUp);
