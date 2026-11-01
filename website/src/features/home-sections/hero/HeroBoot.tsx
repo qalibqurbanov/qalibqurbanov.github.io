@@ -38,17 +38,16 @@ interface HeroBootProps {
  * INTRO_DURATION_MS) to reveal the window. It can't be skipped, and the window
  * stays inert until it is done. */
 export function HeroBoot({ onDone }: HeroBootProps) {
-  const { profile, projects, skills, blogPosts, ui } = useContent();
+  const { profile, projects, skills, ui } = useContent();
   const lines = useMemo(() => {
     const vars = {
       name: profile.name,
       projects: String(projects.length),
       skills: String(Object.values(skills).flat().length),
-      posts: String(blogPosts.length),
       sections: String(Object.keys(ui.sections).length),
     };
     return ui.terminal.boot.map((line) => format(line, vars));
-  }, [ui.terminal.boot, ui.sections, profile.name, projects.length, skills, blogPosts.length]);
+  }, [ui.terminal.boot, ui.sections, profile.name, projects.length, skills]);
 
   const lineGaps = useMemo(() => randomLineGaps(lines.length), [lines.length]);
 

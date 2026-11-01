@@ -137,48 +137,11 @@ const en: Content = {
     ],
     tools: ["Git", "GitLab CI/CD", "GitHub Actions", "Docker", "Linux", "Nginx"],
   },
-  blogPosts: [
-    {
-      title: "Building my first full-stack app",
-      excerpt:
-        "A short write-up about a project I built, what I learned, and what I'd do differently next time.",
-      date: "2026-01-01",
-      url: "#",
-      codeSnippet: {
-        filename: "server.ts",
-        code: `export async function getUser(id: string) {
-    // Cache first — the DB round trip was the slowest part of this route.
-    const cached = await cache.get(\`user:\${id}\`);
-    if (cached) return cached;
-
-    const user = await db.users.findUnique({ where: { id } });
-    if (!user) throw new NotFoundError("User not found");
-
-    await cache.set(\`user:\${id}\`, user, { ttl: 60 });
-    return user;
-  }`,
-      },
-    },
-    {
-      title: "Notes on going from web to mobile development",
-      excerpt:
-        "Thoughts on picking up mobile development after working mostly on the web.",
-      date: "2026-01-01",
-      url: "#",
-    },
-    {
-      title: "Why I structure my backend APIs this way",
-      excerpt: "A look at the API architecture patterns I default to and why.",
-      date: "2026-01-01",
-      url: "#",
-    },
-  ],
   navigation: [
     { label: "About", href: "#about" },
     { label: "Experience", href: "#experience" },
     { label: "Projects", href: "#projects" },
     { label: "Skills", href: "#skills" },
-    // { label: "Blog", href: "#blog" },
     { label: "Contact", href: "#contact" },
   ],
   ui: {
@@ -230,7 +193,6 @@ const en: Content = {
       experience: { index: "02", title: "Experience" },
       projects: { index: "03", title: "Projects" },
       skills: { index: "04", title: "Skills" },
-      blog: { index: "05", title: "Writing" },
       contact: { index: "06", title: "What's Next?" },
     },
     contactModal: {
@@ -474,6 +436,16 @@ const en: Content = {
       back: "Let's take you back to the {home}.",
       home: "home page",
     },
+    links: {
+      title: "Links",
+      intro: "Every way to find or reach me. The button on each row copies its short link.",
+      resume: "Resume",
+      contact: "Send a message",
+      email: "Email",
+      copyShort: "Copy short link",
+      copied: "Copied",
+      back: "Open the portfolio",
+    },
     commandPalette: {
       placeholder: "Type a command or search…",
       empty: "No results found.",
@@ -542,7 +514,7 @@ const en: Content = {
       welcome: "Type 'help' to see available commands.",
       boot: [
         "website initialization started",
-        "data received: {projects} projects, {skills} skills, {posts} posts",
+        "data received: {projects} projects, {skills} skills",
         "profile loaded: {name}",
         "{sections} sections created",
         "cleanup completed",

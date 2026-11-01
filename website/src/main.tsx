@@ -6,7 +6,7 @@ import { preloadDialogs, preloadSections } from "@/app/sections";
 import { loadContent } from "@/content";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { resolveInitialLocale } from "@/i18n/locale";
-import { isNotFoundPage } from "@/lib/notFound";
+import { isStandalonePage } from "@/lib/notFound";
 import { MotionProvider } from "@/motion/MotionProvider";
 import { playThemeIntro } from "@/themes/shared/intro";
 import { StyleProvider } from "@/themes/shared/style/StyleProvider";
@@ -119,7 +119,7 @@ if (!rootElement) {
 const initialLocale = resolveInitialLocale();
 // A link into the page (a section or a project) also waits for the section chunks, so its target exists.
 // The 404 page has none of the sections, so it loads none of them.
-const notFound = isNotFoundPage();
+const notFound = isStandalonePage();
 const ready = Promise.all([loadContent(initialLocale), window.location.hash && !notFound ? preloadSections().catch(() => null) : null]);
 void ready.then(([initialContent]) => {
   // A style with its own opening covers the page before it renders, and plays it.

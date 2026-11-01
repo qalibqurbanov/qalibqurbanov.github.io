@@ -3,6 +3,8 @@ import path from "node:path";
 
 import type { Plugin } from "vite";
 
+import { externalLinks, siteLinks } from "../src/features/pages-without-language/links/shortLinks.ts";
+
 // The site is a client-rendered SPA, but each language still needs its own
 // real HTML file at its own URL so crawlers and link previews see the right
 // <html lang>, title, description and hreflang alternates without running JS.
@@ -11,8 +13,8 @@ import type { Plugin } from "vite";
 // is the x-default landing page: an English copy (canonical -> /en/) whose
 // script redirects visitors to their preferred language.
 //
-// Kept self-contained (no imports from src/) because it runs in Node at
-// build time. When adding a locale, add it here and in src/i18n/locale.ts.
+// Kept self-contained because it runs in Node at build time: the one import from src/ is the
+// short addresses, a plain data file with no imports of its own. When adding a locale, add it here and in src/i18n/locale.ts.
 
 const SITE_URL = "https://qalibqurbanov.github.io";
 
@@ -183,6 +185,78 @@ export function notFoundHtml(template: string): string {
     .replace('<div id="root"></div>', `<div id="root"></div>\n    ${message}`);
 }
 
+/** The /links page: the same site, marked so the app shows the list of links instead of the sections
+ * (see src/features/links). It has no language path of its own; the app picks the visitor's language. */
+export function linksHtml(template: string): string {
+  const english = PAGES[0];
+  const url = `${SITE_URL}/links/`;
+  const title = `${english.name} | Links`;
+  const description = `${english.name} — GitHub, LinkedIn, Telegram, email and resume in one place.`;
+  const head = [
+    `    <link rel="canonical" href="${url}" />`,
+    `    <meta property="og:type" content="website" />`,
+    `    <meta property="og:url" content="${url}" />`,
+    `    <meta property="og:title" content="${escapeAttr(title)}" />`,
+    `    <meta property="og:description" content="${escapeAttr(description)}" />`,
+  ].join("\n");
+  const plainText = [
+    "    <noscript>",
+    `      <h1>${english.name} — Links</h1>`,
+    "      <ul>",
+    `        <li><a href="${SITE_URL}/resume.pdf">${english.resumeLabel}</a></li>`,
+    ...PROFILE_LINKS.map(([label, href]) => `        <li><a href="${href}">${label}</a></li>`),
+    "      </ul>",
+    "    </noscript>",
+  ].join("\n");
+  return template
+    .replace(/<html lang="[^"]*"/, '<html lang="en" data-page="links"')
+    .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
+    .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${escapeAttr(description)}" />`)
+    .replace("</head>", `${head}\n  </head>`)
+    .replace('<div id="root"></div>', `<div id="root"></div>\n${plainText}`);
+}
+
+/** Every short address (/github, /cv, ...) with the page that sends the visitor on. These are plain
+ * pages with no site in them, so a link preview or a crawler sees a short redirect, never the portfolio. */
+export function redirectPages(): Array<[slug: string, html: string]> {
+  const codes = JSON.stringify(PAGES.map((page) => page.code));
+  const page = (target: string, script: string, fallback: string) =>
+    [
+      "<!doctype html>",
+      '<html lang="en">',
+      "  <head>",
+      '    <meta charset="UTF-8" />',
+      '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+      "    <title>Redirecting…</title>",
+      '    <meta name="robots" content="noindex" />',
+      fallback,
+      `    <script>${script.replace(/</g, "\u003c")}</script>`,
+      "  </head>",
+      `  <body><p>Redirecting to <a href="${escapeAttr(target)}">${escapeAttr(target)}</a>…</p></body>`,
+      "</html>",
+      "",
+    ].join("\n");
+
+  const external = Object.entries(externalLinks).map(
+    ([slug, target]): [string, string] => [
+      slug,
+      page(target, `location.replace(${JSON.stringify(target)});`, `    <meta http-equiv="refresh" content="0;url=${escapeAttr(target)}" />`),
+    ],
+  );
+  // Inside the site: the language is the one the visitor chose there before, else their browser's, else English.
+  const inside = Object.entries(siteLinks).map(([slug, target]): [string, string] => {
+    const script =
+      `var t=${JSON.stringify(target)},c=${codes},l="en";` +
+      `try{l=localStorage.getItem("portfolio:locale")}catch(e){}` +
+      `if(c.indexOf(l)<0){l="en";var n=navigator.languages||[navigator.language];` +
+      `for(var i=0;i<n.length;i++){var p=String(n[i]).slice(0,2).toLowerCase();if(c.indexOf(p)>=0){l=p;break}}}` +
+      `location.replace(t.replace("{lang}",l));`;
+    const english = target.replace("{lang}", "en");
+    return [slug, page(english, script, `    <noscript><meta http-equiv="refresh" content="0;url=${escapeAttr(english)}" /></noscript>`)];
+  });
+  return [...external, ...inside];
+}
+
 export function localizedHtml(): Plugin {
   let outDir = "dist";
 
@@ -201,6 +275,14 @@ export function localizedHtml(): Plugin {
       const english = PAGES.find((page) => page.code === "en");
       if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english, assets));
 
+      const linksDir = path.join(outDir, "links");
+      fs.mkdirSync(linksDir, { recursive: true });
+      fs.writeFileSync(path.join(linksDir, "index.html"), linksHtml(template));
+      for (const [slug, html] of redirectPages()) {
+        fs.mkdirSync(path.join(outDir, slug), { recursive: true });
+        fs.writeFileSync(path.join(outDir, slug, "index.html"), html);
+      }
+
       for (const page of PAGES) {
         const target = path.join(outDir, page.path, "index.html");
         fs.mkdirSync(path.dirname(target), { recursive: true });
@@ -216,9 +298,10 @@ export function localizedHtml(): Plugin {
           .join("\n");
         return `  <url>\n    <loc>${SITE_URL + page.path}</loc>\n${links}\n  </url>`;
       }).join("\n");
+      const linksUrl = `  <url>\n    <loc>${SITE_URL}/links/</loc>\n  </url>`;
       fs.writeFileSync(
         path.join(outDir, "sitemap.xml"),
-        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`,
+        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n${linksUrl}\n</urlset>\n`,
       );
       fs.writeFileSync(
         path.join(outDir, "robots.txt"),

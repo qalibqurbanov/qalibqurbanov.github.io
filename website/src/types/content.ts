@@ -92,18 +92,6 @@ export type SkillCategory = "backend" | "tools";
 
 export type SkillGroups = Record<SkillCategory, string[]>;
 
-export interface BlogPost {
-  title: string;
-  excerpt: string;
-  date: string;
-  url: string;
-  /** Optional highlighted code snippet rendered under the excerpt. */
-  codeSnippet?: {
-    filename: string;
-    code: string;
-  };
-}
-
 export interface SectionHeadingText {
   index: string;
   title: string;
@@ -181,7 +169,6 @@ export interface UiStrings {
     experience: SectionHeadingText;
     projects: SectionHeadingText;
     skills: SectionHeadingText;
-    blog: SectionHeadingText;
     contact: SectionHeadingText;
   };
   skillGroups: Record<SkillCategory, string>;
@@ -345,6 +332,17 @@ export interface UiStrings {
     back: string;
     home: string;
   };
+  /** The /links page: every way to reach me, each with a button that copies its short address. */
+  links: {
+    title: string;
+    intro: string;
+    resume: string;
+    contact: string;
+    email: string;
+    copyShort: string;
+    copied: string;
+    back: string;
+  };
   commandPalette: {
     placeholder: string;
     empty: string;
@@ -418,7 +416,7 @@ export interface UiStrings {
   };
   terminal: {
     welcome: string;
-    /** Past-tense status lines the hero window prints while it boots, each after an "[ ok ]" marker. Tokens: {name}, {projects}, {skills}, {posts}, {sections}. */
+    /** Past-tense status lines the hero window prints while it boots, each after an "[ ok ]" marker. Tokens: {name}, {projects}, {skills}, {sections}. */
     boot: string[];
     /** Label of the progress row that ends the boot, shown as "[ finishing ]". */
     finishing: string;
@@ -473,6 +471,5 @@ export interface Content {
   experience: ExperienceItem[];
   projects: Project[];
   skills: SkillGroups;
-  blogPosts: BlogPost[];
   ui: UiStrings;
 }

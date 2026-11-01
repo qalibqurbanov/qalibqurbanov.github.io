@@ -1,4 +1,4 @@
-import { isNotFoundPage } from "@/lib/notFound";
+import { isStandalonePage } from "@/lib/notFound";
 
 export type Locale = "en" | "az" | "ru";
 
@@ -89,8 +89,8 @@ export function localeFromUrl(): Locale {
  * replaceState for the initial redirect so Back doesn't bounce off it.
  */
 export function navigateToLocale(locale: Locale, mode: "push" | "replace"): void {
-  // The 404 page changes language in place: its address must stay the one that was not found.
-  if (isNotFoundPage()) return;
+  // The 404 and links pages change language in place: their address must stay as it is.
+  if (isStandalonePage()) return;
   const { pathname, search, hash } = window.location;
   const target = pathForLocale(locale);
   if (pathname === target) return;
@@ -107,7 +107,7 @@ export function navigateToLocale(locale: Locale, mode: "push" | "replace"): void
 export function resolveInitialLocale(): Locale {
   const fromPath = localeFromPath(window.location.pathname);
   if (fromPath) return fromPath;
-  if (isNotFoundPage()) return detectInitialLocale();
+  if (isStandalonePage()) return detectInitialLocale();
   if (window.location.pathname !== "/") return DEFAULT_LOCALE;
   const preferred = detectInitialLocale();
   navigateToLocale(preferred, "replace");

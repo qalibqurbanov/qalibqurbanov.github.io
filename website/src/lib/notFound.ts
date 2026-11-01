@@ -4,3 +4,15 @@
 export function isNotFoundPage(): boolean {
   return document.documentElement.getAttribute("data-page") === "not-found";
 }
+
+/** Whether this page is the /links page: the same site around a list of links, built as its own
+ * HTML file (see config/localized-html.ts) and marked `data-page="links"`. */
+export function isLinksPage(): boolean {
+  return document.documentElement.getAttribute("data-page") === "links";
+}
+
+/** The pages that sit outside the language paths (/en/, /az/, /ru/) and have no sections to scroll to.
+ * They take the visitor's language and change it in place, without moving the address. */
+export function isStandalonePage(): boolean {
+  return isNotFoundPage() || isLinksPage();
+}

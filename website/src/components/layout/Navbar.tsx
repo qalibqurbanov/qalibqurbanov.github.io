@@ -8,7 +8,7 @@ import { SettingsMenu } from "@/components/ui/SettingsMenu";
 import { useViewBar } from "@/components/ui/viewBar";
 import { useContent, useLocale } from "@/i18n/context";
 import { pathForLocale } from "@/i18n/locale";
-import { isNotFoundPage } from "@/lib/notFound";
+import { isNotFoundPage, isStandalonePage } from "@/lib/notFound";
 import { useGlitchBar } from "@/hooks/useGlitch";
 import { useScrolledPast, useScrollProgress } from "@/hooks/useScrollPosition";
 import { scrollToTop } from "@/lib/scroll";
@@ -22,6 +22,7 @@ export function Navbar() {
   const { profile, navigation, ui } = useContent();
   const { locale } = useLocale();
   const notFound = isNotFoundPage();
+  const standalone = isStandalonePage();
   const barRef = useGlitchBar<HTMLDivElement>();
   const viewBar = useViewBar();
   const inView = viewBar !== null;
@@ -57,9 +58,9 @@ export function Navbar() {
             className={`inline-flex items-center ${FADE} ${inView ? "opacity-0 -translate-x-3 pointer-events-none" : ""}`}
           >
             <a
-              href={notFound ? pathForLocale(locale) : "#"}
+              href={standalone ? pathForLocale(locale) : "#"}
               onClick={(event) => {
-                if (notFound) return;
+                if (standalone) return;
                 event.preventDefault();
                 scrollToTop();
               }}

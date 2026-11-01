@@ -5,7 +5,7 @@ import { loadContent } from "@/content";
 import { glitchScreen } from "@/hooks/glitch";
 import { useClock } from "@/hooks/useClock";
 import { careerYears, withLiveStats } from "@/lib/liveStats";
-import { isNotFoundPage } from "@/lib/notFound";
+import { isLinksPage, isNotFoundPage } from "@/lib/notFound";
 import type { Content } from "@/types/content";
 
 import { LocaleContext, type LocaleContextValue } from "./context";
@@ -28,7 +28,11 @@ export function LocaleProvider({ initialLocale, initialContent, children }: Loca
   useEffect(() => {
     document.documentElement.lang = state.locale;
     const { name, role } = state.content.profile;
-    document.title = isNotFoundPage() ? `404 | ${state.content.ui.notFound.title}` : `${name} | ${role}`;
+    document.title = isNotFoundPage()
+      ? `404 | ${state.content.ui.notFound.title}`
+      : isLinksPage()
+        ? `${name} | ${state.content.ui.links.title}`
+        : `${name} | ${role}`;
   }, [state]);
 
   const switchTo = useCallback(async (next: Locale) => {

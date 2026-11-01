@@ -4,12 +4,12 @@ import { lazy } from "react";
  * fetched right after the page is up (see `preloadSections`), so by the time a
  * visitor scrolls they are already there. */
 const loaders = {
-  experience: () => import("@/features/experience/Experience").then((m) => ({ default: m.Experience })),
-  projects: () => import("@/features/projects/Projects").then((m) => ({ default: m.Projects })),
-  skills: () => import("@/features/skills/Skills").then((m) => ({ default: m.Skills })),
-  contact: () => import("@/features/contact/Contact").then((m) => ({ default: m.Contact })),
-  projectDetail: () => import("@/features/projects/ProjectDetail").then((m) => ({ default: m.ProjectDetail })),
-  resume: () => import("@/features/resume/ResumeViewer").then((m) => ({ default: m.ResumeViewer })),
+  experience: () => import("@/features/home-sections/experience/Experience").then((m) => ({ default: m.Experience })),
+  projects: () => import("@/features/home-sections/projects/Projects").then((m) => ({ default: m.Projects })),
+  skills: () => import("@/features/home-sections/skills/Skills").then((m) => ({ default: m.Skills })),
+  contact: () => import("@/features/home-sections/contact/Contact").then((m) => ({ default: m.Contact })),
+  projectDetail: () => import("@/features/fullscreen-views/project-detail/ProjectDetail").then((m) => ({ default: m.ProjectDetail })),
+  resume: () => import("@/features/fullscreen-views/resume/ResumeViewer").then((m) => ({ default: m.ResumeViewer })),
   butterfly: () => import("@/components/ui/CyberButterfly").then((m) => ({ default: m.CyberButterfly })),
   commandPalette: () => import("@/components/command-palette/CommandPalette").then((m) => ({ default: m.CommandPalette })),
   contactModal: () => import("@/components/contact/ContactModal").then((m) => ({ default: m.ContactModal })),

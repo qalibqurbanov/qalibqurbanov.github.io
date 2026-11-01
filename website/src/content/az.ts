@@ -138,48 +138,11 @@ const az: Content = {
     ],
     tools: ["Git", "GitLab CI/CD", "GitHub Actions", "Docker", "Linux", "Nginx"],
   },
-  blogPosts: [
-    {
-      title: "İlk tam-stek tətbiqimi qurarkən",
-      excerpt:
-        "Qurduğum bir layihə, öyrəndiklərim və növbəti dəfə nəyi fərqli edəcəyim haqqında qısa yazı.",
-      date: "2026-01-01",
-      url: "#",
-      codeSnippet: {
-        filename: "server.ts",
-        code: `export async function getUser(id: string) {
-    // Cache first — the DB round trip was the slowest part of this route.
-    const cached = await cache.get(\`user:\${id}\`);
-    if (cached) return cached;
-
-    const user = await db.users.findUnique({ where: { id } });
-    if (!user) throw new NotFoundError("User not found");
-
-    await cache.set(\`user:\${id}\`, user, { ttl: 60 });
-    return user;
-  }`,
-      },
-    },
-    {
-      title: "Vebdən mobil developmentə keçid qeydlərim",
-      excerpt:
-        "Əsasən veblə işlədikdən sonra mobil developmenti mənimsəmək haqqında düşüncələr.",
-      date: "2026-01-01",
-      url: "#",
-    },
-    {
-      title: "Backend API-larımı niyə belə strukturlaşdırıram",
-      excerpt: "Standart olaraq istifadə etdiyim API arxitektura nümunələrinə və səbəbinə baxış.",
-      date: "2026-01-01",
-      url: "#",
-    },
-  ],
   navigation: [
     { label: "Haqqımda", href: "#about" },
     { label: "Təcrübə", href: "#experience" },
     { label: "Layihələr", href: "#projects" },
     { label: "Bacarıqlar", href: "#skills" },
-    // { label: "Yazılar", href: "#blog" },
     { label: "Əlaqə", href: "#contact" },
   ],
   ui: {
@@ -231,7 +194,6 @@ const az: Content = {
       experience: { index: "02", title: "Təcrübə" },
       projects: { index: "03", title: "Layihələr" },
       skills: { index: "04", title: "Bacarıqlar" },
-      blog: { index: "05", title: "Yazılar" },
       contact: { index: "06", title: "Növbəti Addım" },
     },
     contactModal: {
@@ -475,6 +437,16 @@ const az: Content = {
       back: "Gəl səni {home} qaytaraq.",
       home: "ana səhifəyə",
     },
+    links: {
+      title: "Linklər",
+      intro: "Məni tapmağın və mənimlə əlaqə saxlamağın bütün yolları. Hər sətirdəki düymə qısa linki kopyalayır.",
+      resume: "CV",
+      contact: "Mesaj göndər",
+      email: "E-poçt",
+      copyShort: "Qısa linki kopyala",
+      copied: "Kopyalandı",
+      back: "Portfolioya keç",
+    },
     commandPalette: {
       placeholder: "Əmr yazın və ya axtarın…",
       empty: "Nəticə tapılmadı.",
@@ -543,7 +515,7 @@ const az: Content = {
       welcome: "Mövcud əmrləri görmək üçün 'help' yazın.",
       boot: [
         "saytın işə salınması başladı",
-        "məlumatlar alındı: {projects} layihə, {skills} bacarıq, {posts} yazı",
+        "məlumatlar alındı: {projects} layihə, {skills} bacarıq",
         "profil yükləndi: {name}",
         "{sections} bölmə yaradıldı",
         "təmizləmə tamamlandı",

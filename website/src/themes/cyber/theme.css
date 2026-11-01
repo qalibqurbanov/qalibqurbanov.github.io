@@ -2509,7 +2509,7 @@ html.demolishing [data-demolish-fixed] {
   }
 }
 
-/* The 404 page (features/not-found): the site's own backdrop with a dead-signal look, a centred
+/* The 404 page (features/pages-without-language/not-found): the site's own backdrop with a dead-signal look, a centred
    error code that slices into colour-split bands whenever the signal drops (see signalLoss in
    lib/effects.ts), the address that was not found in a mono chip, and a way back. */
 html[data-page="not-found"] body {

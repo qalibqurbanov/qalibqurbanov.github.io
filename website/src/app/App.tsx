@@ -9,18 +9,18 @@ import { ContextMenu } from "@/components/ui/ContextMenu";
 import { TooltipLayer } from "@/components/ui/TooltipLayer";
 import { CursorGlow } from "@/components/ui/CursorGlow";
 import { CustomCursor } from "@/components/ui/CustomCursor";
-import { About } from "@/features/about/About";
-// import { Blog } from "@/features/blog/Blog";
-import { Hero } from "@/features/hero/Hero";
+import { About } from "@/features/home-sections/about/About";
+import { Hero } from "@/features/home-sections/hero/Hero";
 import { CommandPalette, Contact, ContactModal, CyberButterfly, Experience, Fireflies, ProjectDetail, Projects, ResumeViewer, Skills } from "@/app/sections";
 import { useEasterEggs } from "@/hooks/useEasterEggs";
 import { useHashSectionFocus } from "@/hooks/useHashSectionFocus";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
 import { useMotion } from "@/motion/context";
-import { NotFound } from "@/features/not-found/NotFound";
-import { useNotFoundRedirect } from "@/hooks/useNotFoundRedirect";
+import { LinksPage } from "@/features/pages-without-language/links/LinksPage";
+import { NotFound } from "@/features/pages-without-language/not-found/NotFound";
+import { useStandaloneRedirect } from "@/features/pages-without-language/useStandaloneRedirect";
 import { useContent, useLocale } from "@/i18n/context";
-import { isNotFoundPage } from "@/lib/notFound";
+import { isLinksPage, isNotFoundPage } from "@/lib/notFound";
 import { Suspense } from "react";
 import { ThemeScene } from "@/themes/shared/scene/ThemeScene";
 import { useStyle } from "@/themes/shared/style/context";
@@ -35,7 +35,8 @@ export function App() {
   const original = useStyle().style === "cyber";
   const { locale } = useLocale();
   const notFound = isNotFoundPage();
-  useNotFoundRedirect(locale);
+  const linksPage = isLinksPage();
+  useStandaloneRedirect(locale);
   useHashSectionFocus();
   useEasterEggs(ui.terminal.konami);
 
@@ -51,7 +52,9 @@ export function App() {
 
       <Navbar />
       <main>
-        {notFound ? (
+        {linksPage ? (
+          <LinksPage />
+        ) : notFound ? (
           <NotFound />
         ) : (
           <>
@@ -61,19 +64,18 @@ export function App() {
               <Experience />
               <Projects />
               <Skills />
-              {/* <Blog /> */}
               <Contact />
             </Suspense>
           </>
         )}
       </main>
       <Footer />
-      {notFound ? null : <BackToTop />}
+      {notFound || linksPage ? null : <BackToTop />}
       <Suspense fallback={null}>
         {decorated && original ? <CyberButterfly /> : null}
         {decorated && original ? <Fireflies /> : null}
 
-        {notFound ? null : resumeOpen ? (
+        {notFound || linksPage ? null : resumeOpen ? (
           <ResumeViewer onBack={closeProject} />
         ) : activeProject !== undefined ? (
           <ProjectDetail project={activeProject} onBack={closeProject} />

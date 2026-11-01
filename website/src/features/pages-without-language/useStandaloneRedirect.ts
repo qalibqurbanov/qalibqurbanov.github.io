@@ -2,14 +2,14 @@ import { useEffect } from "react";
 
 import { pathForLocale } from "@/i18n/locale";
 import type { Locale } from "@/i18n/locale";
-import { isNotFoundPage } from "@/lib/notFound";
+import { isStandalonePage } from "@/lib/notFound";
 
-/** On the 404 page there are no sections, projects or resume view to scroll to. The navbar, the
+/** On the 404 and links pages there are no sections, projects or resume view to scroll to. The navbar, the
  * command palette and the footer still point at them with `#…` addresses, so a click on any of them
  * takes the visitor to the real page at that spot instead. */
-export function useNotFoundRedirect(locale: Locale): void {
+export function useStandaloneRedirect(locale: Locale): void {
   useEffect(() => {
-    if (!isNotFoundPage()) return;
+    if (!isStandalonePage()) return;
     // Clicks are caught first so the address goes straight to the real page and never shows the
     // 404 path with a `#…` appended on the way.
     function handleClick(event: MouseEvent) {

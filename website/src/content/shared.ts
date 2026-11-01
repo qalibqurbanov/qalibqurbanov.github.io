@@ -1,7 +1,9 @@
 import type { Project, SocialLinks, ExperienceItem } from "@/types/content";
 
-// Contact info and external profile links don't vary by locale.
-export const email = "qalibqurbanow@gmail.com";
+import { email, externalLinks } from "@/features/pages-without-language/links/shortLinks";
+
+// Contact info and external profile links don't vary by locale (they live in shortLinks.ts, which also builds the short addresses).
+export { email };
 export const resumeUrl = "/resume.pdf";
 
 /** First month of the whole career ("YYYY-MM"). The "{years}" placeholder in
@@ -9,12 +11,12 @@ export const resumeUrl = "/resume.pdf";
 export const careerStart = "2023-10";
 
 export const socials: SocialLinks = {
-  github: "https://github.com/qalibqurbanov",
-  stackoverflow: "https://stackoverflow.com/users/13249741/qalibqurbanov",
-  medium: "https://medium.com/@qalibqurbanov",
-  linkedin: "https://www.linkedin.com/in/qalibqurbanov/",
-  email: `mailto:${email}`,
-  telegram: "https://t.me/inde_irae",
+  github: externalLinks.github,
+  stackoverflow: externalLinks.stackoverflow,
+  medium: externalLinks.medium,
+  linkedin: externalLinks.linkedin,
+  email: externalLinks.mail,
+  telegram: externalLinks.telegram,
 };
 
 /** What does not change with the language about each project; every locale adds its own wording on top. */

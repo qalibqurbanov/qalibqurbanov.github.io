@@ -138,48 +138,11 @@ const ru: Content = {
     ],
     tools: ["Git", "GitLab CI/CD", "GitHub Actions", "Docker", "Linux", "Nginx"],
   },
-  blogPosts: [
-    {
-      title: "Создание моего первого full-stack приложения",
-      excerpt:
-        "Короткий рассказ о проекте, который я создал, чему научился и что сделал бы иначе в следующий раз.",
-      date: "2026-01-01",
-      url: "#",
-      codeSnippet: {
-        filename: "server.ts",
-        code: `export async function getUser(id: string) {
-    // Cache first — the DB round trip was the slowest part of this route.
-    const cached = await cache.get(\`user:\${id}\`);
-    if (cached) return cached;
-
-    const user = await db.users.findUnique({ where: { id } });
-    if (!user) throw new NotFoundError("User not found");
-
-    await cache.set(\`user:\${id}\`, user, { ttl: 60 });
-    return user;
-  }`,
-      },
-    },
-    {
-      title: "Заметки о переходе от веб- к мобильной разработке",
-      excerpt:
-        "Мысли об освоении мобильной разработки после работы преимущественно над вебом.",
-      date: "2026-01-01",
-      url: "#",
-    },
-    {
-      title: "Почему я структурирую backend API именно так",
-      excerpt: "Обзор архитектурных паттернов API, которые я использую по умолчанию, и почему.",
-      date: "2026-01-01",
-      url: "#",
-    },
-  ],
   navigation: [
     { label: "Обо мне", href: "#about" },
     { label: "Опыт", href: "#experience" },
     { label: "Проекты", href: "#projects" },
     { label: "Навыки", href: "#skills" },
-    // { label: "Блог", href: "#blog" },
     { label: "Контакты", href: "#contact" },
   ],
   ui: {
@@ -231,7 +194,6 @@ const ru: Content = {
       experience: { index: "02", title: "Опыт" },
       projects: { index: "03", title: "Проекты" },
       skills: { index: "04", title: "Навыки" },
-      blog: { index: "05", title: "Блог" },
       contact: { index: "06", title: "Что дальше?" },
     },
     contactModal: {
@@ -475,6 +437,16 @@ const ru: Content = {
       back: "Давайте вернёмся на {home}.",
       home: "главную страницу",
     },
+    links: {
+      title: "Ссылки",
+      intro: "Все способы найти меня и связаться со мной. Кнопка в каждой строке копирует короткую ссылку.",
+      resume: "Резюме",
+      contact: "Написать сообщение",
+      email: "Эл. почта",
+      copyShort: "Копировать короткую ссылку",
+      copied: "Скопировано",
+      back: "Открыть портфолио",
+    },
     commandPalette: {
       placeholder: "Введите команду или начните поиск…",
       empty: "Ничего не найдено.",
@@ -543,7 +515,7 @@ const ru: Content = {
       welcome: "Введите 'help', чтобы увидеть доступные команды.",
       boot: [
         "инициализация сайта начата",
-        "данные получены: проектов {projects}, навыков {skills}, статей {posts}",
+        "данные получены: проектов {projects}, навыков {skills}",
         "профиль загружен: {name}",
         "создано разделов: {sections}",
         "очистка завершена",

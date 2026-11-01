@@ -7,7 +7,7 @@ import { SectionClosing } from "@/components/ui/SectionClosing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { useContent } from "@/i18n/context";
 
-import { useCopy } from "./clipboard";
+import { useCopy } from "@/lib/clipboard";
 
 export function Contact() {
   const { profile, ui } = useContent();
