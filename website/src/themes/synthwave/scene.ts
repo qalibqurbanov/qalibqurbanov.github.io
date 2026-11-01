@@ -2,8 +2,6 @@ import type { Rgb, SceneEnv, SceneFactory } from "../shared/scene/types";
 import { makeLayer, mix, noise2, rgba } from "../shared/scene/util";
 import { createWorld } from "../shared/scene/world";
 import { kinds } from "./objects";
-import { createStage } from "../shared/scene/stage";
-import { createCar } from "./car";
 import { createTraffic } from "./road";
 import { createSkyline } from "./skyline";
 
@@ -29,15 +27,13 @@ const YELLOW: Rgb = [253, 224, 71];
 /** Neon night: a low sunset sliced by scan lines, wireframe mountains, and a glowing grid that rushes
  * toward you faster the more you scroll. The grid bends toward the cursor and lights up around it;
  * the cursor leaves a neon trail and now and then a light streak crosses the floor. */
-export const createScene: SceneFactory = (canvas, env, objects, models) => {
+export const createScene: SceneFactory = (canvas, env, objects) => {
   const g = canvas.getContext("2d");
   if (!g) return { frame() {} };
   const rnd = Math.random;
   const fx = objects.getContext("2d");
   const world = createWorld(kinds, { perScreen: 2.8, veil: 0.34 });
   const traffic = createTraffic();
-  const stage = createStage(models, env, { key: 0xff7ac8, fill: 0x3ee6ff, sky: 0x9a6cff, ground: 0x1a0a3a, exposure: 1.15, envIntensity: 0.8 });
-  const car = createCar(() => stage);
   const city = createSkyline(Math.random, [34, 229, 255]);
   const trail: Trail[] = [];
   const streaks: Streak[] = [];
@@ -222,11 +218,8 @@ export const createScene: SceneFactory = (canvas, env, objects, models) => {
     city.draw(g!, e, horizon);
     drawFloor(e, horizon);
     traffic.frame(g!, e, horizon);
-    const spot = traffic.at(e, horizon, 0.8);
-    car.frame(e, spot.cx + spot.half * 0.46, spot.y, spot.half * 0.62);
     if (fx) world.frame(fx, e);
     world.veil(g!, e, 0.5);
-    stage?.render(e);
 
     if (!e.still) {
       // light streaks crossing the floor
@@ -293,12 +286,10 @@ export const createScene: SceneFactory = (canvas, env, objects, models) => {
     frame,
     resize: (e) => {
       layout(e);
-      stage?.resize(e);
       world.relayout(e);
     },
     destroy: () => {
       world.destroy();
-      stage?.destroy();
     },
     press(x, y, e) {
       for (let i = 0; i < 5; i++) trail.push({ x: x + (Math.random() - 0.5) * 60, y: y + (Math.random() - 0.5) * 60, t: e.t });

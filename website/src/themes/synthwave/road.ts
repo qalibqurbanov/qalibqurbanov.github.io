@@ -47,8 +47,8 @@ export function drawSkyline(g: CanvasRenderingContext2D, e: SceneEnv, horizon: n
   }
 }
 
-/** The drawn cars are retired: the car on the road is a real model (car.ts). */
-const SPAWN_CARS = false;
+/** Cars drive on the road: drawn wedges with neon underglow, tail lights going away, headlights coming. */
+const SPAWN_CARS = true;
 
 interface Car {
   lane: number;

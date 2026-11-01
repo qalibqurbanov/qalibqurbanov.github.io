@@ -1,9 +1,10 @@
-import { OCTAHEDRON, PRISM, project, visibleFaces, type Solid } from "../shared/scene/geometry";
+import { project, rotate, type Vec3 } from "../shared/scene/geometry";
 import type { Rgb } from "../shared/scene/types";
 import { mix, rgba } from "../shared/scene/util";
 import type { Kind } from "../shared/scene/world";
 
 const TAU = Math.PI * 2;
+const NIGHT: Rgb = [14, 5, 34];
 
 /** One neon tube: a wide soft halo, a bright body, and a near-white core, all on `lighter`. */
 function tube(g: CanvasRenderingContext2D, path: () => void, color: Rgb, a: number, width = 3) {
@@ -26,404 +27,600 @@ function tube(g: CanvasRenderingContext2D, path: () => void, color: Rgb, a: numb
   g.restore();
 }
 
+/** A closed polygon as a path. */
+function poly(g: CanvasRenderingContext2D, pts: [number, number][]) {
+  g.beginPath();
+  pts.forEach(([px, py], i) => (i ? g.lineTo(px, py) : g.moveTo(px, py)));
+  g.closePath();
+}
+
+/** The two neon colours of the style, picked per object. */
+function pair(e: { accent: Rgb; accent2: Rgb }, tone: number): [Rgb, Rgb] {
+  return tone < 0.5 ? [e.accent, e.accent2] : [e.accent2, e.accent];
+}
+
 // ---------------------------------------------------------------------------------------------
-// Neon sign: a mounted sign built from tube segments. The light is steady with a very slow
-// breathing; now and then, a long way apart, one failing tube dips twice and recovers, the way a real
-// sign does. It never flashes at random.
+// Palm tree: the silhouette of every outrun poster. A dark curved trunk and drooping fronds,
+// rim-lit in neon on one side and swaying very gently.
 // ---------------------------------------------------------------------------------------------
 
-interface Sign {
-  style: number;
+interface Palm {
+  lean: number;
   tone: number;
   ph: number;
-  fault: number;
-  nextFault: number;
+  fronds: number[];
+}
+
+const palm: Kind<Palm> = {
+  id: "palm",
+  weight: 3,
+  radius: [90, 150],
+  depth: [0.85, 1],
+  zone: "edge",
+  reach: 1.3,
+  make: (rnd) => ({ lean: (rnd() < 0.5 ? -1 : 1) * (0.12 + rnd() * 0.22), tone: rnd(), ph: rnd() * TAU, fronds: Array.from({ length: 9 }, () => 0.85 + rnd() * 0.3) }),
+  draw(g, s, e, x, y, r, a) {
+    const [hot, cool] = pair(e, s.tone);
+    const sway = Math.sin(e.t * 0.7 + s.ph) * 0.03;
+    const baseY = y + r;
+    const topX = x + (s.lean + sway) * r;
+    const topY = y - r * 0.7;
+    const body = mix(e.light ? ([40, 14, 70] as Rgb) : NIGHT, hot, 0.2);
+    g.save();
+    // trunk: a tapering curve
+    const bend = s.lean * r * 0.55;
+    g.beginPath();
+    g.moveTo(x - r * 0.07, baseY);
+    g.quadraticCurveTo(x + bend - r * 0.05, (baseY + topY) / 2, topX - r * 0.03, topY);
+    g.lineTo(topX + r * 0.03, topY);
+    g.quadraticCurveTo(x + bend + r * 0.05, (baseY + topY) / 2, x + r * 0.07, baseY);
+    g.closePath();
+    g.fillStyle = rgba(body, 0.97 * a);
+    g.fill();
+    // rings on the trunk
+    g.strokeStyle = rgba(hot, 0.35 * a);
+    g.lineWidth = 1;
+    for (let i = 1; i < 9; i++) {
+      const t = i / 9;
+      const px = x + (topX - x) * t * t + bend * 0.15 * Math.sin(t * Math.PI);
+      const py = baseY + (topY - baseY) * t;
+      const half = r * (0.075 - 0.04 * t);
+      g.beginPath();
+      g.moveTo(px - half, py);
+      g.lineTo(px + half, py + half * 0.35);
+      g.stroke();
+    }
+    // fronds, each a curved blade that arches up and droops
+    const rims: number[][] = [];
+    for (let i = 0; i < s.fronds.length; i++) {
+      const spread = -Math.PI * 0.98 + (i / (s.fronds.length - 1)) * Math.PI * 0.96;
+      const len = r * 0.95 * s.fronds[i];
+      const wave = Math.sin(e.t * 0.9 + s.ph + i) * 0.04;
+      const ang = spread + wave;
+      const rise = Math.sin(-ang) * 0.35;
+      const ex = topX + Math.cos(ang) * len;
+      const ey = topY + Math.sin(ang) * len * 0.45 + len * 0.42;
+      const cx = topX + Math.cos(ang) * len * 0.55;
+      const cy = topY + Math.sin(ang) * len * 0.55 - len * (0.25 + rise * 0.4);
+      const w = r * 0.11;
+      g.beginPath();
+      g.moveTo(topX, topY);
+      g.quadraticCurveTo(cx, cy - w, ex, ey);
+      g.quadraticCurveTo(cx, cy + w * 1.7, topX, topY);
+      g.fillStyle = rgba(body, 0.97 * a);
+      g.fill();
+      rims.push([topX, topY, cx, cy - w, ex, ey, spread < -Math.PI / 2 ? 0 : 1]);
+    }
+    // the neon rim along the upper edge of every frond, in one glowing pass per colour
+    for (const side of [0, 1]) {
+      tube(
+        g,
+        () => {
+          g.beginPath();
+          for (const [x0, y0, qx, qy, x1, y1, sd] of rims) {
+            if (sd !== side) continue;
+            g.moveTo(x0, y0);
+            g.quadraticCurveTo(qx, qy, x1, y1);
+          }
+        },
+        side ? cool : hot,
+        a * 0.9,
+        1.1,
+      );
+    }
+    g.restore();
+    // a soft glow where the crown catches the sunset
+    g.save();
+    g.globalCompositeOperation = "lighter";
+    const glow = g.createRadialGradient(topX, topY, 0, topX, topY, r * 0.9);
+    glow.addColorStop(0, rgba(hot, 0.16 * a));
+    glow.addColorStop(1, rgba(hot, 0));
+    g.fillStyle = glow;
+    g.fillRect(topX - r, topY - r, r * 2, r * 2);
+    g.restore();
+  },
+};
+
+// ---------------------------------------------------------------------------------------------
+// Wireframe solids: a pyramid and a diamond turning slowly, drawn as neon tubes with a faint
+// gradient in their faces, like the vector graphics of an eighties computer.
+// ---------------------------------------------------------------------------------------------
+
+interface Wire {
+  tone: number;
+  ph: number;
+  tilt: number;
+  spin: number;
+}
+
+function wireSolid(id: string, verts: Vec3[], edges: [number, number][], faces: number[][], radius: [number, number], weight: number): Kind<Wire> {
+  return {
+    id,
+    weight,
+    radius,
+    depth: [0.8, 1],
+    zone: "side",
+    reach: 1.45,
+    make: (rnd) => ({ tone: rnd(), ph: rnd() * TAU, tilt: 0.3 + rnd() * 0.35, spin: (rnd() < 0.5 ? -1 : 1) * (0.25 + rnd() * 0.25) }),
+    draw(g, s, e, x, y, r, a) {
+      const [hot, cool] = pair(e, s.tone);
+      const yaw = e.t * s.spin + s.ph;
+      const pts = verts.map((v) => project(rotate(v, s.tilt, yaw), x, y, r, 0.12));
+      // faint faces, the back ones first
+      const order = faces
+        .map((f) => ({ f, z: f.reduce((sum, i) => sum + pts[i][2], 0) / f.length }))
+        .sort((p, q) => q.z - p.z);
+      g.save();
+      for (const { f, z } of order) {
+        poly(g, f.map((i) => [pts[i][0], pts[i][1]]));
+        const gr = g.createLinearGradient(x, y - r, x, y + r);
+        gr.addColorStop(0, rgba(hot, z > 0 ? 0.05 : 0.14));
+        gr.addColorStop(1, rgba(cool, z > 0 ? 0.04 : 0.1));
+        g.fillStyle = gr;
+        g.globalAlpha = a;
+        g.fill();
+      }
+      g.restore();
+      tube(
+        g,
+        () => {
+          g.beginPath();
+          for (const [i, j] of edges) {
+            g.moveTo(pts[i][0], pts[i][1]);
+            g.lineTo(pts[j][0], pts[j][1]);
+          }
+        },
+        hot,
+        a,
+        1.8,
+      );
+      // the vertices glow a little brighter than the edges
+      g.save();
+      g.globalCompositeOperation = "lighter";
+      for (const p of pts) {
+        g.fillStyle = rgba(mix(cool, [255, 255, 255], 0.6), a * 0.9);
+        g.beginPath();
+        g.arc(p[0], p[1], 2, 0, TAU);
+        g.fill();
+      }
+      g.restore();
+    },
+  };
+}
+
+const PYRAMID_V: Vec3[] = [
+  [0, -1, 0],
+  [-0.85, 0.6, -0.85],
+  [0.85, 0.6, -0.85],
+  [0.85, 0.6, 0.85],
+  [-0.85, 0.6, 0.85],
+];
+const pyramid = wireSolid(
+  "pyramid",
+  PYRAMID_V,
+  [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [2, 3], [3, 4], [4, 1]],
+  [[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1], [1, 2, 3, 4]],
+  [60, 110],
+  2,
+);
+
+const DIAMOND_V: Vec3[] = [
+  [0, -1.1, 0],
+  [0, 1.1, 0],
+  [0.8, 0, 0],
+  [-0.8, 0, 0],
+  [0, 0, 0.8],
+  [0, 0, -0.8],
+];
+const diamond = wireSolid(
+  "diamond",
+  DIAMOND_V,
+  [[0, 2], [0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 4], [4, 3], [3, 5], [5, 2]],
+  [[0, 2, 4], [0, 4, 3], [0, 3, 5], [0, 5, 2], [1, 2, 4], [1, 4, 3], [1, 3, 5], [1, 5, 2]],
+  [50, 90],
+  2,
+);
+
+// ---------------------------------------------------------------------------------------------
+// Neon triangle: nested outlines of an equilateral triangle, the emblem of the genre's covers,
+// with a slow pulse that runs from the outside in.
+// ---------------------------------------------------------------------------------------------
+
+interface Tri {
+  tone: number;
+  ph: number;
   rot: number;
 }
 
-const sign: Kind<Sign> = {
-  id: "sign",
-  weight: 3,
-  radius: [40, 92],
+const triangle: Kind<Tri> = {
+  id: "triangle",
+  weight: 2,
+  radius: [60, 110],
   depth: [0.8, 1],
   zone: "side",
-  reach: 1.8,
-  make: (rnd) => ({ style: Math.floor(rnd() * 4), tone: rnd(), ph: rnd() * TAU, fault: -10, nextFault: 8 + rnd() * 30, rot: (rnd() - 0.5) * 0.12 }),
-  update(s, e) {
-    if (e.t > s.nextFault) {
-      s.fault = e.t;
-      s.nextFault = e.t + 22 + Math.random() * 40;
+  reach: 1.3,
+  make: (rnd) => ({ tone: rnd(), ph: rnd() * TAU, rot: (rnd() - 0.5) * 0.3 }),
+  draw(g, s, e, x, y, r, a) {
+    const [hot, cool] = pair(e, s.tone);
+    for (let i = 0; i < 3; i++) {
+      const k = 1 - i * 0.27;
+      const pulse = 0.55 + 0.45 * Math.sin(e.t * 1.4 - i * 0.9 + s.ph);
+      const pts: [number, number][] = [0, 1, 2].map((v) => {
+        const ang = -Math.PI / 2 + v * (TAU / 3) + s.rot;
+        return [x + Math.cos(ang) * r * k, y + Math.sin(ang) * r * k + r * 0.12];
+      });
+      tube(g, () => poly(g, pts), i % 2 ? cool : hot, a * (0.4 + pulse * 0.6), 2.2 - i * 0.4);
     }
   },
+};
+
+// ---------------------------------------------------------------------------------------------
+// Cassette tape and VHS tape: the media of the decade, as neon outlines with turning reels.
+// ---------------------------------------------------------------------------------------------
+
+interface Media {
+  tone: number;
+  ph: number;
+  rot: number;
+}
+
+function reel(g: CanvasRenderingContext2D, cx: number, cy: number, rad: number, ang: number, color: Rgb, a: number) {
+  g.save();
+  g.translate(cx, cy);
+  g.rotate(ang);
+  tube(g, () => {
+    g.beginPath();
+    g.arc(0, 0, rad, 0, TAU);
+  }, color, a, 1.4);
+  g.strokeStyle = rgba([255, 240, 252], a * 0.8);
+  g.lineWidth = 1.4;
+  g.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const t = (i / 6) * TAU;
+    g.moveTo(Math.cos(t) * rad * 0.35, Math.sin(t) * rad * 0.35);
+    g.lineTo(Math.cos(t) * rad * 0.8, Math.sin(t) * rad * 0.8);
+  }
+  g.stroke();
+  g.restore();
+}
+
+const cassette: Kind<Media> = {
+  id: "cassette",
+  weight: 3,
+  radius: [60, 100],
+  depth: [0.8, 1],
+  zone: "side",
+  reach: 1.4,
+  make: (rnd) => ({ tone: rnd(), ph: rnd() * TAU, rot: (rnd() - 0.5) * 0.5 }),
   draw(g, s, e, x, y, r, a) {
-    const hot: Rgb = e.accent;
-    const cool: Rgb = e.accent2;
-    const breathe = 0.9 + 0.1 * Math.sin(e.t * 0.8 + s.ph);
-    // the failing tube: two dips in the first third of a second
-    const age = e.t - s.fault;
-    const dip = age >= 0 && age < 0.4 ? (age < 0.12 || (age > 0.2 && age < 0.3) ? 0.25 : 1) : 1;
-    const main = (s.tone < 0.5 ? hot : cool) as Rgb;
-    const alt = (s.tone < 0.5 ? cool : hot) as Rgb;
+    const [hot, cool] = pair(e, s.tone);
+    const w = r * 1.7;
+    const h = r * 1.1;
     g.save();
     g.translate(x, y);
     g.rotate(s.rot);
-    // the mount: a dark post and two brackets
-    g.strokeStyle = rgba([10, 4, 24], a * 0.9);
-    g.lineWidth = 3;
     g.beginPath();
-    g.moveTo(0, -r * 1.55);
-    g.lineTo(0, -r * 1.05);
-    g.moveTo(-r * 0.5, -r * 1.05);
-    g.lineTo(r * 0.5, -r * 1.05);
-    g.stroke();
-    // a dark plate that the tubes are fixed to, so the sign reads as an object and not as lines
-    g.fillStyle = rgba([8, 2, 20], a * 0.55);
-    g.fillRect(-r * 0.62, -r * 1.02, r * 1.24, r * 1.7);
-    const k = breathe * a;
-    switch (s.style) {
-      case 0: {
-        // a triangle with a bar through it
-        tube(g, () => {
-          g.beginPath();
-          g.moveTo(0, -r * 0.8);
-          g.lineTo(r * 0.5, r * 0.45);
-          g.lineTo(-r * 0.5, r * 0.45);
-          g.closePath();
-        }, main, k);
-        tube(g, () => {
-          g.beginPath();
-          g.moveTo(-r * 0.7, r * 0.02);
-          g.lineTo(r * 0.7, r * 0.02);
-        }, alt, k * dip);
-        break;
-      }
-      case 1: {
-        // three nested chevrons
-        for (let i = 0; i < 3; i++) {
-          tube(g, () => {
-            g.beginPath();
-            g.moveTo(-r * (0.5 - i * 0.12), -r * 0.55 + i * r * 0.3);
-            g.lineTo(0, -r * 0.18 + i * r * 0.3);
-            g.lineTo(r * (0.5 - i * 0.12), -r * 0.55 + i * r * 0.3);
-          }, i === 1 ? alt : main, k * (i === 1 ? dip : 1), 2.6);
-        }
-        break;
-      }
-      case 2: {
-        // a ring with a slash and a smaller ring
-        tube(g, () => {
-          g.beginPath();
-          g.arc(0, -r * 0.2, r * 0.46, 0, TAU);
-        }, main, k);
-        tube(g, () => {
-          g.beginPath();
-          g.moveTo(-r * 0.6, r * 0.45);
-          g.lineTo(r * 0.6, -r * 0.85);
-        }, alt, k * dip);
-        tube(g, () => {
-          g.beginPath();
-          g.arc(0, -r * 0.2, r * 0.2, 0, TAU);
-        }, main, k, 2.4);
-        break;
-      }
-      default: {
-        // a stack of horizontal bars of falling length, like a level meter
-        for (let i = 0; i < 5; i++) {
-          tube(g, () => {
-            g.beginPath();
-            g.moveTo(-r * (0.55 - i * 0.07), -r * 0.7 + i * r * 0.28);
-            g.lineTo(r * (0.55 - i * 0.07), -r * 0.7 + i * r * 0.28);
-          }, i % 2 ? alt : main, k * (i === 2 ? dip : 1), 2.4);
-        }
-      }
-    }
-    g.restore();
-  },
-};
-
-// ---------------------------------------------------------------------------------------------
-// Tower: a far skyscraper in silhouette with a neon edge, a grid of lit windows that change very
-// rarely, and a beacon on the roof that pulses on a slow, even beat.
-// ---------------------------------------------------------------------------------------------
-
-interface Tower {
-  cols: number;
-  rows: number;
-  lit: number[];
-  tiers: { w: number; h: number }[];
-  ph: number;
-  tone: number;
-  next: number;
-}
-
-const tower: Kind<Tower> = {
-  id: "tower",
-  weight: 2.4,
-  radius: [70, 150],
-  depth: [0.5, 0.85],
-  zone: "edge",
-  reach: 1.7,
-  make(rnd) {
-    const cols = 5 + Math.floor(rnd() * 3);
-    const rows = 16 + Math.floor(rnd() * 10);
-    return {
-      cols,
-      rows,
-      lit: Array.from({ length: cols * rows }, () => (rnd() < 0.34 ? 1 + Math.floor(rnd() * 2) : 0)),
-      tiers: [{ w: 1, h: 0.62 }, { w: 0.78, h: 0.26 }, { w: 0.5, h: 0.12 }],
-      ph: rnd() * TAU,
-      tone: rnd(),
-      next: 12 + rnd() * 30,
-    };
-  },
-  update(s, e) {
-    // one window changes now and then
-    if (e.t > s.next) {
-      s.next = e.t + 14 + Math.random() * 40;
-      const i = Math.floor(Math.random() * s.lit.length);
-      s.lit[i] = s.lit[i] ? 0 : 1 + Math.floor(Math.random() * 2);
-    }
-  },
-  draw(g, s, e, x, y, r, a) {
-    const hot: Rgb = e.accent;
-    const cool: Rgb = e.accent2;
-    const edge = s.tone < 0.5 ? hot : cool;
-    const width = r * 0.62;
-    const total = r * 2.5;
-    let bottom = y + r * 1.2;
-    let rowOffset = 0;
-    for (let ti = 0; ti < s.tiers.length; ti++) {
-      const t = s.tiers[ti];
-      const w = width * t.w;
-      const h = total * t.h;
-      const top = bottom - h;
-      const body = g.createLinearGradient(x - w, 0, x + w, 0);
-      body.addColorStop(0, rgba(e.light ? [70, 40, 110] : [14, 6, 34], a * 0.96));
-      body.addColorStop(1, rgba(e.light ? [90, 50, 130] : [24, 10, 52], a * 0.96));
-      g.fillStyle = body;
-      g.fillRect(x - w, top, w * 2, h);
-      // windows
-      const cellW = (w * 2) / s.cols;
-      const rows = Math.round(s.rows * t.h * 1.6);
-      const cellH = h / rows;
-      for (let ry = 0; ry < rows; ry++) {
-        for (let cx = 0; cx < s.cols; cx++) {
-          const v = s.lit[(ry + rowOffset + cx * 7) % s.lit.length];
-          if (!v) continue;
-          g.fillStyle = rgba(v === 1 ? mix(hot, [255, 220, 200], 0.4) : mix(cool, [220, 255, 255], 0.4), a * 0.7);
-          g.fillRect(x - w + cx * cellW + cellW * 0.22, top + ry * cellH + cellH * 0.25, cellW * 0.56, cellH * 0.5);
-        }
-      }
-      rowOffset += rows;
-      // the neon edge, down the lit side, and across the top of the tier
-      tube(g, () => {
-        g.beginPath();
-        g.moveTo(x + w, bottom);
-        g.lineTo(x + w, top);
-        g.lineTo(x - w, top);
-      }, edge, a * 0.8, 1.6);
-      bottom = top;
-    }
-    // roof mast and a beacon on a slow even pulse
-    g.strokeStyle = rgba([40, 30, 70], a);
-    g.lineWidth = 2;
-    g.beginPath();
-    g.moveTo(x, bottom);
-    g.lineTo(x, bottom - r * 0.5);
-    g.stroke();
-    const beat = 0.5 + 0.5 * Math.sin(e.t * 1.4 + s.ph);
-    g.save();
-    g.globalCompositeOperation = "lighter";
-    const halo = g.createRadialGradient(x, bottom - r * 0.5, 0, x, bottom - r * 0.5, r * 0.22);
-    halo.addColorStop(0, rgba(hot, a * (0.3 + beat * 0.6)));
-    halo.addColorStop(1, rgba(hot, 0));
-    g.fillStyle = halo;
-    g.fillRect(x - r * 0.25, bottom - r * 0.75, r * 0.5, r * 0.5);
-    g.restore();
-  },
-};
-
-// ---------------------------------------------------------------------------------------------
-// Grid panel: a floating pane of glowing grid turning slowly about its vertical axis, drawn in
-// perspective so its far edge shrinks and the lines converge.
-// ---------------------------------------------------------------------------------------------
-
-interface Panel {
-  ang: number;
-  spin: number;
-  tone: number;
-  tilt: number;
-}
-
-const panel: Kind<Panel> = {
-  id: "panel",
-  weight: 2,
-  radius: [70, 140],
-  depth: [0.55, 0.9],
-  reach: 1.4,
-  make: (rnd) => ({ ang: rnd() * TAU, spin: (0.08 + rnd() * 0.12) * (rnd() < 0.5 ? -1 : 1), tone: rnd(), tilt: (rnd() - 0.5) * 0.3 }),
-  update(p, e) {
-    p.ang += p.spin * e.dt;
-  },
-  draw(g, p, e, x, y, r, a) {
-    const color: Rgb = p.tone < 0.5 ? e.accent2 : e.accent;
-    const half = r;
-    const pts = (u: number, v: number): [number, number] => {
-      const px = u * Math.cos(p.ang);
-      const pz = u * Math.sin(p.ang);
-      const f = 1 / (1 + 0.35 * (pz / half));
-      return [x + px * f, y + v * 0.7 * f + px * p.tilt * 0.4];
-    };
-    const n = 6;
-    // the faint pane
-    g.beginPath();
-    [[-half, -half], [half, -half], [half, half], [-half, half]].forEach(([u, v], i) => {
-      const [px, py] = pts(u, v);
-      if (i) g.lineTo(px, py);
-      else g.moveTo(px, py);
-    });
-    g.closePath();
-    g.fillStyle = rgba(color, a * 0.06);
+    g.roundRect(-w / 2, -h / 2, w, h, r * 0.08);
+    g.fillStyle = rgba(NIGHT, 0.88 * a);
     g.fill();
     tube(g, () => {
       g.beginPath();
-      [[-half, -half], [half, -half], [half, half], [-half, half]].forEach(([u, v], i) => {
-        const [px, py] = pts(u, v);
-        if (i) g.lineTo(px, py);
-        else g.moveTo(px, py);
-      });
-      g.closePath();
-    }, color, a * 0.7, 1.4);
-    g.save();
-    g.globalCompositeOperation = "lighter";
-    g.strokeStyle = rgba(color, a * 0.32);
-    g.lineWidth = 0.9;
-    for (let i = 1; i < n; i++) {
-      const k = -half + (i / n) * half * 2;
-      let [x1, y1] = pts(k, -half);
-      let [x2, y2] = pts(k, half);
+      g.roundRect(-w / 2, -h / 2, w, h, r * 0.08);
+    }, hot, a, 1.8);
+    // the label, with two coloured bands
+    g.fillStyle = rgba(cool, 0.14 * a);
+    g.fillRect(-w * 0.43, -h * 0.4, w * 0.86, h * 0.42);
+    g.fillStyle = rgba(hot, 0.65 * a);
+    g.fillRect(-w * 0.43, -h * 0.4, w * 0.86, h * 0.07);
+    g.fillStyle = rgba(cool, 0.65 * a);
+    g.fillRect(-w * 0.43, -h * 0.33, w * 0.86, h * 0.04);
+    // the window with its two reels
+    g.beginPath();
+    g.roundRect(-w * 0.3, h * 0.02, w * 0.6, h * 0.28, h * 0.14);
+    g.strokeStyle = rgba(cool, 0.7 * a);
+    g.lineWidth = 1.2;
+    g.stroke();
+    const turn = e.t * 1.6 + s.ph;
+    reel(g, -w * 0.16, h * 0.16, h * 0.11, turn, cool, a);
+    reel(g, w * 0.16, h * 0.16, h * 0.11, turn, cool, a);
+    // the bottom edge with its screws
+    g.fillStyle = rgba(hot, 0.5 * a);
+    for (const sx of [-0.4, 0.4]) {
       g.beginPath();
-      g.moveTo(x1, y1);
-      g.lineTo(x2, y2);
-      [x1, y1] = pts(-half, k);
-      [x2, y2] = pts(half, k);
-      g.moveTo(x1, y1);
-      g.lineTo(x2, y2);
-      g.stroke();
-    }
-    g.restore();
-  },
-};
-
-// ---------------------------------------------------------------------------------------------
-// Crystal: an octahedron or a prism with shaded faces and a neon edge, turning slowly, brighter on
-// the side facing the light.
-// ---------------------------------------------------------------------------------------------
-
-interface Crystal {
-  solid: Solid;
-  rx: number;
-  ry: number;
-  sx: number;
-  sy: number;
-  tone: number;
-}
-
-const crystal: Kind<Crystal> = {
-  id: "crystal",
-  weight: 1.6,
-  radius: [34, 70],
-  depth: [0.7, 1],
-  reach: 1.5,
-  make: (rnd) => ({ solid: rnd() < 0.6 ? OCTAHEDRON : PRISM, rx: rnd() * TAU, ry: rnd() * TAU, sx: 0.1 + rnd() * 0.15, sy: 0.15 + rnd() * 0.2, tone: rnd() }),
-  update(c, e) {
-    c.rx += c.sx * e.dt;
-    c.ry += c.sy * e.dt;
-  },
-  draw(g, c, e, x, y, r, a) {
-    const hot: Rgb = e.accent;
-    const cool: Rgb = e.accent2;
-    const bob = Math.sin(e.t * 0.5 + c.rx) * r * 0.08;
-    for (const f of visibleFaces(c.solid, c.rx, c.ry)) {
-      const lit = Math.max(0, -(f.n[0] * 0.4 + f.n[1] * 0.8 + f.n[2] * 0.4));
-      g.fillStyle = rgba(mix([14, 4, 36], c.tone < 0.5 ? hot : cool, 0.12 + lit * 0.5), a * 0.82);
-      g.beginPath();
-      f.pts.forEach((p, i) => {
-        const [px, py] = project(p, x, y + bob, r * 0.7);
-        if (i) g.lineTo(px, py);
-        else g.moveTo(px, py);
-      });
-      g.closePath();
+      g.arc(w * sx, h * 0.4, r * 0.025, 0, TAU);
       g.fill();
-      tube(g, () => {
-        g.beginPath();
-        f.pts.forEach((p, i) => {
-          const [px, py] = project(p, x, y + bob, r * 0.7);
-          if (i) g.lineTo(px, py);
-          else g.moveTo(px, py);
-        });
-        g.closePath();
-      }, lit > 0.45 ? cool : hot, a * 0.7, 1.2);
     }
-  },
-};
-
-// ---------------------------------------------------------------------------------------------
-// Light trails: a pair of tail lights drawing a long streak across the page on a fixed track, one pass
-// every so often, with a trail that fades behind it.
-// ---------------------------------------------------------------------------------------------
-
-interface Trail {
-  speed: number;
-  period: number;
-  phase: number;
-  dir: number;
-  tone: number;
-  gap: number;
-}
-
-const trail: Kind<Trail> = {
-  id: "trail",
-  weight: 2,
-  radius: [80, 140],
-  depth: [0.9, 1],
-  reach: 6,
-  make: (rnd) => ({ speed: 520 + rnd() * 420, period: 9 + rnd() * 9, phase: rnd() * 20, dir: rnd() < 0.5 ? 1 : -1, tone: rnd(), gap: 5 + rnd() * 6 }),
-  draw(g, s, e, x, y, r, a) {
-    const t = (e.t + s.phase) % s.period;
-    const run = (e.w + r * 4) / s.speed;
-    if (t > run) return;
-    const head = (t / run) * (e.w + r * 4) - r * 2;
-    const px = s.dir > 0 ? head : e.w - head;
-    const len = r * 2.4;
-    const color: Rgb = s.tone < 0.6 ? e.accent : e.accent2;
-    g.save();
-    g.globalCompositeOperation = "lighter";
-    for (const off of [-s.gap, s.gap]) {
-      const grad = g.createLinearGradient(px, 0, px - s.dir * len, 0);
-      grad.addColorStop(0, rgba([255, 240, 250], a * 0.95));
-      grad.addColorStop(0.08, rgba(color, a * 0.8));
-      grad.addColorStop(1, rgba(color, 0));
-      g.strokeStyle = grad;
-      g.lineWidth = 2.2;
-      g.lineCap = "round";
-      g.beginPath();
-      g.moveTo(px, y + off);
-      g.lineTo(px - s.dir * len, y + off);
-      g.stroke();
-    }
-    const glow = g.createRadialGradient(px, y, 0, px, y, 26);
-    glow.addColorStop(0, rgba(color, a * 0.5));
-    glow.addColorStop(1, rgba(color, 0));
-    g.fillStyle = glow;
-    g.fillRect(px - 26, y - 26, 52, 52);
     g.restore();
   },
 };
 
-// Primitive towers, panels and crystals are gone: the skyline, the road and the car are built properly
-// (skyline.ts, road.ts, car.ts).
-export const kinds: Kind[] = [sign, trail] as Kind[];
-void tower;
-void panel;
-void crystal;
+const vhs: Kind<Media> = {
+  id: "vhs",
+  weight: 3,
+  radius: [60, 100],
+  depth: [0.8, 1],
+  zone: "side",
+  reach: 1.4,
+  make: (rnd) => ({ tone: rnd(), ph: rnd() * TAU, rot: (rnd() - 0.5) * 0.5 }),
+  draw(g, s, e, x, y, r, a) {
+    const [hot, cool] = pair(e, s.tone);
+    const w = r * 1.9;
+    const h = r * 1.05;
+    g.save();
+    g.translate(x, y);
+    g.rotate(s.rot);
+    g.beginPath();
+    g.roundRect(-w / 2, -h / 2, w, h, r * 0.05);
+    g.fillStyle = rgba(NIGHT, 0.9 * a);
+    g.fill();
+    tube(g, () => {
+      g.beginPath();
+      g.roundRect(-w / 2, -h / 2, w, h, r * 0.05);
+    }, cool, a, 1.8);
+    // the label: a hot strip with the three letters on it
+    g.fillStyle = rgba(hot, 0.22 * a);
+    g.fillRect(-w * 0.44, -h * 0.42, w * 0.88, h * 0.36);
+    g.strokeStyle = rgba(hot, 0.8 * a);
+    g.lineWidth = 1.1;
+    g.strokeRect(-w * 0.44, -h * 0.42, w * 0.88, h * 0.36);
+    g.font = `800 ${(h * 0.3).toFixed(1)}px "Orbitron", "Rajdhani", sans-serif`;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillStyle = rgba(mix(hot, [255, 240, 250], 0.55), 0.95 * a);
+    g.fillText("VHS", 0, -h * 0.24);
+    // the tape window with two reels, and the spring-loaded flap beneath it
+    g.strokeStyle = rgba(cool, 0.7 * a);
+    g.beginPath();
+    g.roundRect(-w * 0.34, 0, w * 0.68, h * 0.3, h * 0.12);
+    g.stroke();
+    const turn = e.t * 1.2 + s.ph;
+    reel(g, -w * 0.17, h * 0.15, h * 0.1, turn, cool, a);
+    reel(g, w * 0.17, h * 0.15, h * 0.1, -turn, cool, a);
+    g.fillStyle = rgba(hot, 0.5 * a);
+    g.fillRect(-w * 0.2, h * 0.38, w * 0.4, h * 0.05);
+    g.restore();
+  },
+};
+
+// ---------------------------------------------------------------------------------------------
+// Arcade cabinet: a dark cabinet with a glowing marquee, a screen playing a little invader, a
+// control deck with a joystick and buttons, and a floor glow.
+// ---------------------------------------------------------------------------------------------
+
+interface Arcade {
+  tone: number;
+  ph: number;
+  rot: number;
+}
+
+const INVADER = ["00100000100", "00010001000", "00111111100", "01101110110", "11111111111", "10111111101", "10100000101", "00011011000"];
+
+const arcade: Kind<Arcade> = {
+  id: "arcade",
+  weight: 2,
+  radius: [80, 130],
+  depth: [0.85, 1],
+  zone: "edge",
+  reach: 1.3,
+  make: (rnd) => ({ tone: rnd(), ph: rnd() * TAU, rot: (rnd() - 0.5) * 0.1 }),
+  draw(g, s, e, x, y, r, a) {
+    const [hot, cool] = pair(e, s.tone);
+    const w = r * 1.05;
+    const h = r * 2;
+    g.save();
+    g.translate(x, y);
+    g.rotate(s.rot);
+    // the cabinet: a tall box with a slanted screen section and a deeper control deck
+    const outline: [number, number][] = [
+      [-w / 2, h / 2],
+      [-w / 2, -h * 0.5],
+      [w / 2, -h * 0.5],
+      [w / 2, h * 0.08],
+      [w * 0.62, h * 0.12],
+      [w * 0.62, h * 0.22],
+      [w / 2, h * 0.24],
+      [w / 2, h / 2],
+    ];
+    poly(g, outline);
+    g.fillStyle = rgba(NIGHT, 0.95 * a);
+    g.fill();
+    tube(g, () => poly(g, outline), hot, a, 1.6);
+    // the marquee
+    const flick = 0.85 + 0.15 * Math.sin(e.t * 3 + s.ph);
+    g.fillStyle = rgba(cool, 0.35 * a * flick);
+    g.fillRect(-w * 0.42, -h * 0.47, w * 0.84, h * 0.07);
+    g.strokeStyle = rgba(cool, 0.9 * a);
+    g.lineWidth = 1;
+    g.strokeRect(-w * 0.42, -h * 0.47, w * 0.84, h * 0.07);
+    // the screen
+    const sx = -w * 0.4;
+    const sy = -h * 0.36;
+    const sw = w * 0.8;
+    const sh = h * 0.4;
+    const scr = g.createLinearGradient(0, sy, 0, sy + sh);
+    scr.addColorStop(0, rgba(mix(cool, [10, 5, 30], 0.55), 0.95 * a));
+    scr.addColorStop(1, rgba(mix(hot, [10, 5, 30], 0.6), 0.95 * a));
+    g.fillStyle = scr;
+    g.fillRect(sx, sy, sw, sh);
+    g.strokeStyle = rgba(mix(cool, [255, 255, 255], 0.4), 0.9 * a);
+    g.strokeRect(sx, sy, sw, sh);
+    // the little invader, stepping from side to side
+    const px = (sw * 0.7) / INVADER[0].length;
+    const ox = sx + sw * 0.15 + Math.sin(e.t * 0.8 + s.ph) * sw * 0.08;
+    const oy = sy + sh * 0.2 + (Math.floor(e.t * 1.5 + s.ph) % 2) * px * 0.6;
+    g.fillStyle = rgba([240, 255, 230], 0.9 * a);
+    INVADER.forEach((row, ry) =>
+      [...row].forEach((c, cx) => {
+        if (c === "1") g.fillRect(ox + cx * px, oy + ry * px, px * 0.9, px * 0.9);
+      }),
+    );
+    // the control deck: a joystick and two buttons
+    g.strokeStyle = rgba(hot, 0.9 * a);
+    g.lineWidth = 1.2;
+    g.beginPath();
+    g.moveTo(-w * 0.22, h * 0.17);
+    g.lineTo(-w * 0.22 + Math.sin(e.t * 0.9 + s.ph) * w * 0.03, h * 0.1);
+    g.stroke();
+    g.fillStyle = rgba(hot, 0.95 * a);
+    g.beginPath();
+    g.arc(-w * 0.22 + Math.sin(e.t * 0.9 + s.ph) * w * 0.03, h * 0.095, w * 0.04, 0, TAU);
+    g.fill();
+    for (const [bx, color] of [[w * 0.08, cool], [w * 0.24, hot]] as [number, Rgb][]) {
+      g.fillStyle = rgba(color, 0.9 * a);
+      g.beginPath();
+      g.arc(bx, h * 0.17, w * 0.04, 0, TAU);
+      g.fill();
+    }
+    // the coin slot and the kick plate
+    g.fillStyle = rgba(cool, 0.5 * a);
+    g.fillRect(-w * 0.1, h * 0.32, w * 0.2, h * 0.025);
+    g.restore();
+    // glow on the floor around its feet
+    g.save();
+    g.globalCompositeOperation = "lighter";
+    const floor = g.createRadialGradient(x, y + h / 2, 0, x, y + h / 2, r * 1.2);
+    floor.addColorStop(0, rgba(hot, 0.28 * a));
+    floor.addColorStop(1, rgba(hot, 0));
+    g.fillStyle = floor;
+    g.fillRect(x - r * 1.3, y + h / 2 - r * 0.5, r * 2.6, r);
+    g.restore();
+  },
+};
+
+// ---------------------------------------------------------------------------------------------
+// Aviator sunglasses: two tinted lenses with a sunset in them, bobbing slightly.
+// ---------------------------------------------------------------------------------------------
+
+interface Shades {
+  tone: number;
+  ph: number;
+  rot: number;
+}
+
+const shades: Kind<Shades> = {
+  id: "shades",
+  weight: 2,
+  radius: [60, 100],
+  depth: [0.8, 1],
+  zone: "side",
+  reach: 1.4,
+  make: (rnd) => ({ tone: rnd(), ph: rnd() * TAU, rot: (rnd() - 0.5) * 0.35 }),
+  draw(g, s, e, x, y, r, a) {
+    const [hot, cool] = pair(e, s.tone);
+    const bob = Math.sin(e.t * 0.9 + s.ph) * r * 0.03;
+    g.save();
+    g.translate(x, y + bob);
+    g.rotate(s.rot);
+    const lens = (side: number) => {
+      const cx = side * r * 0.5;
+      g.beginPath();
+      g.moveTo(cx - r * 0.44, -r * 0.2);
+      g.quadraticCurveTo(cx, -r * 0.27, cx + r * 0.44, -r * 0.2);
+      g.quadraticCurveTo(cx + r * 0.46, r * 0.38, cx, r * 0.46);
+      g.quadraticCurveTo(cx - r * 0.46, r * 0.38, cx - r * 0.44, -r * 0.2);
+      g.closePath();
+    };
+    for (const side of [-1, 1]) {
+      lens(side);
+      const sun = g.createLinearGradient(0, -r * 0.25, 0, r * 0.46);
+      sun.addColorStop(0, rgba(mix(hot, NIGHT, 0.35), 0.95 * a));
+      sun.addColorStop(0.5, rgba(mix(hot, [255, 170, 80], 0.5), 0.9 * a));
+      sun.addColorStop(1, rgba(mix(cool, NIGHT, 0.55), 0.95 * a));
+      g.fillStyle = sun;
+      g.fill();
+      // the glint
+      g.save();
+      lens(side);
+      g.clip();
+      g.fillStyle = rgba([255, 255, 255], 0.35 * a);
+      const glint = ((e.t * 0.25 + s.ph) % 3) * r * 1.2 - r * 0.9;
+      g.translate(side * r * 0.5 + glint * 0.2, 0);
+      g.rotate(-0.5);
+      g.fillRect(-r * 0.05, -r * 0.5, r * 0.09, r);
+      g.restore();
+    }
+    tube(g, () => {
+      lens(-1);
+      lens(1);
+    }, hot, a, 1.6);
+    // the bridge and the arms
+    tube(g, () => {
+      g.beginPath();
+      g.moveTo(-r * 0.08, -r * 0.14);
+      g.quadraticCurveTo(0, -r * 0.24, r * 0.08, -r * 0.14);
+      g.moveTo(-r * 0.94, -r * 0.16);
+      g.lineTo(-r * 1.12, -r * 0.06);
+      g.moveTo(r * 0.94, -r * 0.16);
+      g.lineTo(r * 1.12, -r * 0.06);
+    }, cool, a, 1.4);
+    g.restore();
+  },
+};
+
+// ---------------------------------------------------------------------------------------------
+// Lightning bolt: a hard neon zig-zag that hums, with the odd faint flicker of its glow.
+// ---------------------------------------------------------------------------------------------
+
+interface Bolt {
+  tone: number;
+  ph: number;
+  rot: number;
+}
+
+const bolt: Kind<Bolt> = {
+  id: "bolt",
+  weight: 2,
+  radius: [60, 100],
+  depth: [0.8, 1],
+  zone: "side",
+  reach: 1.3,
+  make: (rnd) => ({ tone: rnd(), ph: rnd() * TAU, rot: (rnd() - 0.5) * 0.4 }),
+  draw(g, s, e, x, y, r, a) {
+    const [hot, cool] = pair(e, s.tone);
+    const hum = 0.85 + 0.15 * Math.sin(e.t * 9 + s.ph) * Math.sin(e.t * 1.3 + s.ph);
+    g.save();
+    g.translate(x, y);
+    g.rotate(s.rot);
+    const shape: [number, number][] = [
+      [r * 0.18, -r],
+      [-r * 0.5, r * 0.1],
+      [-r * 0.04, r * 0.1],
+      [-r * 0.2, r],
+      [r * 0.5, -r * 0.18],
+      [r * 0.04, -r * 0.18],
+    ];
+    poly(g, shape);
+    g.fillStyle = rgba(mix(hot, NIGHT, 0.7), 0.5 * a);
+    g.fill();
+    tube(g, () => poly(g, shape), hot, a * hum, 2.2);
+    g.save();
+    g.scale(0.62, 0.62);
+    tube(g, () => poly(g, shape), cool, a * 0.55 * hum, 1.2);
+    g.restore();
+    g.restore();
+  },
+};
+
+/** What floats through the synthwave pages: the things of an outrun poster, drawn in neon. The sun,
+ * grid, mountains, skyline and road are the backdrop (scene.ts, road.ts, skyline.ts). */
+export const kinds: Kind[] = [palm, pyramid, diamond, triangle, cassette, vhs, arcade, shades, bolt] as Kind[];
