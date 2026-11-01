@@ -1,0 +1,58 @@
+/* The cursor of every style but the original (see ThemeCursor). This is only its skeleton: a layer over
+   the page that never takes a click, and the parts a style may use. Each part is hidden here, and each
+   style's cursor.css shows and draws the ones it needs, for the states "default", "link", "field",
+   "grab" and "no" (data-state) and while a button is held (.is-down). */
+.theme-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.theme-cursor.is-on {
+  opacity: 1;
+}
+
+.tc-pos {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
+
+.tc-dot,
+.tc-ring,
+.tc-arrow,
+.tc-bar,
+.tc-x {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+}
+
+.tc-x {
+  width: 20px;
+  height: 20px;
+  translate: -50% -50%;
+  fill: none;
+  stroke-linecap: round;
+}
+
+/* The bar a text field turns the pointer into, as tall as the line under it. */
+.tc-bar {
+  width: 2px;
+  height: var(--caret-h, 20px);
+  translate: -50% -50%;
+}
+
+:root[data-motion="off"] .theme-cursor *,
+:root[data-motion="off"] .theme-cursor *::before,
+:root[data-motion="off"] .theme-cursor *::after {
+  animation: none !important;
+  transition: none !important;
+}

@@ -1,0 +1,59 @@
+/* The monochrome cursor: it only ever inverts what is under it. A small white square sits at the
+   pointer and a thin square frame eases behind it; both are drawn with `difference`, so they are black
+   on white and white on black. Over things the frame grows into a solid inverting block; over text the
+   square becomes a thin line; a disabled thing gets a cross. */
+:root[data-style="monochrome"] .theme-cursor {
+  mix-blend-mode: difference;
+}
+
+:root[data-style="monochrome"] .tc-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  translate: -50% -50%;
+  background: #fff;
+  transition: width 0.12s steps(3), height 0.12s steps(3), opacity 0.12s steps(2);
+}
+
+:root[data-style="monochrome"] .tc-ring {
+  display: block;
+  width: 36px;
+  height: 36px;
+  translate: -50% -50%;
+  border: 1px solid #fff;
+  transition: width 0.22s cubic-bezier(0.2, 0, 0, 1), height 0.22s cubic-bezier(0.2, 0, 0, 1), background-color 0.12s steps(2), opacity 0.15s ease, scale 0.12s ease;
+}
+
+:root[data-style="monochrome"] .theme-cursor:is([data-state="link"], [data-state="grab"]) .tc-ring {
+  width: 64px;
+  height: 64px;
+  background: #fff;
+}
+
+:root[data-style="monochrome"] .theme-cursor:is([data-state="link"], [data-state="grab"]) .tc-dot {
+  opacity: 0;
+}
+
+:root[data-style="monochrome"] .theme-cursor[data-state="field"] .tc-ring {
+  opacity: 0;
+}
+
+:root[data-style="monochrome"] .theme-cursor[data-state="field"] .tc-dot {
+  width: 2px;
+  height: var(--caret-h, 20px);
+}
+
+:root[data-style="monochrome"] .theme-cursor[data-state="no"] .tc-dot {
+  opacity: 0;
+}
+
+:root[data-style="monochrome"] .theme-cursor[data-state="no"] .tc-x {
+  display: block;
+  stroke: #fff;
+  stroke-width: 1.6;
+  stroke-linecap: butt;
+}
+
+:root[data-style="monochrome"] .theme-cursor.is-down .tc-ring {
+  scale: 0.8;
+}

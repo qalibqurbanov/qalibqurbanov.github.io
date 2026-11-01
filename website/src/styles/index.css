@@ -11,14 +11,23 @@
 @import "../themes/shared/scene/scene.css";
 @import "../themes/shared/intro/intro.css";
 @import "../themes/shared/neutral.css";
+@import "../themes/shared/cursor/cursor.css";
 
 /* The original style is the base; the others sit on top of it and only restyle what they change. */
 @import "../themes/cyber/theme.css";
 @import "../themes/vaporwave/theme.css";
 @import "../themes/vaporwave/intro.css";
+@import "../themes/vaporwave/cursor.css";
+@import "../themes/vaporwave/not-found.css";
 @import "../themes/synthwave/theme.css";
 @import "../themes/synthwave/intro.css";
+@import "../themes/synthwave/cursor.css";
+@import "../themes/synthwave/not-found.css";
 @import "../themes/monochrome/theme.css";
 @import "../themes/monochrome/intro.css";
+@import "../themes/monochrome/cursor.css";
+@import "../themes/monochrome/not-found.css";
 @import "../themes/chrome/theme.css";
 @import "../themes/chrome/intro.css";
+@import "../themes/chrome/cursor.css";
+@import "../themes/chrome/not-found.css";

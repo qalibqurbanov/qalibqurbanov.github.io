@@ -23,6 +23,7 @@ import { useContent, useLocale } from "@/i18n/context";
 import { isLinksPage, isNotFoundPage } from "@/lib/notFound";
 import { Suspense } from "react";
 import { ThemeScene } from "@/themes/shared/scene/ThemeScene";
+import { ThemeCursor } from "@/themes/shared/cursor/ThemeCursor";
 import { useStyle } from "@/themes/shared/style/context";
 
 export function App() {
@@ -30,7 +31,8 @@ export function App() {
   const { activeSlug, resumeOpen, closeProject } = useProjectRoute();
   const activeProject = activeSlug ? (projects.find((project) => project.slug === activeSlug) ?? null) : undefined;
   // The heavy decoration only runs at the full level; it is taken off the page as soon as the level drops.
-  const decorated = useMotion().motion === "full";
+  const { motion } = useMotion();
+  const decorated = motion === "full";
   // The original style decorates the page with its own components; every other style has a scene.
   const original = useStyle().style === "cyber";
   const { locale } = useLocale();
@@ -45,6 +47,7 @@ export function App() {
       {original ? <AmbientBackground /> : <ThemeScene />}
       {decorated && original ? <CursorGlow /> : null}
       {decorated && original ? <CustomCursor /> : null}
+      {!original && motion !== "off" ? <ThemeCursor /> : null}
       <OnDemand component={CommandPalette} event={OPEN_COMMAND_PALETTE_EVENT} shortcut={isPaletteShortcut} />
       <ContextMenu />
       <TooltipLayer />

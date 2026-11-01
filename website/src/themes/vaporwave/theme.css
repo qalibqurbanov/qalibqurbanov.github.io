@@ -131,3 +131,30 @@
     background-position: 0 0, -200% 0, 0 0, 0 0;
   }
 }
+
+/* The rule under every heading and at the end of every section: a dashed pastel bar with a hard shadow,
+   on a faint dark band, so it reads even where a column or a planet stands behind it. */
+:root[data-style="vaporwave"] .glitch-rule-base {
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--color-accent) 0 10px, var(--color-accent-2) 10px 20px, transparent 20px 24px);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--color-bg) 85%, transparent), 0 0 0 5px color-mix(in srgb, var(--color-bg) 55%, transparent);
+}
+
+/* The name: the display font is a thin single weight, and the original style's pale gradient fill nearly
+   disappears against the pastel sky (and against pink in the light mode) in the languages that use it.
+   Here it is a solid fill, thickened with a stroke, over a hard two-colour shadow. */
+:root[data-style="vaporwave"] h1 .text-gradient {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: #fff;
+  -webkit-text-stroke: 1.5px #fff;
+  text-shadow: 3px 3px 0 var(--color-accent), 6px 6px 0 color-mix(in srgb, var(--color-accent-2) 85%, transparent);
+  animation: none;
+}
+
+:root[data-style="vaporwave"][data-theme="light"] h1 .text-gradient {
+  color: var(--color-text);
+  -webkit-text-stroke-color: var(--color-text);
+  text-shadow: 3px 3px 0 var(--color-accent), 6px 6px 0 var(--color-accent-2);
+}

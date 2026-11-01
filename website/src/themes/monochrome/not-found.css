@@ -1,0 +1,85 @@
+/* The monochrome 404 page: a printed page. A huge italic serif 404 set flush left, hairline rules above
+   and below, the missing address in plain type and a text link with an arrow to go back. */
+html[data-page="not-found"][data-style="monochrome"] .nf {
+  align-items: stretch;
+  padding-inline: max(24px, calc(50% - 620px));
+  text-align: left;
+}
+
+html[data-page="not-found"][data-style="monochrome"] .nf-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 18px 0 26px;
+  border-top: 1px solid var(--color-text);
+  border-bottom: 1px solid var(--color-text);
+}
+
+html[data-page="not-found"][data-style="monochrome"] .nf-eyebrow {
+  align-self: stretch;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  letter-spacing: 0.14em;
+  color: var(--color-text);
+}
+
+html[data-page="not-found"][data-style="monochrome"] .nf-eyebrow::before {
+  content: "No. ";
+  color: var(--color-muted);
+}
+
+html[data-page="not-found"][data-style="monochrome"] .nf-eyebrow::after {
+  content: "404 / 404";
+  color: var(--color-muted);
+}
+
+html[data-page="not-found"][data-style="monochrome"] .nf-code {
+  margin: 0 0 0 -0.05em;
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--color-text);
+  font: italic 400 clamp(150px, 36vw, 380px) / 0.82 var(--font-display);
+  letter-spacing: -0.045em;
+}
+
+html[data-page="not-found"][data-style="monochrome"] .nf-title {
+  margin-top: 18px;
+  font: 400 clamp(24px, 4vw, 40px) / 1.25 var(--font-display);
+}
+
+html[data-page="not-found"][data-style="monochrome"] .nf-title span {
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 1px solid var(--color-text);
+  border-radius: 0;
+  background: none;
+  font: 400 0.62em var(--font-mono);
+  color: var(--color-text);
+}
+
+html[data-page="not-found"][data-style="monochrome"] .nf-back {
+  margin-top: 14px;
+  font-family: var(--font-sans);
+  color: var(--color-muted);
+}
+
+html[data-page="not-found"][data-style="monochrome"] .nf-back a {
+  padding: 1px 3px;
+  border-bottom: 1px solid var(--color-text);
+  color: var(--color-text);
+  transition: none;
+}
+
+html[data-page="not-found"][data-style="monochrome"] .nf-back a::after {
+  content: " \2192";
+}
+
+/* Pointing at it inverts it, like everything else in this style. */
+html[data-page="not-found"][data-style="monochrome"] .nf-back a:hover,
+html[data-page="not-found"][data-style="monochrome"] .nf-back a:focus-visible {
+  background: var(--color-text);
+  border-color: var(--color-text);
+  color: var(--color-bg);
+}

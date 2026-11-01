@@ -143,3 +143,12 @@
 :root[data-style="monochrome"] .card-hit:hover > .card-surface {
   box-shadow: calc(var(--dx, 0) * -12px) calc(var(--dy, 0) * -12px) 0 0 var(--color-text);
 }
+
+/* The rule under every heading and at the end of every section: a full-strength hairline above a thin
+   one, as in print, on a faint band of the page colour, so it reads even over an object. */
+:root[data-style="monochrome"] .glitch-rule-base {
+  height: 5px;
+  top: calc(50% - 2px);
+  background: linear-gradient(var(--color-text) 0 1px, transparent 1px 4px, var(--color-text) 4px 5px);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-bg) 60%, transparent);
+}

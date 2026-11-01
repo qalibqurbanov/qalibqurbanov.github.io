@@ -112,3 +112,54 @@
     color-mix(in srgb, var(--color-surface) 82%, transparent);
   translate: 0 -3px;
 }
+
+/* The rule under every heading and at the end of every section: a neon tube on a faint dark band, so it
+   reads even where a tower or a planet stands behind it. */
+:root[data-style="synthwave"] .glitch-rule-base {
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2) 70%, transparent);
+  box-shadow: 0 0 10px var(--color-accent), 0 0 0 5px color-mix(in srgb, var(--color-bg) 60%, transparent);
+}
+
+/* The name is a solid neon sign: a bright core with the light spilling out of it. The original style's
+   gradient fill is see-through, which let the glow show through and left the letters pale and hollow. */
+:root[data-style="synthwave"] h1 .text-gradient {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: #fff4fb;
+  text-shadow: 0 0 6px #fff, 0 0 16px var(--color-accent), 0 0 40px var(--color-accent), 0 0 80px var(--glow-accent-2);
+  animation: none;
+}
+
+:root[data-style="synthwave"][data-theme="light"] h1 .text-gradient {
+  color: var(--color-accent);
+  text-shadow: 0 0 18px var(--glow-accent), 3px 3px 0 color-mix(in srgb, var(--color-accent-2) 40%, transparent);
+}
+
+/* The footer is a single line on a wide screen: the wide mono font and the larger text of this style made
+   it wrap, so here it is set smaller and tighter, with the dividers dropped for plain gaps. Narrow
+   screens still wrap, as there is no room. */
+@media (min-width: 900px) {
+  :root[data-style="synthwave"] footer > div {
+    flex-wrap: nowrap;
+    gap: 14px;
+    font-size: 10.5px;
+    letter-spacing: 0;
+  }
+
+  :root[data-style="synthwave"] footer > div > div {
+    flex-wrap: nowrap;
+    gap: 14px;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  :root[data-style="synthwave"] footer > div > div:first-child {
+    gap: 12px;
+  }
+
+  :root[data-style="synthwave"] footer > div > div:first-child > .text-border {
+    display: none;
+  }
+}

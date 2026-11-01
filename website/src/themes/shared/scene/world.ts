@@ -51,7 +51,46 @@ interface Item {
   failed?: boolean;
 }
 
-const TEXT_SELECTOR = "main :is(h1, h2, h3, h4, p, li, dd, dt, button, a, input, textarea, img, code, pre), footer :is(p, a, button, span), header";
+/** Where an object stands: its screen position at scroll `scroll`, how much it follows the scroll, its radius
+ * and `ext`, how far it really paints from its centre. */
+interface Placed {
+  x: number;
+  y: number;
+  scroll: number;
+  depth: number;
+  r: number;
+  ext: number;
+}
+
+/** Whether two objects ever overlap on screen while the page is scrolled. They sit still sideways but
+ * move up and down at their own depth, so a far object slides past a near one: the gap is checked over
+ * the whole stretch of scrolling in which both are visible, not only where they were first placed. */
+function meet(a: Placed, b: Placed, h: number): boolean {
+  // how far each paints (rings, rays and tentacles go past the radius), plus what leans with the cursor
+  const need = (a.ext + b.ext) * 0.92 + 24;
+  const dx = a.x - b.x;
+  if (Math.abs(dx) >= need) return false;
+  const across = Math.sqrt(need * need - dx * dx);
+  // the scroll positions at which each one is on screen
+  const span = (o: Placed): [number, number] => {
+    const reach = o.ext;
+    return [o.scroll - (h + reach - o.y) / o.depth, o.scroll + (reach + o.y) / o.depth];
+  };
+  const [a0, a1] = span(a);
+  const [b0, b1] = span(b);
+  const s0 = Math.max(a0, b0);
+  const s1 = Math.min(a1, b1);
+  if (s0 >= s1) return false;
+  // the vertical gap between them is a straight line in the scroll position
+  const gap = (s: number) => a.y + (a.scroll - s) * a.depth - (b.y + (b.scroll - s) * b.depth);
+  const g0 = gap(s0);
+  const g1 = gap(s1);
+  if (g0 === 0 || g1 === 0 || g0 > 0 !== g1 > 0) return true;
+  return Math.min(Math.abs(g0), Math.abs(g1)) < across;
+}
+
+const TEXT_SELECTOR =
+  "main :is(h1, h2, h3, h4, p, li, dd, dt, button, a, input, textarea, img, code, pre, .glitch-rule), footer :is(p, a, button, span), header";
 const GLASS_SELECTOR = "main .card-surface";
 
 export interface WorldOptions {
@@ -116,7 +155,7 @@ export function createWorld(kinds: Kind[], options: WorldOptions) {
     layoutKey = `${Math.round(e.w / 40)}|${Math.round(S / 200)}`;
     const small = Math.min(1, Math.max(0.55, e.w / 1100));
     const count = Math.max(3, Math.round(((S + e.h) / e.h) * options.perScreen));
-    const placed: { x: number; docY: number; r: number }[] = [];
+    const placed: Placed[] = [];
     const next: Item[] = [];
     const recent: string[] = [];
     const used = new Map<string, number>();
@@ -131,6 +170,8 @@ export function createWorld(kinds: Kind[], options: WorldOptions) {
       recent.push(kind.id);
       const r = (kind.radius[0] + rnd() * (kind.radius[1] - kind.radius[0])) * small;
       const depth = kind.anchor === "ledge" ? 1 : kind.depth[0] + rnd() * (kind.depth[1] - kind.depth[0]);
+      // long thin things (a light trail reaches 6 radii) must not shut out everything around them
+      const ext = r * Math.min(2.2, Math.max(1.1, kind.reach ?? 1.4));
       let best = { x: e.w / 2, y: e.h / 2, score: Infinity };
       if (kind.anchor === "ledge") {
         // stand on the top edge of a card that is on screen at this point of the page
@@ -148,7 +189,8 @@ export function createWorld(kinds: Kind[], options: WorldOptions) {
             const oy = Math.min(box.y + box.h, t.y + t.h) - Math.max(box.y, t.y);
             if (ox > 0 && oy > 0) covered += ox * oy;
           }
-          const score = covered / (box.w * box.h);
+          let score = covered / (box.w * box.h);
+          if (placed.some((p) => meet({ x, y, scroll, depth, r, ext }, p, e.h))) score += 3;
           if (!found || score < best.score) {
             best = { x, y, score };
             found = true;
@@ -157,7 +199,7 @@ export function createWorld(kinds: Kind[], options: WorldOptions) {
         }
         if (!found) continue;
       } else
-      for (let tries = 0; tries < 48; tries++) {
+      for (let tries = 0; tries < 80; tries++) {
         const u = rnd();
         const x =
           kind.zone === "edge"
@@ -175,15 +217,18 @@ export function createWorld(kinds: Kind[], options: WorldOptions) {
           if (ox > 0 && oy > 0) covered += ox * oy * q.weight;
         }
         let score = covered / (box.w * box.h);
-        const docY = y + scroll;
         for (const p of placed) {
-          const d = Math.hypot(p.x - x, p.docY - docY);
-          if (d < (p.r + r) * 1.05) score += 2;
+          if (meet({ x, y, scroll, depth, r, ext }, p, e.h)) {
+            score += 3;
+            break;
+          }
         }
         if (score < best.score) best = { x, y, score };
         if (score < 0.02) break;
       }
-      placed.push({ x: best.x, docY: best.y + scroll, r });
+      // no spot is free of the objects already standing: leave it out rather than stack it on one
+      if (best.score >= 3) continue;
+      placed.push({ x: best.x, y: best.y, scroll, depth, r, ext });
       next.push({
         kind,
         state: kind.make(rnd, r, depth),

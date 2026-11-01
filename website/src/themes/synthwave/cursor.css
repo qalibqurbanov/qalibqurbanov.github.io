@@ -1,0 +1,124 @@
+/* The synthwave cursor: a neon targeting reticle. A hot pink point sits exactly at the pointer, inside a
+   cyan ring cut by crosshair lines that eases along behind it. Over things the ring turns to a pink
+   diamond; over text the point becomes a glowing bar; a disabled thing gets a red cross. */
+:root[data-style="synthwave"] .tc-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 6px var(--color-accent), 0 0 16px var(--color-accent), 0 0 30px var(--glow-accent);
+  transition: scale 0.15s ease, width 0.15s ease, height 0.15s ease, border-radius 0.15s ease, background-color 0.15s ease;
+}
+
+:root[data-style="synthwave"] .tc-ring {
+  display: block;
+  width: 34px;
+  height: 34px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  border: 1px solid var(--color-accent-2);
+  box-shadow: 0 0 10px var(--glow-accent-2), inset 0 0 10px var(--glow-accent-2);
+  transition: width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), height 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-radius 0.25s ease,
+    rotate 0.25s ease, border-color 0.2s ease, opacity 0.2s ease, scale 0.15s ease;
+}
+
+/* The crosshair lines, with a gap where the ring is. */
+:root[data-style="synthwave"] .tc-ring::before,
+:root[data-style="synthwave"] .tc-ring::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  background: var(--color-accent-2);
+  box-shadow: 0 0 6px var(--color-accent-2);
+  transition: opacity 0.2s ease;
+}
+
+:root[data-style="synthwave"] .tc-ring::before {
+  width: 54px;
+  height: 1px;
+  -webkit-mask: linear-gradient(90deg, #000 0 30%, transparent 30% 70%, #000 70%);
+  mask: linear-gradient(90deg, #000 0 30%, transparent 30% 70%, #000 70%);
+}
+
+:root[data-style="synthwave"] .tc-ring::after {
+  width: 1px;
+  height: 54px;
+  -webkit-mask: linear-gradient(#000 0 30%, transparent 30% 70%, #000 70%);
+  mask: linear-gradient(#000 0 30%, transparent 30% 70%, #000 70%);
+}
+
+:root[data-style="synthwave"] .theme-cursor:is([data-state="link"], [data-state="grab"]) .tc-ring {
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  rotate: 45deg;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 14px var(--glow-accent), inset 0 0 12px var(--glow-accent);
+}
+
+:root[data-style="synthwave"] .theme-cursor[data-state="link"] .tc-ring::before,
+:root[data-style="synthwave"] .theme-cursor[data-state="link"] .tc-ring::after {
+  opacity: 0;
+}
+
+:root[data-style="synthwave"] .theme-cursor[data-state="link"] .tc-dot {
+  scale: 1.5;
+  background: var(--color-accent-2);
+  box-shadow: 0 0 8px var(--color-accent-2), 0 0 20px var(--glow-accent-2);
+}
+
+:root[data-style="synthwave"] .theme-cursor[data-state="field"] .tc-ring {
+  opacity: 0;
+}
+
+:root[data-style="synthwave"] .theme-cursor[data-state="field"] .tc-dot {
+  width: 2px;
+  height: var(--caret-h, 20px);
+  border-radius: 1px;
+  background: var(--color-accent-2);
+  box-shadow: 0 0 8px var(--color-accent-2), 0 0 18px var(--glow-accent-2);
+}
+
+:root[data-style="synthwave"] .theme-cursor[data-state="no"] .tc-ring {
+  border-color: var(--color-danger, #ff4d6d);
+  box-shadow: 0 0 12px rgba(255, 77, 109, 0.5), inset 0 0 10px rgba(255, 77, 109, 0.4);
+}
+
+:root[data-style="synthwave"] .theme-cursor[data-state="no"] .tc-ring::before,
+:root[data-style="synthwave"] .theme-cursor[data-state="no"] .tc-ring::after {
+  background: var(--color-danger, #ff4d6d);
+  box-shadow: 0 0 6px var(--color-danger, #ff4d6d);
+}
+
+:root[data-style="synthwave"] .theme-cursor[data-state="no"] .tc-dot {
+  opacity: 0;
+}
+
+:root[data-style="synthwave"] .theme-cursor[data-state="no"] .tc-x {
+  display: block;
+  stroke: var(--color-danger, #ff4d6d);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px var(--color-danger, #ff4d6d));
+}
+
+:root[data-style="synthwave"] .theme-cursor.is-down .tc-ring {
+  scale: 0.72;
+}
+
+:root[data-style="synthwave"] .theme-cursor.is-down .tc-dot {
+  scale: 0.7;
+}
+
+:root[data-style="synthwave"] .theme-cursor[data-state="default"] .tc-ring {
+  animation: synth-reticle 2.6s ease-in-out infinite;
+}
+
+@keyframes synth-reticle {
+  50% {
+    box-shadow: 0 0 18px var(--glow-accent-2), inset 0 0 14px var(--glow-accent-2);
+  }
+}

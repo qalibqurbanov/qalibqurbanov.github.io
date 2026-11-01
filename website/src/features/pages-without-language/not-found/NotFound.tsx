@@ -33,20 +33,22 @@ export function NotFound() {
 
   return (
     <section className="nf">
-      <p className="nf-eyebrow">{eyebrow}</p>
-      <div className="nf-code" data-text="404" aria-hidden="true">
-        404
+      <div className="nf-box">
+        <p className="nf-eyebrow">{eyebrow}</p>
+        <div className="nf-code" data-text="404" aria-hidden="true">
+          404
+        </div>
+        <h1 className="nf-title">
+          {beforePath}
+          <span>{window.location.pathname}</span>
+          {afterPath}
+        </h1>
+        <p className="nf-back">
+          {beforeHome}
+          <a href={pathForLocale(locale)}>{home}</a>
+          {afterHome}
+        </p>
       </div>
-      <h1 className="nf-title">
-        {beforePath}
-        <span>{window.location.pathname}</span>
-        {afterPath}
-      </h1>
-      <p className="nf-back">
-        {beforeHome}
-        <a href={pathForLocale(locale)}>{home}</a>
-        {afterHome}
-      </p>
     </section>
   );
 }

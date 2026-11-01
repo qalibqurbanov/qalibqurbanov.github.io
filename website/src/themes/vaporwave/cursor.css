@@ -1,0 +1,74 @@
+/* The vaporwave cursor: an old operating system's pixel arrow, white with a dark outline and a hard
+   cyan shadow. Over things it turns into a brighter arrow with a pixel star at its tip; over text it is
+   a chunky caret; a disabled thing gets a cross. */
+:root[data-style="vaporwave"] .tc-arrow {
+  display: block;
+  width: 21px;
+  height: 31px;
+  fill: #fff;
+  stroke: #2a1450;
+  stroke-width: 1;
+  filter: drop-shadow(2px 2px 0 var(--color-accent-2));
+  transform-origin: 0 0;
+  transition: transform 0.12s steps(3), filter 0.12s steps(3), fill 0.12s steps(3);
+}
+
+:root[data-style="vaporwave"] .theme-cursor[data-state="link"] .tc-arrow {
+  fill: var(--color-accent-2);
+  transform: scale(1.12);
+  filter: drop-shadow(2px 2px 0 var(--color-accent));
+}
+
+/* A pixel star at the tip of the arrow, blinking in steps. */
+:root[data-style="vaporwave"] .tc-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  left: 17px;
+  top: -4px;
+  background: var(--color-accent-2);
+  box-shadow: 0 -4px 0 -1px var(--color-accent), 0 4px 0 -1px var(--color-accent), -4px 0 0 -1px var(--color-accent), 4px 0 0 -1px var(--color-accent);
+  opacity: 0;
+}
+
+:root[data-style="vaporwave"] .theme-cursor[data-state="link"] .tc-dot {
+  opacity: 1;
+  animation: vapor-star 0.7s steps(2) infinite;
+}
+
+@keyframes vapor-star {
+  50% {
+    scale: 0.55;
+  }
+}
+
+:root[data-style="vaporwave"] .theme-cursor:is([data-state="field"], [data-state="no"]) .tc-arrow {
+  display: none;
+}
+
+:root[data-style="vaporwave"] .theme-cursor[data-state="field"] .tc-bar {
+  display: block;
+  width: 4px;
+  background: var(--color-accent);
+  box-shadow: 2px 2px 0 var(--color-accent-2);
+  animation: vapor-caret 1s steps(1) infinite;
+}
+
+@keyframes vapor-caret {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+:root[data-style="vaporwave"] .theme-cursor[data-state="no"] .tc-x {
+  display: block;
+  stroke: var(--color-danger, #ff4d6d);
+  stroke-width: 4;
+  stroke-linecap: square;
+  filter: drop-shadow(2px 2px 0 var(--color-accent-2));
+}
+
+:root[data-style="vaporwave"] .theme-cursor.is-down .tc-arrow {
+  transform: translate(1px, 1px);
+  filter: drop-shadow(1px 1px 0 var(--color-accent-2));
+}

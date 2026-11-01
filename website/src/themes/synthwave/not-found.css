@@ -1,0 +1,118 @@
+/* The synthwave 404 page: a neon sign that has lost a tube, hanging over a glowing grid horizon. */
+html[data-page="not-found"][data-style="synthwave"] .nf-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 20px 34px;
+}
+
+/* A grid floor under the sign, fading into the dark before it reaches the text. */
+html[data-page="not-found"][data-style="synthwave"] .nf-box::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  bottom: -8vh;
+  width: min(900px, 130vw);
+  height: 42vh;
+  translate: -50% 0;
+  background:
+    repeating-linear-gradient(90deg, var(--color-accent) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, var(--color-accent) 0 1px, transparent 1px 44px);
+  opacity: 0.34;
+  transform: perspective(380px) rotateX(62deg);
+  transform-origin: 50% 0;
+  -webkit-mask: linear-gradient(#000 0, transparent 85%);
+  mask: linear-gradient(#000 0, transparent 85%);
+}
+
+html[data-page="not-found"][data-style="synthwave"] .nf-eyebrow {
+  color: var(--color-accent-2);
+  text-shadow: 0 0 10px var(--color-accent-2);
+  letter-spacing: 0.3em;
+}
+
+html[data-page="not-found"][data-style="synthwave"] .nf-eyebrow::before {
+  content: "> ";
+  color: var(--color-accent);
+}
+
+/* The sign: a hot core with pink and cyan light spilling out of it, and now and then a flicker. */
+html[data-page="not-found"][data-style="synthwave"] .nf-code {
+  color: #fff4fb;
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-shadow:
+    0 0 6px #fff,
+    0 0 14px var(--color-accent),
+    0 0 34px var(--color-accent),
+    0 0 70px var(--color-accent),
+    4px 4px 0 color-mix(in srgb, var(--color-accent-2) 55%, transparent);
+  animation: synth-flicker 5.5s steps(1) infinite;
+}
+
+@keyframes synth-flicker {
+  0%,
+  17%,
+  21%,
+  62%,
+  66%,
+  100% {
+    opacity: 1;
+  }
+  18%,
+  19.5% {
+    opacity: 0.35;
+  }
+  64% {
+    opacity: 0.55;
+  }
+}
+
+html[data-page="not-found"][data-style="synthwave"] .nf-title {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 12px var(--glow-accent);
+}
+
+html[data-page="not-found"][data-style="synthwave"] .nf-title span {
+  border-color: var(--color-accent-2);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--color-accent-2) 10%, transparent);
+  color: var(--color-accent-2);
+  box-shadow: 0 0 14px -2px var(--glow-accent-2), inset 0 0 10px -4px var(--glow-accent-2);
+  text-transform: none;
+}
+
+html[data-page="not-found"][data-style="synthwave"] .nf-back {
+  color: var(--color-text);
+  text-shadow: 0 0 10px var(--color-bg), 0 0 22px var(--color-bg);
+}
+
+html[data-page="not-found"][data-style="synthwave"] .nf-back a {
+  padding: 4px 12px;
+  border: 1px solid var(--color-accent);
+  border-radius: 3px;
+  color: var(--color-accent);
+  box-shadow: 0 0 14px -3px var(--glow-accent), inset 0 0 8px -4px var(--glow-accent);
+  text-shadow: 0 0 8px var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+html[data-page="not-found"][data-style="synthwave"] .nf-back a:hover,
+html[data-page="not-found"][data-style="synthwave"] .nf-back a:focus-visible {
+  border-color: var(--color-accent-2);
+  color: var(--color-accent-2);
+  box-shadow: 0 0 24px -2px var(--glow-accent-2);
+  text-shadow: 0 0 10px var(--color-accent-2);
+}
+
+html[data-page="not-found"][data-style="synthwave"][data-theme="light"] .nf-code {
+  color: var(--color-accent);
+  text-shadow: 0 0 18px var(--glow-accent), 3px 3px 0 color-mix(in srgb, var(--color-accent-2) 50%, transparent);
+}
