@@ -38,9 +38,9 @@ const column: Kind<Column> = {
   }),
   update(c, e, x, y, r) {
     let target = 0;
-    if (e.seen) {
-      const d = Math.hypot(e.mx - x, e.my - y);
-      if (d < r * 3) target = Math.sign(x - e.mx) * (1 - d / (r * 3)) * 0.18;
+    if (e.react) {
+      const d = Math.hypot(e.bx - x, e.by - y);
+      if (d < r * 3) target = Math.sign(x - e.bx) * (1 - d / (r * 3)) * 0.18;
     }
     c.lean += (target - c.lean) * Math.min(1, e.dt * 2.5);
   },
@@ -336,8 +336,8 @@ const solid: Kind<Wire> = {
   make: (rnd) => ({ solid: rnd() < 0.55 ? CUBE : OCTAHEDRON, rx: rnd() * TAU, ry: rnd() * TAU, rz: rnd() * TAU, sx: 0.12 + rnd() * 0.2, sy: 0.15 + rnd() * 0.25, boost: 0 }),
   update(s, e, x, y, r) {
     let target = 0;
-    if (e.seen) {
-      const d = Math.hypot(e.mx - x, e.my - y);
+    if (e.react) {
+      const d = Math.hypot(e.bx - x, e.by - y);
       if (d < r * 4) target = (1 - d / (r * 4)) * 2.5;
     }
     s.boost += (target - s.boost) * Math.min(1, e.dt * 3);

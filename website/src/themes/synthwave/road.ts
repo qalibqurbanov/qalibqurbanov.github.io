@@ -69,7 +69,7 @@ export function createTraffic() {
     // z is 0 at the horizon and 1 at the bottom of the screen
     const y = horizon + (e.h - horizon) * Math.pow(z, 1.5);
     const half = 3 + z * e.w * 0.3;
-    const cx = e.w / 2 - (e.mx - e.w / 2) * 0.03 * z;
+    const cx = e.w / 2 - (e.bx - e.w / 2) * 0.03 * z;
     return { y, half, cx };
   }
 

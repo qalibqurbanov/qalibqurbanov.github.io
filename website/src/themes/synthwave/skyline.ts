@@ -108,7 +108,7 @@ export function createSkyline(rnd: () => number, accent: Rgb) {
         const centre = Math.abs(t.x - 0.5) * 2;
         // the city is tallest in the middle and falls away to both sides
         const fall = 0.3 + 0.7 * (1 - centre * centre);
-        const sx = start + t.x * span - (e.mx - e.w / 2) * (t.layer ? 0.012 : 0.006);
+        const sx = start + t.x * span - (e.bx - e.w / 2) * (t.layer ? 0.012 : 0.006);
         const hh = (t.h + 40) * fall;
         const ww = (t.w + 24) * (0.55 + fall * 0.45);
         g.save();

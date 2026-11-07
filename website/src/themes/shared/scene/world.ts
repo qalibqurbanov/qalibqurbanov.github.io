@@ -270,7 +270,7 @@ export function createWorld(kinds: Kind[], options: WorldOptions) {
         const y = it.y + (it.scroll - e.scrollY) * it.depth;
         if (y < -reach || y > e.h + reach) continue;
         // Far things lean a little with the cursor, near things a little more.
-        const x = it.x - (e.mx - e.w / 2) * 0.018 * (1.2 - it.depth) * (e.seen ? 1 : 0);
+        const x = it.x - (e.bx - e.w / 2) * 0.018 * (1.2 - it.depth) * (e.react ? 1 : 0);
         const fade = Math.min(1, Math.max(0, (e.t - it.born) / 1.4));
         if (fade <= 0 || it.failed) continue;
         // One misbehaving object must not stop the others, or the rest of the scene.

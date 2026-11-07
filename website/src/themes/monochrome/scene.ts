@@ -36,8 +36,8 @@ export const createScene: SceneFactory = (canvas, _env, objects) => {
     g!.clearRect(0, 0, e.w, e.h);
     const ink: Rgb = e.text;
     const light = e.light;
-    const cx = e.w * 0.5 - (e.mx - e.w / 2) * 0.02;
-    const cy = e.h * 0.5 - (e.my - e.h / 2) * 0.02 - e.scrollY * 0.04;
+    const cx = e.w * 0.5 - (e.bx - e.w / 2) * 0.02;
+    const cy = e.h * 0.5 - (e.by - e.h / 2) * 0.02 - e.scrollY * 0.04;
     const big = Math.max(e.w, e.h);
 
     // hairline circles, centred a little off the middle of the screen

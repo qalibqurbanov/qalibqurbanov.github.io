@@ -15,6 +15,17 @@
   border-radius: 0;
 }
 
+/* The name is plain ink, not a gradient painted through the letters. That fill (background-clip: text) is
+   drawn on its own layer, and the cursor's inverting layer on top of the page (mix-blend-mode: difference)
+   can make a browser drop it, leaving the name invisible. In black and white the gradient was barely there. */
+:root[data-style="monochrome"] .text-gradient {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--color-text);
+  animation: none;
+}
+
 :root[data-style="monochrome"] h1 {
   font-size: clamp(3.4rem, 8vw, 6.2rem);
   line-height: 0.95;

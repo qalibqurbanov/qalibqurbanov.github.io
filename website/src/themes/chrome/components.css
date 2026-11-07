@@ -1,0 +1,146 @@
+/* The chrome style's controls and furniture: fields, focus rings, links, every floating panel, the header,
+   chips and window frames, and the way things appear. All of it is polished metal and glass. */
+:root[data-style="chrome"] {
+  --ch-edge: rgba(255, 255, 255, 0.22);
+  --ch-hi: rgba(255, 255, 255, 0.45);
+  --ch-lo: rgba(0, 0, 0, 0.55);
+  --ch-shadow: 0 26px 50px -24px rgba(0, 0, 0, 0.9);
+}
+
+:root[data-style="chrome"][data-theme="light"] {
+  --ch-edge: rgba(255, 255, 255, 0.9);
+  --ch-hi: #fff;
+  --ch-lo: rgba(0, 0, 0, 0.18);
+  --ch-shadow: 0 22px 40px -22px rgba(20, 30, 50, 0.5);
+}
+
+/* Fields: a recess cut into the metal. */
+:root[data-style="chrome"] :is(input, textarea).selectable[name] {
+  border-radius: 10px;
+  border: 1px solid var(--ch-edge);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(255, 255, 255, 0.04)), var(--color-surface-2);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45), inset 0 -1px 0 var(--ch-hi);
+}
+
+:root[data-style="chrome"] :is(input, textarea).selectable[name]:focus {
+  border-color: var(--ch-hi);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45), 0 0 0 3px var(--glow-accent), 0 0 22px -4px var(--glow-accent-2);
+}
+
+/* Keyboard focus: a bright ring of light, set off from the thing. */
+:root[data-style="chrome"] :focus-visible {
+  outline: 2px solid var(--ch-hi);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--glow-accent);
+}
+
+:root[data-style="chrome"] main :is(p, li) a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: color-mix(in srgb, var(--color-text) 35%, transparent);
+  transition: text-decoration-color 0.25s ease, text-shadow 0.25s ease;
+}
+
+:root[data-style="chrome"] main :is(p, li) a:hover {
+  text-decoration-color: var(--color-text);
+  text-shadow: 0 0 14px var(--glow-accent);
+}
+
+/* Every floating panel and window: a sheet of glass with a bright top edge. */
+:root[data-style="chrome"] :is(.command-dialog-content, .context-menu, .glitch-border, .animate-popover-in, .glitch-float:has(> [role="listbox"])) {
+  border: 1px solid var(--ch-edge);
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.02) 40%, rgba(255, 255, 255, 0.08) 65%, rgba(255, 255, 255, 0.015)),
+    color-mix(in srgb, var(--color-surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: inset 0 1px 0 var(--ch-hi), inset 0 -1px 0 var(--ch-lo), var(--ch-shadow);
+}
+
+:root[data-style="chrome"] .tip-balloon {
+  border: 1px solid var(--ch-edge);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04)), color-mix(in srgb, var(--color-surface) 80%, transparent);
+  box-shadow: inset 0 1px 0 var(--ch-hi), 0 10px 20px -10px rgba(0, 0, 0, 0.7);
+}
+
+:root[data-style="chrome"] .tip-balloon::after {
+  display: none;
+}
+
+:root[data-style="chrome"] :is(.command-dialog-overlay, .view-overlay) {
+  background: radial-gradient(circle at 50% 30%, rgba(40, 48, 66, 0.55), rgba(0, 0, 0, 0.82));
+}
+
+/* The bar across the top, once the page has scrolled: a strip of glass with a bevelled lower edge. */
+:root[data-style="chrome"] header.backdrop-blur-md {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02)), color-mix(in srgb, var(--color-bg) 58%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid var(--ch-edge);
+  box-shadow: inset 0 -1px 0 var(--ch-lo), 0 12px 24px -16px rgba(0, 0, 0, 0.8);
+}
+
+:root[data-style="chrome"] header .glitch-bar-track > div {
+  background: linear-gradient(180deg, #fff, #9aa4b8 55%, #4b5364);
+  box-shadow: 0 0 10px var(--glow-accent);
+}
+
+/* Chips: little pills of brushed metal. */
+:root[data-style="chrome"] .skill-chip {
+  border: 1px solid var(--ch-edge);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.02)), color-mix(in srgb, var(--color-surface) 70%, transparent);
+  box-shadow: inset 0 1px 0 var(--ch-hi), inset 0 -1px 0 var(--ch-lo);
+}
+
+:root[data-style="chrome"] .skill-chip:hover {
+  border-color: var(--ch-hi);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.05)), color-mix(in srgb, var(--color-surface) 70%, transparent);
+}
+
+:root[data-style="chrome"] .window-control {
+  border-radius: 50%;
+}
+
+:root[data-style="chrome"] .caret {
+  width: 2px;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #fff, #8d96a8);
+}
+
+/* Arriving: the light slides across and the picture comes into focus. */
+@keyframes chrome-in {
+  from {
+    opacity: 0;
+    filter: blur(10px) brightness(1.7);
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+:root[data-style="chrome"] .glitch-in {
+  animation: chrome-in var(--gi-duration, 650ms) cubic-bezier(0.2, 0.7, 0.2, 1) var(--gi-delay, 0ms) backwards;
+}
+
+/* The beam that crosses the page when it jumps to a section: a band of white light. */
+:root[data-style="chrome"] .scan-wipe {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #fff 20%, #fff 80%, transparent);
+  box-shadow: 0 0 24px 4px rgba(255, 255, 255, 0.5);
+}
+
+/* Navigation: the underline is a thread of polished metal. */
+:root[data-style="chrome"] header nav a > span.absolute {
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, #6c778c, #fff, #6c778c);
+  box-shadow: 0 0 8px var(--glow-accent);
+}

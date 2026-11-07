@@ -1,0 +1,133 @@
+/* The vaporwave style's controls and furniture: fields, focus rings, links, every floating panel, the
+   header, chips and window frames, and the way things appear. An old operating system, in pink and cyan. */
+
+/* Fields: a sunken box, as the old interfaces drew them. */
+:root[data-style="vaporwave"] :is(input, textarea).selectable[name] {
+  border: 2px solid;
+  border-color: #2a1450 rgba(255, 255, 255, 0.7) rgba(255, 255, 255, 0.7) #2a1450;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--color-bg) 60%, var(--color-surface-2));
+}
+
+:root[data-style="vaporwave"] :is(input, textarea).selectable[name]:focus {
+  border-color: #2a1450 rgba(255, 255, 255, 0.7) rgba(255, 255, 255, 0.7) #2a1450;
+  box-shadow: 0 0 0 2px var(--color-accent), 3px 3px 0 2px var(--color-accent-2);
+}
+
+/* Keyboard focus: a dotted marquee, as it was. */
+:root[data-style="vaporwave"] :focus-visible {
+  outline: 2px dotted var(--color-accent-2);
+  outline-offset: 3px;
+}
+
+:root[data-style="vaporwave"] main :is(p, li) a {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: color-mix(in srgb, var(--color-accent) 70%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+:root[data-style="vaporwave"] main :is(p, li) a:hover {
+  color: var(--color-accent-2);
+  text-decoration-color: var(--color-accent-2);
+}
+
+/* Every floating panel and window: a raised pane with a hard shadow. */
+:root[data-style="vaporwave"] :is(.command-dialog-content, .context-menu, .glitch-border, .animate-popover-in, .glitch-float:has(> [role="listbox"])) {
+  border: 2px solid;
+  border-color: rgba(255, 255, 255, 0.75) #2a1450 #2a1450 rgba(255, 255, 255, 0.75);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: 6px 6px 0 0 color-mix(in srgb, var(--color-accent-2) 70%, transparent);
+}
+
+:root[data-style="vaporwave"] .tip-balloon {
+  border: 2px solid;
+  border-color: rgba(255, 255, 255, 0.75) #2a1450 #2a1450 rgba(255, 255, 255, 0.75);
+  border-radius: 0;
+  background: var(--color-surface-2);
+  box-shadow: 3px 3px 0 0 var(--color-accent-2);
+}
+
+:root[data-style="vaporwave"] .tip-balloon::after {
+  display: none;
+}
+
+:root[data-style="vaporwave"] :is(.command-dialog-overlay, .view-overlay) {
+  background:
+    conic-gradient(rgba(26, 11, 52, 0.7) 25%, rgba(26, 11, 52, 0.88) 0 50%, rgba(26, 11, 52, 0.7) 0 75%, rgba(26, 11, 52, 0.88) 0) 0 0 / 4px 4px;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* The bar across the top, once the page has scrolled: a title bar with a gradient. */
+:root[data-style="vaporwave"] header.backdrop-blur-md {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-surface) 92%, transparent), color-mix(in srgb, var(--color-surface-2) 92%, transparent));
+  border-bottom: 2px solid var(--color-accent-2);
+  box-shadow: 0 3px 0 0 color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+/* The progress is a row of blocks, like a loading bar of the time. */
+:root[data-style="vaporwave"] header .glitch-bar-track > div {
+  background: repeating-linear-gradient(90deg, var(--color-accent) 0 6px, transparent 6px 8px);
+}
+
+/* Chips: little buttons with raised edges. */
+:root[data-style="vaporwave"] .skill-chip {
+  border: 2px solid;
+  border-color: rgba(255, 255, 255, 0.6) #2a1450 #2a1450 rgba(255, 255, 255, 0.6);
+  border-radius: 0;
+  background: var(--color-surface-2);
+}
+
+:root[data-style="vaporwave"] .skill-chip:hover {
+  border-color: rgba(255, 255, 255, 0.6) #2a1450 #2a1450 rgba(255, 255, 255, 0.6);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 40%, var(--color-surface-2)), color-mix(in srgb, var(--color-accent-2) 40%, var(--color-surface-2)));
+  transform: none;
+}
+
+:root[data-style="vaporwave"] .window-control {
+  border-radius: 0;
+  border: 2px solid;
+  border-color: rgba(255, 255, 255, 0.6) #2a1450 #2a1450 rgba(255, 255, 255, 0.6);
+}
+
+:root[data-style="vaporwave"] .caret {
+  height: 0.2em;
+  width: 0.7ch;
+  vertical-align: -0.1em;
+  background: var(--color-accent-2);
+}
+
+/* Arriving: pixels fill in, a row at a time. */
+@keyframes vapor-in {
+  from {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0.4;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+:root[data-style="vaporwave"] .glitch-in {
+  animation: vapor-in var(--gi-duration, 650ms) steps(10, end) var(--gi-delay, 0ms) backwards;
+}
+
+/* The line that crosses the page when it jumps to a section: a pink-to-cyan bar, hard edged. */
+:root[data-style="vaporwave"] .scan-wipe {
+  height: 6px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+  box-shadow: 0 3px 0 0 color-mix(in srgb, var(--color-text) 25%, transparent);
+}
+
+/* Navigation: a hard two-colour bar under the word. */
+:root[data-style="vaporwave"] header nav a > span.absolute {
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+  box-shadow: 2px 2px 0 0 color-mix(in srgb, var(--color-text) 25%, transparent);
+}

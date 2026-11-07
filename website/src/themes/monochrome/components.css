@@ -1,0 +1,130 @@
+/* The monochrome style's controls and furniture: fields, focus rings, links, every floating panel, the
+   header, chips and window frames, and the way things appear. Hairlines, hard edges, black and white. */
+
+/* Fields: a ruled line to write on, no box. */
+:root[data-style="monochrome"] :is(input, textarea).selectable[name] {
+  border: 0;
+  border-bottom: 1px solid var(--color-text);
+  border-radius: 0;
+  background: transparent;
+  padding-inline: 0.25rem;
+}
+
+:root[data-style="monochrome"] :is(input, textarea).selectable[name]:focus {
+  border-bottom-width: 3px;
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+
+/* Keyboard focus: a plain double rule. */
+:root[data-style="monochrome"] :focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 3px;
+  border-radius: 0;
+}
+
+:root[data-style="monochrome"] main :is(p, li) a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: background-color 0.12s steps(2), color 0.12s steps(2);
+}
+
+:root[data-style="monochrome"] main :is(p, li) a:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+  text-decoration: none;
+}
+
+/* Every floating panel and window: a hard outline with a hard shadow, square. */
+:root[data-style="monochrome"] :is(.command-dialog-content, .context-menu, .glitch-border, .animate-popover-in, .glitch-float:has(> [role="listbox"]), .tip-balloon) {
+  border: 1px solid var(--color-text);
+  border-radius: 0;
+  background: var(--color-bg);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: 6px 6px 0 0 var(--color-text);
+}
+
+:root[data-style="monochrome"] .tip-balloon {
+  box-shadow: 3px 3px 0 0 var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+:root[data-style="monochrome"] .tip-balloon::after {
+  display: none;
+}
+
+:root[data-style="monochrome"] :is(.command-dialog-overlay, .view-overlay) {
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  background-image: repeating-linear-gradient(0deg, transparent 0 3px, color-mix(in srgb, var(--color-text) 6%, transparent) 3px 4px);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* The bar across the top, once the page has scrolled: the page colour, ruled underneath. */
+:root[data-style="monochrome"] header.backdrop-blur-md {
+  background: var(--color-bg);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-bottom: 1px solid var(--color-text);
+  box-shadow: none;
+}
+
+:root[data-style="monochrome"] header .glitch-bar-track > div {
+  background: var(--color-text);
+}
+
+/* Chips: outlined labels that invert under the pointer. */
+:root[data-style="monochrome"] .skill-chip {
+  border: 1px solid var(--color-text);
+  border-radius: 0;
+  background: transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: background-color 0.12s steps(2), color 0.12s steps(2);
+}
+
+:root[data-style="monochrome"] .skill-chip:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+  border-color: var(--color-text);
+  transform: none;
+}
+
+:root[data-style="monochrome"] .window-control {
+  border-radius: 0;
+}
+
+:root[data-style="monochrome"] .caret {
+  width: 0.6ch;
+  background: var(--color-text);
+  animation-timing-function: steps(1);
+}
+
+/* Arriving: a wipe from the left, as a page is uncovered. */
+@keyframes mono-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+:root[data-style="monochrome"] .glitch-in {
+  animation: mono-in var(--gi-duration, 650ms) steps(8, end) var(--gi-delay, 0ms) backwards;
+}
+
+/* The line that crosses the page when it jumps to a section: one full-strength hairline, no glow. */
+:root[data-style="monochrome"] .scan-wipe {
+  height: 1px;
+  background: var(--color-text);
+  box-shadow: none;
+}
+
+/* Navigation: a solid bar under the word that grows across it. */
+:root[data-style="monochrome"] header nav a > span.absolute {
+  height: 3px;
+  background: var(--color-text);
+}

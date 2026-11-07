@@ -75,8 +75,8 @@ function tint(model: THREE.Object3D, apply: (m: THREE.MeshStandardMaterial, mesh
 
 function turn(model: THREE.Group, state: ModelState & { data: Record<string, unknown> }, e: SceneEnv, x: number, y: number, sway: number, lookAt = 0.5) {
   const base = (state.data.yaw0 as number) ?? 0;
-  const dx = e.seen ? Math.max(-1, Math.min(1, (e.mx - x) / (e.w * 0.5))) : 0;
-  const dy = e.seen ? Math.max(-1, Math.min(1, (e.my - y) / (e.h * 0.5))) : 0;
+  const dx = e.react ? Math.max(-1, Math.min(1, (e.bx - x) / (e.w * 0.5))) : 0;
+  const dy = e.react ? Math.max(-1, Math.min(1, (e.by - y) / (e.h * 0.5))) : 0;
   state.root.rotation.y = base + Math.sin(e.t * 0.3 + state.ph) * sway + dx * lookAt;
   state.root.rotation.x = ((state.data.pitch0 as number) ?? 0) + dy * 0.12;
   void model;

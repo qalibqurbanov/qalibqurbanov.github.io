@@ -25,7 +25,7 @@ function bandGradient(g: CanvasRenderingContext2D, x0: number, y0: number, x1: n
 
 /** Where the light sits, from the cursor if it is there and from a slow drift if not. */
 function lightPos(e: SceneEnv, x: number, y: number, ph: number): { phase: number; spec: number } {
-  const dx = e.seen ? (e.mx - x) / e.w : Math.sin(e.t * 0.08 + ph) * 0.4;
+  const dx = e.react ? (e.bx - x) / e.w : Math.sin(e.t * 0.08 + ph) * 0.4;
   return { phase: dx * 0.7 + ph * 0.1 + e.t * 0.02, spec: Math.min(0.9, Math.max(0.1, 0.5 + dx * 0.9)) };
 }
 

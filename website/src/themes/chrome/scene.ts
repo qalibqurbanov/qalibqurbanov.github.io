@@ -132,8 +132,8 @@ function fallback(canvas: HTMLCanvasElement): { frame(e: SceneEnv): void } {
       grad.addColorStop(1, `rgb(${base - 6},${base - 4},${base})`);
       g.fillStyle = grad;
       g.fillRect(0, 0, e.w, e.h);
-      if (e.seen) {
-        const s = g.createRadialGradient(e.mx, e.my, 0, e.mx, e.my, 260);
+      if (e.react) {
+        const s = g.createRadialGradient(e.bx, e.by, 0, e.bx, e.by, 260);
         s.addColorStop(0, rgba([255, 255, 255], 0.5));
         s.addColorStop(1, rgba([255, 255, 255], 0));
         g.fillStyle = s;
@@ -191,7 +191,7 @@ export const createScene: SceneFactory = (canvas, _env, objects) => {
       gl.uniform2f(uRes, canvas.width, canvas.height);
       gl.uniform1f(uT, e.t);
       // the cursor in canvas pixels (the origin is at the bottom left)
-      gl.uniform2f(uM, (e.seen ? e.mx : e.w * 0.6) * e.dpr, (e.h - (e.seen ? e.my : e.h * 0.4)) * e.dpr);
+      gl.uniform2f(uM, (e.react ? e.bx : e.w * 0.6) * e.dpr, (e.h - (e.react ? e.by : e.h * 0.4)) * e.dpr);
       speed += (Math.min(1.5, Math.hypot(e.vx, e.vy) / 2500) - speed) * 0.1;
       gl.uniform1f(uMv, speed);
       gl.uniform1f(uScroll, e.scrollY / Math.max(1, e.h) * 0.5);

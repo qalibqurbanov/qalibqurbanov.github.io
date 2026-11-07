@@ -66,7 +66,7 @@ export const createScene: SceneFactory = (canvas, env0, objects, models) => {
     floor.addColorStop(1, rgba(light ? [255, 230, 250] : [20, 8, 55], light ? 0.7 : 0.95));
     g!.fillStyle = floor;
     g!.fillRect(0, horizon, e.w, h);
-    const vx = e.w / 2 - (e.mx - e.w / 2) * 0.04;
+    const vx = e.w / 2 - (e.bx - e.w / 2) * 0.04;
     const speed = 0.12 + Math.min(0.5, Math.abs(e.vy) / 4000);
     const phase = (e.t * speed + e.scrollY * 0.0009) % 1;
     g!.lineWidth = 1.2;
@@ -116,7 +116,7 @@ export const createScene: SceneFactory = (canvas, env0, objects, models) => {
     g!.fillRect(0, 0, e.w, horizon);
 
     const r = Math.min(e.w, e.h) * 0.27;
-    drawSun(e, e.w * 0.5 - (e.mx - e.w / 2) * 0.015, horizon - r * 0.55 + Math.sin(e.t * 0.4) * 5, r);
+    drawSun(e, e.w * 0.5 - (e.bx - e.w / 2) * 0.015, horizon - r * 0.55 + Math.sin(e.t * 0.4) * 5, r);
     drawFloor(e, horizon);
 
     if (fx) {

@@ -1,0 +1,134 @@
+/* The synthwave style's controls and furniture: fields, focus rings, links, every floating panel, the
+   header, chips and window frames, and the way things appear. Neon tubes on dark. */
+
+/* Fields: a dark pane with a neon edge that lights up when you type. */
+:root[data-style="synthwave"] :is(input, textarea).selectable[name] {
+  border: 1px solid color-mix(in srgb, var(--color-accent-2) 40%, var(--color-border));
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-bg) 70%, var(--color-surface-2));
+}
+
+:root[data-style="synthwave"] :is(input, textarea).selectable[name]:focus {
+  border-color: var(--color-accent-2);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-2) 50%, transparent), 0 0 20px -2px var(--glow-accent-2), inset 0 0 14px -6px var(--glow-accent-2);
+}
+
+/* Keyboard focus: a pink tube round the thing. */
+:root[data-style="synthwave"] :focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 14px -2px var(--glow-accent);
+}
+
+:root[data-style="synthwave"] main :is(p, li) a {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-accent-2) 60%, transparent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: color 0.2s ease, text-shadow 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+:root[data-style="synthwave"] main :is(p, li) a:hover {
+  color: var(--color-accent-2);
+  text-decoration-color: var(--color-accent-2);
+  text-shadow: 0 0 10px var(--color-accent-2);
+}
+
+/* Every floating panel and window: a dark pane framed by a glowing line. */
+:root[data-style="synthwave"] :is(.command-dialog-content, .context-menu, .glitch-border, .animate-popover-in, .glitch-float:has(> [role="listbox"])) {
+  border: 1px solid color-mix(in srgb, var(--color-accent-2) 55%, var(--color-border));
+  border-radius: 6px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 55%), color-mix(in srgb, var(--color-surface) 90%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-2) 12%, transparent), 0 0 28px -8px var(--glow-accent-2), 0 0 56px -20px var(--glow-accent);
+}
+
+:root[data-style="synthwave"] .tip-balloon {
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  box-shadow: 0 0 14px -2px var(--glow-accent), inset 0 0 10px -6px var(--glow-accent);
+}
+
+:root[data-style="synthwave"] .tip-balloon::after {
+  border-color: var(--color-accent);
+}
+
+:root[data-style="synthwave"] :is(.command-dialog-overlay, .view-overlay) {
+  background: radial-gradient(circle at 50% 100%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 60%), rgba(8, 2, 24, 0.82);
+}
+
+/* The bar across the top, once the page has scrolled: dark, with a neon line under it. */
+:root[data-style="synthwave"] header.backdrop-blur-md {
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-accent-2) 55%, transparent);
+  box-shadow: 0 1px 0 0 color-mix(in srgb, var(--color-accent-2) 25%, transparent), 0 8px 24px -12px var(--glow-accent-2);
+}
+
+:root[data-style="synthwave"] header .glitch-bar-track > div {
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+  box-shadow: 0 0 10px var(--glow-accent), 0 0 4px var(--color-accent-2);
+}
+
+/* Chips: little glowing tags. */
+:root[data-style="synthwave"] .skill-chip {
+  border: 1px solid color-mix(in srgb, var(--color-accent-2) 50%, var(--color-border));
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--color-accent-2) 6%, transparent);
+}
+
+:root[data-style="synthwave"] .skill-chip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  box-shadow: 0 0 16px -4px var(--glow-accent);
+  text-shadow: 0 0 8px var(--glow-accent);
+}
+
+:root[data-style="synthwave"] .window-control {
+  border-radius: 3px;
+}
+
+:root[data-style="synthwave"] .caret {
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-accent), 0 0 18px var(--glow-accent);
+}
+
+/* Arriving: the light flickers on like a tube warming up. */
+@keyframes synth-in {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  18% {
+    opacity: 0.1;
+  }
+  30% {
+    opacity: 1;
+  }
+  38% {
+    opacity: 0.3;
+  }
+  52%,
+  100% {
+    opacity: 1;
+  }
+}
+
+:root[data-style="synthwave"] .glitch-in {
+  animation: synth-in var(--gi-duration, 650ms) linear var(--gi-delay, 0ms) backwards;
+}
+
+/* The line that crosses the page when it jumps to a section: a hot pink tube. */
+:root[data-style="synthwave"] .scan-wipe {
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent-2), var(--color-accent), var(--color-accent-2));
+  box-shadow: 0 0 20px 4px var(--glow-accent), 0 0 40px 8px var(--glow-accent-2);
+}
+
+/* Navigation: the underline is a neon tube. */
+:root[data-style="synthwave"] header nav a > span.absolute {
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+  box-shadow: 0 0 8px var(--color-accent), 0 0 16px var(--glow-accent);
+}

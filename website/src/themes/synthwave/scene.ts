@@ -62,7 +62,7 @@ export const createScene: SceneFactory = (canvas, env, objects) => {
 
   function drawSun(e: SceneEnv, horizon: number) {
     const r = Math.min(e.w * 0.2, e.h * 0.3);
-    const cx = e.w / 2 - (e.mx - e.w / 2) * 0.012;
+    const cx = e.w / 2 - (e.bx - e.w / 2) * 0.012;
     const cy = horizon - r * 0.12;
     // the glow around it
     const glow = g!.createRadialGradient(cx, cy, r * 0.4, cx, cy, r * 2.6);
@@ -107,8 +107,8 @@ export const createScene: SceneFactory = (canvas, env, objects) => {
     g!.fillRect(0, horizon, e.w, h);
 
     const vx = e.w / 2;
-    const px = e.seen ? e.mx : vx;
-    const py = e.seen ? e.my : -1e4;
+    const px = e.react ? e.bx : vx;
+    const py = e.react ? e.by : -1e4;
     const bend = (x: number, y: number) => {
       // the grid leans toward the cursor, more where the cursor is close
       const d = Math.hypot(x - px, y - py);

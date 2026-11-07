@@ -34,8 +34,8 @@ const sculpture: Kind<Sculpture> = {
   make: (rnd) => ({ solid: [CUBE, OCTAHEDRON, PRISM][Math.floor(rnd() * 3)], rx: rnd() * TAU, ry: rnd() * TAU, rz: rnd() * TAU, sx: 0.06 + rnd() * 0.1, sy: 0.08 + rnd() * 0.12, boost: 0 }),
   update(s, e, x, y, r) {
     let target = 0;
-    if (e.seen) {
-      const d = Math.hypot(e.mx - x, e.my - y);
+    if (e.react) {
+      const d = Math.hypot(e.bx - x, e.by - y);
       if (d < r * 4) target = (1 - d / (r * 4)) * 1.4;
     }
     s.boost += (target - s.boost) * Math.min(1, e.dt * 2);
@@ -86,8 +86,8 @@ const shards: Kind<Shards> = {
   make: (rnd) => ({ n: 6 + Math.floor(rnd() * 5), ph: rnd() * TAU, rate: 0.22 + rnd() * 0.2, excite: 0, filled: Math.floor(rnd() * 3) }),
   update(s, e, x, y, r) {
     let target = 0;
-    if (e.seen) {
-      const d = Math.hypot(e.mx - x, e.my - y);
+    if (e.react) {
+      const d = Math.hypot(e.bx - x, e.by - y);
       if (d < r * 3) target = 1 - d / (r * 3);
     }
     s.excite += (target - s.excite) * Math.min(1, e.dt * 3);

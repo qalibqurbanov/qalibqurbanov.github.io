@@ -45,8 +45,8 @@ interface Light {
 
 /** The light direction a surface at (x, y) sees: it drifts on its own and leans toward the cursor. */
 function lightAt(e: SceneEnv, x: number, y: number, ph: number, state: Light) {
-  const tx = Math.sin(e.t * 0.12 + ph) * 0.35 + (e.seen ? ((e.mx - x) / e.w) * 1.3 : 0);
-  const ty = Math.cos(e.t * 0.1 + ph) * 0.2 + (e.seen ? ((e.my - y) / e.h) * 1.0 : 0);
+  const tx = Math.sin(e.t * 0.12 + ph) * 0.35 + (e.react ? ((e.bx - x) / e.w) * 1.3 : 0);
+  const ty = Math.cos(e.t * 0.1 + ph) * 0.2 + (e.react ? ((e.by - y) / e.h) * 1.0 : 0);
   const k = Math.min(1, e.dt * 3);
   state.lx += (Math.max(-1, Math.min(1, tx)) - state.lx) * k;
   state.ly += (Math.max(-1, Math.min(1, ty)) - state.ly) * k;
@@ -129,7 +129,7 @@ const torus: Kind<Torus> = {
     // the cursor tips it
     if (e.seen) {
       const k = Math.min(1, e.dt * 2);
-      t.tilt += ((0.45 + Math.min(0.5, Math.abs(e.my - y) / e.h)) - t.tilt) * k * 0.2;
+      t.tilt += ((0.45 + Math.min(0.5, Math.abs(e.by - y) / e.h)) - t.tilt) * k * 0.2;
     }
   },
   draw(g, t, e, x, y, r, a) {
@@ -192,9 +192,9 @@ const blob: Kind<Blob> = {
     let tx = 0;
     let ty = 0;
     let pull = 0;
-    if (e.seen) {
-      const dx = e.mx - x;
-      const dy = e.my - y;
+    if (e.react) {
+      const dx = e.bx - x;
+      const dy = e.by - y;
       const d = Math.hypot(dx, dy);
       if (d < r * 3.2 && d > 1) {
         pull = 1 - d / (r * 3.2);

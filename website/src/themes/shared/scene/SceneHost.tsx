@@ -41,6 +41,9 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
       vx: 0,
       vy: 0,
       seen: false,
+      react: false,
+      bx: 0,
+      by: 0,
       scrollY: window.scrollY,
       scrollMax: 1,
       light: false,
@@ -67,6 +70,8 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
       // off it by more the further right the pointer is.
       env.w = document.documentElement.clientWidth || window.innerWidth;
       env.h = document.documentElement.clientHeight || window.innerHeight;
+      env.bx = env.react ? env.mx : env.w / 2;
+      env.by = env.react ? env.my : env.h / 2;
       // The model canvas is sized by the stage that draws on it (three.js sets its own size).
       canvas.width = objects.width = Math.round(env.w * dpr);
       canvas.height = objects.height = Math.round(env.h * dpr);
@@ -98,6 +103,8 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
         env.vx += ((env.rx - env.mx) / 0.06 - env.vx) * 0.2;
         env.vy += ((env.ry - env.my) / 0.06 - env.vy) * 0.2;
       }
+      env.bx = env.react ? env.mx : env.w / 2;
+      env.by = env.react ? env.my : env.h / 2;
       measureScroll();
       scene.frame(env);
     };

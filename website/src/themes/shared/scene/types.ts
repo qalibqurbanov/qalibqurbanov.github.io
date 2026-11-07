@@ -19,6 +19,12 @@ export interface SceneEnv {
   vx: number;
   vy: number;
   seen: boolean;
+  /** What the background itself may follow. It does not follow the pointer: `react` is false and
+   * `bx`, `by` stay at the middle of the screen, so a picture that leans, shifts or looks toward
+   * the pointer does not. Only marks that are the cursor's own (a trail, a crosshair) use mx and my. */
+  react: boolean;
+  bx: number;
+  by: number;
   /** How far the page has scrolled, and how far it can. */
   scrollY: number;
   scrollMax: number;
