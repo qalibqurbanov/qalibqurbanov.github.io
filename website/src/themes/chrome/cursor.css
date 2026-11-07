@@ -3,8 +3,8 @@
    highlight; over text the bead is drawn out into a polished bar; a disabled thing gets a cross. */
 :root[data-style="chrome"] .tc-dot {
   display: block;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   translate: -50% -50%;
   border-radius: 50%;
   background: radial-gradient(circle at 32% 28%, #fff 0 9%, #e4eaf5 22%, #8f9bb2 52%, #2c323e 82%, #0b0d12);

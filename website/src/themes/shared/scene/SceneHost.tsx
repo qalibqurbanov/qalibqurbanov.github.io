@@ -29,8 +29,8 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
 
     const env: SceneEnv = {
-      w: window.innerWidth,
-      h: window.innerHeight,
+      w: document.documentElement.clientWidth || window.innerWidth,
+      h: document.documentElement.clientHeight || window.innerHeight,
       dpr,
       t: 0,
       dt: 0.016,
@@ -62,8 +62,11 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
     readTheme();
 
     const fit = () => {
-      env.w = window.innerWidth;
-      env.h = window.innerHeight;
+      // The area the fixed canvases fill, which leaves out the scrollbar: innerWidth is wider than it,
+      // so drawing at that size squeezes the picture sideways and puts everything drawn at the pointer
+      // off it by more the further right the pointer is.
+      env.w = document.documentElement.clientWidth || window.innerWidth;
+      env.h = document.documentElement.clientHeight || window.innerHeight;
       // The model canvas is sized by the stage that draws on it (three.js sets its own size).
       canvas.width = objects.width = Math.round(env.w * dpr);
       canvas.height = objects.height = Math.round(env.h * dpr);
@@ -124,6 +127,13 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
     window.addEventListener("resize", onResize);
     window.addEventListener("scroll", onScroll, { passive: true });
 
+    // The scrollbar coming or going (a dialog opens, the page gets shorter) changes the width the canvases
+    // fill without any window resize.
+    const sizeWatcher = new ResizeObserver(() => {
+      if (env.w !== document.documentElement.clientWidth || env.h !== document.documentElement.clientHeight) onResize();
+    });
+    sizeWatcher.observe(document.documentElement);
+
     // A change of colour mode, colour scheme or theme shows up in the next frame.
     const watcher = new MutationObserver(() => {
       readTheme();
@@ -148,6 +158,7 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
     return () => {
       stop();
       watcher.disconnect();
+      sizeWatcher.disconnect();
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerdown", onPress);
       window.removeEventListener("resize", onResize);

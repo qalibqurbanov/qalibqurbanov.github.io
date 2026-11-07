@@ -3,8 +3,8 @@
    diamond; over text the point becomes a glowing bar; a disabled thing gets a red cross. */
 :root[data-style="synthwave"] .tc-dot {
   display: block;
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   translate: -50% -50%;
   border-radius: 50%;
   background: var(--color-accent);
@@ -14,8 +14,8 @@
 
 :root[data-style="synthwave"] .tc-ring {
   display: block;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   translate: -50% -50%;
   border-radius: 50%;
   border: 1px solid var(--color-accent-2);

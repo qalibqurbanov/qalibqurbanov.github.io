@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 
 import { FIELD, GRAB, LINK } from "@/lib/interactive";
 import { prefersReducedMotion } from "@/hooks/glitch";
+import { ringPosition } from "./ringPosition";
 
 type CursorState = "default" | "link" | "field" | "grab" | "no";
 
@@ -57,11 +58,35 @@ export function ThemeCursor() {
       root.style.setProperty("--caret-h", `${Math.min(30, Math.max(14, (size || 16) * 1.2)).toFixed(1)}px`);
     };
 
+    /** Whole device pixels only. On a scaled screen (125%, 150%) a CSS pixel is a fraction of a device
+     * one, and a part drawn between pixels has its edges rounded one way on the left and the other on
+     * the right, so the frame sits crooked around the dot depending on where the pointer is. */
+    const snap = (value: number) => {
+      const scale = window.devicePixelRatio || 1;
+      return Math.round(value * scale) / scale;
+    };
+    const place = (px: number, py: number) => `translate3d(${snap(px)}px, ${snap(py)}px, 0)`;
+    const publish = () => {
+      ringPosition.x = snap(x) + snap(ringX - x);
+      ringPosition.y = snap(y) + snap(ringY - y);
+      ringPosition.on = true;
+    };
+
     const tick = () => {
       ringX += (x - ringX) * ease;
       ringY += (y - ringY) * ease;
-      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
-      frame = Math.abs(x - ringX) > 0.1 || Math.abs(y - ringY) > 0.1 ? requestAnimationFrame(tick) : 0;
+      // The ease only ever approaches the pointer, so close the last pixel: a ring left a fraction off
+      // centre is drawn blurred and sits visibly crooked around the dot.
+      const settled = Math.abs(x - ringX) < 0.5 && Math.abs(y - ringY) < 0.5;
+      if (settled) {
+        ringX = x;
+        ringY = y;
+      }
+      // The ring rides inside the dot's layer and only trails it by this offset, so at rest the two
+      // are drawn from the same origin and cannot be off centre from each other.
+      ring.style.transform = place(ringX - x, ringY - y);
+      publish();
+      frame = settled ? 0 : requestAnimationFrame(tick);
     };
 
     const handleMove = (event: PointerEvent) => {
@@ -75,7 +100,8 @@ export function ThemeCursor() {
         document.documentElement.classList.add("has-cursor");
       }
       root.classList.add("is-on");
-      dot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      dot.style.transform = place(x, y);
+      publish();
       setState(stateOf(event.target));
       syncCaret(event.target);
       if (!frame) frame = requestAnimationFrame(tick);
@@ -114,15 +140,16 @@ export function ThemeCursor() {
       window.removeEventListener("blur", handleLeave);
       document.documentElement.removeEventListener("pointerleave", handleLeave);
       document.documentElement.classList.remove("has-cursor");
+      ringPosition.on = false;
     };
   }, []);
 
   return (
     <div ref={rootRef} className="theme-cursor" data-state="default" aria-hidden="true">
-      <span ref={ringRef} className="tc-pos">
-        <span className="tc-ring" />
-      </span>
       <span ref={dotRef} className="tc-pos">
+        <span ref={ringRef} className="tc-pos">
+          <span className="tc-ring" />
+        </span>
         <span className="tc-dot" />
         <svg className="tc-arrow" viewBox="0 0 14 21" focusable="false" shapeRendering="crispEdges">
           <path d="M0 0h2v2h2v2h2v2h2v2h2v2h2v2H8v2h2v2h2v4h-3v-4H7v-2H5v2H3v2H0z" />

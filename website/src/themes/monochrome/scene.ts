@@ -1,6 +1,7 @@
 import type { Rgb, SceneEnv, SceneFactory } from "../shared/scene/types";
 import { makeLayer, rgba } from "../shared/scene/util";
 import { createWorld } from "../shared/scene/world";
+import { ringPosition } from "../shared/cursor/ringPosition";
 import { kinds } from "./objects";
 
 interface Mark {
@@ -67,18 +68,21 @@ export const createScene: SceneFactory = (canvas, _env, objects) => {
 
     // the cursor
     if (e.seen) {
-      const x = e.mx;
-      const y = e.my;
+      // Centred on the cursor's own frame when there is one, so the circle sits exactly in the square.
+      const x = ringPosition.on ? ringPosition.x : e.mx;
+      const y = ringPosition.on ? ringPosition.y : e.my;
       const speed = Math.hypot(e.vx, e.vy);
       ringOpen += (14 + Math.min(46, speed / 40) - ringOpen) * 0.12;
       g!.strokeStyle = rgba(ink, 0.16);
-      g!.lineWidth = 1;
+      // One device pixel wide, centred on the pixel the frame is centred on.
+      g!.lineWidth = 1 / e.dpr;
       g!.beginPath();
-      g!.moveTo(0, y + 0.5);
-      g!.lineTo(e.w, y + 0.5);
-      g!.moveTo(x + 0.5, 0);
-      g!.lineTo(x + 0.5, e.h);
+      g!.moveTo(0, y);
+      g!.lineTo(e.w, y);
+      g!.moveTo(x, 0);
+      g!.lineTo(x, e.h);
       g!.stroke();
+      g!.lineWidth = 1;
       g!.strokeStyle = rgba(ink, 0.7);
       g!.beginPath();
       g!.arc(x, y, ringOpen + pulse, 0, 6.2832);
