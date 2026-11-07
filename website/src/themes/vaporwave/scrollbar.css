@@ -1,0 +1,28 @@
+/* The vaporwave scrollbar: an old operating system's, a dithered rail with a square raised bar in the
+   two accent colours. Same 10px as every style, so the page never shifts when the style changes. */
+:root[data-style="vaporwave"]::-webkit-scrollbar-track,
+:root[data-style="vaporwave"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-track {
+  background: conic-gradient(var(--color-surface) 25%, var(--color-surface-2) 0 50%, var(--color-surface) 0 75%, var(--color-surface-2) 0) 0 0 / 4px 4px;
+  border-left: 2px solid var(--color-accent-2);
+}
+
+:root[data-style="vaporwave"]::-webkit-scrollbar-thumb,
+:root[data-style="vaporwave"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-accent), var(--color-accent-2));
+  border: 2px solid;
+  border-color: rgba(255, 255, 255, 0.85) #2a1450 #2a1450 rgba(255, 255, 255, 0.85);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+:root[data-style="vaporwave"]::-webkit-scrollbar-thumb:active,
+:root[data-style="vaporwave"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-thumb:active {
+  border-color: #2a1450 rgba(255, 255, 255, 0.85) rgba(255, 255, 255, 0.85) #2a1450;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  :root[data-style="vaporwave"],
+  :root[data-style="vaporwave"] :is(.custom-scrollbar, .terminal-scroll) {
+    scrollbar-color: var(--color-accent) var(--color-surface-2);
+  }
+}

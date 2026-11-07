@@ -1,0 +1,28 @@
+/* The chrome scrollbar: a machined rail with a bevelled bar of brushed metal that catches the light
+   across its width. Same 10px as every style, so the page never shifts when the style changes. */
+:root[data-style="chrome"]::-webkit-scrollbar-track,
+:root[data-style="chrome"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-track {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.55), rgba(255, 255, 255, 0.05) 40%, rgba(0, 0, 0, 0.35)), var(--color-bg);
+  border-left: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+
+:root[data-style="chrome"]::-webkit-scrollbar-thumb,
+:root[data-style="chrome"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #565e6e 0%, #eef2fa 34%, #8d96a8 58%, #353b47 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-bottom-color: rgba(0, 0, 0, 0.6);
+  border-radius: 3px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+}
+
+:root[data-style="chrome"]::-webkit-scrollbar-thumb:hover,
+:root[data-style="chrome"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #6b7488 0%, #ffffff 34%, #a3acbe 58%, #454c5a 100%);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  :root[data-style="chrome"],
+  :root[data-style="chrome"] :is(.custom-scrollbar, .terminal-scroll) {
+    scrollbar-color: #b8c0d0 var(--color-bg);
+  }
+}

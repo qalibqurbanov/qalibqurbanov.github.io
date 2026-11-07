@@ -87,12 +87,18 @@ export function CustomCursor() {
     const g = canvas?.getContext("2d");
     if (!root || !ring || !dot || !canvas || !g) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    const ease = prefersReducedMotion() ? 1 : 0.2;
+    // How fast each part closes on the pointer, per second: the dot follows closely, the ring lazily.
+    const calm = prefersReducedMotion();
+    const DOT_SPEED = 90;
+    const RING_SPEED = 20;
 
     let x = 0;
     let y = 0;
+    let dotX = 0;
+    let dotY = 0;
     let ringX = 0;
     let ringY = 0;
+    let lastFrame = 0;
     let frame = 0;
     let scrollFrame = 0;
     let seen = false;
@@ -263,11 +269,20 @@ export function CustomCursor() {
       root.dataset.state = next;
     };
 
-    const tick = () => {
-      ringX += (x - ringX) * ease;
-      ringY += (y - ringY) * ease;
+    const tick = (now: number) => {
+      // By the clock, not the frame, so the glide feels the same on a 60 and a 144 Hz screen.
+      const dt = Math.min(0.05, Math.max(0.001, (now - lastFrame) / 1000));
+      lastFrame = now;
+      const kDot = calm ? 1 : 1 - Math.exp(-DOT_SPEED * dt);
+      const kRing = calm ? 1 : 1 - Math.exp(-RING_SPEED * dt);
+      dotX += (x - dotX) * kDot;
+      dotY += (y - dotY) * kDot;
+      ringX += (x - ringX) * kRing;
+      ringY += (y - ringY) * kRing;
+      dot.style.transform = `translate3d(${dotX}px, ${dotY}px, 0)`;
       ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
-      frame = Math.abs(x - ringX) > 0.1 || Math.abs(y - ringY) > 0.1 ? requestAnimationFrame(tick) : 0;
+      const moving = Math.abs(x - dotX) > 0.1 || Math.abs(y - dotY) > 0.1 || Math.abs(x - ringX) > 0.1 || Math.abs(y - ringY) > 0.1;
+      frame = moving ? requestAnimationFrame(tick) : 0;
     };
 
     const handleMove = (event: PointerEvent) => {
@@ -276,13 +291,12 @@ export function CustomCursor() {
       y = event.clientY;
       if (!seen) {
         seen = true;
-        ringX = x;
-        ringY = y;
+        dotX = ringX = x;
+        dotY = ringY = y;
         document.documentElement.classList.add("has-cursor");
         stopIdle ??= subscribeTick(idleTick);
       }
       root.classList.add("is-on");
-      dot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       setState(stateOf(event.target));
       syncCaret(event.target);
       const now = performance.now();
@@ -291,7 +305,10 @@ export function CustomCursor() {
       pts.push({ x, y, t: now });
       if (pts.length > MAX_POINTS) pts.shift();
       startRibbon();
-      if (!frame) frame = requestAnimationFrame(tick);
+      if (!frame) {
+        lastFrame = performance.now();
+        frame = requestAnimationFrame(tick);
+      }
     };
 
     // Scrolling moves content under a still pointer; re-check what is there.

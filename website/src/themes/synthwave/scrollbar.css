@@ -1,0 +1,29 @@
+/* The synthwave scrollbar: a neon tube on a dark rail with a faint line down it, glowing from pink to
+   cyan. Same 10px as every style, so the page never shifts when the style changes. */
+:root[data-style="synthwave"]::-webkit-scrollbar-track,
+:root[data-style="synthwave"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-track {
+  background:
+    linear-gradient(90deg, transparent calc(50% - 0.5px), color-mix(in srgb, var(--color-accent-2) 50%, transparent) 0 calc(50% + 0.5px), transparent),
+    var(--color-bg);
+}
+
+:root[data-style="synthwave"]::-webkit-scrollbar-thumb,
+:root[data-style="synthwave"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-accent), var(--color-accent-2)) padding-box;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  box-shadow: 0 0 8px var(--glow-accent), 0 0 3px var(--color-accent);
+}
+
+:root[data-style="synthwave"]::-webkit-scrollbar-thumb:hover,
+:root[data-style="synthwave"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-thumb:hover {
+  border-width: 2px;
+  box-shadow: 0 0 14px var(--glow-accent-2), 0 0 5px var(--color-accent-2);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  :root[data-style="synthwave"],
+  :root[data-style="synthwave"] :is(.custom-scrollbar, .terminal-scroll) {
+    scrollbar-color: var(--color-accent) var(--color-bg);
+  }
+}

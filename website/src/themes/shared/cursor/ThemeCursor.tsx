@@ -34,12 +34,19 @@ export function ThemeCursor() {
     const ring = ringRef.current;
     if (!root || !dot || !ring) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    const ease = prefersReducedMotion() ? 1 : 0.18;
+    // How fast each part closes on the pointer, per second; the dot follows closely and the ring lazily.
+    // Reduced motion follows exactly.
+    const calm = prefersReducedMotion();
+    const DOT_SPEED = 90;
+    const RING_SPEED = 20;
 
     let x = 0;
     let y = 0;
+    let dotX = 0;
+    let dotY = 0;
     let ringX = 0;
     let ringY = 0;
+    let last = 0;
     let frame = 0;
     let scrollFrame = 0;
     let seen = false;
@@ -67,24 +74,36 @@ export function ThemeCursor() {
     };
     const place = (px: number, py: number) => `translate3d(${snap(px)}px, ${snap(py)}px, 0)`;
     const publish = () => {
-      ringPosition.x = snap(x) + snap(ringX - x);
-      ringPosition.y = snap(y) + snap(ringY - y);
+      ringPosition.x = snap(dotX) + snap(ringX - dotX);
+      ringPosition.y = snap(dotY) + snap(ringY - dotY);
       ringPosition.on = true;
     };
 
-    const tick = () => {
-      ringX += (x - ringX) * ease;
-      ringY += (y - ringY) * ease;
-      // The ease only ever approaches the pointer, so close the last pixel: a ring left a fraction off
-      // centre is drawn blurred and sits visibly crooked around the dot.
-      const settled = Math.abs(x - ringX) < 0.5 && Math.abs(y - ringY) < 0.5;
+    const tick = (now: number) => {
+      // By the clock, not the frame, so the glide feels the same on a 60 and a 144 Hz screen.
+      const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
+      last = now;
+      const kDot = calm ? 1 : 1 - Math.exp(-DOT_SPEED * dt);
+      const kRing = calm ? 1 : 1 - Math.exp(-RING_SPEED * dt);
+      dotX += (x - dotX) * kDot;
+      dotY += (y - dotY) * kDot;
+      ringX += (x - ringX) * kRing;
+      ringY += (y - ringY) * kRing;
+      // The ease only ever approaches the pointer, so close the last pixel: a part left a fraction off
+      // centre is drawn blurred and sits visibly crooked around the other.
+      if (Math.abs(x - dotX) < 0.5 && Math.abs(y - dotY) < 0.5) {
+        dotX = x;
+        dotY = y;
+      }
+      const settled = dotX === x && dotY === y && Math.abs(x - ringX) < 0.5 && Math.abs(y - ringY) < 0.5;
       if (settled) {
         ringX = x;
         ringY = y;
       }
+      dot.style.transform = place(dotX, dotY);
       // The ring rides inside the dot's layer and only trails it by this offset, so at rest the two
       // are drawn from the same origin and cannot be off centre from each other.
-      ring.style.transform = place(ringX - x, ringY - y);
+      ring.style.transform = place(ringX - dotX, ringY - dotY);
       publish();
       frame = settled ? 0 : requestAnimationFrame(tick);
     };
@@ -95,16 +114,18 @@ export function ThemeCursor() {
       y = event.clientY;
       if (!seen) {
         seen = true;
-        ringX = x;
-        ringY = y;
+        dotX = ringX = x;
+        dotY = ringY = y;
+        dot.style.transform = place(x, y);
         document.documentElement.classList.add("has-cursor");
       }
       root.classList.add("is-on");
-      dot.style.transform = place(x, y);
-      publish();
       setState(stateOf(event.target));
       syncCaret(event.target);
-      if (!frame) frame = requestAnimationFrame(tick);
+      if (!frame) {
+        last = performance.now();
+        frame = requestAnimationFrame(tick);
+      }
     };
 
     // Scrolling moves content under a still pointer; look again at what is there.

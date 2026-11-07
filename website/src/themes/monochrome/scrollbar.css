@@ -1,0 +1,29 @@
+/* The monochrome scrollbar: a ruled line with a solid square bar on it that inverts under the pointer.
+   Same 10px as every style, so the page never shifts when the style changes. */
+:root[data-style="monochrome"]::-webkit-scrollbar-track,
+:root[data-style="monochrome"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-track {
+  background: var(--color-bg);
+  border-left: 1px solid var(--color-text);
+}
+
+:root[data-style="monochrome"]::-webkit-scrollbar-thumb,
+:root[data-style="monochrome"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-thumb {
+  background: var(--color-text);
+  border: 0;
+  border-left: 3px solid var(--color-bg);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+:root[data-style="monochrome"]::-webkit-scrollbar-thumb:hover,
+:root[data-style="monochrome"] :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-thumb:hover {
+  background: var(--color-bg);
+  border: 1px solid var(--color-text);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  :root[data-style="monochrome"],
+  :root[data-style="monochrome"] :is(.custom-scrollbar, .terminal-scroll) {
+    scrollbar-color: var(--color-text) var(--color-bg);
+  }
+}
