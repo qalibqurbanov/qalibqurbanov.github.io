@@ -4,13 +4,13 @@
 /* Fields: a sunken box, as the old interfaces drew them. */
 :root[data-style="vaporwave"] :is(input, textarea).selectable[name] {
   border: 2px solid;
-  border-color: #2a1450 rgba(255, 255, 255, 0.7) rgba(255, 255, 255, 0.7) #2a1450;
+  border-color: rgba(0, 0, 0, 0.8) rgba(255, 255, 255, 0.7) rgba(255, 255, 255, 0.7) rgba(0, 0, 0, 0.8);
   border-radius: 0;
   background: color-mix(in srgb, var(--color-bg) 60%, var(--color-surface-2));
 }
 
 :root[data-style="vaporwave"] :is(input, textarea).selectable[name]:focus {
-  border-color: #2a1450 rgba(255, 255, 255, 0.7) rgba(255, 255, 255, 0.7) #2a1450;
+  border-color: rgba(0, 0, 0, 0.8) rgba(255, 255, 255, 0.7) rgba(255, 255, 255, 0.7) rgba(0, 0, 0, 0.8);
   box-shadow: 0 0 0 2px var(--color-accent), 3px 3px 0 2px var(--color-accent-2);
 }
 
@@ -130,4 +130,10 @@
   height: 4px;
   background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
   box-shadow: 2px 2px 0 0 color-mix(in srgb, var(--color-text) 25%, transparent);
+}
+
+/* The menu that drops down on a phone covers the page: solid, so the text under it cannot show through. */
+:root[data-style="vaporwave"] header div.bg-bg\/95 {
+  background: var(--color-surface);
+  border-bottom: 2px solid var(--color-accent-2);
 }

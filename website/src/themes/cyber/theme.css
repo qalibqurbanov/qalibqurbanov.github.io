@@ -627,14 +627,6 @@ html::-webkit-scrollbar-button,
   display: block;
 }
 
-/* Generic scroll-reactive layer for anything living in the fixed ambient
-   background (dots, blobs, whatever gets added later). `--scroll-y` is kept
-   up to date on <html> by useScrollParallax(); a layer just declares how
-   strongly it should respond via `--depth` (negative = drifts up as the page
-   scrolls down, i.e. reads as farther away; 0 = ignores scroll entirely).
-   Consumers set only `--depth` inline — no JS wiring needed per element.
-   The offset is clamped so a long page can't drift a layer far enough to
-   expose empty space past the edge of its fixed, viewport-sized parent. */
 /* A soft glow as a plain radial gradient: it looks like the blurred disc it
    replaced but costs nothing to repaint, unlike a large CSS blur. */
 .ambient-blob {
@@ -646,12 +638,6 @@ html::-webkit-scrollbar-button,
     color-mix(in srgb, var(--blob) var(--blob-a), transparent) 0%,
     color-mix(in srgb, var(--blob) calc(var(--blob-a) * 0.55), transparent) 45%,
     transparent 100%
-  );
-}
-
-.parallax-layer {
-  transform: translateY(
-    clamp(-64px, calc(var(--scroll-y, 0) * var(--depth, 0) * 1px), 64px)
   );
 }
 

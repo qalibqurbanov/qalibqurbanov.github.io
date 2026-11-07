@@ -97,6 +97,24 @@ const PROFILE_LINKS: Array<[label: string, url: string]> = [
 
 const escapeAttr = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
+/** The picture link previews show (public/og/<language>.jpg, 1200x630, with the name and title in that language),
+ * and the card type that asks the big-image layout on X/Twitter. */
+function previewTags(code: string, alt: string, title: string, description: string): string[] {
+  const image = `${SITE_URL}/og/${code}.jpg`;
+  return [
+    `    <meta property="og:image" content="${image}" />`,
+    `    <meta property="og:image:type" content="image/jpeg" />`,
+    `    <meta property="og:image:width" content="1200" />`,
+    `    <meta property="og:image:height" content="630" />`,
+    `    <meta property="og:image:alt" content="${escapeAttr(alt)}" />`,
+    `    <meta name="twitter:card" content="summary_large_image" />`,
+    `    <meta name="twitter:title" content="${escapeAttr(title)}" />`,
+    `    <meta name="twitter:description" content="${escapeAttr(description)}" />`,
+    `    <meta name="twitter:image" content="${image}" />`,
+    `    <meta name="twitter:image:alt" content="${escapeAttr(alt)}" />`,
+  ];
+}
+
 /** The few font files the first screen needs, per language, so they start downloading with the HTML
  * instead of waiting for the CSS and the script. Names are matched in the build's hashed assets. */
 const FIRST_SCREEN_FONTS: Record<string, string[]> = {
@@ -140,6 +158,7 @@ function localize(template: string, page: LocalePage, assets: string[]): string 
     `    <meta property="og:title" content="${escapeAttr(page.title)}" />`,
     `    <meta property="og:description" content="${escapeAttr(page.description)}" />`,
     `    <meta property="og:locale" content="${page.ogLocale}" />`,
+    ...previewTags(page.code, `${page.name} — ${page.jobTitle}`, page.title, page.description),
     ...PAGES.filter((p) => p !== page).map(
       (p) => `    <meta property="og:locale:alternate" content="${p.ogLocale}" />`,
     ),
@@ -198,6 +217,7 @@ export function linksHtml(template: string): string {
     `    <meta property="og:url" content="${url}" />`,
     `    <meta property="og:title" content="${escapeAttr(title)}" />`,
     `    <meta property="og:description" content="${escapeAttr(description)}" />`,
+    ...previewTags(english.code, `${english.name} — ${english.jobTitle}`, title, description),
   ].join("\n");
   const plainText = [
     "    <noscript>",
@@ -289,6 +309,7 @@ export function localizedHtml(): Plugin {
         fs.writeFileSync(target, localize(template, page, assets));
       }
 
+      const built = new Date().toISOString().slice(0, 10);
       const urls = PAGES.map((page) => {
         const links = [...PAGES, { code: "x-default", path: "/" }]
           .map(
@@ -296,9 +317,9 @@ export function localizedHtml(): Plugin {
               `      <xhtml:link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`,
           )
           .join("\n");
-        return `  <url>\n    <loc>${SITE_URL + page.path}</loc>\n${links}\n  </url>`;
+        return `  <url>\n    <loc>${SITE_URL + page.path}</loc>\n    <lastmod>${built}</lastmod>\n${links}\n  </url>`;
       }).join("\n");
-      const linksUrl = `  <url>\n    <loc>${SITE_URL}/links/</loc>\n  </url>`;
+      const linksUrl = `  <url>\n    <loc>${SITE_URL}/links/</loc>\n    <lastmod>${built}</lastmod>\n  </url>`;
       fs.writeFileSync(
         path.join(outDir, "sitemap.xml"),
         `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n${linksUrl}\n</urlset>\n`,

@@ -199,7 +199,7 @@ export function modelKind<D = Record<string, unknown>>(getStage: () => Stage | n
       state.root.userData.stageRoot = true;
       state.root.visible = false;
       state.root.rotation.set(pick(pose.pitch), pick(pose.yaw), pick(pose.roll));
-      state.data = { ...(state.data as object), yaw0: state.root.rotation.y, pitch0: state.root.rotation.x, roll0: state.root.rotation.z } as D;
+      state.data = { ...(state.data as object), yaw0: state.root.rotation.y, pitch0: state.root.rotation.x, roll0: state.root.rotation.z } as unknown as Record<string, unknown> & D;
       return state;
     },
     update(state, e, x, y, r) {

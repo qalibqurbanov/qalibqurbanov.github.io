@@ -61,15 +61,3 @@ export function makeLayer(w: number, h: number): [HTMLCanvasElement, CanvasRende
   return [c, g];
 }
 
-/** A soft round glow sprite in one colour, to stamp with `drawImage`. */
-export function glowSprite(color: Rgb, size = 64): HTMLCanvasElement {
-  const [c, g] = makeLayer(size, size);
-  const r = size / 2;
-  const grad = g.createRadialGradient(r, r, 0, r, r, r);
-  grad.addColorStop(0, rgba(color, 1));
-  grad.addColorStop(0.35, rgba(color, 0.35));
-  grad.addColorStop(1, rgba(color, 0));
-  g.fillStyle = grad;
-  g.fillRect(0, 0, size, size);
-  return c;
-}

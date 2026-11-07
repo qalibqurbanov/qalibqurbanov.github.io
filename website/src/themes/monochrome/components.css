@@ -128,3 +128,9 @@
   height: 3px;
   background: var(--color-text);
 }
+
+/* The menu that drops down on a phone covers the page: solid, so the text under it cannot show through. */
+:root[data-style="monochrome"] header div.bg-bg\/95 {
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-text);
+}

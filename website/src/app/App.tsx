@@ -53,8 +53,11 @@ export function App() {
       <TooltipLayer />
       <OnDemand component={ContactModal} event={OPEN_CONTACT_EVENT} />
 
+      <a href="#main" className="skip-link">
+        {ui.nav.skipToContent}
+      </a>
       <Navbar />
-      <main>
+      <main id="main" tabIndex={-1}>
         {linksPage ? (
           <LinksPage />
         ) : notFound ? (

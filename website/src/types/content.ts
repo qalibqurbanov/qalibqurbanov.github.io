@@ -245,6 +245,7 @@ export interface UiStrings {
     toggleMenu: string;
     scrollToAbout: string;
     commandPaletteHint: string;
+    skipToContent: string;
   };
   backToTop: string;
   resumeView: {

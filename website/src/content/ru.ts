@@ -259,6 +259,7 @@ const ru: Content = {
       toggleMenu: "Открыть/закрыть меню",
       scrollToAbout: "Перейти к разделу «Обо мне»",
       commandPaletteHint: "Поиск",
+      skipToContent: "Перейти к содержимому",
     },
     backToTop: "Наверх",
     resumeView: {

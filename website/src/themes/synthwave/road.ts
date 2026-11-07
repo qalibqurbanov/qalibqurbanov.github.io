@@ -1,51 +1,8 @@
 import type { Rgb, SceneEnv } from "../shared/scene/types";
-import { mix, noise2, rgba } from "../shared/scene/util";
+import { mix, rgba } from "../shared/scene/util";
 
 const HOT: Rgb = [255, 42, 157];
 const CYAN: Rgb = [34, 229, 255];
-
-/** A skyline on the horizon: towers of different heights in dark silhouette with lit windows and a
- * few neon edges, drawn between the mountains and the road. */
-export function drawSkyline(g: CanvasRenderingContext2D, e: SceneEnv, horizon: number) {
-  const base = horizon + 2;
-  let x = e.w * 0.18;
-  const end = e.w * 0.82;
-  let i = 0;
-  while (x < end) {
-    const w = 10 + noise2(i * 1.7, 3) * 26;
-    const centre = 1 - Math.abs((x - e.w / 2) / (e.w * 0.32));
-    const h = (18 + noise2(i * 0.9, 8) * 110) * (0.35 + Math.max(0, centre) * 0.9);
-    g.fillStyle = rgba(e.light ? [64, 30, 100] : [14, 6, 34], 0.96);
-    g.fillRect(x, base - h, w, h);
-    // windows
-    for (let wy = base - h + 4; wy < base - 3; wy += 6) {
-      for (let wx = x + 2; wx < x + w - 2; wx += 5) {
-        const lit = noise2(wx * 0.5 + i, wy * 0.5);
-        if (lit < 0.62) continue;
-        g.fillStyle = rgba(lit > 0.86 ? mix(CYAN, [255, 255, 255], 0.3) : mix(HOT, [255, 214, 190], 0.4), 0.78);
-        g.fillRect(wx, wy, 2, 3);
-      }
-    }
-    if (i % 5 === 0) {
-      g.fillStyle = rgba(CYAN, 0.8);
-      g.fillRect(x, base - h, w, 1.2);
-    }
-    if (i % 7 === 3) {
-      g.strokeStyle = rgba([60, 40, 90], 0.9);
-      g.beginPath();
-      g.moveTo(x + w / 2, base - h);
-      g.lineTo(x + w / 2, base - h - 14);
-      g.stroke();
-      const beat = 0.5 + 0.5 * Math.sin(e.t * 1.3 + i);
-      g.fillStyle = rgba(HOT, 0.4 + beat * 0.6);
-      g.beginPath();
-      g.arc(x + w / 2, base - h - 14, 1.6, 0, Math.PI * 2);
-      g.fill();
-    }
-    x += w + 1 + noise2(i, 5) * 3;
-    i++;
-  }
-}
 
 /** Cars drive on the road: drawn wedges with neon underglow, tail lights going away, headlights coming. */
 const SPAWN_CARS = true;

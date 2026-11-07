@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 
 import { idleProgress, idleShow, wake } from "@/lib/idle";
 import { FIELD, GRAB, LINK } from "@/lib/interactive";
+import { trackCursor } from "@/lib/cursorTracker";
 import { subscribeTick } from "@/lib/ticker";
-import { prefersReducedMotion } from "@/hooks/glitch";
 import { isNotFoundPage } from "@/lib/notFound";
 
 type CursorState = "default" | "link" | "field" | "code" | "grab" | "no" | "help" | "download";
@@ -87,22 +87,6 @@ export function CustomCursor() {
     const g = canvas?.getContext("2d");
     if (!root || !ring || !dot || !canvas || !g) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    // How fast each part closes on the pointer, per second: the dot follows closely, the ring lazily.
-    const calm = prefersReducedMotion();
-    const DOT_SPEED = 90;
-    const RING_SPEED = 20;
-
-    let x = 0;
-    let y = 0;
-    let dotX = 0;
-    let dotY = 0;
-    let ringX = 0;
-    let ringY = 0;
-    let lastFrame = 0;
-    let frame = 0;
-    let scrollFrame = 0;
-    let seen = false;
-    let state: CursorState = "default";
     // While the visitor is away, the ring fills and the dot turns into a butterfly:
     // the countdown to the butterflies (see lib/idle). Only touched when it changes.
     let stopIdle: (() => void) | null = null;
@@ -190,7 +174,7 @@ export function CustomCursor() {
       if (++rFrames % 60 === 0) readColors();
       // Ease toward what the current state wants, quickly but softly.
       const k = 1 - Math.exp(-14 * dt);
-      const tgt = LOOK[state];
+      const tgt = LOOK[(root.dataset.state as CursorState) ?? "default"];
       look.life += (tgt.life - look.life) * k;
       look.width += (tgt.width - look.width) * k;
       for (let i = 0; i < 3; i++) {
@@ -256,100 +240,32 @@ export function CustomCursor() {
       ribbonFrame = requestAnimationFrame(ribbonTick);
     };
 
-    /** The I-beam is as tall as the line of text it is over. */
-    const syncCaret = (target: EventTarget | null) => {
-      if (!(target instanceof Element) || (state !== "field" && state !== "code")) return;
-      const size = parseFloat(getComputedStyle(target).fontSize);
-      root.style.setProperty("--caret-h", `${Math.min(30, Math.max(12, (size || 16) * 1.15)).toFixed(1)}px`);
-    };
-
-    const setState = (next: CursorState) => {
-      if (next === state) return;
-      state = next;
-      root.dataset.state = next;
-    };
-
-    const tick = (now: number) => {
-      // By the clock, not the frame, so the glide feels the same on a 60 and a 144 Hz screen.
-      const dt = Math.min(0.05, Math.max(0.001, (now - lastFrame) / 1000));
-      lastFrame = now;
-      const kDot = calm ? 1 : 1 - Math.exp(-DOT_SPEED * dt);
-      const kRing = calm ? 1 : 1 - Math.exp(-RING_SPEED * dt);
-      dotX += (x - dotX) * kDot;
-      dotY += (y - dotY) * kDot;
-      ringX += (x - ringX) * kRing;
-      ringY += (y - ringY) * kRing;
-      dot.style.transform = `translate3d(${dotX}px, ${dotY}px, 0)`;
-      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
-      const moving = Math.abs(x - dotX) > 0.1 || Math.abs(y - dotY) > 0.1 || Math.abs(x - ringX) > 0.1 || Math.abs(y - ringY) > 0.1;
-      frame = moving ? requestAnimationFrame(tick) : 0;
-    };
-
-    const handleMove = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse") return;
-      x = event.clientX;
-      y = event.clientY;
-      if (!seen) {
-        seen = true;
-        dotX = ringX = x;
-        dotY = ringY = y;
-        document.documentElement.classList.add("has-cursor");
+    const stopTracking = trackCursor({
+      root,
+      dot,
+      ring,
+      stateOf,
+      caret: { states: ["field", "code"], min: 12, max: 30, ratio: 1.15 },
+      onFirstMove: () => {
         stopIdle ??= subscribeTick(idleTick);
-      }
-      root.classList.add("is-on");
-      setState(stateOf(event.target));
-      syncCaret(event.target);
-      const now = performance.now();
-      const last = pts[pts.length - 1];
-      if (last) speed += ((Math.hypot(x - last.x, y - last.y) / Math.max(1, now - last.t)) * 1000 - speed) * 0.3;
-      pts.push({ x, y, t: now });
-      if (pts.length > MAX_POINTS) pts.shift();
-      startRibbon();
-      if (!frame) {
-        lastFrame = performance.now();
-        frame = requestAnimationFrame(tick);
-      }
-    };
-
-    // Scrolling moves content under a still pointer; re-check what is there.
-    const handleScroll = () => {
-      if (!seen || scrollFrame) return;
-      scrollFrame = requestAnimationFrame(() => {
-        scrollFrame = 0;
-        const under = document.elementFromPoint(x, y);
-        setState(stateOf(under));
-        syncCaret(under);
-      });
-    };
-
-    const handleDown = (event: PointerEvent) => {
-      if (event.pointerType === "mouse") root.classList.add("is-down");
-    };
-    const handleUp = () => root.classList.remove("is-down");
-    const handleLeave = () => {
-      root.classList.remove("is-on", "is-down");
-      pts.length = 0;
-    };
-
-    window.addEventListener("pointermove", handleMove, { passive: true });
-    window.addEventListener("pointerdown", handleDown, { passive: true });
-    window.addEventListener("pointerup", handleUp, { passive: true });
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("blur", handleLeave);
-    document.documentElement.addEventListener("pointerleave", handleLeave);
+      },
+      onMove: (x, y) => {
+        const now = performance.now();
+        const last = pts[pts.length - 1];
+        if (last) speed += ((Math.hypot(x - last.x, y - last.y) / Math.max(1, now - last.t)) * 1000 - speed) * 0.3;
+        pts.push({ x, y, t: now });
+        if (pts.length > MAX_POINTS) pts.shift();
+        startRibbon();
+      },
+      onLeave: () => {
+        pts.length = 0;
+      },
+    });
     return () => {
-      cancelAnimationFrame(frame);
-      cancelAnimationFrame(scrollFrame);
+      stopTracking();
       cancelAnimationFrame(ribbonFrame);
       stopIdle?.();
       sizeWatcher.disconnect();
-      window.removeEventListener("pointermove", handleMove);
-      window.removeEventListener("pointerdown", handleDown);
-      window.removeEventListener("pointerup", handleUp);
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("blur", handleLeave);
-      document.documentElement.removeEventListener("pointerleave", handleLeave);
-      document.documentElement.classList.remove("has-cursor");
     };
   }, []);
 

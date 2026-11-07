@@ -7,8 +7,13 @@ import { useMotion } from "@/motion/context";
 import type { SceneEnv, SceneFactory } from "./types";
 import { readColor } from "./util";
 
-/** Pixel ratio the scenes are drawn at. */
+/** Pixel ratio the scenes are drawn at, at most. */
 const MAX_DPR = 1.5;
+/** The scene is drawn at this share of that on a phone or a machine with few cores, and it steps down
+ * from there, to no less than MIN_QUALITY, whenever frames take longer than SLOW_FRAME_MS on average. */
+const MIN_QUALITY = 0.5;
+const SLOW_FRAME_MS = 26;
+const QUALITY_WINDOW = 45;
 
 /** Runs one theme scene on a canvas behind the page: sizes it, follows the pointer and the scroll,
  * keeps the colours current, and starts and stops the frame loop. The scene is created once per
@@ -26,7 +31,10 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
     const models = modelsRef.current;
     if (!canvas || !objects || !models) return;
     const still = motion === "off" || prefersReducedMotion();
-    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    const maxDpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    const weak = window.matchMedia("(pointer: coarse)").matches || (navigator.hardwareConcurrency || 8) <= 4;
+    let quality = weak ? 0.8 : 1;
+    const dpr = maxDpr * quality;
 
     const env: SceneEnv = {
       w: document.documentElement.clientWidth || window.innerWidth,
@@ -73,15 +81,20 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
       env.bx = env.react ? env.mx : env.w / 2;
       env.by = env.react ? env.my : env.h / 2;
       // The model canvas is sized by the stage that draws on it (three.js sets its own size).
-      canvas.width = objects.width = Math.round(env.w * dpr);
-      canvas.height = objects.height = Math.round(env.h * dpr);
+      canvas.width = objects.width = Math.round(env.w * env.dpr);
+      canvas.height = objects.height = Math.round(env.h * env.dpr);
     };
     fit();
 
     const scene = factory(canvas, env, objects, models);
+    // scrollHeight forces a layout, so it is read again only when the page's size changed, not every frame.
+    let heightStale = true;
     const measureScroll = () => {
       env.scrollY = window.scrollY;
-      env.scrollMax = Math.max(1, document.documentElement.scrollHeight - env.h);
+      if (heightStale) {
+        heightStale = false;
+        env.scrollMax = Math.max(1, document.documentElement.scrollHeight - env.h);
+      }
     };
     measureScroll();
 
@@ -90,7 +103,24 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
     let dirty = true;
     let frames = 0;
 
+    // Frames that take too long are a sign of a weak GPU: draw the scene at a lower resolution, in steps.
+    let slowFrames = 0;
+    let slowTotal = 0;
+    const watchSpeed = (frameMs: number) => {
+      slowTotal += Math.min(frameMs, 100);
+      if (++slowFrames < QUALITY_WINDOW) return;
+      const average = slowTotal / slowFrames;
+      slowFrames = 0;
+      slowTotal = 0;
+      if (average > SLOW_FRAME_MS && quality > MIN_QUALITY && !document.hidden) {
+        quality = Math.max(MIN_QUALITY, quality * 0.8);
+        env.dpr = maxDpr * quality;
+        onResize();
+      }
+    };
+
     const draw = (now: number) => {
+      if (!still && now - start > 3000) watchSpeed(now - last);
       env.dt = Math.min(0.064, Math.max(0.001, (now - last) / 1000));
       last = now;
       env.t = (now - start) / 1000;
@@ -121,6 +151,7 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
     };
     const onPress = (event: PointerEvent) => scene.press?.(event.clientX, event.clientY, env);
     const onResize = () => {
+      heightStale = true;
       fit();
       scene.resize?.(env);
       dirty = true;
@@ -137,9 +168,11 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
     // The scrollbar coming or going (a dialog opens, the page gets shorter) changes the width the canvases
     // fill without any window resize.
     const sizeWatcher = new ResizeObserver(() => {
+      heightStale = true;
       if (env.w !== document.documentElement.clientWidth || env.h !== document.documentElement.clientHeight) onResize();
     });
     sizeWatcher.observe(document.documentElement);
+    sizeWatcher.observe(document.body);
 
     // A change of colour mode, colour scheme or theme shows up in the next frame.
     const watcher = new MutationObserver(() => {
@@ -159,7 +192,8 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
       }, 250);
       stop = () => window.clearInterval(id);
     } else {
-      stop = subscribeTick(draw, motion === "light" ? 33 : 0);
+      // Not drawn while a dialog covers the page: it hides the scene, and the scene is the costliest thing running.
+      stop = subscribeTick(draw, motion === "light" ? 33 : 0, true);
     }
 
     return () => {

@@ -102,7 +102,7 @@ export function vaporModels(getStage: () => Stage | null, colors: () => { accent
       zone: "side",
       weight: 3,
       pose: { yaw: [-0.35, 0.35] },
-      setup(model, state, e) {
+      setup(model, state, _e) {
         // a glowing screen laid over the glass; it is found from the model's own bounds
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());

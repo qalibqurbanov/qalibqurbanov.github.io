@@ -124,7 +124,7 @@ const torus: Kind<Torus> = {
   depth: [0.7, 1],
   reach: 1.4,
   make: (rnd) => ({ rot: rnd() * TAU, spin: (0.1 + rnd() * 0.12) * (rnd() < 0.5 ? -1 : 1), tilt: 0.35 + rnd() * 0.6, ph: rnd() * TAU }),
-  update(t, e, x, y) {
+  update(t, e, _x, y) {
     t.rot += t.spin * e.dt;
     // the cursor tips it
     if (e.seen) {

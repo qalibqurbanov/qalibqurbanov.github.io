@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { prefersReducedMotion } from "@/hooks/glitch";
+import { useEffect, useState, type RefObject } from "react";
 
 /** Returns true once the page has scrolled past `threshold` pixels. */
 export function useScrolledPast(threshold = 8): boolean {
@@ -15,16 +14,19 @@ export function useScrolledPast(threshold = 8): boolean {
   return scrolled;
 }
 
-/** Returns how far down the page the user has scrolled, as a 0-100 percentage. */
-export function useScrollProgress(): number {
-  const [progress, setProgress] = useState(0);
-
+/** Keeps the width of the referenced bar at how far down the page the user has scrolled (0-100%).
+ * It writes the style directly, so a fast scroll does not re-render the component every frame. */
+export function useScrollProgress<T extends HTMLElement>(ref: RefObject<T | null>): void {
   useEffect(() => {
     let ticking = false;
+    let last = -1;
     const apply = () => {
+      ticking = false;
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(scrollable > 0 ? Math.min(100, (window.scrollY / scrollable) * 100) : 0);
-      ticking = false;
+      const progress = scrollable > 0 ? Math.min(100, (window.scrollY / scrollable) * 100) : 0;
+      if (Math.abs(progress - last) < 0.1) return;
+      last = progress;
+      if (ref.current) ref.current.style.width = `${progress}%`;
     };
     const onScroll = () => {
       if (ticking) return;
@@ -38,44 +40,5 @@ export function useScrollProgress(): number {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, []);
-
-  return progress;
-}
-
-/**
- * Publishes the page's scroll offset as the `--scroll-y` CSS custom property
- * on <html>, rAF-throttled and written directly to the DOM (no React state,
- * no re-render). Any element anywhere — now or added later — can react to
- * scroll purely in CSS by reading `var(--scroll-y)`; the `.parallax-layer`
- * utility in index.css is the standard way to consume it. Skips updates
- * under prefers-reduced-motion so parallax never fights that preference.
- */
-export function useScrollParallax(): void {
-  useEffect(() => {
-    const root = document.documentElement;
-    if (prefersReducedMotion()) {
-      root.style.setProperty("--scroll-y", "0");
-      return;
-    }
-
-    let ticking = false;
-    const apply = () => {
-      root.style.setProperty("--scroll-y", String(window.scrollY));
-      ticking = false;
-    };
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(apply);
-    };
-
-    apply();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
+  }, [ref]);
 }

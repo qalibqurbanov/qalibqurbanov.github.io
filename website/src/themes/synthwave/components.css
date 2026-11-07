@@ -132,3 +132,9 @@
   background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
   box-shadow: 0 0 8px var(--color-accent), 0 0 16px var(--glow-accent);
 }
+
+/* The menu that drops down on a phone covers the page: solid, so the text under it cannot show through. */
+:root[data-style="synthwave"] header div.bg-bg\/95 {
+  background: var(--color-bg);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-accent-2) 55%, transparent);
+}

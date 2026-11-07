@@ -259,6 +259,7 @@ const az: Content = {
       toggleMenu: "Menyunu aç/bağla",
       scrollToAbout: "Haqqımda bölməsinə keç",
       commandPaletteHint: "Axtar",
+      skipToContent: "Məzmuna keç",
     },
     backToTop: "Yuxarı qayıt",
     resumeView: {

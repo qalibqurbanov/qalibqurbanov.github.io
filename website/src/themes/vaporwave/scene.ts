@@ -121,7 +121,7 @@ export const createScene: SceneFactory = (canvas, env0, objects, models) => {
 
     if (fx) {
       world.frame(fx, e);
-      world.veil(g, e, 0.5);
+      world.veil(g!, e, 0.5);
       stage?.render(e);
       // the cursor's trail: square pixels on an 8px grid, dropping out one step at a time
       if (e.seen && !e.still) {

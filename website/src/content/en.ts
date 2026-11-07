@@ -258,6 +258,7 @@ const en: Content = {
       toggleMenu: "Toggle menu",
       scrollToAbout: "Scroll to About",
       commandPaletteHint: "Search",
+      skipToContent: "Skip to content",
     },
     backToTop: "Back to top",
     resumeView: {

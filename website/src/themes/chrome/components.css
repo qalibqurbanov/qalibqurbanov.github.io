@@ -144,3 +144,11 @@
   background: linear-gradient(90deg, #6c778c, #fff, #6c778c);
   box-shadow: 0 0 8px var(--glow-accent);
 }
+
+/* The menu that drops down on a phone covers the page: dense glass, so the text under it cannot show through. */
+:root[data-style="chrome"] header div.bg-bg\/95 {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)), color-mix(in srgb, var(--color-bg) 97%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--ch-edge);
+}

@@ -1,5 +1,5 @@
 import { ArrowLeft, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { CommandPaletteTrigger } from "@/components/command-palette/CommandPaletteTrigger";
 import { GlitchText } from "@/components/ui/GlitchText";
@@ -18,7 +18,8 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const scrolled = useScrolledPast();
-  const progress = useScrollProgress();
+  const progressRef = useRef<HTMLDivElement>(null);
+  useScrollProgress(progressRef);
   const { profile, navigation, ui } = useContent();
   const { locale } = useLocale();
   const notFound = isNotFoundPage();
@@ -45,8 +46,9 @@ export function Navbar() {
       <div ref={barRef} className="glitch-bar">
         <div className="glitch-bar-track">
           <div
+            ref={progressRef}
             className="h-full bg-gradient-to-r from-accent to-accent-2 transition-[width] duration-150 ease-out"
-            style={{ width: `${progress}%` }}
+            style={{ width: 0 }}
           />
         </div>
       </div>

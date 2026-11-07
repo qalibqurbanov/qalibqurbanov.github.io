@@ -24,7 +24,7 @@ function bandGradient(g: CanvasRenderingContext2D, x0: number, y0: number, x1: n
 }
 
 /** Where the light sits, from the cursor if it is there and from a slow drift if not. */
-function lightPos(e: SceneEnv, x: number, y: number, ph: number): { phase: number; spec: number } {
+function lightPos(e: SceneEnv, x: number, _y: number, ph: number): { phase: number; spec: number } {
   const dx = e.react ? (e.bx - x) / e.w : Math.sin(e.t * 0.08 + ph) * 0.4;
   return { phase: dx * 0.7 + ph * 0.1 + e.t * 0.02, spec: Math.min(0.9, Math.max(0.1, 0.5 + dx * 0.9)) };
 }
@@ -203,7 +203,7 @@ const rod: Kind<Rod> = {
   zone: "side",
   reach: 1.4,
   make: (rnd, r) => ({ w: r * (0.22 + rnd() * 0.12), h: r * (1.5 + rnd() * 0.8), grooves: [0.22, 0.34, 0.7, 0.8].filter(() => rnd() < 0.8), ph: rnd() * TAU, tilt: (rnd() - 0.5) * 0.25 }),
-  draw(g, s, e, x, y, r, a) {
+  draw(g, s, e, x, y, _r, a) {
     const L = lightPos(e, x, y, s.ph);
     g.save();
     g.translate(x, y);
@@ -257,7 +257,7 @@ const panel: Kind<Panel> = {
   depth: [0.7, 1],
   reach: 1.3,
   make: (rnd, r) => ({ w: r * (0.9 + rnd() * 0.5), h: r * (0.7 + rnd() * 0.4), skew: (rnd() - 0.5) * 0.3, ph: rnd() * TAU }),
-  draw(g, s, e, x, y, r, a) {
+  draw(g, s, e, x, y, _r, a) {
     const L = lightPos(e, x, y, s.ph);
     const sway = Math.sin(e.t * 0.2 + s.ph) * 0.04;
     g.save();
