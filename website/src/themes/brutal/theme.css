@@ -133,3 +133,57 @@
 :root[data-style="brutal"] .settings-popup :is(button, [role="button"]):not(:disabled):hover :is(span, svg) {
   color: inherit;
 }
+
+/* The hero terminal in light mode: the page's near-white paper would make it vanish into the page, so its own surfaces
+   are a warmer, deeper tan (ink and accent stay as they are). */
+:root[data-style="brutal"] .hero-window[data-theme="light"] {
+  --color-surface: #e6d6a8;
+  --color-surface-2: #d4c088;
+  --color-bg: #d4c088;
+  --color-text: #2e2a23;
+  --color-muted: #4d483c;
+}
+
+/* The hero terminal in dark mode: a real dark terminal in Brutalist's own colours, black paper with yellow ink and the
+   red turned up a notch so it reads on black. Light mode (above) is tan paper with brown ink, so the two differ. */
+:root[data-style="brutal"] .hero-window[data-theme="dark"] {
+  --ink: #f0c419;
+  --color-surface: #17130a;
+  --color-surface-2: #2a2310;
+  --color-bg: #2a2310;
+  --color-border: #f0c419;
+  --color-text: #f8dc63;
+  --color-muted: #c9b05a;
+  --color-accent: #ff6a3d;
+  --color-accent-2: #f0c419;
+  --color-syn-type: #ff8f6b;
+  --color-syn-number: #f8dc63;
+}
+
+/* With a colour scheme chosen the terminal keeps the scheme's hues but is pulled apart by mode: much darker in dark mode,
+   a notch deeper than the page in light mode. (Built from --color-bg, which is left alone, so nothing refers to itself.) */
+:root[data-style="brutal"]:not([data-palette="auto"]) .hero-window[data-theme="dark"] {
+  --ink: var(--color-accent-2);
+  --color-surface: color-mix(in srgb, var(--color-bg) 16%, #000);
+  --color-surface-2: color-mix(in srgb, var(--color-bg) 30%, #000);
+  --color-border: var(--color-accent-2);
+}
+
+:root[data-style="brutal"]:not([data-palette="auto"]) .hero-window[data-theme="light"] {
+  --color-surface: color-mix(in srgb, var(--color-bg) 90%, #000);
+  --color-surface-2: color-mix(in srgb, var(--color-bg) 80%, #000);
+}
+
+/* The page's glows: on dark mode's saturated yellow the faint red of light mode vanishes, so the red touches are stronger. */
+:root[data-style="brutal"][data-theme="dark"]:not([data-palette]:not([data-palette="auto"])) .ambient-blob {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, #d42a16 calc(var(--blob-a) * 3), transparent) 0%,
+    color-mix(in srgb, #d42a16 calc(var(--blob-a) * 1.6), transparent) 45%,
+    transparent 100%
+  );
+}
+
+:root[data-style="brutal"][data-theme="dark"]:not([data-palette]:not([data-palette="auto"])) .bg-accent\/15 {
+  background-color: color-mix(in srgb, #d42a16 40%, transparent);
+}
