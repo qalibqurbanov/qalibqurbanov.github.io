@@ -2,10 +2,14 @@
 <html lang="en" data-style="cyber">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preconnect" href="https://api.github.com" crossorigin />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Galib Gurbanov — Full Stack, Backend, Frontend & Mobile Developer. Portfolio, projects, and experience." />
     <meta name="theme-color" content="#07060d" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="format-detection" content="telephone=no" />
     <title>Galib Gurbanov | Software Developer</title>
     <script>
       (function () {
@@ -25,7 +29,7 @@
       (function () {
         try {
           var palette = localStorage.getItem("palette");
-          if (["auto", "violet", "ocean", "forest", "sunset", "rose", "crimson", "gold", "mint", "neon", "aurora", "fire", "candy", "cosmic", "lime", "arctic", "lavender", "copper", "graphite", "toxic", "tropic", "midnight"].indexOf(palette) !== -1) {
+          if (["auto", "aurora", "fire", "candy", "cosmic", "toxic", "tropic", "midnight", "sunset", "sunrise", "lagoon", "orchid", "citrus", "arctic", "lavender", "mint", "sakura", "peach", "sky", "pistachio", "lilac", "neon", "electric", "acid", "laser", "plasma", "forest", "copper", "terracotta", "sand", "olive", "moss", "gold", "emerald", "ruby", "sapphire", "amethyst", "sage", "dustyrose", "slate", "mauve", "violet", "ocean", "rose", "crimson", "lime", "tangerine", "cobalt", "fuchsia", "graphite", "ivory", "charcoal", "silver"].indexOf(palette) !== -1) {
             document.documentElement.setAttribute("data-palette", palette);
           }
           var style = localStorage.getItem("style");

@@ -287,6 +287,8 @@ export interface UiStrings {
     /** The label of the visual style switcher. */
     style: string;
     paletteNames: Record<import("@/themes/shared/colour/palettes").Palette, string>;
+    /** The headings that group the colour schemes in the settings menu. */
+    paletteGroups: Record<import("@/themes/shared/colour/palettes").PaletteGroup, string>;
     minimize: string;
     close: string;
     home: string;

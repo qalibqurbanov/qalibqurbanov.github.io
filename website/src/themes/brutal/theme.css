@@ -97,3 +97,39 @@
   background: var(--color-accent);
   color: var(--color-surface);
 }
+
+/* A chosen colour scheme replaces Brutalist's yellow and cream. In dark mode the page is then dark, so the ink (borders,
+   shadows, buttons, the footer) follows the scheme's text colour instead of staying black on black. */
+:root[data-style="brutal"]:not([data-palette="auto"])[data-theme="dark"],
+:root[data-style="brutal"]:not([data-palette="auto"]) [data-theme="dark"] {
+  --ink: var(--color-text);
+}
+
+/* A chosen colour scheme replaces Brutalist's yellow and cream. In dark mode the page is then dark, so the ink (borders,
+   shadows, buttons, the footer) follows the scheme's text colour instead of staying black on black. */
+:root[data-style="brutal"]:not([data-palette="auto"])[data-theme="dark"],
+:root[data-style="brutal"]:not([data-palette="auto"]) [data-theme="dark"] {
+  --ink: var(--color-text);
+}
+
+/* The light/dark switch in the settings popup: the chosen mode is a solid ink block with paper-coloured text, so it
+   reads at once; the other one stays flat. */
+:root[data-style="brutal"] .settings-mode[data-active="true"] {
+  background: var(--ink);
+  color: var(--color-surface);
+}
+
+:root[data-style="brutal"] .settings-mode[data-active="false"]:hover {
+  background: var(--color-surface-2);
+}
+
+/* Hovering anything in the settings popup uses the same ink block as the chosen mode: rows, mode buttons, the lot. */
+:root[data-style="brutal"] .settings-popup :is(button, [role="button"]):not(:disabled):hover,
+:root[data-style="brutal"] .settings-popup .settings-mode[data-active="false"]:hover {
+  background: var(--ink);
+  color: var(--color-surface);
+}
+
+:root[data-style="brutal"] .settings-popup :is(button, [role="button"]):not(:disabled):hover :is(span, svg) {
+  color: inherit;
+}

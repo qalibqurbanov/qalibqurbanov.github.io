@@ -67,3 +67,12 @@
 .custom-cursor-dot {
   zoom: 0.82;
 }
+
+/* Whatever colour a cursor is, it can land on a surface of the same colour (a blue pointer on a blue card). So every
+   cursor gets a hairline two-tone edge, light just outside the shape and dark just outside that: against any
+   background at least one of the two stands out, and the shape never melts into it. It sits on the outer wrapper
+   so each style's own filters (hard shadows, glows) keep working inside it. */
+.theme-cursor > .tc-pos,
+.custom-cursor > .custom-cursor-pos {
+  filter: drop-shadow(0 0 0.5px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.85));
+}

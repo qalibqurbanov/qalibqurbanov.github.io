@@ -32,9 +32,9 @@
 :root[data-style="brutal"][data-theme="dark"],
 :root[data-style="brutal"] [data-theme="dark"] {
   --ink: #000000;
-  --color-bg: #ffe14d;
-  --color-surface: #fff1b3;
-  --color-surface-2: #f3d65f;
+  --color-bg: #f0c419;
+  --color-surface: #f8dc63;
+  --color-surface-2: #e2b829;
   --color-border: #000000;
   --color-accent: #b91c0c;
   --color-accent-2: #111111;

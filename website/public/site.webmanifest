@@ -1,0 +1,11 @@
+{
+  "name": "Qalib Qurbanov — Portfolio",
+  "short_name": "Qalib Qurbanov",
+  "description": "Portfolio of Qalib (Galib) Qurbanov — Software Developer based in Baku, Azerbaijan.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#07060d",
+  "theme_color": "#07060d",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

@@ -7,7 +7,7 @@ import type { Motion } from "@/lib/motion";
 import { useMotion } from "@/motion/context";
 import { useMotionLabel } from "@/motion/labels";
 import { useTheme } from "@/themes/shared/colour/context";
-import { PALETTES, PALETTE_SWATCHES } from "@/themes/shared/colour/palettes";
+import { PALETTE_GROUPS, PALETTE_SWATCHES } from "@/themes/shared/colour/palettes";
 import { useStyle } from "@/themes/shared/style/context";
 import { STYLES } from "@/themes";
 
@@ -118,7 +118,7 @@ export function SettingsMenu() {
         <div
           role="group"
           aria-label={ui.labels.settings}
-          className="absolute right-0 top-full z-[60] mt-3 w-64 max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain custom-scrollbar animate-popover-in space-y-4 rounded-lg border border-border bg-surface p-4 shadow-lg shadow-black/20"
+          className="settings-popup absolute right-0 top-full z-[60] mt-3 w-64 max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain custom-scrollbar animate-popover-in space-y-4 rounded-lg border border-border bg-surface p-4 shadow-lg shadow-black/20"
         >
           <section>
             <p className={title}>{ui.labels.settings}</p>
@@ -129,7 +129,8 @@ export function SettingsMenu() {
                   type="button"
                   aria-pressed={theme === id}
                   onClick={() => theme !== id && toggleTheme()}
-                  className={`inline-flex items-center justify-center gap-2 rounded px-2 py-1.5 font-mono text-xs capitalize transition-colors duration-150 ease-out ${theme === id ? "bg-surface-2 text-accent" : "text-muted hover:text-text"}`}
+                  data-active={theme === id}
+                  className={`settings-mode inline-flex items-center justify-center gap-2 rounded px-2 py-1.5 font-mono text-xs capitalize transition-colors duration-150 ease-out ${theme === id ? "bg-surface-2 text-accent" : "text-muted hover:text-text"}`}
                 >
                   <Icon size={14} aria-hidden="true" />
                   {name}
@@ -153,10 +154,18 @@ export function SettingsMenu() {
             current={ui.labels.paletteNames[palette]}
             swatch={swatch(PALETTE_SWATCHES[palette], "h-4 w-4")}
           >
-            {PALETTES.map((id) => (
-              <Choice key={id} active={id === palette} onSelect={() => setPalette(id)} swatch={swatch(PALETTE_SWATCHES[id], "h-3.5 w-3.5")}>
-                {ui.labels.paletteNames[id]}
-              </Choice>
+            <Choice active={palette === "auto"} onSelect={() => setPalette("auto")} swatch={swatch(PALETTE_SWATCHES.auto, "h-3.5 w-3.5")}>
+              {ui.labels.paletteNames.auto}
+            </Choice>
+            {PALETTE_GROUPS.map((group) => (
+              <div key={group.id} role="group" aria-label={ui.labels.paletteGroups[group.id]} className="mt-2 border-t border-border/60 pt-2">
+                <p className="px-2 pb-1 font-mono text-[10px] uppercase tracking-widest text-muted">{ui.labels.paletteGroups[group.id]}</p>
+                {group.palettes.map((id) => (
+                  <Choice key={id} active={id === palette} onSelect={() => setPalette(id)} swatch={swatch(PALETTE_SWATCHES[id], "h-3.5 w-3.5")}>
+                    {ui.labels.paletteNames[id]}
+                  </Choice>
+                ))}
+              </div>
             ))}
           </Submenu>
 

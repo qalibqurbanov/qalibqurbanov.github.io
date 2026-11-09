@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -95,6 +96,37 @@ const PROFILE_LINKS: Array<[label: string, url: string]> = [
   ["Medium", "https://medium.com/@qalibqurbanov"],
 ];
 
+// The same person is spelled differently in each language (and the handle is "qalibqurbanov"), so people
+// searching for any of these spellings can still land here. Listed as alternate names in the structured data.
+const NAME_VARIANTS = ["Qalib Qurbanov", "Galib Gurbanov", "Qalib Qurbanow", "Галиб Гурбанов"];
+
+// What the person works with, for the structured data's knowsAbout and the plain-text copy of the page.
+// Tech names are proper nouns and stay the same in every language.
+const SKILLS = [
+  "C#", ".NET", "ASP.NET Core", "ASP.NET Web API", "REST API", "EF Core", "Dapper", "PostgreSQL", "Microsoft SQL Server",
+  "Redis", "RabbitMQ", "SignalR", "Docker", "Linux", "Nginx", "Git", "GitHub Actions", "GitLab CI/CD", "CQRS",
+  "Domain-Driven Design", "Clean Architecture", "React", "TypeScript",
+];
+
+const PROJECTS: Array<[name: string, url: string]> = [
+  ["SoundCloud Artwork Downloader", "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader"],
+  ["Imager", "https://github.com/qalibqurbanov/Imager"],
+];
+
+const SITE_NAME = "Qalib Qurbanov — Portfolio";
+
+/** The date of the newest commit (what the sitemap calls "last modified"), so it only moves when the site does
+ * and not on every hourly rebuild. Falls back to today when git is not available. */
+function lastModified(): string {
+  try {
+    const date = execFileSync("git", ["log", "-1", "--format=%cs"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    if (/^d{4}-d{2}-d{2}$/.test(date)) return date;
+  } catch {
+    // Not a git checkout.
+  }
+  return new Date().toISOString().slice(0, 10);
+}
+
 const escapeAttr = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
 /** The picture link previews show (public/og/<language>.jpg, 1200x630, with the name and title in that language),
@@ -130,30 +162,75 @@ function fontPreloads(assets: string[], code: string): string[] {
   });
 }
 
-function localize(template: string, page: LocalePage, assets: string[]): string {
+function localize(template: string, page: LocalePage, assets: string[], modified: string): string {
   const url = SITE_URL + page.path;
   const alternates = PAGES.map(
     (p) => `    <link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`,
   );
   alternates.push(`    <link rel="alternate" hreflang="x-default" href="${SITE_URL}/" />`);
 
-  const person = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: page.name,
-    jobTitle: page.jobTitle,
-    url,
-    address: { "@type": "PostalAddress", addressLocality: "Baku", addressCountry: "AZ" },
-    sameAs: SAME_AS,
-  };
+  const personId = `${SITE_URL}/#person`;
+  const websiteId = `${SITE_URL}/#website`;
+  const graph = [
+    {
+      "@type": "Person",
+      "@id": personId,
+      name: page.name,
+      alternateName: [...new Set(NAME_VARIANTS.filter((n) => n !== page.name))],
+      givenName: page.name.split(" ")[0],
+      familyName: page.name.split(" ")[1],
+      jobTitle: page.jobTitle,
+      description: page.description,
+      url,
+      image: `${SITE_URL}/og/${page.code}.jpg`,
+      homeLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: "Baku", addressCountry: "AZ" } },
+      address: { "@type": "PostalAddress", addressLocality: "Baku", addressCountry: "AZ" },
+      worksFor: { "@type": "Organization", name: "Crocusoft", url: "https://crocusoft.com" },
+      knowsAbout: SKILLS,
+      knowsLanguage: PAGES.map((p) => p.code),
+      sameAs: SAME_AS,
+    },
+    {
+      "@type": "WebSite",
+      "@id": websiteId,
+      url: SITE_URL + "/",
+      name: SITE_NAME,
+      inLanguage: PAGES.map((p) => p.code),
+      publisher: { "@id": personId },
+    },
+    {
+      "@type": "ProfilePage",
+      "@id": `${url}#profilepage`,
+      url,
+      name: page.title,
+      description: page.description,
+      inLanguage: page.code,
+      isPartOf: { "@id": websiteId },
+      mainEntity: { "@id": personId },
+      primaryImageOfPage: { "@type": "ImageObject", url: `${SITE_URL}/og/${page.code}.jpg`, width: 1200, height: 630 },
+      dateModified: modified,
+    },
+    ...PROJECTS.map(([name, projectUrl]) => ({
+      "@type": "SoftwareSourceCode",
+      name,
+      codeRepository: projectUrl,
+      author: { "@id": personId },
+    })),
+  ];
   // "<" is escaped so no value can ever close the script tag early.
-  const structuredData = `    <script type="application/ld+json">${JSON.stringify(person).replace(/</g, "\u003c")}</script>`;
+  const structuredData = `    <script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }).replace(/</g, "\\u003c")}</script>`;
 
   const head = [
     ...fontPreloads(assets, page.code),
+    `    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />`,
+    `    <meta name="author" content="${escapeAttr(page.name)}" />`,
     `    <link rel="canonical" href="${url}" />`,
     ...alternates,
-    `    <meta property="og:type" content="website" />`,
+    `    <meta property="og:type" content="profile" />`,
+    `    <meta property="og:site_name" content="${SITE_NAME}" />`,
+    `    <meta property="profile:first_name" content="${escapeAttr(page.name.split(" ")[0])}" />`,
+    `    <meta property="profile:last_name" content="${escapeAttr(page.name.split(" ")[1])}" />`,
+    `    <meta property="profile:username" content="qalibqurbanov" />`,
     `    <meta property="og:url" content="${url}" />`,
     `    <meta property="og:title" content="${escapeAttr(page.title)}" />`,
     `    <meta property="og:description" content="${escapeAttr(page.description)}" />`,
@@ -173,7 +250,9 @@ function localize(template: string, page: LocalePage, assets: string[]): string 
     `      <h1>${page.name} — ${page.jobTitle}</h1>`,
     `      <p>${page.location}</p>`,
     `      <p>${page.summary}</p>`,
+    `      <p>${SKILLS.join(", ")}</p>`,
     "      <ul>",
+    ...PROJECTS.map(([name, href]) => `        <li><a href="${href}">${name}</a></li>`),
     `        <li><a href="${SITE_URL}/resume.pdf">${page.resumeLabel}</a></li>`,
     ...PROFILE_LINKS.map(([label, href]) => `        <li><a href="${href}">${label}</a></li>`),
     "      </ul>",
@@ -212,8 +291,11 @@ export function linksHtml(template: string): string {
   const title = `${english.name} | Links`;
   const description = `${english.name} — GitHub, LinkedIn, Telegram, email and resume in one place.`;
   const head = [
+    `    <meta name="robots" content="index, follow, max-image-preview:large" />`,
+    `    <meta name="author" content="${escapeAttr(english.name)}" />`,
     `    <link rel="canonical" href="${url}" />`,
     `    <meta property="og:type" content="website" />`,
+    `    <meta property="og:site_name" content="${SITE_NAME}" />`,
     `    <meta property="og:url" content="${url}" />`,
     `    <meta property="og:title" content="${escapeAttr(title)}" />`,
     `    <meta property="og:description" content="${escapeAttr(description)}" />`,
@@ -250,7 +332,7 @@ export function redirectPages(): Array<[slug: string, html: string]> {
       "    <title>Redirecting…</title>",
       '    <meta name="robots" content="noindex" />',
       fallback,
-      `    <script>${script.replace(/</g, "\u003c")}</script>`,
+      `    <script>${script.replace(/</g, "\\u003c")}</script>`,
       "  </head>",
       `  <body><p>Redirecting to <a href="${escapeAttr(target)}">${escapeAttr(target)}</a>…</p></body>`,
       "</html>",
@@ -293,7 +375,7 @@ export function localizedHtml(): Plugin {
       fs.writeFileSync(path.join(outDir, "404.html"), notFoundHtml(template));
 
       const english = PAGES.find((page) => page.code === "en");
-      if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english, assets));
+      if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english, assets, lastModified()));
 
       const linksDir = path.join(outDir, "links");
       fs.mkdirSync(linksDir, { recursive: true });
@@ -306,27 +388,48 @@ export function localizedHtml(): Plugin {
       for (const page of PAGES) {
         const target = path.join(outDir, page.path, "index.html");
         fs.mkdirSync(path.dirname(target), { recursive: true });
-        fs.writeFileSync(target, localize(template, page, assets));
+        fs.writeFileSync(target, localize(template, page, assets, lastModified()));
       }
 
-      const built = new Date().toISOString().slice(0, 10);
+      const built = lastModified();
       const urls = PAGES.map((page) => {
         const links = [...PAGES, { code: "x-default", path: "/" }]
-          .map(
-            (p) =>
-              `      <xhtml:link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`,
-          )
+          .map((p) => `      <xhtml:link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`)
           .join("\n");
-        return `  <url>\n    <loc>${SITE_URL + page.path}</loc>\n    <lastmod>${built}</lastmod>\n${links}\n  </url>`;
+        const image = `      <image:image>\n        <image:loc>${SITE_URL}/og/${page.code}.jpg</image:loc>\n        <image:title>${escapeAttr(page.title)}</image:title>\n      </image:image>`;
+        const priority = page.code === "en" ? "1.0" : "0.9";
+        return `  <url>\n    <loc>${SITE_URL + page.path}</loc>\n    <lastmod>${built}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>${priority}</priority>\n${links}\n${image}\n  </url>`;
       }).join("\n");
-      const linksUrl = `  <url>\n    <loc>${SITE_URL}/links/</loc>\n    <lastmod>${built}</lastmod>\n  </url>`;
+      const linksUrl = `  <url>\n    <loc>${SITE_URL}/links/</loc>\n    <lastmod>${built}</lastmod>\n    <changefreq>yearly</changefreq>\n    <priority>0.5</priority>\n  </url>`;
       fs.writeFileSync(
         path.join(outDir, "sitemap.xml"),
-        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n${linksUrl}\n</urlset>\n`,
+        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls}\n${linksUrl}\n</urlset>\n`,
       );
+      fs.writeFileSync(path.join(outDir, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+      // A short plain-text description of the site for AI assistants and other tools that read it (llmstxt.org).
+      const en = PAGES[0];
       fs.writeFileSync(
-        path.join(outDir, "robots.txt"),
-        `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`,
+        path.join(outDir, "llms.txt"),
+        [
+          `# ${SITE_NAME}`,
+          "",
+          `> ${en.name} (also written ${NAME_VARIANTS.filter((n) => n !== en.name).join(", ")}) — ${en.jobTitle} based in ${en.location}. ${en.summary}`,
+          "",
+          "## Pages",
+          ...PAGES.map((p) => `- [${p.title}](${SITE_URL + p.path}): ${p.description}`),
+          `- [Links](${SITE_URL}/links/): GitHub, LinkedIn, Telegram, email and resume in one place.`,
+          `- [${en.resumeLabel}](${SITE_URL}/resume.pdf): resume`,
+          "",
+          "## Profiles",
+          ...PROFILE_LINKS.map(([label, href]) => `- [${label}](${href})`),
+          "",
+          "## Projects",
+          ...PROJECTS.map(([name, href]) => `- [${name}](${href})`),
+          "",
+          "## Skills",
+          SKILLS.join(", "),
+          "",
+        ].join("\n"),
       );
     },
   };

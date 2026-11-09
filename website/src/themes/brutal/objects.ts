@@ -5,9 +5,9 @@ const TAU = Math.PI * 2;
 const css = (c: Rgb, a = 1) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
 const YELLOW: Rgb = [255, 225, 77];
 const ORANGE: Rgb = [255, 138, 0];
-const CONCRETE: Rgb = [218, 215, 204];
-const WHITE: Rgb = [255, 255, 255];
-const CREAM: Rgb = [255, 241, 179];
+const CONCRETE: Rgb = [196, 186, 150];
+const WHITE: Rgb = [250, 226, 120];
+const CREAM: Rgb = [248, 220, 99];
 /** The outline and shadow colour of the current mode: pure black on yellow, a soft charcoal in light mode. */
 let INK: Rgb = [0, 0, 0];
 const ink = (a: number) => `rgba(${INK[0]},${INK[1]},${INK[2]},${a})`;
