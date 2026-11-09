@@ -141,7 +141,13 @@ function notFoundPage(): Plugin {
       serveOwn?: (pathname: string, res: ServerResponse) => void,
     ): Connect.NextHandleFunction =>
     async (req, res, next) => {
-      const pathname = (req.url ?? "/").split(/[?#]/)[0];
+      const [pathname, ...rest] = (req.url ?? "/").split(/(?=[?#])/);
+      // Like Pages: a language directory without its trailing slash (/en) redirects to /en/.
+      if (pages.has(`${pathname}/`) && pathname !== "/") {
+        res.statusCode = 301;
+        res.setHeader("Location", `${pathname}/${rest.join("")}`);
+        return res.end();
+      }
       if (isOwnPage(pathname) && serveOwn) return serveOwn(pathname, res);
       // Dev-only internals (/@vite, /src/..., /node_modules/...) and anything with an extension.
       const passthrough = pages.has(pathname) || isOwnPage(pathname) || /\.[a-z0-9]+$/i.test(pathname) || /^\/(@|src\/|node_modules\/)/.test(pathname);
