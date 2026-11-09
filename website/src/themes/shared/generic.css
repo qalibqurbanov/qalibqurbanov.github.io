@@ -1,0 +1,148 @@
+/* The shared look of the styles that have no stylesheets of their own for every part of the page (fields,
+   panels, cursor, scrollbar...). A style sets a handful of variables on the root (--t-radius, --t-border-w,
+   --t-card-shadow ...) and gets all of it; its own theme.css then adds what makes it different. Every rule
+   here has the specificity of a plain class, so any style's own rule wins. The original styles are left out. */
+:root:where(:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) {
+  --g-ink: var(--color-text);
+}
+
+/* The scene is the background: no grid on top of it. */
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .bg-grid {
+  background-image: none;
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) :is(h1, h2, h3, h4, .font-display) {
+  font-weight: var(--t-head-weight, 600);
+  text-transform: var(--t-head-case, none);
+  letter-spacing: var(--t-head-track, -0.01em);
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .card-surface {
+  background: var(--t-card-bg, color-mix(in srgb, var(--color-surface) 82%, transparent));
+  border: var(--t-border-w, 1px) var(--t-border-style, solid) var(--t-border-color, var(--color-border));
+  border-radius: var(--t-radius, 12px);
+  box-shadow: var(--t-card-shadow, none);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) :is(.card-surface:hover, .card-hit:hover > .card-surface) {
+  transform: var(--t-card-lift, translateY(-3px));
+  box-shadow: var(--t-card-shadow-hover, var(--t-card-shadow, none));
+  border-color: var(--t-border-hover, var(--color-accent));
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) :is(.btn-pulse, .btn-solid) {
+  border-radius: var(--t-btn-radius, var(--t-radius, 12px));
+  text-transform: var(--t-btn-case, none);
+  letter-spacing: var(--t-btn-track, 0.01em);
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .btn-solid {
+  background: var(--t-btn-bg, var(--color-accent));
+  color: var(--t-btn-ink, var(--color-bg));
+  border: var(--t-border-w, 1px) solid var(--t-btn-border, var(--color-accent));
+  box-shadow: var(--t-btn-shadow, none);
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .btn-pulse:not(.btn-solid) {
+  border: var(--t-border-w, 1px) solid var(--t-btn-border, var(--color-accent));
+  box-shadow: var(--t-btn-shadow, none);
+}
+
+/* Floating panels and windows. */
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) :is(.command-dialog-content, .context-menu, .glitch-border, .animate-popover-in, .tip-balloon) {
+  background: var(--t-panel-bg, var(--color-surface));
+  border: var(--t-border-w, 1px) var(--t-border-style, solid) var(--t-border-color, var(--color-border));
+  border-radius: var(--t-radius, 12px);
+  box-shadow: var(--t-panel-shadow, 0 18px 50px -20px rgba(0, 0, 0, 0.5));
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) header.backdrop-blur-md {
+  background: var(--t-header-bg, color-mix(in srgb, var(--color-bg) 82%, transparent));
+  border-bottom: var(--t-border-w, 1px) var(--t-border-style, solid) var(--t-border-color, var(--color-border));
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) :focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) ::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) :is(input, textarea).selectable[name] {
+  border-radius: var(--t-radius-sm, 8px);
+  border: var(--t-border-w, 1px) solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+}
+
+/* Scrollbar: the same 10px as every style. */
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"]))::-webkit-scrollbar-track,
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"]))::-webkit-scrollbar-thumb,
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) :is(.custom-scrollbar, .terminal-scroll)::-webkit-scrollbar-thumb {
+  background: var(--t-scroll, var(--color-accent));
+  border: 2px solid var(--color-bg);
+  border-radius: var(--t-scroll-radius, 8px);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  :where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])),
+  :where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) :is(.custom-scrollbar, .terminal-scroll) {
+    scrollbar-color: var(--color-accent) var(--color-bg);
+  }
+}
+
+/* Cursor: a dot at the pointer and a ring easing behind it; --t-cursor-* shape them. */
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .theme-cursor {
+  mix-blend-mode: var(--t-cursor-blend, normal);
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .tc-dot {
+  display: block;
+  width: var(--t-dot, 7px);
+  height: var(--t-dot, 7px);
+  translate: -50% -50%;
+  border-radius: var(--t-cursor-dot-radius, 50%);
+  background: var(--t-cursor, var(--color-accent));
+  transition: width 0.15s ease, height 0.15s ease, opacity 0.15s ease, scale 0.12s ease;
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .tc-ring {
+  display: block;
+  width: var(--t-ring, 34px);
+  height: var(--t-ring, 34px);
+  translate: -50% -50%;
+  border-radius: var(--t-cursor-radius, 50%);
+  border: var(--t-cursor-border, 1.5px solid) var(--t-cursor, var(--color-accent));
+  transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease, opacity 0.15s ease, scale 0.12s ease;
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .theme-cursor:is([data-state="link"], [data-state="grab"]) .tc-ring {
+  width: calc(var(--t-ring, 34px) * 1.6);
+  height: calc(var(--t-ring, 34px) * 1.6);
+  background: color-mix(in srgb, var(--t-cursor, var(--color-accent)) 18%, transparent);
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .theme-cursor[data-state="field"] .tc-ring {
+  opacity: 0;
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .theme-cursor[data-state="field"] .tc-dot {
+  width: 2px;
+  height: var(--caret-h, 20px);
+  border-radius: 1px;
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .theme-cursor[data-state="no"] :is(.tc-dot, .tc-ring) {
+  opacity: 0.35;
+}
+
+:where(:root:not([data-style="cyber"], [data-style="vaporwave"], [data-style="synthwave"], [data-style="monochrome"])) .theme-cursor.is-down .tc-ring {
+  scale: 0.8;
+}

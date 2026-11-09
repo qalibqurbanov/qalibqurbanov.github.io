@@ -1,11 +1,12 @@
-import { chrome } from "./chrome";
 import { cyber } from "./cyber";
 import { monochrome } from "./monochrome";
 import { synthwave } from "./synthwave";
 import { vaporwave } from "./vaporwave";
+import { pixel } from "./pixel";
+import { brutal } from "./brutal";
 
 /** Every style the site has. Each one lives in its own folder, next to `shared/`. */
-export const STYLES = [cyber, vaporwave, synthwave, monochrome, chrome] as const;
+export const STYLES = [cyber, vaporwave, synthwave, monochrome, pixel, brutal] as const;
 
 export type StyleId = (typeof STYLES)[number]["id"];
 

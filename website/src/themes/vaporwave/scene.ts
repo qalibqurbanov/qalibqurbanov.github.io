@@ -1,6 +1,7 @@
 import type { Rgb, SceneEnv, SceneFactory } from "../shared/scene/types";
 import { makeLayer, mix, rgba } from "../shared/scene/util";
 import { createWorld } from "../shared/scene/world";
+import { createCursorFx } from "./cursorFx";
 import { createStage } from "../shared/scene/stage";
 import { kinds } from "./objects";
 import { vaporModels } from "./models";
@@ -19,6 +20,7 @@ interface Cell {
 export const createScene: SceneFactory = (canvas, env0, objects, models) => {
   const g = canvas.getContext("2d");
   const fx = objects.getContext("2d");
+  const cursorFx = createCursorFx();
   if (!g) return { frame() {} };
   const stage = createStage(models, env0, { key: 0xffc4ea, fill: 0x66e0ff, sky: 0xffd6f2, ground: 0x2a1450, exposure: 1.05 });
   let latest = env0;
@@ -125,8 +127,8 @@ export const createScene: SceneFactory = (canvas, env0, objects, models) => {
       stage?.render(e);
       // the cursor's trail: square pixels on an 8px grid, dropping out one step at a time
       if (e.seen && !e.still) {
-        const cx = Math.floor(e.mx / 8) * 8;
-        const cy = Math.floor(e.my / 8) * 8;
+        const cx = Math.floor(e.rx / 8) * 8;
+        const cy = Math.floor(e.ry / 8) * 8;
         const key = `${cx},${cy}`;
         if (key !== lastCell) {
           trail.push({ x: cx, y: cy, t: e.t });
@@ -145,7 +147,11 @@ export const createScene: SceneFactory = (canvas, env0, objects, models) => {
   }
 
   return {
-    frame,
+    frame(e) {
+      frame(e);
+      cursorFx.frame(e);
+    },
+    press: (x, y, e) => cursorFx.press(x, y, e),
     resize: (e) => {
       stage?.resize(e);
       world.relayout(e);
@@ -153,6 +159,7 @@ export const createScene: SceneFactory = (canvas, env0, objects, models) => {
     destroy: () => {
       world.destroy();
       stage?.destroy();
+      cursorFx.destroy();
     },
   };
 };

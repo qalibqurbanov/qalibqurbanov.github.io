@@ -403,7 +403,7 @@ const az: Content = {
       settings: "Tənzimləmələr",
       palette: "Rəng sxemi",
       style: "Tema",
-      paletteNames: { auto: "Temanın rəngləri", violet: "Bənövşəyi", ocean: "Okean", forest: "Meşə", sunset: "Qürub", rose: "Çəhrayı" },
+      paletteNames: { auto: "Temanın rəngləri", violet: "Bənövşəyi", ocean: "Okean", forest: "Meşə", sunset: "Qürub", rose: "Çəhrayı", crimson: "Al qırmızı", gold: "Qızıl", mint: "Nanə", neon: "Neon", aurora: "Şimal işıqları", fire: "Alov", candy: "Konfet", cosmic: "Kosmos", lime: "Layım", arctic: "Arktika", lavender: "Lavanda", copper: "Mis", graphite: "Qrafit", toxic: "Zəhərli", tropic: "Tropik", midnight: "Gecə mavisi" },
       minimize: "Kiçilt",
       close: "Bağla",
       home: "Ana səhifə",

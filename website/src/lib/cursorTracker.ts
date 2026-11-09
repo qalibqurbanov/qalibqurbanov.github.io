@@ -3,6 +3,8 @@ import { prefersReducedMotion } from "@/hooks/glitch";
 /** How fast each part closes on the pointer, per second: the dot follows closely, the ring lazily. */
 const DOT_SPEED = 90;
 const RING_SPEED = 20;
+/** The `instant` cursors: the dot is exactly at the pointer and the ring is only a frame or two behind. */
+const RING_SPEED_INSTANT = 400;
 
 export interface CursorFrame {
   /** The pointer, and where the dot and the ring are on their way to it. */
@@ -30,6 +32,10 @@ export interface CursorTrackerOptions {
   /** Place the ring inside the dot's layer and only offset it by how far it trails, so that at rest the two
    * are drawn from one origin and cannot be off centre from each other. Otherwise it is placed on its own. */
   ringInsideDot?: boolean;
+  /** No lag: the dot is placed at the pointer the moment it moves, and the ring follows closely. */
+  instant?: boolean;
+  /** Called just before the cursor changes state, while the old state is still drawn (to fade it out). */
+  onBeforeState?(next: string): void;
   onFirstMove?(): void;
   onMove?(x: number, y: number): void;
   /** After each frame of the glide. */
@@ -43,7 +49,7 @@ export interface CursorTrackerOptions {
  * `is-down`, hiding the system cursor once a mouse has moved, and looking again when the page scrolls under a
  * still pointer. How it looks is up to the cursor's own stylesheet. Returns the function that stops it. */
 export function trackCursor(options: CursorTrackerOptions): () => void {
-  const { root, dot, ring, stateOf, caret, whole = false, ringInsideDot = false } = options;
+  const { root, dot, ring, stateOf, caret, whole = false, ringInsideDot = false, instant = false } = options;
   const calm = prefersReducedMotion();
 
   let x = 0;
@@ -66,10 +72,29 @@ export function trackCursor(options: CursorTrackerOptions): () => void {
   const place = (px: number, py: number) => `translate3d(${snap(px)}px, ${snap(py)}px, 0)`;
   const current = (): CursorFrame => ({ x, y, dotX, dotY, ringX, ringY, snap });
 
-  const setState = (next: string) => {
+  const commitState = (next: string) => {
     if (next === state) return;
+    if (seen) options.onBeforeState?.(next);
     state = next;
     root.dataset.state = next;
+  };
+  let pendingState: string | null = null;
+  let pendingTimer = 0;
+  const setState = (next: string) => {
+    // The soft cursors wait ~30ms before changing, so passing over small things does not make them flicker.
+    if (!instant || !seen) return commitState(next);
+    if (next === state) {
+      window.clearTimeout(pendingTimer);
+      pendingState = null;
+      return;
+    }
+    if (next === pendingState) return;
+    pendingState = next;
+    window.clearTimeout(pendingTimer);
+    pendingTimer = window.setTimeout(() => {
+      pendingState = null;
+      commitState(next);
+    }, 30);
   };
 
   /** The caret is as tall as the line of text it is over. */
@@ -83,8 +108,8 @@ export function trackCursor(options: CursorTrackerOptions): () => void {
     // By the clock, not the frame, so the glide feels the same on a 60 and a 144 Hz screen.
     const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
     last = now;
-    const kDot = calm ? 1 : 1 - Math.exp(-DOT_SPEED * dt);
-    const kRing = calm ? 1 : 1 - Math.exp(-RING_SPEED * dt);
+    const kDot = calm || instant ? 1 : 1 - Math.exp(-DOT_SPEED * dt);
+    const kRing = calm ? 1 : 1 - Math.exp(-(instant ? RING_SPEED_INSTANT : RING_SPEED) * dt);
     dotX += (x - dotX) * kDot;
     dotY += (y - dotY) * kDot;
     ringX += (x - ringX) * kRing;
@@ -117,6 +142,13 @@ export function trackCursor(options: CursorTrackerOptions): () => void {
       dot.style.transform = place(x, y);
       document.documentElement.classList.add("has-cursor");
       options.onFirstMove?.();
+    }
+    // No lag: the dot is placed now, not on the next frame, and the ring is offset from it to match.
+    if (instant && seen) {
+      dotX = x;
+      dotY = y;
+      dot.style.transform = place(dotX, dotY);
+      ring.style.transform = ringInsideDot ? place(ringX - dotX, ringY - dotY) : place(ringX, ringY);
     }
     root.classList.add("is-on");
     setState(stateOf(event.target));

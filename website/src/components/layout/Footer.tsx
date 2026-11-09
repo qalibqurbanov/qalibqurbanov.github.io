@@ -113,27 +113,27 @@ export function Footer() {
 
   return (
     <footer className="overflow-x-clip border-t border-border bg-surface-2">
-      <div className="max-w-6xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 font-mono text-xs text-muted">
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+      <div className="max-w-6xl mx-auto px-6 py-3 flex flex-col sm:flex-row sm:flex-nowrap items-center justify-between gap-3 font-mono text-xs text-muted whitespace-nowrap">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-x-4 gap-y-1 min-w-0">
           <BranchBadge />
-          <span className="hidden sm:inline text-border">|</span>
-          <span>UTF-8</span>
-          <span className="hidden sm:inline text-border">|</span>
-          <span>LF</span>
-          <span className="hidden sm:inline text-border">|</span>
-          <span className="inline-flex items-center gap-1.5 text-accent">
+          <span className="hidden xl:inline text-border">|</span>
+          <span className="hidden xl:inline">UTF-8</span>
+          <span className="hidden xl:inline text-border">|</span>
+          <span className="hidden xl:inline">LF</span>
+          <span className="hidden lg:inline text-border">|</span>
+          <span className="hidden lg:inline-flex items-center gap-1.5 text-accent">
             <CheckCircle2 size={12} /> 0 problems
           </span>
-          <span className="hidden sm:inline text-border">|</span>
-          <span className="inline-flex items-center gap-1.5">
+          <span className="hidden md:inline text-border">|</span>
+          <span className="hidden md:inline-flex items-center gap-1.5">
             <Clock size={12} /> <LiveClock />
           </span>
           <span className="hidden sm:inline text-border">|</span>
-          <span>
+          <span className="truncate">
             © {now.getFullYear()} {profile.name}
           </span>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-muted">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-x-3 gap-y-3 text-muted shrink-0">
           <div role="group" aria-label={ui.labels.socialMedia} className={`${GROUP_CLASS} gap-4`}>
             <FooterIconLink href={socials.github} label="GitHub">
               <GithubIcon size={18} />

@@ -1,6 +1,7 @@
 import type { Rgb, SceneEnv, SceneFactory } from "../shared/scene/types";
 import { makeLayer, rgba } from "../shared/scene/util";
 import { createWorld } from "../shared/scene/world";
+import { createCursorFx } from "./cursorFx";
 import { ringPosition } from "../shared/cursor/ringPosition";
 import { kinds } from "./objects";
 
@@ -17,6 +18,7 @@ export const createScene: SceneFactory = (canvas, _env, objects) => {
   if (!g) return { frame() {} };
   const rnd = Math.random;
   const fx = objects.getContext("2d");
+  const cursorFx = createCursorFx();
   const world = createWorld(kinds, { perScreen: 2.8, veil: 0.3 });
   const trail: Mark[] = [];
   // a tile of film grain, redrawn at a random offset every frame
@@ -69,8 +71,8 @@ export const createScene: SceneFactory = (canvas, _env, objects) => {
     // the cursor
     if (e.seen) {
       // Centred on the cursor's own frame when there is one, so the circle sits exactly in the square.
-      const x = ringPosition.on ? ringPosition.x : e.mx;
-      const y = ringPosition.on ? ringPosition.y : e.my;
+      const x = ringPosition.on ? ringPosition.x : e.rx;
+      const y = ringPosition.on ? ringPosition.y : e.ry;
       const speed = Math.hypot(e.vx, e.vy);
       ringOpen += (14 + Math.min(46, speed / 40) - ringOpen) * 0.12;
       g!.strokeStyle = rgba(ink, 0.16);
@@ -118,11 +120,17 @@ export const createScene: SceneFactory = (canvas, _env, objects) => {
   }
 
   return {
-    frame,
+    frame(e) {
+      frame(e);
+      cursorFx.frame(e);
+    },
     resize: (e) => world.relayout(e),
-    destroy: () => world.destroy(),
-    press() {
-      pulse = 30;
+    destroy: () => {
+      world.destroy();
+      cursorFx.destroy();
+    },
+    press(x, y, e) {
+      cursorFx.press(x, y, e);
     },
   };
 };

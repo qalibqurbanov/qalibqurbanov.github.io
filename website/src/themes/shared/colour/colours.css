@@ -273,3 +273,596 @@
   --glow-accent: rgba(190, 18, 60, 0.1);
   --glow-accent-2: rgba(219, 39, 119, 0.1);
 }
+
+/* More colour palettes: several pair two distant hues, so the gradient text and glows run from one colour to another. */
+
+:root[data-palette="crimson"][data-theme="dark"],
+:root[data-palette="crimson"] [data-theme="dark"] {
+  --color-bg: #130609;
+  --color-surface: #210d11;
+  --color-surface-2: #31161b;
+  --color-border: #52282f;
+  --color-accent: #ef4444;
+  --color-accent-2: #fb7185;
+  --color-text: #ffebee;
+  --color-muted: #be9da3;
+  --color-syn-type: #fda4af;
+  --color-syn-number: #fca5a5;
+
+  --grid-line: rgba(251, 113, 133, 0.05);
+  --glow-accent: rgba(239, 68, 68, 0.22);
+  --glow-accent-2: rgba(251, 113, 133, 0.14);
+}
+
+:root[data-palette="crimson"][data-theme="light"],
+:root[data-palette="crimson"] [data-theme="light"] {
+  --color-bg: #fbf4f5;
+  --color-surface: #ffffff;
+  --color-surface-2: #f6eaec;
+  --color-border: #e8d4d7;
+  --color-accent: #b91c1c;
+  --color-accent-2: #e11d48;
+  --color-text: #200e11;
+  --color-muted: #76565b;
+  --color-syn-type: #be123c;
+  --color-syn-number: #9f1239;
+
+  --grid-line: rgba(185, 28, 28, 0.05);
+  --glow-accent: rgba(185, 28, 28, 0.1);
+  --glow-accent-2: rgba(225, 29, 72, 0.1);
+}
+
+
+:root[data-palette="gold"][data-theme="dark"],
+:root[data-palette="gold"] [data-theme="dark"] {
+  --color-bg: #130f06;
+  --color-surface: #211b0d;
+  --color-surface-2: #312916;
+  --color-border: #524628;
+  --color-accent: #fbbf24;
+  --color-accent-2: #fde68a;
+  --color-text: #fff9eb;
+  --color-muted: #beb49d;
+  --color-syn-type: #fcd34d;
+  --color-syn-number: #fef08a;
+
+  --grid-line: rgba(253, 230, 138, 0.05);
+  --glow-accent: rgba(251, 191, 36, 0.22);
+  --glow-accent-2: rgba(253, 230, 138, 0.14);
+}
+
+:root[data-palette="gold"][data-theme="light"],
+:root[data-palette="gold"] [data-theme="light"] {
+  --color-bg: #fbf9f4;
+  --color-surface: #ffffff;
+  --color-surface-2: #f6f2ea;
+  --color-border: #e8e2d4;
+  --color-accent: #b45309;
+  --color-accent-2: #ca8a04;
+  --color-text: #201b0e;
+  --color-muted: #766d56;
+  --color-syn-type: #a16207;
+  --color-syn-number: #854d0e;
+
+  --grid-line: rgba(180, 83, 9, 0.05);
+  --glow-accent: rgba(180, 83, 9, 0.1);
+  --glow-accent-2: rgba(202, 138, 4, 0.1);
+}
+
+
+:root[data-palette="mint"][data-theme="dark"],
+:root[data-palette="mint"] [data-theme="dark"] {
+  --color-bg: #061310;
+  --color-surface: #0d211c;
+  --color-surface-2: #16312a;
+  --color-border: #285248;
+  --color-accent: #2dd4bf;
+  --color-accent-2: #a7f3d0;
+  --color-text: #ebfffa;
+  --color-muted: #9dbeb6;
+  --color-syn-type: #5eead4;
+  --color-syn-number: #99f6e4;
+
+  --grid-line: rgba(167, 243, 208, 0.05);
+  --glow-accent: rgba(45, 212, 191, 0.22);
+  --glow-accent-2: rgba(167, 243, 208, 0.14);
+}
+
+:root[data-palette="mint"][data-theme="light"],
+:root[data-palette="mint"] [data-theme="light"] {
+  --color-bg: #f4fbf9;
+  --color-surface: #ffffff;
+  --color-surface-2: #eaf6f3;
+  --color-border: #d4e8e3;
+  --color-accent: #0f766e;
+  --color-accent-2: #0d9488;
+  --color-text: #0e201c;
+  --color-muted: #56766e;
+  --color-syn-type: #047857;
+  --color-syn-number: #115e59;
+
+  --grid-line: rgba(15, 118, 110, 0.05);
+  --glow-accent: rgba(15, 118, 110, 0.1);
+  --glow-accent-2: rgba(13, 148, 136, 0.1);
+}
+
+
+:root[data-palette="neon"][data-theme="dark"],
+:root[data-palette="neon"] [data-theme="dark"] {
+  --color-bg: #100613;
+  --color-surface: #1c0d21;
+  --color-surface-2: #2a1631;
+  --color-border: #482852;
+  --color-accent: #22ff88;
+  --color-accent-2: #ff2bd6;
+  --color-text: #faebff;
+  --color-muted: #b69dbe;
+  --color-syn-type: #6dffb0;
+  --color-syn-number: #ff7be5;
+
+  --grid-line: rgba(255, 43, 214, 0.05);
+  --glow-accent: rgba(34, 255, 136, 0.22);
+  --glow-accent-2: rgba(255, 43, 214, 0.14);
+}
+
+:root[data-palette="neon"][data-theme="light"],
+:root[data-palette="neon"] [data-theme="light"] {
+  --color-bg: #f9f4fb;
+  --color-surface: #ffffff;
+  --color-surface-2: #f3eaf6;
+  --color-border: #e3d4e8;
+  --color-accent: #059669;
+  --color-accent-2: #c026d3;
+  --color-text: #1c0e20;
+  --color-muted: #6e5676;
+  --color-syn-type: #047857;
+  --color-syn-number: #a21caf;
+
+  --grid-line: rgba(5, 150, 105, 0.05);
+  --glow-accent: rgba(5, 150, 105, 0.1);
+  --glow-accent-2: rgba(192, 38, 211, 0.1);
+}
+
+
+:root[data-palette="aurora"][data-theme="dark"],
+:root[data-palette="aurora"] [data-theme="dark"] {
+  --color-bg: #060c13;
+  --color-surface: #0d1521;
+  --color-surface-2: #162131;
+  --color-border: #283a52;
+  --color-accent: #34d399;
+  --color-accent-2: #a78bfa;
+  --color-text: #ebf3ff;
+  --color-muted: #9dabbe;
+  --color-syn-type: #6ee7b7;
+  --color-syn-number: #c4b5fd;
+
+  --grid-line: rgba(167, 139, 250, 0.05);
+  --glow-accent: rgba(52, 211, 153, 0.22);
+  --glow-accent-2: rgba(167, 139, 250, 0.14);
+}
+
+:root[data-palette="aurora"][data-theme="light"],
+:root[data-palette="aurora"] [data-theme="light"] {
+  --color-bg: #f4f7fb;
+  --color-surface: #ffffff;
+  --color-surface-2: #eaeff6;
+  --color-border: #d4dce8;
+  --color-accent: #059669;
+  --color-accent-2: #7c3aed;
+  --color-text: #0e1520;
+  --color-muted: #566376;
+  --color-syn-type: #047857;
+  --color-syn-number: #6d28d9;
+
+  --grid-line: rgba(5, 150, 105, 0.05);
+  --glow-accent: rgba(5, 150, 105, 0.1);
+  --glow-accent-2: rgba(124, 58, 237, 0.1);
+}
+
+
+:root[data-palette="fire"][data-theme="dark"],
+:root[data-palette="fire"] [data-theme="dark"] {
+  --color-bg: #130906;
+  --color-surface: #21110d;
+  --color-surface-2: #311c16;
+  --color-border: #523128;
+  --color-accent: #ef4444;
+  --color-accent-2: #facc15;
+  --color-text: #ffefeb;
+  --color-muted: #bea49d;
+  --color-syn-type: #fb923c;
+  --color-syn-number: #fde047;
+
+  --grid-line: rgba(250, 204, 21, 0.05);
+  --glow-accent: rgba(239, 68, 68, 0.22);
+  --glow-accent-2: rgba(250, 204, 21, 0.14);
+}
+
+:root[data-palette="fire"][data-theme="light"],
+:root[data-palette="fire"] [data-theme="light"] {
+  --color-bg: #fbf5f4;
+  --color-surface: #ffffff;
+  --color-surface-2: #f6ecea;
+  --color-border: #e8d8d4;
+  --color-accent: #b91c1c;
+  --color-accent-2: #d97706;
+  --color-text: #20110e;
+  --color-muted: #765c56;
+  --color-syn-type: #c2410c;
+  --color-syn-number: #a16207;
+
+  --grid-line: rgba(185, 28, 28, 0.05);
+  --glow-accent: rgba(185, 28, 28, 0.1);
+  --glow-accent-2: rgba(217, 119, 6, 0.1);
+}
+
+
+:root[data-palette="candy"][data-theme="dark"],
+:root[data-palette="candy"] [data-theme="dark"] {
+  --color-bg: #13060e;
+  --color-surface: #210d19;
+  --color-surface-2: #311626;
+  --color-border: #522841;
+  --color-accent: #f472b6;
+  --color-accent-2: #67e8f9;
+  --color-text: #ffebf6;
+  --color-muted: #be9db0;
+  --color-syn-type: #f9a8d4;
+  --color-syn-number: #a5f3fc;
+
+  --grid-line: rgba(103, 232, 249, 0.05);
+  --glow-accent: rgba(244, 114, 182, 0.22);
+  --glow-accent-2: rgba(103, 232, 249, 0.14);
+}
+
+:root[data-palette="candy"][data-theme="light"],
+:root[data-palette="candy"] [data-theme="light"] {
+  --color-bg: #fbf4f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #f6eaf1;
+  --color-border: #e8d4e0;
+  --color-accent: #be185d;
+  --color-accent-2: #0891b2;
+  --color-text: #200e18;
+  --color-muted: #765669;
+  --color-syn-type: #9d174d;
+  --color-syn-number: #0e7490;
+
+  --grid-line: rgba(190, 24, 93, 0.05);
+  --glow-accent: rgba(190, 24, 93, 0.1);
+  --glow-accent-2: rgba(8, 145, 178, 0.1);
+}
+
+
+:root[data-palette="cosmic"][data-theme="dark"],
+:root[data-palette="cosmic"] [data-theme="dark"] {
+  --color-bg: #0b0613;
+  --color-surface: #140d21;
+  --color-surface-2: #201631;
+  --color-border: #382852;
+  --color-accent: #a78bfa;
+  --color-accent-2: #fb923c;
+  --color-text: #f2ebff;
+  --color-muted: #a99dbe;
+  --color-syn-type: #c4b5fd;
+  --color-syn-number: #fdba74;
+
+  --grid-line: rgba(251, 146, 60, 0.05);
+  --glow-accent: rgba(167, 139, 250, 0.22);
+  --glow-accent-2: rgba(251, 146, 60, 0.14);
+}
+
+:root[data-palette="cosmic"][data-theme="light"],
+:root[data-palette="cosmic"] [data-theme="light"] {
+  --color-bg: #f6f4fb;
+  --color-surface: #ffffff;
+  --color-surface-2: #eeeaf6;
+  --color-border: #dbd4e8;
+  --color-accent: #6d28d9;
+  --color-accent-2: #ea580c;
+  --color-text: #150e20;
+  --color-muted: #625676;
+  --color-syn-type: #5b21b6;
+  --color-syn-number: #c2410c;
+
+  --grid-line: rgba(109, 40, 217, 0.05);
+  --glow-accent: rgba(109, 40, 217, 0.1);
+  --glow-accent-2: rgba(234, 88, 12, 0.1);
+}
+
+
+:root[data-palette="lime"][data-theme="dark"],
+:root[data-palette="lime"] [data-theme="dark"] {
+  --color-bg: #0d1306;
+  --color-surface: #18210d;
+  --color-surface-2: #253116;
+  --color-border: #3f5228;
+  --color-accent: #a3e635;
+  --color-accent-2: #facc15;
+  --color-text: #f5ffeb;
+  --color-muted: #aebe9d;
+  --color-syn-type: #bef264;
+  --color-syn-number: #fde047;
+
+  --grid-line: rgba(250, 204, 21, 0.05);
+  --glow-accent: rgba(163, 230, 53, 0.22);
+  --glow-accent-2: rgba(250, 204, 21, 0.14);
+}
+
+:root[data-palette="lime"][data-theme="light"],
+:root[data-palette="lime"] [data-theme="light"] {
+  --color-bg: #f8fbf4;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0f6ea;
+  --color-border: #dfe8d4;
+  --color-accent: #4d7c0f;
+  --color-accent-2: #a16207;
+  --color-text: #18200e;
+  --color-muted: #677656;
+  --color-syn-type: #3f6212;
+  --color-syn-number: #854d0e;
+
+  --grid-line: rgba(77, 124, 15, 0.05);
+  --glow-accent: rgba(77, 124, 15, 0.1);
+  --glow-accent-2: rgba(161, 98, 7, 0.1);
+}
+
+
+:root[data-palette="arctic"][data-theme="dark"],
+:root[data-palette="arctic"] [data-theme="dark"] {
+  --color-bg: #060e13;
+  --color-surface: #0d1921;
+  --color-surface-2: #162631;
+  --color-border: #284152;
+  --color-accent: #bae6fd;
+  --color-accent-2: #c7d2fe;
+  --color-text: #ebf7ff;
+  --color-muted: #9db0be;
+  --color-syn-type: #e0f2fe;
+  --color-syn-number: #e0e7ff;
+
+  --grid-line: rgba(199, 210, 254, 0.05);
+  --glow-accent: rgba(186, 230, 253, 0.22);
+  --glow-accent-2: rgba(199, 210, 254, 0.14);
+}
+
+:root[data-palette="arctic"][data-theme="light"],
+:root[data-palette="arctic"] [data-theme="light"] {
+  --color-bg: #f4f8fb;
+  --color-surface: #ffffff;
+  --color-surface-2: #eaf1f6;
+  --color-border: #d4e0e8;
+  --color-accent: #0c4a6e;
+  --color-accent-2: #4338ca;
+  --color-text: #0e1820;
+  --color-muted: #566976;
+  --color-syn-type: #075985;
+  --color-syn-number: #3730a3;
+
+  --grid-line: rgba(12, 74, 110, 0.05);
+  --glow-accent: rgba(12, 74, 110, 0.1);
+  --glow-accent-2: rgba(67, 56, 202, 0.1);
+}
+
+
+:root[data-palette="lavender"][data-theme="dark"],
+:root[data-palette="lavender"] [data-theme="dark"] {
+  --color-bg: #0a0613;
+  --color-surface: #130d21;
+  --color-surface-2: #1e1631;
+  --color-border: #352852;
+  --color-accent: #c4b5fd;
+  --color-accent-2: #f0abfc;
+  --color-text: #f1ebff;
+  --color-muted: #a79dbe;
+  --color-syn-type: #ddd6fe;
+  --color-syn-number: #f5d0fe;
+
+  --grid-line: rgba(240, 171, 252, 0.05);
+  --glow-accent: rgba(196, 181, 253, 0.22);
+  --glow-accent-2: rgba(240, 171, 252, 0.14);
+}
+
+:root[data-palette="lavender"][data-theme="light"],
+:root[data-palette="lavender"] [data-theme="light"] {
+  --color-bg: #f6f4fb;
+  --color-surface: #ffffff;
+  --color-surface-2: #edeaf6;
+  --color-border: #dad4e8;
+  --color-accent: #7c3aed;
+  --color-accent-2: #c026d3;
+  --color-text: #130e20;
+  --color-muted: #5f5676;
+  --color-syn-type: #6d28d9;
+  --color-syn-number: #a21caf;
+
+  --grid-line: rgba(124, 58, 237, 0.05);
+  --glow-accent: rgba(124, 58, 237, 0.1);
+  --glow-accent-2: rgba(192, 38, 211, 0.1);
+}
+
+
+:root[data-palette="copper"][data-theme="dark"],
+:root[data-palette="copper"] [data-theme="dark"] {
+  --color-bg: #130b06;
+  --color-surface: #21150d;
+  --color-surface-2: #312116;
+  --color-border: #523928;
+  --color-accent: #ea9a5a;
+  --color-accent-2: #f0b27a;
+  --color-text: #fff3eb;
+  --color-muted: #beaa9d;
+  --color-syn-type: #f5c9a0;
+  --color-syn-number: #fcd9b6;
+
+  --grid-line: rgba(240, 178, 122, 0.05);
+  --glow-accent: rgba(234, 154, 90, 0.22);
+  --glow-accent-2: rgba(240, 178, 122, 0.14);
+}
+
+:root[data-palette="copper"][data-theme="light"],
+:root[data-palette="copper"] [data-theme="light"] {
+  --color-bg: #fbf7f4;
+  --color-surface: #ffffff;
+  --color-surface-2: #f6eeea;
+  --color-border: #e8dcd4;
+  --color-accent: #9a3412;
+  --color-accent-2: #b45309;
+  --color-text: #20150e;
+  --color-muted: #766356;
+  --color-syn-type: #7c2d12;
+  --color-syn-number: #92400e;
+
+  --grid-line: rgba(154, 52, 18, 0.05);
+  --glow-accent: rgba(154, 52, 18, 0.1);
+  --glow-accent-2: rgba(180, 83, 9, 0.1);
+}
+
+
+:root[data-palette="graphite"][data-theme="dark"],
+:root[data-palette="graphite"] [data-theme="dark"] {
+  --color-bg: #0c0c0e;
+  --color-surface: #161718;
+  --color-surface-2: #222325;
+  --color-border: #3b3c40;
+  --color-accent: #e5e7eb;
+  --color-accent-2: #9ca3af;
+  --color-text: #f4f4f6;
+  --color-muted: #acadaf;
+  --color-syn-type: #d1d5db;
+  --color-syn-number: #cbd5e1;
+
+  --grid-line: rgba(156, 163, 175, 0.05);
+  --glow-accent: rgba(229, 231, 235, 0.22);
+  --glow-accent-2: rgba(156, 163, 175, 0.14);
+}
+
+:root[data-palette="graphite"][data-theme="light"],
+:root[data-palette="graphite"] [data-theme="light"] {
+  --color-bg: #f7f7f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #efeff0;
+  --color-border: #dddddf;
+  --color-accent: #111827;
+  --color-accent-2: #4b5563;
+  --color-text: #161718;
+  --color-muted: #646568;
+  --color-syn-type: #1f2937;
+  --color-syn-number: #374151;
+
+  --grid-line: rgba(17, 24, 39, 0.05);
+  --glow-accent: rgba(17, 24, 39, 0.1);
+  --glow-accent-2: rgba(75, 85, 99, 0.1);
+}
+
+
+:root[data-palette="toxic"][data-theme="dark"],
+:root[data-palette="toxic"] [data-theme="dark"] {
+  --color-bg: #061308;
+  --color-surface: #0d2111;
+  --color-surface-2: #16311b;
+  --color-border: #28522f;
+  --color-accent: #84cc16;
+  --color-accent-2: #22d3ee;
+  --color-text: #ebffee;
+  --color-muted: #9dbea3;
+  --color-syn-type: #bef264;
+  --color-syn-number: #67e8f9;
+
+  --grid-line: rgba(34, 211, 238, 0.05);
+  --glow-accent: rgba(132, 204, 22, 0.22);
+  --glow-accent-2: rgba(34, 211, 238, 0.14);
+}
+
+:root[data-palette="toxic"][data-theme="light"],
+:root[data-palette="toxic"] [data-theme="light"] {
+  --color-bg: #f4fbf5;
+  --color-surface: #ffffff;
+  --color-surface-2: #eaf6ec;
+  --color-border: #d4e8d7;
+  --color-accent: #3f6212;
+  --color-accent-2: #0e7490;
+  --color-text: #0e2011;
+  --color-muted: #56765b;
+  --color-syn-type: #365314;
+  --color-syn-number: #155e75;
+
+  --grid-line: rgba(63, 98, 18, 0.05);
+  --glow-accent: rgba(63, 98, 18, 0.1);
+  --glow-accent-2: rgba(14, 116, 144, 0.1);
+}
+
+
+:root[data-palette="tropic"][data-theme="dark"],
+:root[data-palette="tropic"] [data-theme="dark"] {
+  --color-bg: #061312;
+  --color-surface: #0d211f;
+  --color-surface-2: #16312f;
+  --color-border: #28524f;
+  --color-accent: #fb923c;
+  --color-accent-2: #2dd4bf;
+  --color-text: #ebfffd;
+  --color-muted: #9dbebb;
+  --color-syn-type: #fdba74;
+  --color-syn-number: #5eead4;
+
+  --grid-line: rgba(45, 212, 191, 0.05);
+  --glow-accent: rgba(251, 146, 60, 0.22);
+  --glow-accent-2: rgba(45, 212, 191, 0.14);
+}
+
+:root[data-palette="tropic"][data-theme="light"],
+:root[data-palette="tropic"] [data-theme="light"] {
+  --color-bg: #f4fbfa;
+  --color-surface: #ffffff;
+  --color-surface-2: #eaf6f5;
+  --color-border: #d4e8e6;
+  --color-accent: #c2410c;
+  --color-accent-2: #0f766e;
+  --color-text: #0e201f;
+  --color-muted: #567674;
+  --color-syn-type: #9a3412;
+  --color-syn-number: #115e59;
+
+  --grid-line: rgba(194, 65, 12, 0.05);
+  --glow-accent: rgba(194, 65, 12, 0.1);
+  --glow-accent-2: rgba(15, 118, 110, 0.1);
+}
+
+
+:root[data-palette="midnight"][data-theme="dark"],
+:root[data-palette="midnight"] [data-theme="dark"] {
+  --color-bg: #060913;
+  --color-surface: #0d1121;
+  --color-surface-2: #161c31;
+  --color-border: #283152;
+  --color-accent: #6366f1;
+  --color-accent-2: #38bdf8;
+  --color-text: #ebefff;
+  --color-muted: #9da4be;
+  --color-syn-type: #a5b4fc;
+  --color-syn-number: #7dd3fc;
+
+  --grid-line: rgba(56, 189, 248, 0.05);
+  --glow-accent: rgba(99, 102, 241, 0.22);
+  --glow-accent-2: rgba(56, 189, 248, 0.14);
+}
+
+:root[data-palette="midnight"][data-theme="light"],
+:root[data-palette="midnight"] [data-theme="light"] {
+  --color-bg: #f4f5fb;
+  --color-surface: #ffffff;
+  --color-surface-2: #eaecf6;
+  --color-border: #d4d8e8;
+  --color-accent: #4338ca;
+  --color-accent-2: #0369a1;
+  --color-text: #0e1120;
+  --color-muted: #565c76;
+  --color-syn-type: #3730a3;
+  --color-syn-number: #075985;
+
+  --grid-line: rgba(67, 56, 202, 0.05);
+  --glow-accent: rgba(67, 56, 202, 0.1);
+  --glow-accent-2: rgba(3, 105, 161, 0.1);
+}

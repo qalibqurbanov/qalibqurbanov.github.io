@@ -1,6 +1,7 @@
 import type { Rgb, SceneEnv, SceneFactory } from "../shared/scene/types";
 import { makeLayer, mix, noise2, rgba } from "../shared/scene/util";
 import { createWorld } from "../shared/scene/world";
+import { createCursorFx } from "./cursorFx";
 import { kinds } from "./objects";
 import { createTraffic } from "./road";
 import { createSkyline } from "./skyline";
@@ -32,6 +33,7 @@ export const createScene: SceneFactory = (canvas, env, objects) => {
   if (!g) return { frame() {} };
   const rnd = Math.random;
   const fx = objects.getContext("2d");
+  const cursorFx = createCursorFx();
   const world = createWorld(kinds, { perScreen: 2.8, veil: 0.34 });
   const traffic = createTraffic();
   const city = createSkyline(Math.random, [34, 229, 255]);
@@ -252,7 +254,7 @@ export const createScene: SceneFactory = (canvas, env, objects) => {
       // the cursor's neon trail
       if (e.seen) {
         const last = trail[trail.length - 1];
-        if (!last || Math.hypot(last.x - e.mx, last.y - e.my) > 2) trail.push({ x: e.mx, y: e.my, t: e.t });
+        if (!last || Math.hypot(last.x - e.rx, last.y - e.ry) > 2) trail.push({ x: e.rx, y: e.ry, t: e.t });
       }
       while (trail.length && e.t - trail[0].t > 0.7) trail.shift();
       if (trail.length > 1) {
@@ -283,15 +285,20 @@ export const createScene: SceneFactory = (canvas, env, objects) => {
   }
 
   return {
-    frame,
+    frame(e) {
+      frame(e);
+      cursorFx.frame(e);
+    },
     resize: (e) => {
       layout(e);
       world.relayout(e);
     },
     destroy: () => {
       world.destroy();
+      cursorFx.destroy();
     },
     press(x, y, e) {
+      cursorFx.press(x, y, e);
       for (let i = 0; i < 5; i++) trail.push({ x: x + (Math.random() - 0.5) * 60, y: y + (Math.random() - 0.5) * 60, t: e.t });
     },
   };

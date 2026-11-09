@@ -56,3 +56,14 @@
   animation: none !important;
   transition: none !important;
 }
+
+/* Every cursor is drawn a little smaller than its stylesheet describes. */
+.theme-cursor :is(.tc-ring, .tc-dot, .tc-arrow, .tc-bar, .tc-x) {
+  zoom: 0.82;
+}
+
+/* The original style's cursor is drawn a little smaller too. */
+.custom-cursor-ring,
+.custom-cursor-dot {
+  zoom: 0.82;
+}

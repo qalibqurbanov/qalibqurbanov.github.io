@@ -9,6 +9,7 @@ import { ContextMenu } from "@/components/ui/ContextMenu";
 import { TooltipLayer } from "@/components/ui/TooltipLayer";
 import { CursorGlow } from "@/components/ui/CursorGlow";
 import { CustomCursor } from "@/components/ui/CustomCursor";
+import { CyberClickFx } from "@/components/ui/CyberClickFx";
 import { About } from "@/features/home-sections/about/About";
 import { Hero } from "@/features/home-sections/hero/Hero";
 import { CommandPalette, Contact, ContactModal, CyberButterfly, Experience, Fireflies, ProjectDetail, Projects, ResumeViewer, Skills } from "@/app/sections";
@@ -47,6 +48,7 @@ export function App() {
       {original ? <AmbientBackground /> : <ThemeScene />}
       {decorated && original ? <CursorGlow /> : null}
       {decorated && original ? <CustomCursor /> : null}
+      {decorated && original ? <CyberClickFx /> : null}
       {!original && motion !== "off" ? <ThemeCursor /> : null}
       <OnDemand component={CommandPalette} event={OPEN_COMMAND_PALETTE_EVENT} shortcut={isPaletteShortcut} />
       <ContextMenu />

@@ -10,7 +10,7 @@
   stroke-width: 1;
   filter: drop-shadow(2px 2px 0 var(--color-accent-2));
   transform-origin: 0 0;
-  transition: transform 0.12s steps(3), filter 0.12s steps(3), fill 0.12s steps(3);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.3, 1), filter 0.2s ease, fill 0.2s ease;
 }
 
 :root[data-style="vaporwave"] .theme-cursor[data-state="link"] .tc-arrow {

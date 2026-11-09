@@ -118,7 +118,7 @@ export function SettingsMenu() {
         <div
           role="group"
           aria-label={ui.labels.settings}
-          className="absolute right-0 top-full z-[60] mt-3 w-64 animate-popover-in space-y-4 rounded-lg border border-border bg-surface p-4 shadow-lg shadow-black/20"
+          className="absolute right-0 top-full z-[60] mt-3 w-64 max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain custom-scrollbar animate-popover-in space-y-4 rounded-lg border border-border bg-surface p-4 shadow-lg shadow-black/20"
         >
           <section>
             <p className={title}>{ui.labels.settings}</p>

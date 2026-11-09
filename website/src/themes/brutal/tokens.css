@@ -1,0 +1,66 @@
+:root[data-style="brutal"] {
+  --font-display: "Archivo", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Archivo", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Martian Mono", "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --t-radius: 0;
+  --t-radius-sm: 0;
+  --t-border-w: 3px;
+  --t-border-color: var(--ink);
+  --t-head-weight: 900;
+  --t-head-case: uppercase;
+  --t-head-track: -0.03em;
+  --t-card-bg: var(--color-surface);
+  --t-card-shadow: 7px 7px 0 0 var(--ink);
+  --t-card-shadow-hover: 11px 11px 0 0 var(--ink);
+  --t-card-lift: translate(-3px, -3px);
+  --t-border-hover: var(--ink);
+  --t-btn-case: uppercase;
+  --t-btn-track: 0.04em;
+  --t-btn-shadow: 4px 4px 0 0 var(--ink);
+  --t-btn-border: var(--ink);
+  --t-btn-bg: var(--ink);
+  --t-btn-ink: var(--color-surface);
+  --t-panel-shadow: 8px 8px 0 0 var(--ink);
+  --t-scroll: var(--ink);
+  --t-scroll-radius: 0;
+  --t-cursor: var(--ink);
+  --t-cursor-radius: 0;
+  --t-cursor-dot-radius: 0;
+  --t-cursor-border: 3px solid;
+}
+
+:root[data-style="brutal"][data-theme="dark"],
+:root[data-style="brutal"] [data-theme="dark"] {
+  --ink: #000000;
+  --color-bg: #ffe14d;
+  --color-surface: #fff1b3;
+  --color-surface-2: #f3d65f;
+  --color-border: #000000;
+  --color-accent: #b91c0c;
+  --color-accent-2: #111111;
+  --color-text: #000000;
+  --color-muted: #2c2511;
+  --color-syn-type: #b3001b;
+  --color-syn-number: #000000;
+  --grid-line: rgba(0, 0, 0, 0.1);
+  --glow-accent: rgba(0, 0, 0, 0.15);
+  --glow-accent-2: rgba(0, 0, 0, 0.1);
+}
+
+:root[data-style="brutal"][data-theme="light"],
+:root[data-style="brutal"] [data-theme="light"] {
+  --ink: #3b372f;
+  --color-bg: #efe6d2;
+  --color-surface: #fff9ea;
+  --color-surface-2: #e4d8bc;
+  --color-border: #3b372f;
+  --color-accent: #b91c0c;
+  --color-accent-2: #3b372f;
+  --color-text: #2e2a23;
+  --color-muted: #4d483c;
+  --color-syn-type: #b3001b;
+  --color-syn-number: #3b372f;
+  --grid-line: rgba(59, 55, 47, 0.1);
+  --glow-accent: rgba(59, 55, 47, 0.15);
+  --glow-accent-2: rgba(59, 55, 47, 0.1);
+}

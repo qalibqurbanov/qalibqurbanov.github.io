@@ -286,7 +286,7 @@ export interface UiStrings {
     palette: string;
     /** The label of the visual style switcher. */
     style: string;
-    paletteNames: Record<"auto" | "violet" | "ocean" | "forest" | "sunset" | "rose", string>;
+    paletteNames: Record<import("@/themes/shared/colour/palettes").Palette, string>;
     minimize: string;
     close: string;
     home: string;

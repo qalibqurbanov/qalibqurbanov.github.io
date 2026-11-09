@@ -402,7 +402,7 @@ const en: Content = {
       settings: "Settings",
       palette: "Colour scheme",
       style: "Theme",
-      paletteNames: { auto: "Theme default", violet: "Violet", ocean: "Ocean", forest: "Forest", sunset: "Sunset", rose: "Rose" },
+      paletteNames: { auto: "Theme default", violet: "Violet", ocean: "Ocean", forest: "Forest", sunset: "Sunset", rose: "Rose", crimson: "Crimson", gold: "Gold", mint: "Mint", neon: "Neon", aurora: "Aurora", fire: "Fire", candy: "Candy", cosmic: "Cosmic", lime: "Lime", arctic: "Arctic", lavender: "Lavender", copper: "Copper", graphite: "Graphite", toxic: "Toxic", tropic: "Tropic", midnight: "Midnight" },
       minimize: "Minimize",
       close: "Close",
       home: "Home",

@@ -245,6 +245,7 @@ export function CustomCursor() {
       dot,
       ring,
       stateOf,
+      instant: true,
       caret: { states: ["field", "code"], min: 12, max: 30, ratio: 1.15 },
       onFirstMove: () => {
         stopIdle ??= subscribeTick(idleTick);

@@ -4,7 +4,8 @@
 @import "../themes/vaporwave/tokens.css";
 @import "../themes/synthwave/tokens.css";
 @import "../themes/monochrome/tokens.css";
-@import "../themes/chrome/tokens.css";
+@import "../themes/pixel/tokens.css";
+@import "../themes/brutal/tokens.css";
 
 @import "../themes/shared/colour/colours.css";
 @import "../themes/shared/base.css";
@@ -33,9 +34,11 @@
 @import "../themes/monochrome/scrollbar.css";
 @import "../themes/monochrome/components.css";
 @import "../themes/monochrome/not-found.css";
-@import "../themes/chrome/theme.css";
-@import "../themes/chrome/intro.css";
-@import "../themes/chrome/cursor.css";
-@import "../themes/chrome/scrollbar.css";
-@import "../themes/chrome/components.css";
-@import "../themes/chrome/not-found.css";
+
+/* The newer styles share one baseline (fields, panels, cursor, scrollbar) and add their own look on top. */
+@import "../themes/shared/generic.css";
+@import "../themes/pixel/theme.css";
+@import "../themes/pixel/cursor.css";
+@import "../themes/brutal/theme.css";
+@import "../themes/brutal/cursor.css";
+

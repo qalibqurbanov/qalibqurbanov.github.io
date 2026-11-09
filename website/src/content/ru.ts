@@ -403,7 +403,7 @@ const ru: Content = {
       settings: "Настройки",
       palette: "Цветовая схема",
       style: "Тема",
-      paletteNames: { auto: "Цвета темы", violet: "Фиолетовая", ocean: "Океан", forest: "Лес", sunset: "Закат", rose: "Роза" },
+      paletteNames: { auto: "Цвета темы", violet: "Фиолетовая", ocean: "Океан", forest: "Лес", sunset: "Закат", rose: "Роза", crimson: "Багровая", gold: "Золото", mint: "Мята", neon: "Неон", aurora: "Северное сияние", fire: "Огонь", candy: "Конфета", cosmic: "Космос", lime: "Лайм", arctic: "Арктика", lavender: "Лаванда", copper: "Медь", graphite: "Графит", toxic: "Токсик", tropic: "Тропики", midnight: "Полночь" },
       minimize: "Свернуть",
       close: "Закрыть",
       home: "Главная",

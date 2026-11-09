@@ -1,0 +1,152 @@
+/* The Brutalist cursor: heavy and blunt. A black pointer with a cream outline and a hard red shadow, and a square
+   frame that trails behind it. The frame names what you are over: over a link it fills red with an arrow, over
+   something you can drag it shows a double arrow, over a disabled thing a cross. Over text it is a fat black bar
+   with a red shadow. Nothing eases or glows; the shapes snap. */
+:root[data-style="brutal"] .tc-arrow {
+  display: block;
+  width: 26px;
+  height: 38px;
+  fill: var(--ink);
+  stroke: var(--color-surface);
+  stroke-width: 1.4;
+  stroke-linejoin: miter;
+  filter: drop-shadow(3px 3px 0 var(--color-accent));
+  transform-origin: 0 0;
+  transition: transform 0.14s cubic-bezier(0.2, 0.9, 0.25, 1), filter 0.14s cubic-bezier(0.2, 0.9, 0.25, 1), fill 0.14s ease, stroke 0.14s ease;
+}
+
+/* The trailing frame: a square outline in ink with a hard shadow. */
+:root[data-style="brutal"] .tc-ring {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: 3px 3px 0 0 var(--color-accent);
+  color: var(--color-surface);
+  font: 900 22px/1 var(--font-display);
+  transition: width 0.16s cubic-bezier(0.2, 0.9, 0.25, 1), height 0.16s cubic-bezier(0.2, 0.9, 0.25, 1), background-color 0.16s ease, box-shadow 0.16s ease, scale 0.12s ease, margin 0.16s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+/* The frames that carry a symbol sit down and to the right of the pointer, so the pointer never covers the symbol. */
+:root[data-style="brutal"] .theme-cursor:is([data-state="link"], [data-state="grab"], [data-state="no"]) .tc-ring {
+  margin: 30px 0 0 34px;
+}
+
+/* Over a link: the frame is a solid red block carrying an arrow, and the pointer turns red too. */
+:root[data-style="brutal"] .theme-cursor[data-state="link"] .tc-ring {
+  width: 40px;
+  height: 40px;
+  background: var(--color-accent);
+  box-shadow: 4px 4px 0 0 var(--ink);
+}
+
+:root[data-style="brutal"] .theme-cursor[data-state="link"] .tc-ring::after {
+  content: "↗";
+}
+
+:root[data-style="brutal"] .theme-cursor[data-state="link"] .tc-arrow {
+  fill: var(--color-accent);
+  stroke: var(--ink);
+  filter: drop-shadow(3px 3px 0 var(--ink));
+}
+
+/* Over something draggable: an ink block with a double arrow. */
+:root[data-style="brutal"] .theme-cursor[data-state="grab"] .tc-ring {
+  width: 40px;
+  height: 40px;
+  background: var(--ink);
+  box-shadow: 4px 4px 0 0 var(--color-accent);
+}
+
+:root[data-style="brutal"] .theme-cursor[data-state="grab"] .tc-ring::after {
+  content: "↔";
+}
+
+:root[data-style="brutal"] .theme-cursor[data-state="grab"] .tc-arrow {
+  display: none;
+}
+
+/* Over text: a fat bar, the frame gone. */
+:root[data-style="brutal"] .theme-cursor[data-state="field"] :is(.tc-arrow, .tc-ring) {
+  display: none;
+}
+
+:root[data-style="brutal"] .theme-cursor[data-state="field"] .tc-bar {
+  display: block;
+  width: 5px;
+  background: var(--ink);
+  box-shadow: 3px 3px 0 var(--color-accent);
+  animation: br-caret 0.8s steps(1) infinite;
+}
+
+@keyframes br-caret {
+  50% {
+    opacity: 0.15;
+  }
+}
+
+/* Disabled: a heavy red cross in the frame, the pointer greyed. */
+:root[data-style="brutal"] .theme-cursor[data-state="no"] .tc-ring {
+  background: var(--color-surface);
+  border-color: var(--color-accent);
+  box-shadow: 3px 3px 0 0 var(--ink);
+  color: var(--color-accent);
+}
+
+:root[data-style="brutal"] .theme-cursor[data-state="no"] .tc-ring::after {
+  content: "✕";
+}
+
+:root[data-style="brutal"] .theme-cursor[data-state="no"] .tc-arrow {
+  opacity: 0.45;
+}
+
+/* Pressed: it slams into its own shadow. */
+:root[data-style="brutal"] .theme-cursor.is-down .tc-arrow {
+  transform: translate(3px, 3px);
+  filter: drop-shadow(0 0 0 transparent);
+}
+
+:root[data-style="brutal"] .theme-cursor.is-down .tc-ring {
+  scale: 0.85;
+  box-shadow: 0 0 0 0 transparent;
+}
+
+/* Over a dark surface (the black footer, an ink button) the cursor swaps its colours, so it is never ink on ink:
+   a cream pointer with an ink outline, a cream frame, a cream caret. */
+:root[data-style="brutal"] .theme-cursor[data-bg="dark"] .tc-arrow {
+  fill: var(--color-surface);
+  stroke: var(--ink);
+  filter: drop-shadow(3px 3px 0 var(--color-accent));
+}
+
+:root[data-style="brutal"] .theme-cursor[data-bg="dark"] .tc-ring {
+  border-color: var(--color-surface);
+}
+
+:root[data-style="brutal"] .theme-cursor[data-bg="dark"] .tc-dot {
+  background: var(--color-surface);
+}
+
+:root[data-style="brutal"] .theme-cursor[data-bg="dark"][data-state="field"] .tc-bar {
+  background: var(--color-surface);
+}
+
+:root[data-style="brutal"] .theme-cursor[data-bg="dark"][data-state="grab"] .tc-ring {
+  background: var(--color-surface);
+  color: var(--ink);
+}
+
+:root[data-style="brutal"] .theme-cursor[data-bg="dark"][data-state="link"] .tc-arrow {
+  fill: var(--color-accent);
+  stroke: var(--color-surface);
+  filter: drop-shadow(3px 3px 0 var(--color-surface));
+}
+
+:root[data-style="brutal"] .theme-cursor[data-bg="dark"][data-state="link"] .tc-ring {
+  border-color: var(--color-surface);
+  box-shadow: 4px 4px 0 0 var(--color-surface);
+}

@@ -197,7 +197,10 @@ export function createWorld(kinds: Kind[], options: WorldOptions) {
           }
           if (score < 0.03) break;
         }
-        if (!found) continue;
+        if (!found) {
+          used.set(kind.id, (used.get(kind.id) ?? 1) - 1);
+          continue;
+        }
       } else
       for (let tries = 0; tries < 80; tries++) {
         const u = rnd();
@@ -227,7 +230,10 @@ export function createWorld(kinds: Kind[], options: WorldOptions) {
         if (score < 0.02) break;
       }
       // no spot is free of the objects already standing: leave it out rather than stack it on one
-      if (best.score >= 3) continue;
+      if (best.score >= 3) {
+        used.set(kind.id, (used.get(kind.id) ?? 1) - 1);
+        continue;
+      }
       placed.push({ x: best.x, y: best.y, scroll, depth, r, ext });
       next.push({
         kind,

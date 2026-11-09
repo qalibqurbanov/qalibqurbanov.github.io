@@ -25,11 +25,11 @@
       (function () {
         try {
           var palette = localStorage.getItem("palette");
-          if (["auto", "violet", "ocean", "forest", "sunset", "rose"].indexOf(palette) !== -1) {
+          if (["auto", "violet", "ocean", "forest", "sunset", "rose", "crimson", "gold", "mint", "neon", "aurora", "fire", "candy", "cosmic", "lime", "arctic", "lavender", "copper", "graphite", "toxic", "tropic", "midnight"].indexOf(palette) !== -1) {
             document.documentElement.setAttribute("data-palette", palette);
           }
           var style = localStorage.getItem("style");
-          if (["cyber", "vaporwave", "synthwave", "monochrome", "chrome"].indexOf(style) !== -1) {
+          if (["cyber", "vaporwave", "synthwave", "monochrome", "pixel", "brutal"].indexOf(style) !== -1) {
             document.documentElement.setAttribute("data-style", style);
           }
         } catch (e) {}
