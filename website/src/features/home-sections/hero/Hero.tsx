@@ -241,10 +241,10 @@ export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   // The drifting glows and the window's animations stand still once the hero is scrolled away.
   useEffect(() => (sectionRef.current ? pauseWhenOffscreen([sectionRef.current]) : undefined), []);
-  // The hero window has its own theme, independent of the site's: it starts
-  // out matching the site, then only the View menu, the status bar and the
-  // `theme` command change it.
+  // The hero window has its own theme: it matches the site and follows it whenever the site's mode is switched; the
+  // View menu, the status bar and the `theme` command can still change it on its own in between.
   const [theme, setTheme] = useState<Theme>(siteTheme);
+  useEffect(() => setTheme(siteTheme), [siteTheme]);
   const toggleTheme = useCallback(() => setTheme((current) => (current === "dark" ? "light" : "dark")), []);
   const [taglineBefore, taglineAfter] = ui.hero.tagline.split("{highlight}");
   const { ref: tiltRef, handleMouseMove, handleMouseLeave } = useTilt<HTMLDivElement>();
@@ -741,7 +741,7 @@ export function Hero() {
                 <HeroBootAura active={!booted} />
                 <div
                   data-theme={theme}
-                  className="relative rounded-xl overflow-hidden border border-border bg-surface text-text shadow-2xl shadow-black/40"
+                  className="hero-window relative rounded-xl overflow-hidden border border-border bg-surface text-text shadow-2xl shadow-black/40"
                 >
                   {/* The boot covers the title row too, so its text starts at the window's top edge. */}
                   {!booted && <HeroBoot onDone={handleBooted} />}
