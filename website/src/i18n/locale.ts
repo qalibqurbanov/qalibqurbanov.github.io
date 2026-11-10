@@ -1,4 +1,5 @@
 import { isStandalonePage } from "@/lib/notFound";
+import { notifyRouteChange, projectPath, projectSlugFromPath } from "@/lib/route";
 
 export type Locale = "en" | "az" | "ru";
 
@@ -92,11 +93,14 @@ export function navigateToLocale(locale: Locale, mode: "push" | "replace"): void
   // The 404 and links pages change language in place: their address must stay as it is.
   if (isStandalonePage()) return;
   const { pathname, search, hash } = window.location;
-  const target = pathForLocale(locale);
+  // A project's page stays on that project in the other language.
+  const slug = projectSlugFromPath(pathname);
+  const target = slug ? projectPath(slug, locale) : pathForLocale(locale);
   if (pathname === target) return;
   const url = `${target}${search}${hash}`;
   if (mode === "push") window.history.pushState(null, "", url);
   else window.history.replaceState(null, "", url);
+  notifyRouteChange();
 }
 
 /**

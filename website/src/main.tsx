@@ -7,6 +7,7 @@ import { loadContent } from "@/content";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { resolveInitialLocale } from "@/i18n/locale";
 import { isStandalonePage } from "@/lib/notFound";
+import { migrateLegacyProjectHash } from "@/lib/route";
 import { MotionProvider } from "@/motion/MotionProvider";
 import { playThemeIntro } from "@/themes/shared/intro";
 import { StyleProvider } from "@/themes/shared/style/StyleProvider";
@@ -129,6 +130,8 @@ if (!rootElement) {
 // Load the active language's chunk before the first render so the page never
 // paints empty or in the wrong language.
 const initialLocale = resolveInitialLocale();
+// Old project links (`/en/#/project/imager`) become the project's real address.
+migrateLegacyProjectHash();
 // A link into the page (a section or a project) also waits for the section chunks, so its target exists.
 // The 404 page has none of the sections, so it loads none of them.
 const notFound = isStandalonePage();

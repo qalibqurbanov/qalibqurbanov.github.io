@@ -4,8 +4,8 @@ import { GithubIcon } from "@/components/icons/BrandIcons";
 import { FileIcon } from "@/components/ui/FileIcon";
 import { Reveal } from "@/components/ui/Reveal";
 import { WindowControls } from "@/components/ui/WindowControls";
-import { projectHref } from "@/hooks/useProjectRoute";
-import { useContent } from "@/i18n/context";
+import { isPlainClick, projectHref, useProjectRoute } from "@/hooks/useProjectRoute";
+import { useContent, useLocale } from "@/i18n/context";
 import { format } from "@/lib/format";
 import { isDownloadUrl } from "@/lib/projectLinks";
 import { filenameFor } from "@/lib/projectFilename";
@@ -27,6 +27,15 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
   const { ui } = useContent();
+  const { locale } = useLocale();
+  const { openProject } = useProjectRoute();
+  const href = projectHref(project.slug, locale);
+  // A plain click opens the project inside the page; a new-tab click follows the real address.
+  const open = (event: React.MouseEvent) => {
+    if (!isPlainClick(event)) return;
+    event.preventDefault();
+    openProject(project.slug);
+  };
   const download = isDownloadUrl(project.liveUrl);
 
   return (
@@ -53,7 +62,7 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
                 {tileLetters(project.title)}
               </span>
               <div className="min-w-0">
-                <a href={projectHref(project.slug)}>
+                <a href={href} onClick={open}>
                   <h3 className="text-lg font-semibold text-text group-hover:text-accent transition-colors">
                     {project.title}
                   </h3>
@@ -85,7 +94,8 @@ export function ProjectCard({ project, index, delayMs = 0 }: ProjectCardProps) {
                 {ui.projectDetail.viewRepo}
               </a>
               <a
-                href={projectHref(project.slug)}
+                href={href}
+                onClick={open}
                 className="tap ml-auto inline-flex items-center gap-1 font-mono text-xs text-muted group-hover:text-accent transition-colors shrink-0"
               >
                 {ui.commandPalette.openCaseStudy}

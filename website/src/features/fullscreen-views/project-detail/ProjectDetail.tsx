@@ -9,7 +9,7 @@ import { Tag } from "@/components/ui/Tag";
 import { TAB_ACTIVE, TAB_BASE, TAB_IDLE } from "@/components/ui/tabStyles";
 import { ViewModal } from "@/components/ui/ViewModal";
 import { projectHref, useProjectRoute } from "@/hooks/useProjectRoute";
-import { useContent } from "@/i18n/context";
+import { useContent, useLocale } from "@/i18n/context";
 import { isDownloadUrl } from "@/lib/projectLinks";
 import { filenameFor } from "@/lib/projectFilename";
 import type { Project } from "@/types/content";
@@ -38,6 +38,7 @@ function DetailSection({ label, text }: { label: string; text: string }) {
  * and next project — also with the arrow keys. */
 function ProjectWindow({ project, onClose }: { project: Project; onClose: () => void }) {
   const { ui, projects } = useContent();
+  const { locale } = useLocale();
   const { openProject } = useProjectRoute();
   const [tab, setTab] = useState<DetailTab>("overview");
   const [copied, setCopied] = useState(false);
@@ -77,7 +78,7 @@ function ProjectWindow({ project, onClose }: { project: Project; onClose: () => 
   }, [prevSlug, nextSlug, openProject]);
 
   async function copyLink() {
-    const url = `${window.location.origin}${window.location.pathname}${projectHref(project.slug)}`;
+    const url = `${window.location.origin}${projectHref(project.slug, locale)}`;
     try {
       await navigator.clipboard.writeText(url);
     } catch {

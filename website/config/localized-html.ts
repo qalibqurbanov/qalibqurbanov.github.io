@@ -5,7 +5,7 @@ import path from "node:path";
 import type { Plugin } from "vite";
 
 import { externalLinks, siteLinks } from "../src/features/pages-without-language/links/shortLinks.ts";
-import { loadContents, renderContent } from "./prerender.ts";
+import { loadContents, renderContent, renderProject } from "./prerender.ts";
 
 // The site is a client-rendered SPA, but each language still needs its own
 // real HTML file at its own URL so crawlers and link previews see the right
@@ -163,12 +163,50 @@ function fontPreloads(assets: string[], code: string): string[] {
   });
 }
 
-function localize(template: string, page: LocalePage, assets: string[], modified: string, body: string): string {
+/** A description cut at a word boundary to fit a search result's snippet. */
+function shorten(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  return cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:\s]+$/, "") + "…";
+}
+
+/** What a project's own page needs beyond the language it is in. */
+interface ProjectPage {
+  slug: string;
+  title: string;
+  description: string;
+  kind: string;
+  repoUrl: string;
+  stack: string[];
+}
+
+/** Where a project's page lives in a language: /en/projects/imager/ */
+const projectUrlPath = (code: string, slug: string) => `/${code}/projects/${encodeURIComponent(slug)}/`;
+
+function localize(
+  template: string,
+  base: LocalePage,
+  assets: string[],
+  modified: string,
+  body: string,
+  project?: ProjectPage,
+): string {
+  // A project's page is the same page in its language with its own address, title and description.
+  const page: LocalePage = project
+    ? {
+        ...base,
+        path: projectUrlPath(base.code, project.slug),
+        title: `${project.title} — ${project.kind} | ${base.name}`,
+        description: project.description,
+      }
+    : base;
   const url = SITE_URL + page.path;
-  const alternates = PAGES.map(
-    (p) => `    <link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`,
-  );
-  alternates.push(`    <link rel="alternate" hreflang="x-default" href="${SITE_URL}/" />`);
+  const alternates = PAGES.map((p) => {
+    const path = project ? projectUrlPath(p.code, project.slug) : p.path;
+    return `    <link rel="alternate" hreflang="${p.code}" href="${SITE_URL + path}" />`;
+  });
+  const defaultHref = project ? SITE_URL + projectUrlPath("en", project.slug) : `${SITE_URL}/`;
+  alternates.push(`    <link rel="alternate" hreflang="x-default" href="${defaultHref}" />`);
 
   const personId = `${SITE_URL}/#person`;
   const websiteId = `${SITE_URL}/#website`;
@@ -199,24 +237,60 @@ function localize(template: string, page: LocalePage, assets: string[], modified
       inLanguage: PAGES.map((p) => p.code),
       publisher: { "@id": personId },
     },
-    {
-      "@type": "ProfilePage",
-      "@id": `${url}#profilepage`,
-      url,
-      name: page.title,
-      description: page.description,
-      inLanguage: page.code,
-      isPartOf: { "@id": websiteId },
-      mainEntity: { "@id": personId },
-      primaryImageOfPage: { "@type": "ImageObject", url: `${SITE_URL}/og/${page.code}.jpg`, width: 1200, height: 630 },
-      dateModified: modified,
-    },
-    ...PROJECTS.map(([name, projectUrl]) => ({
-      "@type": "SoftwareSourceCode",
-      name,
-      codeRepository: projectUrl,
-      author: { "@id": personId },
-    })),
+    ...(project
+      ? [
+          {
+            "@type": "WebPage",
+            "@id": `${url}#webpage`,
+            url,
+            name: page.title,
+            description: page.description,
+            inLanguage: page.code,
+            isPartOf: { "@id": websiteId },
+            about: { "@id": `${url}#project` },
+            primaryImageOfPage: { "@type": "ImageObject", url: `${SITE_URL}/og/${page.code}.jpg`, width: 1200, height: 630 },
+            dateModified: modified,
+            breadcrumb: { "@id": `${url}#breadcrumb` },
+          },
+          {
+            "@type": "SoftwareSourceCode",
+            "@id": `${url}#project`,
+            name: project.title,
+            description: project.description,
+            codeRepository: project.repoUrl,
+            programmingLanguage: project.stack,
+            inLanguage: page.code,
+            author: { "@id": personId },
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": `${url}#breadcrumb`,
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: base.name, item: SITE_URL + base.path },
+              { "@type": "ListItem", position: 2, name: project.title, item: url },
+            ],
+          },
+        ]
+      : [
+          {
+            "@type": "ProfilePage",
+            "@id": `${url}#profilepage`,
+            url,
+            name: page.title,
+            description: page.description,
+            inLanguage: page.code,
+            isPartOf: { "@id": websiteId },
+            mainEntity: { "@id": personId },
+            primaryImageOfPage: { "@type": "ImageObject", url: `${SITE_URL}/og/${page.code}.jpg`, width: 1200, height: 630 },
+            dateModified: modified,
+          },
+          ...PROJECTS.map(([name, projectUrl]) => ({
+            "@type": "SoftwareSourceCode",
+            name,
+            codeRepository: projectUrl,
+            author: { "@id": personId },
+          })),
+        ]),
   ];
   // "<" is escaped so no value can ever close the script tag early.
   const structuredData = `    <script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }).replace(/</g, "\\u003c")}</script>`;
@@ -227,11 +301,15 @@ function localize(template: string, page: LocalePage, assets: string[], modified
     `    <meta name="author" content="${escapeAttr(page.name)}" />`,
     `    <link rel="canonical" href="${url}" />`,
     ...alternates,
-    `    <meta property="og:type" content="profile" />`,
+    `    <meta property="og:type" content="${project ? "website" : "profile"}" />`,
     `    <meta property="og:site_name" content="${SITE_NAME}" />`,
-    `    <meta property="profile:first_name" content="${escapeAttr(page.name.split(" ")[0])}" />`,
-    `    <meta property="profile:last_name" content="${escapeAttr(page.name.split(" ")[1])}" />`,
-    `    <meta property="profile:username" content="qalibqurbanov" />`,
+    ...(project
+      ? []
+      : [
+          `    <meta property="profile:first_name" content="${escapeAttr(page.name.split(" ")[0])}" />`,
+          `    <meta property="profile:last_name" content="${escapeAttr(page.name.split(" ")[1])}" />`,
+          `    <meta property="profile:username" content="qalibqurbanov" />`,
+        ]),
     `    <meta property="og:url" content="${url}" />`,
     `    <meta property="og:title" content="${escapeAttr(page.title)}" />`,
     `    <meta property="og:description" content="${escapeAttr(page.description)}" />`,
@@ -370,7 +448,9 @@ export function localizedHtml(): Plugin {
       fs.writeFileSync(path.join(outDir, "404.html"), notFoundHtml(template));
 
       const contents = await loadContents(PAGES.map((page) => page.code));
-      const bodyOf = (page: LocalePage) => renderContent(contents[page.code], SITE_URL);
+      const bodyOf = (page: LocalePage) => renderContent(contents[page.code], SITE_URL, page.code);
+      // Every project has the same slugs in every language (they are identifiers, not text).
+      const slugs = contents.en.projects.map((project) => project.slug);
 
       const english = PAGES.find((page) => page.code === "en");
       if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english, assets, lastModified(), bodyOf(english)));
@@ -387,6 +467,26 @@ export function localizedHtml(): Plugin {
         const target = path.join(outDir, page.path, "index.html");
         fs.mkdirSync(path.dirname(target), { recursive: true });
         fs.writeFileSync(target, localize(template, page, assets, lastModified(), bodyOf(page)));
+
+        // Each project's own page: /<language>/projects/<slug>/
+        for (const slug of slugs) {
+          const project = contents[page.code].projects.find((item) => item.slug === slug);
+          if (!project) throw new Error(`Project "${slug}" is missing in "${page.code}"`);
+          const projectPage: ProjectPage = {
+            slug,
+            title: project.title,
+            description: shorten(project.description, 158),
+            kind: project.kind,
+            repoUrl: project.repoUrl,
+            stack: project.stack ?? [],
+          };
+          const projectTarget = path.join(outDir, projectUrlPath(page.code, slug), "index.html");
+          fs.mkdirSync(path.dirname(projectTarget), { recursive: true });
+          fs.writeFileSync(
+            projectTarget,
+            localize(template, page, assets, lastModified(), renderProject(contents[page.code], slug, SITE_URL, page.code), projectPage),
+          );
+        }
       }
 
       const built = lastModified();
@@ -398,10 +498,23 @@ export function localizedHtml(): Plugin {
         const priority = page.code === "en" ? "1.0" : "0.9";
         return `  <url>\n    <loc>${SITE_URL + page.path}</loc>\n    <lastmod>${built}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>${priority}</priority>\n${links}\n${image}\n  </url>`;
       }).join("\n");
+      const projectUrls = slugs
+        .flatMap((slug) =>
+          PAGES.map((page) => {
+            const links = [
+              ...PAGES.map((p) => ({ code: p.code, path: projectUrlPath(p.code, slug) })),
+              { code: "x-default", path: projectUrlPath("en", slug) },
+            ]
+              .map((p) => `      <xhtml:link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`)
+              .join("\n");
+            return `  <url>\n    <loc>${SITE_URL + projectUrlPath(page.code, slug)}</loc>\n    <lastmod>${built}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n${links}\n  </url>`;
+          }),
+        )
+        .join("\n");
       const linksUrl = `  <url>\n    <loc>${SITE_URL}/links/</loc>\n    <lastmod>${built}</lastmod>\n    <changefreq>yearly</changefreq>\n    <priority>0.5</priority>\n  </url>`;
       fs.writeFileSync(
         path.join(outDir, "sitemap.xml"),
-        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls}\n${linksUrl}\n</urlset>\n`,
+        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls}\n${projectUrls}\n${linksUrl}\n</urlset>\n`,
       );
       fs.writeFileSync(path.join(outDir, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
       // A short plain-text description of the site for AI assistants and other tools that read it (llmstxt.org).
@@ -422,7 +535,7 @@ export function localizedHtml(): Plugin {
           ...PROFILE_LINKS.map(([label, href]) => `- [${label}](${href})`),
           "",
           "## Projects",
-          ...PROJECTS.map(([name, href]) => `- [${name}](${href})`),
+          ...contents.en.projects.map((project) => `- [${project.title}](${SITE_URL + projectUrlPath("en", project.slug)}): ${shorten(project.description, 158)}`),
           "",
           "## Skills",
           SKILLS.join(", "),

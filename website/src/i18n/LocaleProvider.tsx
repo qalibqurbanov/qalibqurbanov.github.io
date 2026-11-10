@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 
 import { loadContent } from "@/content";
 import { glitchScreen } from "@/hooks/glitch";
 import { useClock } from "@/hooks/useClock";
 import { careerYears, withLiveStats } from "@/lib/liveStats";
 import { isLinksPage, isNotFoundPage } from "@/lib/notFound";
+import { projectSlugFromPath, routeSnapshot, subscribeRoute } from "@/lib/route";
 import type { Content } from "@/types/content";
 
 import { LocaleContext, type LocaleContextValue } from "./context";
@@ -25,15 +26,21 @@ export function LocaleProvider({ initialLocale, initialContent, children }: Loca
   const [state, setState] = useState({ locale: initialLocale, content: initialContent });
   const latestRequest = useRef<Locale>(initialLocale);
 
+  // A project's page has its own title, like the one built into its HTML.
+  const route = useSyncExternalStore(subscribeRoute, routeSnapshot, () => "/");
   useEffect(() => {
     document.documentElement.lang = state.locale;
     const { name, role } = state.content.profile;
+    const slug = projectSlugFromPath(window.location.pathname);
+    const project = slug ? state.content.projects.find((item) => item.slug === slug) : undefined;
     document.title = isNotFoundPage()
       ? `404 | ${state.content.ui.notFound.title}`
       : isLinksPage()
         ? `${name} | ${state.content.ui.links.title}`
-        : `${name} | ${role}`;
-  }, [state]);
+        : project
+          ? `${project.title} — ${project.kind} | ${name}`
+          : `${name} | ${role}`;
+  }, [state, route]);
 
   const switchTo = useCallback(async (next: Locale) => {
     latestRequest.current = next;

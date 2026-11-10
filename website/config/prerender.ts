@@ -26,6 +26,7 @@ interface Content {
     tags: string[];
   }>;
   projects: Array<{
+    slug: string;
     title: string;
     kind: string;
     description: string;
@@ -41,6 +42,7 @@ interface Content {
     sections: Record<"about" | "experience" | "projects" | "skills" | "contact", { title: string }>;
     skillGroups: Record<string, string>;
     skillsClient: { title: string; text: string };
+    experienceLabels: { stack: string };
     contact: { body: string };
   };
 }
@@ -90,11 +92,12 @@ export async function loadContents(codes: string[]): Promise<Loaded> {
   }
 }
 
+const projectPath = (code: string, slug: string) => `/${code}/projects/${encodeURIComponent(slug)}/`;
 const link = (label: string, url: string) => `<a href="${escapeHtml(url)}">${escapeHtml(label)}</a>`;
 const list = (items: string[]) => (items.length ? `<ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>` : "");
 
 /** The page's text as plain, semantic HTML: one H1, then a section per part of the site. */
-export function renderContent(content: Content, siteUrl: string): string {
+export function renderContent(content: Content, siteUrl: string, code: string): string {
   const { profile, about, experience, projects, skills, ui, socials } = content;
   const out: string[] = [];
 
@@ -124,7 +127,7 @@ export function renderContent(content: Content, siteUrl: string): string {
 
   out.push(`<section id="projects"><h2>${escapeHtml(ui.sections.projects.title)}</h2>`);
   for (const project of projects) {
-    out.push(`<article><h3>${escapeHtml(project.title)}</h3><p>${escapeHtml(project.kind)}</p><p>${escapeHtml(project.description)}</p>`);
+    out.push(`<article><h3><a href="${projectPath(code, project.slug)}">${escapeHtml(project.title)}</a></h3><p>${escapeHtml(project.kind)}</p><p>${escapeHtml(project.description)}</p>`);
     for (const text of [project.problem, project.approach, project.outcome]) if (text) out.push(`<p>${escapeHtml(text)}</p>`);
     if (project.stack?.length) out.push(`<p>${escapeHtml(project.stack.join(", "))}</p>`);
     out.push(list([link("Source", project.repoUrl), link("Download", project.liveUrl)]));
@@ -154,5 +157,21 @@ export function renderContent(content: Content, siteUrl: string): string {
   );
   out.push("</section>");
 
+  return out.join("\n");
+}
+
+/** One project's own page: its write-up as plain HTML, with a way back to the home page of that language. */
+export function renderProject(content: Content, slug: string, siteUrl: string, code: string): string {
+  const project = content.projects.find((item) => item.slug === slug);
+  if (!project) throw new Error(`No project "${slug}"`);
+  const { profile, ui } = content;
+  const out: string[] = [];
+  out.push(`<header><p>${link(`${profile.name} — ${profile.role}`, `${siteUrl}/${code}/`)}</p>`);
+  out.push(`<h1>${escapeHtml(project.title)}</h1><p>${escapeHtml(project.kind)}</p></header>`);
+  out.push(`<section><p>${escapeHtml(project.description)}</p>`);
+  for (const text of [project.problem, project.approach, project.outcome]) if (text) out.push(`<p>${escapeHtml(text)}</p>`);
+  if (project.stack?.length) out.push(`<h2>${escapeHtml(ui.experienceLabels.stack)}</h2><p>${escapeHtml(project.stack.join(", "))}</p>`);
+  out.push(list([link("Source", project.repoUrl), link("Download", project.liveUrl)]));
+  out.push("</section>");
   return out.join("\n");
 }

@@ -150,7 +150,7 @@ function notFoundPage(): Plugin {
       }
       if (isOwnPage(pathname) && serveOwn) return serveOwn(pathname, res);
       // Dev-only internals (/@vite, /src/..., /node_modules/...) and anything with an extension.
-      const passthrough = pages.has(pathname) || isOwnPage(pathname) || /\.[a-z0-9]+$/i.test(pathname) || /^\/(@|src\/|node_modules\/)/.test(pathname);
+      const passthrough = pages.has(pathname) || /^\/(en|az|ru)\/projects\/[^/]+\/?$/.test(pathname) || isOwnPage(pathname) || /\.[a-z0-9]+$/i.test(pathname) || /^\/(@|src\/|node_modules\/)/.test(pathname);
       if (passthrough) return next();
       try {
         const html = await read(req.url ?? "/");
