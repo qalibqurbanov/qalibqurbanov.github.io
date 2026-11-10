@@ -5,6 +5,7 @@ import path from "node:path";
 import type { Plugin } from "vite";
 
 import { externalLinks, siteLinks } from "../src/features/pages-without-language/links/shortLinks.ts";
+import { loadContents, renderContent } from "./prerender.ts";
 
 // The site is a client-rendered SPA, but each language still needs its own
 // real HTML file at its own URL so crawlers and link previews see the right
@@ -162,7 +163,7 @@ function fontPreloads(assets: string[], code: string): string[] {
   });
 }
 
-function localize(template: string, page: LocalePage, assets: string[], modified: string): string {
+function localize(template: string, page: LocalePage, assets: string[], modified: string, body: string): string {
   const url = SITE_URL + page.path;
   const alternates = PAGES.map(
     (p) => `    <link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`,
@@ -242,22 +243,16 @@ function localize(template: string, page: LocalePage, assets: string[], modified
     structuredData,
   ].join("\n");
 
-  // The page itself is drawn by JavaScript, so a program that only reads the raw HTML (some
-  // recruiter and job-site tools, link scanners, text-only browsers) would otherwise find it
-  // empty. This short copy gives it the essentials; visitors with JavaScript never see it.
-  const plainText = [
-    "    <noscript>",
-    `      <h1>${page.name} — ${page.jobTitle}</h1>`,
-    `      <p>${page.location}</p>`,
-    `      <p>${page.summary}</p>`,
-    `      <p>${SKILLS.join(", ")}</p>`,
-    "      <ul>",
-    ...PROJECTS.map(([name, href]) => `        <li><a href="${href}">${name}</a></li>`),
-    `        <li><a href="${SITE_URL}/resume.pdf">${page.resumeLabel}</a></li>`,
-    ...PROFILE_LINKS.map(([label, href]) => `        <li><a href="${href}">${label}</a></li>`),
-    "      </ul>",
-    "    </noscript>",
+  // The page itself is drawn by JavaScript, so a program that only reads the raw HTML (search and AI
+  // crawlers, link scanners, text-only browsers) would otherwise find it empty. The real text of the
+  // page goes inside the root, kept off screen; the site replaces it the moment it starts. Without
+  // JavaScript the noscript style shows it as an ordinary page.
+  const hidden = "position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap";
+  const prerenderStyle = [
+    `    <style>[data-prerender]{${hidden}}</style>`,
+    `    <noscript><style>[data-prerender]{position:static;width:auto;height:auto;margin:1rem;overflow:visible;clip:auto;white-space:normal;color:#ddd;font:16px/1.6 system-ui,sans-serif}[data-prerender] a{color:#b185ff}</style></noscript>`,
   ].join("\n");
+  const root = `<div id="root"><div data-prerender>\n${body}\n</div></div>`;
 
   return template
     .replace(/<html lang="[^"]*"/, `<html lang="${page.code}"`)
@@ -266,8 +261,8 @@ function localize(template: string, page: LocalePage, assets: string[], modified
       /<meta name="description" content="[^"]*" \/>/,
       `<meta name="description" content="${escapeAttr(page.description)}" />`,
     )
-    .replace("</head>", `${head}\n  </head>`)
-    .replace('<div id="root"></div>', `<div id="root"></div>\n${plainText}`);
+    .replace("</head>", `${head}\n${prerenderStyle}\n  </head>`)
+    .replace('<div id="root"></div>', root);
 }
 
 /** The 404 page: the same page as the rest of the site, marked so the app shows its not-found view
@@ -368,14 +363,17 @@ export function localizedHtml(): Plugin {
     configResolved(config) {
       outDir = path.resolve(config.root, config.build.outDir);
     },
-    closeBundle() {
+    async closeBundle() {
       const template = fs.readFileSync(path.join(outDir, "index.html"), "utf-8");
       const assets = fs.existsSync(path.join(outDir, "assets")) ? fs.readdirSync(path.join(outDir, "assets")) : [];
 
       fs.writeFileSync(path.join(outDir, "404.html"), notFoundHtml(template));
 
+      const contents = await loadContents(PAGES.map((page) => page.code));
+      const bodyOf = (page: LocalePage) => renderContent(contents[page.code], SITE_URL);
+
       const english = PAGES.find((page) => page.code === "en");
-      if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english, assets, lastModified()));
+      if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english, assets, lastModified(), bodyOf(english)));
 
       const linksDir = path.join(outDir, "links");
       fs.mkdirSync(linksDir, { recursive: true });
@@ -388,7 +386,7 @@ export function localizedHtml(): Plugin {
       for (const page of PAGES) {
         const target = path.join(outDir, page.path, "index.html");
         fs.mkdirSync(path.dirname(target), { recursive: true });
-        fs.writeFileSync(target, localize(template, page, assets, lastModified()));
+        fs.writeFileSync(target, localize(template, page, assets, lastModified(), bodyOf(page)));
       }
 
       const built = lastModified();
