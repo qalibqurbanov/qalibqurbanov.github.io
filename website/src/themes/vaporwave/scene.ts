@@ -151,6 +151,8 @@ export const createScene: SceneFactory = (canvas, env0, objects, models) => {
       frame(e);
       cursorFx.frame(e);
     },
+    // A dialog covers the page and the scene stops, but the cursor's effects are drawn above the dialog and go on.
+    covered: (e) => cursorFx.frame(e),
     press: (x, y, e) => cursorFx.press(x, y, e),
     resize: (e) => {
       stage?.resize(e);

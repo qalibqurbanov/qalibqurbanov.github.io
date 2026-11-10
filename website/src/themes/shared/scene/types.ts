@@ -46,6 +46,9 @@ export interface Scene {
   frame(env: SceneEnv): void;
   /** The viewport changed size; the canvas has already been resized. */
   resize?(env: SceneEnv): void;
+  /** Called instead of `frame` while a dialog covers the page: only what is drawn above the dialog (the cursor's
+   * trail and click effects) goes on, so none of it freezes mid-air. */
+  covered?(env: SceneEnv): void;
   /** A press somewhere in the viewport. */
   press?(x: number, y: number, env: SceneEnv): void;
   destroy?(): void;

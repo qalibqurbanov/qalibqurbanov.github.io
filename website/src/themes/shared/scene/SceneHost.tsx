@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import { prefersReducedMotion } from "@/hooks/glitch";
-import { subscribeTick } from "@/lib/ticker";
+import { isCovered, subscribeTick } from "@/lib/ticker";
 import { useMotion } from "@/motion/context";
 
 import type { SceneEnv, SceneFactory } from "./types";
@@ -133,6 +133,10 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
         env.vx += ((env.rx - env.mx) / 0.06 - env.vx) * 0.2;
         env.vy += ((env.ry - env.my) / 0.06 - env.vy) * 0.2;
       }
+      if (isCovered()) {
+        scene.covered?.(env);
+        return;
+      }
       env.bx = env.react ? env.mx : env.w / 2;
       env.by = env.react ? env.my : env.h / 2;
       measureScroll();
@@ -192,8 +196,9 @@ export function SceneHost({ factory }: { factory: SceneFactory }) {
       }, 250);
       stop = () => window.clearInterval(id);
     } else {
-      // Not drawn while a dialog covers the page: it hides the scene, and the scene is the costliest thing running.
-      stop = subscribeTick(draw, motion === "light" ? 33 : 0, true);
+      // While a dialog covers the page only the effects above it are drawn (see `draw`): the scene itself is the
+      // costliest thing running, and the dialog hides it.
+      stop = subscribeTick(draw, motion === "light" ? 33 : 0);
     }
 
     return () => {

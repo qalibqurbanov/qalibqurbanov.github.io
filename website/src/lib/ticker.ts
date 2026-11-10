@@ -21,7 +21,7 @@ function loop(now: number): void {
   raf = 0;
   for (const sub of [...subs]) {
     if (now - sub.last < sub.every - 1) continue;
-    if (sub.pauseWhenCovered && covered()) continue;
+    if (sub.pauseWhenCovered && isCovered()) continue;
     sub.last = now;
     sub.fn(now);
   }
@@ -29,7 +29,7 @@ function loop(now: number): void {
 }
 
 /** A modal is open (Radix marks the body while it locks the page behind it). */
-function covered(): boolean {
+export function isCovered(): boolean {
   return document.body.hasAttribute("data-scroll-locked");
 }
 

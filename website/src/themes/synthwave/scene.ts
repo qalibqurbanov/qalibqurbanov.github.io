@@ -297,6 +297,8 @@ export const createScene: SceneFactory = (canvas, env, objects) => {
       world.destroy();
       cursorFx.destroy();
     },
+    // A dialog covers the page and the scene stops, but the cursor's effects are drawn above the dialog and go on.
+    covered: (e) => cursorFx.frame(e),
     press(x, y, e) {
       cursorFx.press(x, y, e);
       for (let i = 0; i < 5; i++) trail.push({ x: x + (Math.random() - 0.5) * 60, y: y + (Math.random() - 0.5) * 60, t: e.t });
