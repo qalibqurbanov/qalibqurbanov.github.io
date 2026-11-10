@@ -16,11 +16,14 @@ type Icon = ComponentType<{ className?: string; size?: number }>;
 /** The tabs: the two groups of skills, then the note about the front end and mobile. */
 type TabId = SkillCategory | "client";
 
-const TABS: { id: TabId; icon: Icon; color: string }[] = [
-  { id: "backend", icon: Server, color: "var(--color-accent)" },
-  { id: "tools", icon: Wrench, color: "var(--color-accent-2)" },
-  { id: "client", icon: MonitorSmartphone, color: "var(--color-syn-number)" },
+const TABS: { id: TabId; icon: Icon }[] = [
+  { id: "backend", icon: Server },
+  { id: "tools", icon: Wrench },
+  { id: "client", icon: MonitorSmartphone },
 ];
+
+/** All tabs share the theme's accent as their active colour, so it follows the style and colour scheme. */
+const TAB_COLOR = "var(--color-accent)";
 
 /** Skills that belong together share one labelled row. Names and labels are technical terms, so
  * like the skills themselves they stay the same across locales.
@@ -186,20 +189,20 @@ export function Skills() {
                   tabIndex={selected ? 0 : -1}
                   onClick={() => setActive(tab.id)}
                   onKeyDown={(event) => onKeyDown(event, index)}
-                  style={{ "--tab-color": tab.color } as CSSProperties}
+                  style={{ "--tab-color": TAB_COLOR } as CSSProperties}
                   // On a phone the three tabs share the row, each with its icon above its name, so they always fit.
                   className={`relative inline-flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-t-lg px-2 pb-3 pt-2.5 text-center font-mono text-[11.5px] leading-tight transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--tab-color)] md:flex-none md:flex-row md:gap-2 md:px-4 md:text-left md:text-[13px] md:leading-normal ${
                     selected ? "bg-[color-mix(in_srgb,var(--tab-color)_9%,transparent)] text-text" : "text-muted hover:text-text"
                   }`}
                 >
-                  <span style={selected ? { color: tab.color, filter: `drop-shadow(0 0 6px ${tab.color})` } : undefined}>
+                  <span style={selected ? { color: TAB_COLOR, filter: `drop-shadow(0 0 6px ${TAB_COLOR})` } : undefined}>
                     <Icon size={16} />
                   </span>
                   {label}
                   {tab.id !== "client" && (
                     <span className="hidden rounded-full border border-border bg-surface-2 px-1.5 text-[10px] leading-4 text-muted md:inline">{skills[tab.id].length}</span>
                   )}
-                  {selected && <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full" style={{ background: tab.color, boxShadow: `0 0 12px ${tab.color}` }} />}
+                  {selected && <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full" style={{ background: TAB_COLOR, boxShadow: `0 0 12px ${TAB_COLOR}` }} />}
                 </button>
               );
             })}

@@ -83,21 +83,23 @@ export function ViewModal({
         <Dialog.Content
           ref={contentRef}
           {...(title ? { "aria-describedby": undefined } : {})}
+          // A click anywhere on the dimmed area closes the view, which is everything in here that is not
+          // the window itself: the sides, the top, and the empty space under a window shorter than the screen
+          // (that part is covered by layout wrappers, so comparing the target with one element isn't enough).
+          // Clicks from portaled popovers are not inside this element in the DOM, so they never close it.
           onClick={(event) => {
-            if (event.target === event.currentTarget) requestClose();
+            const target = event.target;
+            if (!(target instanceof Element) || !target.isConnected || !event.currentTarget.contains(target)) return;
+            if (!target.closest(".glitch-border")) requestClose();
           }}
           className="fixed inset-0 z-[60] flex flex-col outline-none view-content"
         >
           {title && <Dialog.Title className="sr-only">{title}</Dialog.Title>}
 
-          <div
-            onClick={(event) => {
-              if (event.target === event.currentTarget) requestClose();
-            }}
-            className="flex min-h-0 flex-1 flex-col items-center px-4 pb-6 pt-20"
-          >
+          {/* Centred on the screen; equal space top and bottom (the top one clears the navbar's back bar). */}
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-20">
             <div
-              className={`flex min-h-0 w-full flex-1 flex-col ${widthClass}`}
+              className={`flex min-h-0 w-full flex-1 flex-col justify-center ${widthClass}`}
             >
               {typeof children === "function"
                 ? children(requestClose)

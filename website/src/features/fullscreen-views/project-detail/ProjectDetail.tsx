@@ -282,7 +282,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                  taller than that, so the header and footer stay put. Keyed by
                  project so stepping to the next one plays the entrance again
                  and starts back on the overview tab. */
-              <Reveal key={project.slug} className="h-full flex flex-col min-h-0">
+              <Reveal key={project.slug} className="h-full flex flex-col justify-center min-h-0">
                 <ProjectWindow project={project} onClose={close} />
               </Reveal>
             )}
