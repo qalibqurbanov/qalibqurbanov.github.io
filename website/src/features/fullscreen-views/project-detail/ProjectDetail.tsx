@@ -172,7 +172,7 @@ function ProjectWindow({ project, onClose }: { project: Project; onClose: () => 
         {tab === "overview" || !hasCase ? (
           <>
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <h1 className="min-w-0 flex-1 text-3xl font-bold tracking-tight">{project.title}</h1>
+              <h1 className="project-title min-w-0 flex-1 text-3xl font-bold tracking-tight">{project.title}</h1>
               <div className="flex flex-wrap gap-3 shrink-0">
                 <a
                   href={project.repoUrl}
