@@ -43,7 +43,7 @@ export function App() {
     <div className={notFound ? "nf-shell relative" : "relative min-h-screen"}>
       {original ? <AmbientBackground /> : <ThemeScene />}
       {decorated && original ? <CursorGlow /> : null}
-      {decorated && original ? <CustomCursor /> : null}
+      {decorated ? <CustomCursor /> : null}
       <OnDemand component={CommandPalette} event={OPEN_COMMAND_PALETTE_EVENT} shortcut={isPaletteShortcut} />
       <ContextMenu />
       <TooltipLayer />

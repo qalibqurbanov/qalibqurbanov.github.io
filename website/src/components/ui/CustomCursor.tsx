@@ -6,6 +6,8 @@ import { subscribeTick } from "@/lib/ticker";
 import { prefersReducedMotion } from "@/hooks/glitch";
 import { isNotFoundPage } from "@/lib/notFound";
 
+import { paintThemeTrail } from "./cursorTrails";
+
 type CursorState = "default" | "link" | "field" | "code" | "grab" | "no" | "help" | "download";
 
 const CODE = 'pre, code, .terminal-scroll, .selectable, [data-cursor="code"]';
@@ -230,17 +232,23 @@ export function CustomCursor() {
           gr.addColorStop(1, rgba(look.b, a1));
           return gr;
         };
-        // A soft glow under the silk band. Adding light only reads on a dark page.
-        if (!light) {
-          g.globalCompositeOperation = "lighter";
-          polygon((i) => Math.pow(i / (n - 1), 1.3) * w * 2.4);
-          g.fillStyle = grad(0.12, 0.2);
+        const style = document.documentElement.getAttribute("data-style");
+        if (style && style !== "cyber") {
+          // Every other style keeps this cursor as it is and leaves a trail of its own.
+          paintThemeTrail(style, { g, pts, n, nr, w, a: look.a, b: look.b, light });
+        } else {
+          // A soft glow under the silk band. Adding light only reads on a dark page.
+          if (!light) {
+            g.globalCompositeOperation = "lighter";
+            polygon((i) => Math.pow(i / (n - 1), 1.3) * w * 2.4);
+            g.fillStyle = grad(0.12, 0.2);
+            g.fill();
+            g.globalCompositeOperation = "source-over";
+          }
+          polygon((i) => Math.pow(i / (n - 1), 1.3) * w);
+          g.fillStyle = grad(0.55, 0.95);
           g.fill();
-          g.globalCompositeOperation = "source-over";
         }
-        polygon((i) => Math.pow(i / (n - 1), 1.3) * w);
-        g.fillStyle = grad(0.55, 0.95);
-        g.fill();
       }
       ribbonFrame = pts.length ? requestAnimationFrame(ribbonTick) : 0;
     };

@@ -7,12 +7,6 @@ import { createCar } from "./car";
 import { createTraffic } from "./road";
 import { createSkyline } from "./skyline";
 
-interface Trail {
-  x: number;
-  y: number;
-  t: number;
-}
-
 interface Streak {
   y: number;
   x: number;
@@ -39,7 +33,6 @@ export const createScene: SceneFactory = (canvas, env, objects, models) => {
   const stage = createStage(models, env, { key: 0xff7ac8, fill: 0x3ee6ff, sky: 0x9a6cff, ground: 0x1a0a3a, exposure: 1.15, envIntensity: 0.8 });
   const car = createCar(() => stage);
   const city = createSkyline(Math.random, [34, 229, 255]);
-  const trail: Trail[] = [];
   const streaks: Streak[] = [];
   let nextStreak = 2;
   let travel = 0;
@@ -256,28 +249,6 @@ export const createScene: SceneFactory = (canvas, env, objects, models) => {
         if (s.x < -s.len - 50 || s.x > e.w + s.len + 50) streaks.splice(i, 1);
       }
 
-      // the cursor's neon trail
-      if (e.seen) {
-        const last = trail[trail.length - 1];
-        if (!last || Math.hypot(last.x - e.mx, last.y - e.my) > 2) trail.push({ x: e.mx, y: e.my, t: e.t });
-      }
-      while (trail.length && e.t - trail[0].t > 0.7) trail.shift();
-      if (trail.length > 1) {
-        for (let i = 1; i < trail.length; i++) {
-          const a = 1 - (e.t - trail[i].t) / 0.7;
-          const c = mix(CYAN, HOT, i / trail.length);
-          g!.strokeStyle = rgba(c, a * 0.35);
-          g!.lineWidth = 9 * a;
-          g!.lineCap = "round";
-          g!.beginPath();
-          g!.moveTo(trail[i - 1].x, trail[i - 1].y);
-          g!.lineTo(trail[i].x, trail[i].y);
-          g!.stroke();
-          g!.strokeStyle = rgba(mix(c, [255, 255, 255], 0.6), a * 0.95);
-          g!.lineWidth = 2 * a + 0.4;
-          g!.stroke();
-        }
-      }
       g!.globalCompositeOperation = "source-over";
     }
 
@@ -299,9 +270,6 @@ export const createScene: SceneFactory = (canvas, env, objects, models) => {
     destroy: () => {
       world.destroy();
       stage?.destroy();
-    },
-    press(x, y, e) {
-      for (let i = 0; i < 5; i++) trail.push({ x: x + (Math.random() - 0.5) * 60, y: y + (Math.random() - 0.5) * 60, t: e.t });
     },
   };
 };

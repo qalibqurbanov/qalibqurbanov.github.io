@@ -7,12 +7,6 @@ import { vaporModels } from "./models";
 
 const SUN_TOP: Rgb = [255, 251, 150];
 
-interface Cell {
-  x: number;
-  y: number;
-  t: number;
-}
-
 /** A pastel dusk with a striped sun, a checkered floor running to the horizon, and a page-long
  * scatter of marble columns, arches, plinths and solids. The cursor leaves a trail of square pixels
  * on an 8px grid, which fade out in steps. */
@@ -25,8 +19,6 @@ export const createScene: SceneFactory = (canvas, env0, objects, models) => {
   const css = (c: number[]) => `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`;
   const world = createWorld([...kinds, ...vaporModels(() => stage, () => ({ accent: css(latest.accent), accent2: css(latest.accent2) }))], { perScreen: 3, veil: 0.34 });
   const [sunLayer, sunG] = makeLayer(520, 520);
-  const trail: Cell[] = [];
-  let lastCell = "";
 
   function drawSun(e: SceneEnv, cx: number, cy: number, r: number) {
     const s = sunLayer.width;
@@ -123,24 +115,6 @@ export const createScene: SceneFactory = (canvas, env0, objects, models) => {
       world.frame(fx, e);
       world.veil(g, e, 0.5);
       stage?.render(e);
-      // the cursor's trail: square pixels on an 8px grid, dropping out one step at a time
-      if (e.seen && !e.still) {
-        const cx = Math.floor(e.mx / 8) * 8;
-        const cy = Math.floor(e.my / 8) * 8;
-        const key = `${cx},${cy}`;
-        if (key !== lastCell) {
-          trail.push({ x: cx, y: cy, t: e.t });
-          lastCell = key;
-        }
-      }
-      while (trail.length && e.t - trail[0].t > 0.8) trail.shift();
-      for (const c of trail) {
-        const age = (e.t - c.t) / 0.8;
-        const step = Math.floor(age * 5) / 5;
-        const size = 8 * (1 - step * 0.8);
-        fx.fillStyle = rgba(age < 0.5 ? e.accent2 : e.accent, (1 - step) * 0.7);
-        fx.fillRect(c.x + (8 - size) / 2, c.y + (8 - size) / 2, size, size);
-      }
     }
   }
 

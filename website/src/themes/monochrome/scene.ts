@@ -3,11 +3,6 @@ import { makeLayer, rgba } from "../shared/scene/util";
 import { createWorld } from "../shared/scene/world";
 import { kinds } from "./objects";
 
-interface Mark {
-  x: number;
-  y: number;
-}
-
 /** Black and white, nothing else: film grain, a few big hairline circles and slow geometry, a
  * single scanning line, and a cursor that is drawn as precisely as a drafting tool (crosshair
  * lines through it, a ring that opens with speed, a thin tapering trail). */
@@ -17,7 +12,6 @@ export const createScene: SceneFactory = (canvas, _env, objects) => {
   const rnd = Math.random;
   const fx = objects.getContext("2d");
   const world = createWorld(kinds, { perScreen: 2.8, veil: 0.3 });
-  const trail: Mark[] = [];
   // a tile of film grain, redrawn at a random offset every frame
   const [grain, gg] = makeLayer(220, 220);
   const img = gg.createImageData(220, 220);
@@ -27,8 +21,6 @@ export const createScene: SceneFactory = (canvas, _env, objects) => {
     img.data[i + 3] = 255;
   }
   gg.putImageData(img, 0, 0);
-  let ringOpen = 14;
-  let pulse = 0;
 
   function frame(e: SceneEnv) {
     g!.setTransform(e.dpr, 0, 0, e.dpr, 0, 0);
@@ -65,44 +57,6 @@ export const createScene: SceneFactory = (canvas, _env, objects) => {
     if (fx) world.frame(fx, e);
     world.veil(g!, e, 0.5);
 
-    // the cursor
-    if (e.seen) {
-      const x = e.mx;
-      const y = e.my;
-      const speed = Math.hypot(e.vx, e.vy);
-      ringOpen += (14 + Math.min(46, speed / 40) - ringOpen) * 0.12;
-      g!.strokeStyle = rgba(ink, 0.16);
-      g!.lineWidth = 1;
-      g!.beginPath();
-      g!.moveTo(0, y + 0.5);
-      g!.lineTo(e.w, y + 0.5);
-      g!.moveTo(x + 0.5, 0);
-      g!.lineTo(x + 0.5, e.h);
-      g!.stroke();
-      g!.strokeStyle = rgba(ink, 0.7);
-      g!.beginPath();
-      g!.arc(x, y, ringOpen + pulse, 0, 6.2832);
-      g!.stroke();
-      // readout: its place on the page, in tiny mono type
-      g!.fillStyle = rgba(ink, 0.5);
-      g!.font = "10px 'JetBrains Mono', monospace";
-      g!.fillText(`${Math.round(x)} , ${Math.round(y)}`, x + ringOpen + 8, y - ringOpen - 6);
-      pulse *= 0.9;
-      if (!e.still) {
-        trail.push({ x, y });
-        if (trail.length > 26) trail.shift();
-        for (let i = 1; i < trail.length; i++) {
-          const k = i / trail.length;
-          g!.strokeStyle = rgba(ink, k * 0.6);
-          g!.lineWidth = k * 2.2;
-          g!.beginPath();
-          g!.moveTo(trail[i - 1].x, trail[i - 1].y);
-          g!.lineTo(trail[i].x, trail[i].y);
-          g!.stroke();
-        }
-      }
-    }
-
     // grain, over everything
     g!.save();
     g!.globalAlpha = light ? 0.07 : 0.06;
@@ -117,8 +71,5 @@ export const createScene: SceneFactory = (canvas, _env, objects) => {
     frame,
     resize: (e) => world.relayout(e),
     destroy: () => world.destroy(),
-    press() {
-      pulse = 30;
-    },
   };
 };
