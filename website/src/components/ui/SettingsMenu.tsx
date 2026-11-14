@@ -169,6 +169,10 @@ export function SettingsMenu() {
               <MotionSlider stops={STOPS} value={motion} onChange={setMotion} label={ui.labels.motionTitle} levelName={levelName} />
             </div>
           </section>
+
+          <a href="/" className="flex items-center gap-2 border-t border-border pt-3 font-mono text-xs text-muted transition-colors hover:text-accent">
+            <span aria-hidden="true">←</span> New design
+          </a>
         </div>
       )}
     </div>

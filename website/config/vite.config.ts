@@ -128,7 +128,7 @@ const repoStats = await fetchRepoStats();
 // with the plain SPA. This mirrors Pages locally: only the real pages (/, /en/, /az/, /ru/) and
 // file requests get through, anything else is answered with the 404 page and a 404 status.
 function notFoundPage(): Plugin {
-  const pages = new Set(["/", "/index.html", "/en/", "/az/", "/ru/"]);
+  const pages = new Set(["/lab/", "/lab/index.html", "/lab/en/", "/lab/az/", "/lab/ru/"]);
   const handler =
     (read: (url: string) => Promise<string>): Connect.NextHandleFunction =>
     async (req, res, next) => {
@@ -163,7 +163,7 @@ export default defineConfig({
   // "./assets/..." would resolve to /az/assets/... and 404. The site is a
   // user/org root site (username.github.io), which also matches the absolute
   // "/favicon.svg" and "/resume.pdf" references already in use.
-  base: "/",
+  base: "/lab/",
   plugins: [react(), localizedHtml(), notFoundPage()],
   define: {
     __BUILD_INFO__: JSON.stringify(buildInfo),

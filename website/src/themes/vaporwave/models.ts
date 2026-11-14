@@ -86,7 +86,7 @@ export function vaporModels(getStage: () => Stage | null, colors: () => { accent
   const specs: ModelSpec[] = [
     {
       id: "marble-bust",
-      url: "/models/marble_bust_01.glb",
+      url: `${import.meta.env.BASE_URL}models/marble_bust_01.glb`,
       radius: [90, 150],
       depth: [0.85, 1],
       zone: "side",
@@ -96,7 +96,7 @@ export function vaporModels(getStage: () => Stage | null, colors: () => { accent
     },
     {
       id: "crt-television",
-      url: "/models/Television_01.glb",
+      url: `${import.meta.env.BASE_URL}models/Television_01.glb`,
       radius: [90, 140],
       depth: [0.85, 1],
       zone: "side",
@@ -125,7 +125,7 @@ export function vaporModels(getStage: () => Stage | null, colors: () => { accent
     },
     {
       id: "retro-laptop",
-      url: "/models/classic_laptop.glb",
+      url: `${import.meta.env.BASE_URL}models/classic_laptop.glb`,
       radius: [90, 140],
       depth: [0.85, 1],
       weight: 2.4,
@@ -151,7 +151,7 @@ export function vaporModels(getStage: () => Stage | null, colors: () => { accent
     },
     {
       id: "boombox",
-      url: "/models/boombox.glb",
+      url: `${import.meta.env.BASE_URL}models/boombox.glb`,
       radius: [80, 120],
       depth: [0.85, 1],
       weight: 2,
@@ -160,7 +160,7 @@ export function vaporModels(getStage: () => Stage | null, colors: () => { accent
     },
     {
       id: "cassette-player",
-      url: "/models/cassette_player.glb",
+      url: `${import.meta.env.BASE_URL}models/cassette_player.glb`,
       radius: [60, 95],
       depth: [0.85, 1],
       weight: 1.6,

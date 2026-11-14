@@ -20,7 +20,7 @@ export function createCar(getStage: () => Stage | null) {
 
   function init(stage: Stage) {
     loading = true;
-    loadModel(stage, "/models/carconcept.glb")
+    loadModel(stage, `${import.meta.env.BASE_URL}models/carconcept.glb`)
       .then((car) => {
         const wheels: THREE.Object3D[] = [];
         car.traverse((o) => {

@@ -71,12 +71,12 @@ export function detectInitialLocale(): Locale {
 
 /** The locale named by the first path segment, or null when there is none. */
 export function localeFromPath(pathname: string): Locale | null {
-  const segment = pathname.split("/")[1]?.toLowerCase() ?? "";
+  const segment = pathname.replace(/^\/lab(?=\/|$)/, "").split("/")[1]?.toLowerCase() ?? "";
   return isLocale(segment) ? segment : null;
 }
 
 export function pathForLocale(locale: Locale): string {
-  return `/${locale}/`;
+  return `/lab/${locale}/`;
 }
 
 /** The locale the current URL asks for; anything else (a bare `/`) falls back to the default. */
@@ -108,7 +108,7 @@ export function resolveInitialLocale(): Locale {
   const fromPath = localeFromPath(window.location.pathname);
   if (fromPath) return fromPath;
   if (isNotFoundPage()) return detectInitialLocale();
-  if (window.location.pathname !== "/") return DEFAULT_LOCALE;
+  if (window.location.pathname !== "/lab/" && window.location.pathname !== "/lab") return DEFAULT_LOCALE;
   const preferred = detectInitialLocale();
   navigateToLocale(preferred, "replace");
   return preferred;

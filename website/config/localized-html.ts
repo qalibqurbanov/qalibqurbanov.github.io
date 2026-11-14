@@ -36,7 +36,7 @@ interface LocalePage {
 const PAGES: LocalePage[] = [
   {
     code: "en",
-    path: "/en/",
+    path: "/lab/en/",
     ogLocale: "en_US",
     name: "Galib Gurbanov",
     jobTitle: "Software Developer",
@@ -50,7 +50,7 @@ const PAGES: LocalePage[] = [
   },
   {
     code: "az",
-    path: "/az/",
+    path: "/lab/az/",
     ogLocale: "az_AZ",
     name: "Qalib Qurbanov",
     jobTitle: "Proqram təminatı tərtibatçısı",
@@ -64,7 +64,7 @@ const PAGES: LocalePage[] = [
   },
   {
     code: "ru",
-    path: "/ru/",
+    path: "/lab/ru/",
     ogLocale: "ru_RU",
     name: "Галиб Гурбанов",
     jobTitle: "Разработчик программного обеспечения",
@@ -106,16 +106,24 @@ const FIRST_SCREEN_FONTS: Record<string, string[]> = {
 function fontPreloads(assets: string[], code: string): string[] {
   return (FIRST_SCREEN_FONTS[code] ?? []).flatMap((name) => {
     const file = assets.find((asset) => asset.startsWith(`${name}-normal-`) && asset.endsWith(".woff2"));
-    return file ? [`    <link rel="preload" as="font" type="font/woff2" href="/assets/${file}" crossorigin />`] : [];
+    return file ? [`    <link rel="preload" as="font" type="font/woff2" href="/lab/assets/${file}" crossorigin />`] : [];
   });
 }
 
 function localize(template: string, page: LocalePage, assets: string[]): string {
+  return noindex(localizeInner(template, page, assets));
+}
+
+function noindex(html: string): string {
+  return html.includes('name="robots"') ? html : html.replace("</head>", '    <meta name="robots" content="noindex" />\n  </head>');
+}
+
+function localizeInner(template: string, page: LocalePage, assets: string[]): string {
   const url = SITE_URL + page.path;
   const alternates = PAGES.map(
     (p) => `    <link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`,
   );
-  alternates.push(`    <link rel="alternate" hreflang="x-default" href="${SITE_URL}/" />`);
+  alternates.push(`    <link rel="alternate" hreflang="x-default" href="${SITE_URL}/lab/" />`);
 
   const person = {
     "@context": "https://schema.org",
@@ -202,28 +210,10 @@ export function localizedHtml(): Plugin {
       if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english, assets));
 
       for (const page of PAGES) {
-        const target = path.join(outDir, page.path, "index.html");
+        const target = path.join(outDir, page.path.replace(/^\/lab/, ""), "index.html");
         fs.mkdirSync(path.dirname(target), { recursive: true });
         fs.writeFileSync(target, localize(template, page, assets));
       }
-
-      const urls = PAGES.map((page) => {
-        const links = [...PAGES, { code: "x-default", path: "/" }]
-          .map(
-            (p) =>
-              `      <xhtml:link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`,
-          )
-          .join("\n");
-        return `  <url>\n    <loc>${SITE_URL + page.path}</loc>\n${links}\n  </url>`;
-      }).join("\n");
-      fs.writeFileSync(
-        path.join(outDir, "sitemap.xml"),
-        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`,
-      );
-      fs.writeFileSync(
-        path.join(outDir, "robots.txt"),
-        `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`,
-      );
     },
   };
 }
