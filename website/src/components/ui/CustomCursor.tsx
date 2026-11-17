@@ -209,6 +209,30 @@ export function CustomCursor() {
       root.style.setProperty("--caret-h", `${Math.min(30, Math.max(12, (size || 16) * 1.15)).toFixed(1)}px`);
     };
 
+    /** Whether the surface under the pointer is light: the first solid background found going up from the element,
+     * or the page's own background when there is none. */
+    let surface: "light" | "dark" = "dark";
+    let surfaceOf: Element | null = null;
+    const syncSurface = (target: EventTarget | null) => {
+      if (!(target instanceof Element) || target === surfaceOf) return;
+      surfaceOf = target;
+      let lum = (readRgb("--color-bg", [10, 10, 18]).reduce((sum, v, i) => sum + v * [299, 587, 114][i], 0)) / 1000;
+      for (let el: Element | null = target; el && el !== document.documentElement; el = el.parentElement) {
+        const m = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?/.exec(getComputedStyle(el).backgroundColor);
+        if (!m) continue;
+        const alpha = m[4] === undefined ? 1 : m[4].endsWith("%") ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
+        if (alpha >= 0.6) {
+          lum = (Number(m[1]) * 299 + Number(m[2]) * 587 + Number(m[3]) * 114) / 1000;
+          break;
+        }
+      }
+      const next = lum > 150 ? "light" : "dark";
+      if (next !== surface) {
+        surface = next;
+        root.dataset.surface = next;
+      }
+    };
+
     const setState = (next: CursorState) => {
       if (next === state) return;
       state = next;
@@ -227,6 +251,7 @@ export function CustomCursor() {
       dot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       setState(stateOf(event.target));
       syncCaret(event.target);
+      syncSurface(event.target);
       const now = performance.now();
       const last = pts[pts.length - 1];
       if (last) speed += ((Math.hypot(x - last.x, y - last.y) / Math.max(1, now - last.t)) * 1000 - speed) * 0.3;
@@ -243,6 +268,7 @@ export function CustomCursor() {
         const under = document.elementFromPoint(x, y);
         setState(stateOf(under));
         syncCaret(under);
+        syncSurface(under);
       });
     };
 
@@ -276,7 +302,7 @@ export function CustomCursor() {
   }, []);
 
   return (
-    <div ref={rootRef} className="custom-cursor" data-state="default" aria-hidden="true">
+    <div ref={rootRef} className="custom-cursor" data-state="default" data-surface="dark" aria-hidden="true">
       <canvas ref={ribbonRef} className="custom-cursor-ribbon" />
       <span ref={dotRef} className="custom-cursor-pos">
         <span className="custom-cursor-dot" />

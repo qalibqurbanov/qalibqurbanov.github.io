@@ -36,13 +36,19 @@ html.has-cursor * {
   width: 8px;
   height: 8px;
   border-radius: 9999px;
-  background: var(--color-text);
+  background: #f4f4ff;
   box-shadow:
     0 0 10px var(--neon-glow),
     0 0 3px var(--color-accent);
   transition:
     opacity 0.18s ease,
-    scale 0.15s ease;
+    scale 0.15s ease,
+    background-color 0.15s ease;
+}
+
+/* Over a light surface (a white tile, a light card) the dot turns dark, so it is never the colour of what is under it. */
+.custom-cursor[data-surface="light"] .custom-cursor-dot {
+  background: #14141f;
 }
 
 .custom-cursor.is-down .custom-cursor-dot {

@@ -1,4 +1,4 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Infinity } from "lucide-react";
 
 import { Reveal } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/SectionHeading";
@@ -35,18 +35,25 @@ function ProjectLink({ link }: { link: ExperienceLink }) {
   );
 }
 
+/** "2023-12" as "Dec 2023" (the month in the language of the page). */
+const MONTHS: Record<string, string[]> = {
+  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  az: ["Yan", "Fev", "Mar", "Apr", "May", "İyn", "İyl", "Avq", "Sen", "Okt", "Noy", "Dek"],
+  ru: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+};
+
+function monthYear(value: string, locale: string): string {
+  const [year, month] = value.split("-").map(Number);
+  return `${(MONTHS[locale] ?? MONTHS.en)[month - 1]} ${year}`;
+}
+
 function Job({ item }: { item: ExperienceItem }) {
   const { ui } = useContent();
   const { locale } = useLocale();
 
   return (
     <Reveal className="grid gap-x-8 gap-y-3 border-t border-border py-7 first:border-t-0 first:pt-0 md:grid-cols-[11rem_1fr]">
-      <div>
-        <p className="font-mono text-xs text-muted">{item.period}</p>
-        <p className="mt-1 font-mono text-xs text-accent">{formatDuration(item.start, item.end, locale)}</p>
-      </div>
-
-      <div className="min-w-0 space-y-5">
+      <div className="space-y-3">
         <div className="flex items-center gap-3">
           {item.logo && (
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-border bg-white p-1.5">
@@ -54,19 +61,32 @@ function Job({ item }: { item: ExperienceItem }) {
             </span>
           )}
           <div>
-            <h3 className="text-base font-semibold leading-snug">{item.role}</h3>
-            <p className="flex items-center gap-2 text-sm text-muted">
-              {item.org}
-              {item.current && (
-                <span className="inline-flex items-center gap-1.5 font-mono text-xs text-accent-2">
-                  <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-accent-2" aria-hidden="true" />
-                  {ui.experienceLabels.now}
-                </span>
-              )}
-            </p>
+            <p className="text-sm font-semibold leading-snug">{item.org}</p>
+            <h3 className="text-sm leading-snug text-muted">{item.role}</h3>
           </div>
         </div>
+        <div>
+          <p className="flex flex-wrap items-center gap-x-1.5 font-mono text-xs leading-5 text-muted">
+            <span className="sr-only">{item.period}</span>
+            <span aria-hidden="true">{monthYear(item.start, locale)} —</span>
+            <span aria-hidden="true" className="flex h-5 items-center">
+              {item.end ? monthYear(item.end, locale) : <Infinity size={18} strokeWidth={2.4} className="text-text" />}
+            </span>
+            <span className="text-accent">({formatDuration(item.start, item.end, locale)})</span>
+          </p>
+        </div>
+        {item.current && (
+          <span className="inline-flex h-[26px] items-center rounded-full border border-accent-2/40 bg-accent-2/10 gap-1 pl-2.5 pr-3.5 font-mono text-xs leading-none text-accent-2">
+            <span className="now-dot" aria-hidden="true">
+              <span className="now-dot-ring" />
+              <span className="now-dot-core" />
+            </span>
+            {ui.experienceLabels.now}
+          </span>
+        )}
+      </div>
 
+      <div className="min-w-0 space-y-5">
         <p className="text-[15px] leading-relaxed text-muted">{item.description}</p>
 
         {item.highlights && item.highlights.length > 0 && (

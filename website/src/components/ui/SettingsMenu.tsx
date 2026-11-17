@@ -1,4 +1,4 @@
-import { ArrowUpRight, FlaskConical, Moon, Settings, Sun } from "lucide-react";
+import { Moon, Settings, Sun } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -71,7 +71,7 @@ export function SettingsMenu({ up = false }: { up?: boolean }) {
         aria-label={ui.labels.settings}
         aria-haspopup="true"
         aria-expanded={open}
-        title={ui.labels.settings}
+        title={open ? undefined : ui.labels.settings}
       >
         <Settings size={up ? 15 : 19} />
       </button>
@@ -84,7 +84,7 @@ export function SettingsMenu({ up = false }: { up?: boolean }) {
           role="group"
           aria-label={ui.labels.settings}
           style={{ left: place.left, top: place.top, bottom: place.bottom, width: MENU_WIDTH }}
-          className="fixed z-[100001] divide-y divide-border border border-border bg-surface shadow-lg shadow-black/20"
+          className="settings-grain fixed z-[100001] rounded-xl divide-y divide-border border border-border bg-surface shadow-lg shadow-black/20"
         >
           <section className="p-3">
             <h3 className="label mb-2">{ui.labels.appearance}</h3>
@@ -120,18 +120,6 @@ export function SettingsMenu({ up = false }: { up?: boolean }) {
                 </button>
               ))}
             </div>
-          </section>
-
-          <section className="p-3">
-            <h3 className="label mb-2">{ui.labels.versions}</h3>
-            <a
-              href="/lab/"
-              className="flex items-center gap-2.5 rounded-md border border-border px-3 py-2 text-xs text-muted transition-colors hover:border-accent hover:text-text"
-            >
-              <FlaskConical size={14} aria-hidden="true" />
-              <span className="flex-1">{ui.labels.themedVersion}</span>
-              <ArrowUpRight size={14} aria-hidden="true" />
-            </a>
           </section>
         </div>,
         document.body,

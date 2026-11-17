@@ -221,11 +221,8 @@ export interface UiStrings {
     toggleTheme: string;
     /** The colour palette switcher: its title, and the name of each palette. */
     settings: string;
-    /** The link to the earlier, themed version of the site. */
-    themedVersion: string;
     message: string;
     appearance: string;
-    versions: string;
     palette: string;
     /** The label of the visual style switcher. */
     style: string;
