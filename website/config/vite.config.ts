@@ -141,7 +141,15 @@ function notFoundPage(): Plugin {
         return res.end();
       }
       // Dev-only internals (/@vite, /src/..., /node_modules/...) and anything with an extension.
-      const passthrough = pages.has(pathname) || /^\/(en|az|ru)\/(projects|blog)\/[^/]+\/$/.test(pathname) ||/\.[a-z0-9]+$/i.test(pathname) || /^\/(@|src\/|node_modules\/)/.test(pathname);
+      // Like Pages, an .html address that is not a real file, and a folder without an index page, are not found.
+      const inPublic = (file: string) => fs.existsSync(path.join(dirname, "../public", file));
+      const isHtml = /\.html?$/i.test(pathname);
+      const passthrough =
+        pages.has(pathname) ||
+        /^\/(en|az|ru)\/(projects|blog)\/[^/]+\/$/.test(pathname) ||
+        (pathname.endsWith("/") && inPublic(`${pathname}index.html`)) ||
+        (/\.[a-z0-9]+$/i.test(pathname) && (!isHtml || inPublic(pathname))) ||
+        /^\/(@|src\/|node_modules\/)/.test(pathname);
       if (passthrough) return next();
       try {
         const html = await read(req.url ?? "/");

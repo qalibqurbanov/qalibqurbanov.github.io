@@ -36,7 +36,6 @@ const az: Content = {
     // {
     //   role: "Proqram təminatı tərtibatçısı",
     //   org: "Test Company Two",
-    //   logo: "/logos/test-company.svg",
     //   period: "Sentyabr 2022 — Noyabr 2023",
     //   start: "2022-09",
     //   end: "2023-11",

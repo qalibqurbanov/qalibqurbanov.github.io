@@ -36,7 +36,6 @@ const en: Content = {
     // {
     //   role: "Software Developer",
     //   org: "Test Company Two",
-    //   logo: "/logos/test-company.svg",
     //   period: "Sep 2022 — Nov 2023",
     //   start: "2022-09",
     //   end: "2023-11",

@@ -36,7 +36,6 @@ const ru: Content = {
     // {
     //   role: "Разработчик программного обеспечения",
     //   org: "Test Company Two",
-    //   logo: "/logos/test-company.svg",
     //   period: "Сентябрь 2022 — Ноябрь 2023",
     //   start: "2022-09",
     //   end: "2023-11",
