@@ -75,13 +75,15 @@ export function CustomCursor() {
   const rootRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLSpanElement>(null);
   const ribbonRef = useRef<HTMLCanvasElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
+    const top = topRef.current;
     const dot = dotRef.current;
     const canvas = ribbonRef.current;
     const g = canvas?.getContext("2d");
-    if (!root || !dot || !canvas || !g) return;
+    if (!root || !top || !dot || !canvas || !g) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     if (prefersReducedMotion()) return;
 
@@ -209,28 +211,88 @@ export function CustomCursor() {
       root.style.setProperty("--caret-h", `${Math.min(30, Math.max(12, (size || 16) * 1.15)).toFixed(1)}px`);
     };
 
-    /** Whether the surface under the pointer is light: the first solid background found going up from the element,
-     * or the page's own background when there is none. */
-    let surface: "light" | "dark" = "dark";
-    let surfaceOf: Element | null = null;
-    const syncSurface = (target: EventTarget | null) => {
-      if (!(target instanceof Element) || target === surfaceOf) return;
-      surfaceOf = target;
-      let lum = (readRgb("--color-bg", [10, 10, 18]).reduce((sum, v, i) => sum + v * [299, 587, 114][i], 0)) / 1000;
-      for (let el: Element | null = target; el && el !== document.documentElement; el = el.parentElement) {
-        const m = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?/.exec(getComputedStyle(el).backgroundColor);
-        if (!m) continue;
-        const alpha = m[4] === undefined ? 1 : m[4].endsWith("%") ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
-        if (alpha >= 0.6) {
-          lum = (Number(m[1]) * 299 + Number(m[2]) * 587 + Number(m[3]) * 114) / 1000;
-          break;
+    /** One colour for the whole cursor. It is chosen against everything the cursor sits on: the surface behind it (the
+     * translucent backgrounds going up from the element, stacked until something is opaque, laid over the page colour)
+     * and, when the pointer is over a letter, the colour of that text. The candidate that stays furthest from the
+     * nearest of those in brightness wins; earlier candidates are preferred when they are nearly as good. */
+    let bgOf: Element | null = null;
+    let bgLum = 0;
+    const lumOf = (c: ArrayLike<number>) => (c[0] * 299 + c[1] * 587 + c[2] * 114) / 1000;
+    const parse = (value: string): [number, number, number, number] | null => {
+      const m = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?/.exec(value);
+      if (!m) return null;
+      const a = m[4] === undefined ? 1 : m[4].endsWith("%") ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
+      return [Number(m[1]), Number(m[2]), Number(m[3]), a];
+    };
+    const backgroundLum = (target: Element) => {
+      if (target === bgOf) return bgLum;
+      bgOf = target;
+      const acc = [0, 0, 0];
+      let rem = 1;
+      for (let el: Element | null = target; el && el !== document.documentElement && rem > 0.05; el = el.parentElement) {
+        const c = parse(getComputedStyle(el).backgroundColor);
+        if (!c || !(c[3] > 0)) continue;
+        for (let i = 0; i < 3; i++) acc[i] += c[i] * c[3] * rem;
+        rem *= 1 - c[3];
+      }
+      const page = readRgb("--color-bg", [10, 10, 18]);
+      for (let i = 0; i < 3; i++) acc[i] += page[i] * rem;
+      bgLum = lumOf(acc);
+      return bgLum;
+    };
+    /** The brightness of the text under the pointer, or null when it is not over a letter. */
+    const textLum = (target: Element): number | null => {
+      if (target.closest("img, svg, canvas, video")) return null;
+      const doc = document as Document & { caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null };
+      let node: Node | null = null;
+      let offset = 0;
+      if (doc.caretPositionFromPoint) {
+        const pos = doc.caretPositionFromPoint(x, y);
+        node = pos?.offsetNode ?? null;
+        offset = pos?.offset ?? 0;
+      } else if (document.caretRangeFromPoint) {
+        const range = document.caretRangeFromPoint(x, y);
+        node = range?.startContainer ?? null;
+        offset = range?.startOffset ?? 0;
+      }
+      if (!node || node.nodeType !== Node.TEXT_NODE || !node.parentElement || !node.textContent) return null;
+      const range = document.createRange();
+      for (const at of [offset - 1, offset]) {
+        if (at < 0 || at >= node.textContent.length) continue;
+        range.setStart(node, at);
+        range.setEnd(node, at + 1);
+        for (const r of range.getClientRects()) {
+          if (x >= r.left - 3 && x <= r.right + 3 && y >= r.top - 3 && y <= r.bottom + 3) {
+            const c = parse(getComputedStyle(node.parentElement).color);
+            return c ? lumOf(c) : null;
+          }
         }
       }
-      const next = lum > 150 ? "light" : "dark";
-      if (next !== surface) {
-        surface = next;
-        root.dataset.surface = next;
+      return null;
+    };
+    const WHITE: Rgb = [255, 255, 255];
+    const INK: Rgb = [20, 16, 40];
+    let curKey = "";
+    const syncColor = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return;
+      const refs = [backgroundLum(target)];
+      const t = textLum(target);
+      if (t !== null) refs.push(t);
+      const contrast = (c: Rgb) => Math.min(...refs.map((r) => Math.abs(lumOf(c) - r)));
+      // The cursor keeps its own look (white dot, cyan or magenta glyphs) and is only recoloured, as a whole, when
+      // that look would be hard to see against what is under it.
+      const own: Rgb = state === "default" ? WHITE : state === "no" ? colors.danger : state === "help" || state === "download" ? colors.accent2 : colors.accent;
+      let key = "";
+      if (contrast(own) < 85) {
+        const options: Rgb[] = [WHITE, INK, colors.accent, colors.accent2];
+        const scores = options.map(contrast);
+        const best = Math.max(...scores);
+        key = options[scores.findIndex((v) => v >= best - 30)].join(",");
       }
+      if (key === curKey) return;
+      curKey = key;
+      if (key) top.style.setProperty("--cur", `rgb(${key})`);
+      else top.style.removeProperty("--cur");
     };
 
     const setState = (next: CursorState) => {
@@ -251,7 +313,7 @@ export function CustomCursor() {
       dot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       setState(stateOf(event.target));
       syncCaret(event.target);
-      syncSurface(event.target);
+      syncColor(event.target);
       const now = performance.now();
       const last = pts[pts.length - 1];
       if (last) speed += ((Math.hypot(x - last.x, y - last.y) / Math.max(1, now - last.t)) * 1000 - speed) * 0.3;
@@ -268,7 +330,7 @@ export function CustomCursor() {
         const under = document.elementFromPoint(x, y);
         setState(stateOf(under));
         syncCaret(under);
-        syncSurface(under);
+        syncColor(under);
       });
     };
 
@@ -302,8 +364,12 @@ export function CustomCursor() {
   }, []);
 
   return (
-    <div ref={rootRef} className="custom-cursor" data-state="default" data-surface="dark" aria-hidden="true">
-      <canvas ref={ribbonRef} className="custom-cursor-ribbon" />
+    <div ref={rootRef} className="custom-cursor" data-state="default" aria-hidden="true">
+      {/* Two separate fixed layers: the tail, and on top of it the cursor itself, drawn in one colour that is chosen against what is under it. */}
+      <div className="custom-cursor-layer">
+        <canvas ref={ribbonRef} className="custom-cursor-ribbon" />
+      </div>
+      <div ref={topRef} className="custom-cursor-layer custom-cursor-top">
       <span ref={dotRef} className="custom-cursor-pos">
         <span className="custom-cursor-dot" />
         {GLYPHS.map((glyph) => (
@@ -314,6 +380,7 @@ export function CustomCursor() {
           </span>
         ))}
       </span>
+      </div>
     </div>
   );
 }

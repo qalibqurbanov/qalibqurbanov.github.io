@@ -22,23 +22,13 @@
   -webkit-text-stroke-color: var(--color-accent-2);
 }
 
-/* The story as chapters on a line: the line runs from cyan to magenta, and a chapter's node lights up when it is pointed at. */
+/* The story as chapters on a line; a chapter's node lights up when it is pointed at. */
 .timeline {
   position: relative;
   margin: 0;
-  padding: 0 0 0 2rem;
+  padding: 0 0 0 1.75rem;
   list-style: none;
-}
-
-.timeline::before {
-  content: "";
-  position: absolute;
-  left: 7px;
-  top: 6px;
-  bottom: 10px;
-  width: 2px;
-  border-radius: 2px;
-  background: linear-gradient(var(--color-accent), var(--color-accent-2));
+  --node-y: 13px;
 }
 
 .chapter {
@@ -46,24 +36,54 @@
   padding-bottom: 1.6rem;
 }
 
+/* The rail is the same hairline as on the Experience page: one thin segment per chapter, starting at the first node
+   and ending at the last, with a small hollow node on it that lights up under the pointer. */
+.chapter::after {
+  content: "";
+  position: absolute;
+  left: calc(-1.75rem + 5px);
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-border);
+  pointer-events: none;
+}
+
+.chapter:first-child::after {
+  top: var(--node-y);
+}
+
+.chapter:last-child::after {
+  bottom: auto;
+  height: var(--node-y);
+}
+
+.chapter:only-child::after {
+  display: none;
+}
+
 .chapter::before {
   content: "";
   position: absolute;
-  left: -2rem;
-  top: 5px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
+  z-index: 1;
+  left: -1.75rem;
+  top: calc(var(--node-y) - 5.5px);
+  width: 11px;
+  height: 11px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-muted);
   background: var(--color-bg);
-  border: 2px solid var(--color-accent);
   transition:
     background-color 0.3s ease,
+    border-color 0.3s ease,
     box-shadow 0.3s ease;
 }
 
 .chapter:hover::before {
+  border-color: var(--color-accent);
   background: var(--color-accent);
-  box-shadow: 0 0 14px var(--color-accent);
+  box-shadow: 0 0 10px var(--neon-glow);
 }
 
 /* ---- Home status board ---- */

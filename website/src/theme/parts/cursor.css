@@ -7,6 +7,10 @@ html.has-cursor * {
 }
 
 .custom-cursor {
+  display: contents;
+}
+
+.custom-cursor-layer {
   position: fixed;
   inset: 0;
   z-index: 2147483000;
@@ -15,8 +19,14 @@ html.has-cursor * {
   transition: opacity 0.2s ease;
 }
 
-.custom-cursor.is-on {
+.custom-cursor.is-on .custom-cursor-layer {
   opacity: 1;
+}
+
+/* The cursor keeps its own look. Only when that would be hard to see against what is under it does the script set
+   --cur, one colour for the whole cursor, so the dot and every glyph change together. The tail underneath keeps its own colours. */
+.custom-cursor-top {
+  z-index: 2147483001;
 }
 
 .custom-cursor-pos {
@@ -36,19 +46,12 @@ html.has-cursor * {
   width: 8px;
   height: 8px;
   border-radius: 9999px;
-  background: #f4f4ff;
-  box-shadow:
-    0 0 10px var(--neon-glow),
-    0 0 3px var(--color-accent);
+  background: var(--cur, #fff);
+  box-shadow: 0 0 10px var(--cur, var(--neon-glow));
   transition:
     opacity 0.18s ease,
     scale 0.15s ease,
     background-color 0.15s ease;
-}
-
-/* Over a light surface (a white tile, a light card) the dot turns dark, so it is never the colour of what is under it. */
-.custom-cursor[data-surface="light"] .custom-cursor-dot {
-  background: #14141f;
 }
 
 .custom-cursor.is-down .custom-cursor-dot {
@@ -74,12 +77,13 @@ html.has-cursor * {
   translate: -50% -50%;
   width: 18px;
   height: 18px;
-  color: var(--color-accent);
+  color: var(--cur, var(--color-accent));
   opacity: 0;
   scale: 0.7;
   pointer-events: none;
-  filter: drop-shadow(0 0 1px color-mix(in srgb, var(--color-bg) 75%, transparent)) drop-shadow(0 0 7px var(--neon-glow));
+  filter: drop-shadow(0 0 6px var(--cur, var(--neon-glow)));
   transition:
+    color 0.15s ease,
     opacity 0.18s ease,
     scale 0.32s cubic-bezier(0.2, 1.2, 0.3, 1);
 }
@@ -90,7 +94,7 @@ html.has-cursor * {
   height: 100%;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.5;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
   overflow: visible;
@@ -113,13 +117,13 @@ html.has-cursor * {
 
 .custom-cursor-glyph[data-g="download"],
 .custom-cursor-glyph[data-g="help"] {
-  color: var(--color-accent-2);
+  color: var(--cur, var(--color-accent-2));
 }
 
 .custom-cursor-glyph[data-g="no"] {
   width: 16px;
   height: 16px;
-  color: var(--color-danger);
+  color: var(--cur, var(--color-danger));
 }
 
 .custom-cursor[data-state="link"] .custom-cursor-glyph[data-g="link"],

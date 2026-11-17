@@ -128,7 +128,7 @@ export interface UiStrings {
   skillGroups: Record<SkillCategory, string>;
   skillsClient: { title: string; text: string };
   /** Labels in the experience list: the "current job" pill and the two detail captions. */
-  experienceLabels: { currentlyAt: string; now: string; publicProjects: string; stack: string };
+  experienceLabels: { currentlyAt: string; now: string; results: string; publicProjects: string; stack: string };
   contact: {
     /** The big headline, in two parts: the second one gets the colour gradient. */
     headlineLead: string;

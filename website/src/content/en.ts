@@ -31,6 +31,19 @@ const en: Content = {
     ],
   },
   experience: [
+    // Test entries; replace with real jobs. The page lists the newest first.
+    // The commented-out entry below is only a placeholder for the structure. When there is a new experience, copy it and use it as an example instead of building one from scratch.
+    // {
+    //   role: "Software Developer",
+    //   org: "Test Company Two",
+    //   logo: "/logos/test-company.svg",
+    //   period: "Sep 2022 — Nov 2023",
+    //   start: "2022-09",
+    //   end: "2023-11",
+    //   description: "Test entry: developed web services and background jobs for a customer-facing platform.",
+    //   highlights: ["Test result: moved a monolith module to a separate service.", "Test result: set up automated builds and deployments."],
+    //   tags: ["ASP.NET Core", "PostgreSQL", "Docker"],
+    // },
     {
       role: "Backend Developer",
       ...crocusoftFacts,
@@ -43,19 +56,30 @@ const en: Content = {
           label: "Crocusoft Website",
           url: "https://crocusoft.com",
           logo: "/logos/crocusoft.png",
-          description: "Public site presenting the company and its work",
+          description: "The public website of Crocusoft, the company. It shows what the company does and the work it has done.",
         },
         {
           label: "Kapital Bank HR Platform",
-          url: "https://crocusoft.com/en/Project/Details/hr.kapitalbank.az",
+          url: "https://careers.bir.az",
           logo: "/logos/kapital-bank.png",
-          description: "Internal HR platform for the bank",
+          description: "An internal HR system used by the staff of Kapital Bank.",
+        },
+        {
+          label: "SDG Azstat",
+          url: "https://sdg.azstat.gov.az",
+          logo: "/logos/sdg-azstat.ico",
+          description: "The national statistics portal that shows progress on the UN Sustainable Development Goals.",
+        },
+        {
+          label: "AnyPartz",
+          url: "https://anypartz.com",
+          description: "An online store that sells spare parts for all kinds of things.",
         },
         {
           label: "SANAT Art Center",
-          url: "https://crocusoft.com/en/Project/Details/sanat-art-center",
+          url: "https://sanat.az",
           logo: "/logos/sanat.png",
-          description: "Site for an art center",
+          description: "The website of SANAT Art Center.",
         },
       ],
       highlightsIntro: "In these projects, I worked with the following:",
@@ -247,7 +271,7 @@ const en: Content = {
       backend: "Backend",
       tools: "Tools",
     },
-    experienceLabels: { currentlyAt: "Currently at", now: "now", publicProjects: "Public projects", stack: "Stack" },
+    experienceLabels: { currentlyAt: "Currently at", now: "now", results: "What I did", publicProjects: "Public projects I have worked on", stack: "Stack" },
     skillsClient: {
       title: "Frontend & Mobile",
       text: "Backend is my home ground. When a project also needs a web or mobile front end, I take that on as well and choose whatever tools fit the job best.",

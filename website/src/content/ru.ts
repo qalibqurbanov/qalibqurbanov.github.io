@@ -31,6 +31,19 @@ const ru: Content = {
     ],
   },
   experience: [
+    // Тестовые записи; замените реальными местами работы. Страница показывает самую новую первой.
+    // Закомментированная запись ниже — лишь заглушка для структуры. Когда появится новый опыт, скопируйте её и используйте как образец, а не придумывайте структуру с нуля.
+    // {
+    //   role: "Разработчик программного обеспечения",
+    //   org: "Test Company Two",
+    //   logo: "/logos/test-company.svg",
+    //   period: "Сентябрь 2022 — Ноябрь 2023",
+    //   start: "2022-09",
+    //   end: "2023-11",
+    //   description: "Тестовая запись: разрабатывал веб-сервисы и фоновые задачи для клиентской платформы.",
+    //   highlights: ["Тестовый результат: вынес модуль монолита в отдельный сервис.", "Тестовый результат: настроил автоматические сборки и деплой."],
+    //   tags: ["ASP.NET Core", "PostgreSQL", "Docker"],
+    // },
     {
       role: "Backend-разработчик",
       ...crocusoftFacts,
@@ -43,19 +56,30 @@ const ru: Content = {
           label: "Сайт Crocusoft",
           url: "https://crocusoft.com",
           logo: "/logos/crocusoft.png",
-          description: "Публичный сайт о компании и её работах",
+          description: "Публичный сайт компании Crocusoft: рассказывает о компании и её работах.",
         },
         {
           label: "HR-платформа Kapital Bank",
-          url: "https://crocusoft.com/en/Project/Details/hr.kapitalbank.az",
+          url: "https://careers.bir.az",
           logo: "/logos/kapital-bank.png",
-          description: "Внутренняя HR-платформа банка",
+          description: "Внутренняя HR-система для сотрудников Kapital Bank.",
+        },
+        {
+          label: "SDG Azstat",
+          url: "https://sdg.azstat.gov.az",
+          logo: "/logos/sdg-azstat.ico",
+          description: "Национальный статистический портал о ходе достижения Целей устойчивого развития ООН.",
+        },
+        {
+          label: "AnyPartz",
+          url: "https://anypartz.com",
+          description: "Интернет-магазин, где продают запчасти для самых разных вещей.",
         },
         {
           label: "SANAT Art Center",
-          url: "https://crocusoft.com/en/Project/Details/sanat-art-center",
+          url: "https://sanat.az",
           logo: "/logos/sanat.png",
-          description: "Сайт арт-центра",
+          description: "Сайт арт-центра SANAT.",
         },
       ],
       highlightsIntro: "В этих проектах я занимался следующим:",
@@ -248,7 +272,7 @@ const ru: Content = {
       backend: "Backend",
       tools: "Инструменты",
     },
-    experienceLabels: { currentlyAt: "Сейчас", now: "сейчас", publicProjects: "Публичные проекты", stack: "Стек" },
+    experienceLabels: { currentlyAt: "Сейчас", now: "сейчас", results: "Что я делал", publicProjects: "Публичные проекты, над которыми я работал", stack: "Стек" },
     skillsClient: {
       title: "Frontend и Mobile",
       text: "Backend — моя основная область. Когда проекту нужна ещё и веб- или мобильная часть, я беру её на себя и выбираю инструменты, которые лучше всего подходят для задачи.",

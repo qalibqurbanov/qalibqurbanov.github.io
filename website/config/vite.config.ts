@@ -169,7 +169,7 @@ export default defineConfig({
   // Absolute base: localized pages live at /az/ and /ru/, so a relative
   // "./assets/..." would resolve to /az/assets/... and 404. The site is a
   // user/org root site (username.github.io), which also matches the absolute
-  // "/favicon.svg" and "/resume.pdf" references already in use.
+  // "/favicon-32.png" and "/resume.pdf" references already in use.
   base: "/",
   plugins: [react(), localizedHtml(), notFoundPage()],
   define: {

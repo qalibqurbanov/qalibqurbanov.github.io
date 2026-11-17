@@ -1,7 +1,9 @@
-import { ArrowUpRight, Infinity } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Globe, Infinity, Link2 } from "lucide-react";
+import { useId, useState } from "react";
 
 import { Reveal } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/SectionHeading";
+import { Tag } from "@/components/ui/Tag";
 import { useClock } from "@/hooks/useClock";
 import { useContent, useLocale } from "@/i18n/context";
 import { formatDuration } from "@/lib/duration";
@@ -15,31 +17,54 @@ function hostOf(link: ExperienceLink): string {
   }
 }
 
-/** A public project of the role, as one ruled row: logo, name, what it is. */
+/** A public project of the role, as one compact row: logo, name, address. */
 function ProjectLink({ link }: { link: ExperienceLink }) {
   return (
-    <a href={link.url} target="_blank" rel="noreferrer" className="entry group flex items-center gap-3 border-t border-border py-2.5 first:border-t-0">
+    <a
+      href={link.url}
+      target="_blank"
+      rel="noreferrer"
+      title={link.description}
+      className="entry group flex items-center gap-2.5 rounded-md py-1.5 pl-1.5 pr-2.5 transition-colors hover:bg-accent/[0.06]"
+    >
       {link.logo ? (
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-border bg-white p-1">
-          <img src={link.logo} alt="" width={24} height={24} className="h-full w-full object-contain" />
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-white p-1">
+          <img src={link.logo} alt="" width={20} height={20} className="h-full w-full object-contain" />
         </span>
       ) : (
-        <span className="h-8 w-8 shrink-0 rounded border border-border" aria-hidden="true" />
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-border bg-bg text-muted" aria-hidden="true">
+          <Globe size={14} />
+        </span>
       )}
       <span className="min-w-0 flex-1">
-        <span className="entry-title block truncate text-sm font-medium transition-colors">{link.label}</span>
-        <span className="block truncate text-xs text-muted">{link.description ?? hostOf(link)}</span>
+        <span className="entry-title block truncate text-[13px] font-medium leading-tight transition-colors">{link.label}</span>
+        <span className="flex items-center gap-1 font-mono text-[10.5px] leading-tight text-muted transition-colors group-hover:text-accent">
+          <Link2 size={9} className="shrink-0" aria-hidden="true" />
+          <span className="truncate">{hostOf(link)}</span>
+        </span>
       </span>
-      <ArrowUpRight size={15} className="shrink-0 text-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
+      <ArrowUpRight size={14} className="shrink-0 text-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
     </a>
   );
 }
 
-/** "2023-12" as "Dec 2023" (the month in the language of the page). */
+/** A small heading with the site's star in front. */
+function Heading({ children }: { children: string }) {
+  return (
+    <h4 className="mb-3 flex items-baseline gap-2 font-display text-sm font-semibold tracking-tight">
+      <span className="text-[13px] font-normal text-accent-2" aria-hidden="true">
+        ✦
+      </span>
+      {children}
+    </h4>
+  );
+}
+
+/** "2023-12" as "December 2023" (the month in the language of the page). */
 const MONTHS: Record<string, string[]> = {
-  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-  az: ["Yan", "Fev", "Mar", "Apr", "May", "İyn", "İyl", "Avq", "Sen", "Okt", "Noy", "Dek"],
-  ru: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  az: ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"],
+  ru: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
 };
 
 function monthYear(value: string, locale: string): string {
@@ -50,76 +75,109 @@ function monthYear(value: string, locale: string): string {
 function Job({ item }: { item: ExperienceItem }) {
   const { ui } = useContent();
   const { locale } = useLocale();
+  const hasProjects = Boolean(item.projects && item.projects.length > 0);
+  const hasHighlights = Boolean(item.highlights && item.highlights.length > 0);
+  // A job I still have opens expanded; the earlier ones start folded and open on a click.
+  const [open, setOpen] = useState(Boolean(item.current));
+  const panelId = useId();
 
   return (
-    <Reveal className="grid gap-x-8 gap-y-3 border-t border-border py-7 first:border-t-0 first:pt-0 md:grid-cols-[11rem_1fr]">
-      <div className="space-y-3">
-        <div className="flex items-center gap-3">
-          {item.logo && (
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-border bg-white p-1.5">
-              <img src={item.logo} alt="" width={28} height={28} className="h-full w-full object-contain" />
-            </span>
-          )}
-          <div>
-            <p className="text-sm font-semibold leading-snug">{item.org}</p>
-            <h3 className="text-sm leading-snug text-muted">{item.role}</h3>
-          </div>
-        </div>
-        <div>
-          <p className="flex flex-wrap items-center gap-x-1.5 font-mono text-xs leading-5 text-muted">
-            <span className="sr-only">{item.period}</span>
-            <span aria-hidden="true">{monthYear(item.start, locale)} —</span>
-            <span aria-hidden="true" className="flex h-5 items-center">
-              {item.end ? monthYear(item.end, locale) : <Infinity size={18} strokeWidth={2.4} className="text-text" />}
-            </span>
-            <span className="text-accent">({formatDuration(item.start, item.end, locale)})</span>
-          </p>
-        </div>
-        {item.current && (
-          <span className="inline-flex h-[26px] items-center rounded-full border border-accent-2/40 bg-accent-2/10 gap-1 pl-2.5 pr-3.5 font-mono text-xs leading-none text-accent-2">
-            <span className="now-dot" aria-hidden="true">
-              <span className="now-dot-ring" />
-              <span className="now-dot-core" />
-            </span>
-            {ui.experienceLabels.now}
+    <Reveal className="exp-job">
+      {/* The bar: who and where on the left, when on the right. */}
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((value) => !value)}
+        className={`-mx-2 flex w-[calc(100%+1rem)] cursor-pointer flex-wrap items-center gap-x-4 gap-y-3 rounded-xl bg-gradient-to-r to-transparent px-4 py-3.5 text-left transition-colors duration-300 ${open ? "from-accent/[0.08] via-surface-2/20" : "from-surface-2/60 via-surface-2/20 hover:from-surface-2"}`}
+      >
+        {item.logo && (
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-border bg-white p-1.5">
+            <img src={item.logo} alt="" width={28} height={28} className="h-full w-full object-contain" />
           </span>
         )}
-      </div>
+        <div className="min-w-0">
+          <h3 className="text-base font-semibold leading-snug">{item.role}</h3>
+          <p className="text-sm leading-snug text-muted">{item.org}</p>
+        </div>
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <span className="sr-only">{item.period}</span>
+          {/* The dates and the length of the job are one pill: the range, a thin divider, then the length in the accent colour. */}
+          <span aria-hidden="true" className="inline-flex h-[26px] items-center gap-2.5 whitespace-nowrap rounded-full border border-border bg-surface-2 px-3 font-mono text-xs leading-none">
+            <span className="inline-flex items-center gap-1.5 text-muted">
+              <span>{monthYear(item.start, locale)} —</span>
+              {item.end ? <span>{monthYear(item.end, locale)}</span> : <Infinity size={16} strokeWidth={2.4} />}
+            </span>
+            <span className="h-3.5 w-px bg-border" />
+            <span className="text-accent">{formatDuration(item.start, item.end, locale)}</span>
+          </span>
+          {item.current && (
+            <span className="inline-flex h-[26px] items-center gap-1 rounded-full border border-accent-2/40 bg-accent-2/10 pl-2.5 pr-3.5 font-mono text-xs leading-none text-accent-2">
+              <span className="now-dot" aria-hidden="true">
+                <span className="now-dot-ring" />
+                <span className="now-dot-core" />
+              </span>
+              {ui.experienceLabels.now}
+            </span>
+          )}
+          <ChevronDown size={18} aria-hidden="true" className={`shrink-0 text-muted transition-[transform,color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${open ? "rotate-180 text-accent" : ""}`} />
+        </div>
+      </button>
 
-      <div className="min-w-0 space-y-5">
-        <p className="text-[15px] leading-relaxed text-muted">{item.description}</p>
+      {/* Everything under the bar folds away: the row height eases between 0 and its full size. */}
+      <div id={panelId} className={`grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+        <div
+          className={`min-h-0 overflow-hidden transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${open ? "translate-y-0 opacity-100 delay-75" : "-translate-y-2 opacity-0"}`}
+          inert={!open}
+        >
+      {/* The body: what I did, and what it was for, in two halves. */}
+      <div className="grid md:grid-cols-2">
+        <div className="min-w-0 px-2 py-5">
+          <p className="mb-4 text-sm leading-relaxed text-muted">{item.description}</p>
+          {hasHighlights && (
+            <>
+              <Heading>{ui.experienceLabels.results}</Heading>
+              <ul className="space-y-2">
+                {item.highlights!.map((highlight) => (
+                  <li key={highlight} className="flex gap-3 text-[13px] leading-snug text-muted">
+                    <span className="mt-[0.45rem] h-px w-3 shrink-0 bg-accent" aria-hidden="true" />
+                    {highlight}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
 
-        {item.highlights && item.highlights.length > 0 && (
-          <ul className="space-y-2">
-            {item.highlights.map((highlight) => (
-              <li key={highlight} className="flex gap-3 text-sm leading-snug text-muted">
-                <span className="mt-[0.5rem] h-px w-3 shrink-0 bg-accent" aria-hidden="true" />
-                {highlight}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {item.projects && item.projects.length > 0 && (
-          <div>
-            <p className="label mb-1.5">{ui.experienceLabels.publicProjects}</p>
-            <div className="rounded-lg border border-border bg-surface px-4">
-              {item.projects.map((project) => (
+        {hasProjects && (
+          <div className="min-w-0 border-t border-border px-2 py-5 md:border-l md:border-t-0 md:pl-6">
+            <Heading>{ui.experienceLabels.publicProjects}</Heading>
+            <div className="grid gap-1.5">
+              {item.projects!.map((project) => (
                 <ProjectLink key={project.url} link={project} />
               ))}
             </div>
           </div>
         )}
+      </div>
 
-        <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className="label mr-1">{ui.experienceLabels.stack}</span>
-          {item.tags.map((tag, index) => (
-            <span key={tag} className="font-mono text-xs text-muted">
-              {tag}
-              {index < item.tags.length - 1 ? "," : ""}
-            </span>
+      {/* The footer: the stack. */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-2 py-3.5">
+        <h4 className="flex items-baseline gap-2 font-display text-sm font-semibold tracking-tight">
+          <span className="text-[13px] font-normal text-accent-2" aria-hidden="true">
+            ✦
+          </span>
+          {ui.experienceLabels.stack}
+        </h4>
+        <ul className="flex flex-wrap gap-1.5">
+          {item.tags.map((tag) => (
+            <li key={tag}>
+              <Tag>{tag}</Tag>
+            </li>
           ))}
-        </p>
+        </ul>
+      </div>
+        </div>
       </div>
     </Reveal>
   );
@@ -127,12 +185,14 @@ function Job({ item }: { item: ExperienceItem }) {
 
 export function Experience() {
   const { experience, ui } = useContent();
+  // The newest job first, the oldest last: plain rows on one rail, with no boxes and no rules between them.
+  const jobs = [...experience].sort((a, b) => b.start.localeCompare(a.start));
   useClock(); // so an ongoing job's length rolls over at the turn of a month, even in a tab left open
 
   return (
     <Section id="experience" title={ui.sections.experience.title}>
       <div>
-        {experience.map((item) => (
+        {jobs.map((item) => (
           <Job key={`${item.org}-${item.role}`} item={item} />
         ))}
       </div>

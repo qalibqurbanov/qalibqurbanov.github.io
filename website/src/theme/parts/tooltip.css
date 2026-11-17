@@ -50,3 +50,25 @@
 .tip-balloon[data-side="bottom"]::after {
   top: -1px;
 }
+
+/* The arrow points at the thing the tag is about, from the edge that faces it. */
+.tip-arrow {
+  position: absolute;
+  z-index: 1;
+  width: 11px;
+  height: 11px;
+  background: color-mix(in srgb, var(--color-surface) 100%, var(--color-bg));
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.tip-balloon[data-side="top"] .tip-arrow {
+  bottom: -6px;
+  border-right: 1px solid var(--color-accent-2);
+  border-bottom: 1px solid var(--color-accent-2);
+}
+
+.tip-balloon[data-side="bottom"] .tip-arrow {
+  top: -6px;
+  border-left: 1px solid var(--color-accent);
+  border-top: 1px solid var(--color-accent);
+}

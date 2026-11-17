@@ -34,8 +34,10 @@
     /* the shadows it casts: tight and dark where it touches, then wider and softer as it lifts away */
     0 0 0 1px rgb(0 0 0 / 0.32),
     0 2px 3px rgb(0 0 0 / 0.4),
-    0 12px 22px -8px rgb(0 0 0 / 0.55),
-    0 34px 64px -22px rgb(0 0 0 / 0.7);
+    0 6px 0 -3px rgb(0 0 0 / 0.3),
+    0 18px 30px -10px rgb(0 0 0 / 0.6),
+    0 44px 80px -24px rgb(0 0 0 / 0.8),
+    0 70px 120px -40px rgb(0 0 0 / 0.55);
   transition: --hover 0.45s ease;
 }
 

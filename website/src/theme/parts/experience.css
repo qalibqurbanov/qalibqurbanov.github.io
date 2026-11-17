@@ -1,0 +1,108 @@
+/* ---- Experience: no rules between jobs. A hairline rail runs down the left with one small node per job; a job that is
+   open lights its node, so the rail also says what is unfolded. The rail starts and ends at the first and last node. ---- */
+
+.exp-job {
+  position: relative;
+  padding-left: 1.75rem;
+  --node-y: 2.25rem;
+}
+
+.exp-job::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-border);
+  pointer-events: none;
+}
+
+.exp-job:first-child::before {
+  top: var(--node-y);
+}
+
+.exp-job:last-child::before {
+  bottom: auto;
+  height: var(--node-y);
+}
+
+.exp-job:only-child::before {
+  display: none;
+}
+
+.exp-job::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(var(--node-y) - 5.5px);
+  width: 11px;
+  height: 11px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-muted);
+  background: var(--color-bg);
+  transition:
+    background-color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.exp-job:has(> button[aria-expanded="true"])::after {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  box-shadow: 0 0 10px var(--neon-glow);
+}
+
+.exp-job:has(> button:hover)::after {
+  border-color: var(--color-accent);
+}
+
+/* A job I still have (it carries the "now" pill) always keeps its node filled, and the node sends out a soft ring on
+   a slow beat, so the live job is told apart from the finished ones even when it is folded. */
+.exp-job:has(.now-dot)::after {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  animation: exp-node-pulse 2s ease-out infinite;
+}
+
+@keyframes exp-node-pulse {
+  0% {
+    box-shadow:
+      0 0 8px var(--neon-glow),
+      0 0 0 0 color-mix(in srgb, var(--color-accent) 60%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow:
+      0 0 8px var(--neon-glow),
+      0 0 0 10px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exp-job:has(.now-dot)::after {
+    animation: none;
+    box-shadow: 0 0 8px var(--neon-glow);
+  }
+}
+
+/* Two folded jobs touch: where one header meets the next, the corners are square, so only the outer ends of the stack
+   keep their round corners and the two backgrounds read as one piece. */
+.exp-job:has(> button[aria-expanded="false"]):not(:last-child) > button {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.exp-job:has(> button[aria-expanded="false"]) + .exp-job > button {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* The corners ease between round and square, in step with the fold, instead of snapping. */
+.exp-job > button {
+  transition:
+    background-color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}

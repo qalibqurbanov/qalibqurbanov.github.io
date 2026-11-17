@@ -31,6 +31,19 @@ const az: Content = {
     ],
   },
   experience: [
+    // Test qeydləri; real iş yerləri ilə əvəz edin. Səhifə ən yenini yuxarıda göstərir.
+    // Aşağıdakı şərhə alınmış qeyd yalnız strukturun yer tutucusudur. Yeni təcrübə əlavə edəndə onu nümunə kimi götürüb kopyalayın, sıfırdan qurmayın.
+    // {
+    //   role: "Proqram təminatı tərtibatçısı",
+    //   org: "Test Company Two",
+    //   logo: "/logos/test-company.svg",
+    //   period: "Sentyabr 2022 — Noyabr 2023",
+    //   start: "2022-09",
+    //   end: "2023-11",
+    //   description: "Test qeydi: müştərilərə yönəlmiş platforma üçün veb xidmətlər və arxa plan işləri hazırlamışam.",
+    //   highlights: ["Test nəticə: monolit modulunu ayrıca xidmətə köçürmüşəm.", "Test nəticə: avtomatik build və deploy qurmuşam."],
+    //   tags: ["ASP.NET Core", "PostgreSQL", "Docker"],
+    // },
     {
       role: "Backend Developeri",
       ...crocusoftFacts,
@@ -43,19 +56,30 @@ const az: Content = {
           label: "Crocusoft Veb Saytı",
           url: "https://crocusoft.com",
           logo: "/logos/crocusoft.png",
-          description: "Şirkəti və işlərini təqdim edən açıq sayt",
+          description: "Crocusoft şirkətinin açıq saytı. Şirkəti və gördüyü işləri təqdim edir.",
         },
         {
           label: "Kapital Bank HR Platforması",
-          url: "https://crocusoft.com/en/Project/Details/hr.kapitalbank.az",
+          url: "https://careers.bir.az",
           logo: "/logos/kapital-bank.png",
-          description: "Bank üçün daxili HR platforması",
+          description: "Kapital Bank əməkdaşları üçün daxili HR sistemi.",
+        },
+        {
+          label: "SDG Azstat",
+          url: "https://sdg.azstat.gov.az",
+          logo: "/logos/sdg-azstat.ico",
+          description: "BMT-nin Dayanıqlı İnkişaf Məqsədləri üzrə irəliləyişi göstərən milli statistika portalı.",
+        },
+        {
+          label: "AnyPartz",
+          url: "https://anypartz.com",
+          description: "Hər cür məhsul üçün ehtiyat hissələri satan onlayn mağaza.",
         },
         {
           label: "SANAT Art Center",
-          url: "https://crocusoft.com/en/Project/Details/sanat-art-center",
+          url: "https://sanat.az",
           logo: "/logos/sanat.png",
-          description: "İncəsənət mərkəzi üçün sayt",
+          description: "SANAT İncəsənət Mərkəzinin saytı.",
         },
       ],
       highlightsIntro: "Bu layihələrdə aşağıdakılarla məşğul olmuşam:",
@@ -248,7 +272,7 @@ const az: Content = {
       backend: "Backend",
       tools: "Alətlər",
     },
-    experienceLabels: { currentlyAt: "Hazırda", now: "indi", publicProjects: "Açıq layihələr", stack: "Texnologiyalar" },
+    experienceLabels: { currentlyAt: "Hazırda", now: "indi", results: "Gördüyüm işlər", publicProjects: "Üzərində işlədiyim açıq layihələr", stack: "Texnologiyalar" },
     skillsClient: {
       title: "Frontend və Mobil",
       text: "Backend mənim əsas sahəmdir. Layihənin veb və ya mobil tərəfinə də ehtiyac olanda, onu da öz üzərimə götürürəm və işə ən uyğun alətləri seçirəm.",

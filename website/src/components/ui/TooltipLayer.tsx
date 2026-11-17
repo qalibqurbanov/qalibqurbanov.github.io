@@ -6,6 +6,8 @@ interface Tip {
   left: number;
   top: number;
   side: "top" | "bottom";
+  /** Where the arrow sits along the balloon (px from its left edge): under the middle of the thing it is about. */
+  arrow: number;
 }
 
 const GAP = 10;
@@ -53,7 +55,7 @@ export function TooltipLayer() {
         () => {
           if (!target.isConnected) return;
           setPending({ target, text });
-          setTip({ text, left: 0, top: 0, side: "top" });
+          setTip({ text, left: 0, top: 0, side: "top", arrow: 0 });
         },
         instant ? 0 : SHOW_DELAY_MS,
       );
@@ -94,7 +96,8 @@ export function TooltipLayer() {
     const { width, height } = balloon.current.getBoundingClientRect();
     const left = Math.min(Math.max(rect.left + rect.width / 2 - width / 2, MARGIN), window.innerWidth - width - MARGIN);
     const above = rect.top - GAP - height >= MARGIN;
-    setTip({ ...tip, left, top: above ? rect.top - GAP - height : rect.bottom + GAP, side: above ? "top" : "bottom" });
+    const arrow = Math.min(Math.max(rect.left + rect.width / 2 - left, 14), width - 14);
+    setTip({ ...tip, left, top: above ? rect.top - GAP - height : rect.bottom + GAP, side: above ? "top" : "bottom", arrow });
     setShown(true);
   }, [tip, shown, pending]);
 
@@ -102,6 +105,7 @@ export function TooltipLayer() {
   return createPortal(
     <div ref={balloon} role="tooltip" data-side={tip.side} className={`tip-balloon ${shown ? "is-shown" : ""}`} style={{ left: tip.left, top: tip.top }}>
       {tip.text}
+      <span className="tip-arrow" style={{ left: tip.arrow }} aria-hidden="true" />
     </div>,
     document.body,
   );
