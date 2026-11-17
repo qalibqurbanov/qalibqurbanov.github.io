@@ -92,7 +92,9 @@ export function navigateToLocale(locale: Locale, mode: "push" | "replace"): void
   // The 404 page changes language in place: its address must stay the one that was not found.
   if (isNotFoundPage()) return;
   const { pathname, search, hash } = window.location;
-  const target = pathForLocale(locale);
+  // Keeps the rest of the address, so a project or an article opens in the other language.
+  const rest = localeFromPath(pathname) ? pathname.split("/").slice(2).join("/") : "";
+  const target = `${pathForLocale(locale)}${rest}`;
   if (pathname === target) return;
   const url = `${target}${search}${hash}`;
   if (mode === "push") window.history.pushState(null, "", url);

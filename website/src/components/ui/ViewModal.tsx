@@ -2,9 +2,6 @@ import * as Dialog from "@radix-ui/react-dialog";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { setViewBar } from "@/components/ui/viewBar";
-import { borderBurst } from "@/hooks/borderGlitch";
-import { useContent } from "@/i18n/context";
 
 /** Slightly longer than the CSS exit animation (180ms) so the view is still
  * mounted while it fades out. */
@@ -13,7 +10,6 @@ const EXIT_MS = 200;
 interface ViewModalProps {
   /** Screen-reader title. Omit when the children render their own Dialog.Title. */
   title?: string;
-  backLabel?: string;
   /** Tailwind max-width class for the window. */
   widthClass: string;
   onClose: () => void;
@@ -22,22 +18,17 @@ interface ViewModalProps {
   children: ReactNode | ((close: () => void) => ReactNode);
 }
 
-/** Modal shell shared by the project, resume and contact views: the same
- * blurred, dimmed overlay everywhere. It has no bar of its own — it hands its
- * back action to the site's navbar (see viewBar.ts), which morphs into a
- * back-bar above the overlay while the view is open. */
+/** Modal shell shared by the project, résumé, article and contact views: everything around the dialog is
+ * dimmed and blurred, and the dialog rises in and sinks out (see the dialog rules in theme.css). It has no bar
+ * of its own: the panel inside brings its close button, and Esc or a click outside closes it too. */
 export function ViewModal({
   title,
-  backLabel,
   widthClass,
   onClose,
   open = true,
   children,
 }: ViewModalProps) {
-  const { ui } = useContent();
-  const label = backLabel ?? ui.resumeView.back;
   const [closing, setClosing] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   const visible = open && !closing;
 
@@ -55,23 +46,7 @@ export function ViewModal({
     return () => window.clearTimeout(id);
   }, [closing]);
 
-  // The window's border glitches once as the view opens.
-  useEffect(() => {
-    if (!visible) return;
-    const id = window.setTimeout(() => {
-      const win = contentRef.current?.querySelector<HTMLElement>(".glitch-border");
-      if (win) borderBurst(win, 8);
-    }, 160);
-    return () => window.clearTimeout(id);
-  }, [visible]);
-
   const requestClose = useCallback(() => setClosing(true), []);
-
-  useEffect(() => {
-    if (!visible) return;
-    setViewBar({ label, onBack: requestClose });
-    return () => setViewBar(null);
-  }, [visible, label, requestClose]);
 
   return (
     <Dialog.Root
@@ -79,9 +54,8 @@ export function ViewModal({
       onOpenChange={(next) => !next && requestClose()}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm view-overlay" />
+        <Dialog.Overlay className="fixed inset-0 z-[60] view-overlay" />
         <Dialog.Content
-          ref={contentRef}
           {...(title ? { "aria-describedby": undefined } : {})}
           onClick={(event) => {
             if (event.target === event.currentTarget) requestClose();
@@ -94,7 +68,7 @@ export function ViewModal({
             onClick={(event) => {
               if (event.target === event.currentTarget) requestClose();
             }}
-            className="flex min-h-0 flex-1 flex-col items-center px-4 pb-6 pt-20"
+            className="flex min-h-0 flex-1 flex-col items-center p-4 sm:p-8"
           >
             <div
               className={`flex min-h-0 w-full flex-1 flex-col ${widthClass}`}

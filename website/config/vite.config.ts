@@ -126,15 +126,22 @@ const repoStats = await fetchRepoStats();
 // GitHub Pages serves the build's 404.html (the site itself in its not-found mode, see
 // localized-html.ts) for unknown URLs; Vite's dev and preview servers would instead answer them
 // with the plain SPA. This mirrors Pages locally: only the real pages (/, /en/, /az/, /ru/) and
-// file requests get through, anything else is answered with the 404 page and a 404 status.
+// file requests get through, a language folder without its slash is redirected, and anything else
+// is answered with the 404 page and a 404 status.
 function notFoundPage(): Plugin {
   const pages = new Set(["/", "/index.html", "/en/", "/az/", "/ru/"]);
   const handler =
     (read: (url: string) => Promise<string>): Connect.NextHandleFunction =>
     async (req, res, next) => {
       const pathname = (req.url ?? "/").split(/[?#]/)[0];
+      // Like Pages, a language folder asked for without its closing slash is sent on to the page (/en -> /en/).
+      if (/^\/(en|az|ru)$/.test(pathname)) {
+        res.statusCode = 301;
+        res.setHeader("Location", `${pathname}/${(req.url ?? "").slice(pathname.length)}`);
+        return res.end();
+      }
       // Dev-only internals (/@vite, /src/..., /node_modules/...) and anything with an extension.
-      const passthrough = pages.has(pathname) || /\.[a-z0-9]+$/i.test(pathname) || /^\/(@|src\/|node_modules\/)/.test(pathname);
+      const passthrough = pages.has(pathname) || /^\/(en|az|ru)\/(projects|blog)\/[^/]+\/$/.test(pathname) ||/\.[a-z0-9]+$/i.test(pathname) || /^\/(@|src\/|node_modules\/)/.test(pathname);
       if (passthrough) return next();
       try {
         const html = await read(req.url ?? "/");

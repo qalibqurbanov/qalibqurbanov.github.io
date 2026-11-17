@@ -21,7 +21,6 @@ export const socials: SocialLinks = {
 export const projectFacts = {
   "soundcloud-artwork-downloader": {
     slug: "soundcloud-artwork-downloader",
-    filename: "README.md",
     tags: ["C#", "WinForms", "HtmlAgilityPack"],
     repoUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader",
     liveUrl: "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader/releases",
@@ -29,13 +28,12 @@ export const projectFacts = {
   },
   imager: {
     slug: "imager",
-    filename: "README.md",
     tags: ["C#", "WinForms", "ImgBB API"],
     repoUrl: "https://github.com/qalibqurbanov/Imager",
     liveUrl: "https://github.com/qalibqurbanov/Imager/releases",
     stack: ["C#", ".NET Framework 4.7.2", "WinForms", "Newtonsoft.Json", "MaterialSkin"],
   },
-} satisfies Record<string, Pick<Project, "slug" | "filename" | "tags" | "repoUrl" | "liveUrl" | "stack">>;
+} satisfies Record<string, Pick<Project, "slug" | "tags" | "repoUrl" | "liveUrl" | "stack">>;
 
 /** The same for the Crocusoft job. */
 export const crocusoftFacts = {

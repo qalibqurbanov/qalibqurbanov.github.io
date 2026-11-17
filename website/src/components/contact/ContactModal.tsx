@@ -4,10 +4,8 @@ import type { DragEvent, FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { borderBurst } from "@/hooks/borderGlitch";
-import { prefersReducedMotion, SCRAMBLE } from "@/hooks/glitch";
 
-import { CodeWindow } from "@/components/ui/CodeWindow";
+import { Panel } from "@/components/ui/Panel";
 import { Notice, NOTICE_MS } from "@/components/ui/Notice";
 import { ViewModal } from "@/components/ui/ViewModal";
 import { useContent, useLocale } from "@/i18n/context";
@@ -37,8 +35,6 @@ const ATTACHMENTS = import.meta.env.VITE_CONTACT_ATTACHMENTS === "true";
 
 /** After a message is sent the tick stays on the button this long, then the window closes itself. */
 const TICK_MS = 1800;
-/** How long the window glitches before it closes. */
-const GLITCH_MS = 450;
 
 /** A plain check that an address has an @ and a dot after it; the mail service does the real one. */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -179,10 +175,8 @@ async function deliver(
   }
 }
 
-/** After a message is sent the window stays a moment, with a tick on its button, then its border
- * glitches and `onDone` closes it. It draws nothing itself. */
+/** After a message is sent the window stays a moment, with a tick on its button, then `onDone` closes it. It draws nothing itself. */
 function CloseSoon({ onDone }: { onDone: () => void }) {
-  const rootRef = useRef<HTMLSpanElement>(null);
   const doneRef = useRef(onDone);
 
   useEffect(() => {
@@ -190,19 +184,11 @@ function CloseSoon({ onDone }: { onDone: () => void }) {
   });
 
   useEffect(() => {
-    let closeTimer = 0;
-    const end = window.setTimeout(() => {
-      const win = rootRef.current?.closest<HTMLElement>(".glitch-border");
-      if (win) borderBurst(win, 14);
-      closeTimer = window.setTimeout(() => doneRef.current(), GLITCH_MS);
-    }, TICK_MS);
-    return () => {
-      window.clearTimeout(end);
-      window.clearTimeout(closeTimer);
-    };
+    const timer = window.setTimeout(() => doneRef.current(), TICK_MS);
+    return () => window.clearTimeout(timer);
   }, []);
 
-  return <span ref={rootRef} hidden />;
+  return null;
 }
 
 /** What the Send button shows once the message is sent: a tick that pops in and draws itself (see .sent-tick). */
@@ -212,34 +198,6 @@ function SentTick({ label }: { label: string }) {
 
 type Field = "name" | "email" | "message";
 
-
-/** The word on the Send button while a message is on its way: its letters scramble into noise and
- * lock back into place, left to right, over and over until the send is over. The button's font has
- * letters of equal width, so nothing around it moves. */
-const SCRAMBLE_CYCLE_MS = 1500;
-function ScrambleText({ text }: { text: string }) {
-  const [shown, setShown] = useState(text);
-  useEffect(() => {
-    if (prefersReducedMotion()) return;
-    const start = performance.now();
-    const id = window.setInterval(() => {
-      const progress = ((performance.now() - start) % SCRAMBLE_CYCLE_MS) / SCRAMBLE_CYCLE_MS;
-      // Locks in over the first 70% of the cycle, holds the real word, then scrambles again.
-      const locked = progress < 0.7 ? Math.floor((progress / 0.7) * text.length) : progress < 0.85 ? text.length : 0;
-      let out = "";
-      for (let i = 0; i < text.length; i++) {
-        out += i < locked || text[i] === " " ? text[i] : SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)];
-      }
-      setShown(out);
-    }, 60);
-    return () => window.clearInterval(id);
-  }, [text]);
-  return (
-    <span aria-label={text}>
-      <span aria-hidden="true">{shown}</span>
-    </span>
-  );
-}
 
 type Status = "idle" | "sending" | "sent" | "mail" | "error" | "limited" | "tooMany";
 
@@ -272,7 +230,7 @@ export function ContactModal() {
   const [invalid, setInvalid] = useState<Field[]>([]);
   // The popup after a send. It is shown outside the window, so it stays when the window closes.
   const [sentNotice, setSentNotice] = useState<{ id: number; title: string; body: string } | null>(null);
-  // Counts the send attempts, so each popup is a new one (and glitches in again).
+  // Counts the send attempts, so each popup is a new one.
   const [round, setRound] = useState(0);
   const checked = canSend && Boolean(SITE_KEY);
   // The spam check's token: fetched in the background, so the form can only be sent once it is there.
@@ -445,8 +403,8 @@ export function ContactModal() {
     <>
     <ViewModal open={open} widthClass="max-w-2xl" onClose={() => setOpen(false)}>
       {(close) => (
-      <CodeWindow
-        filename="message.txt"
+      <Panel
+        title={t.title}
         className="flex min-h-0 flex-col"
         onClose={close}
       >
@@ -461,18 +419,18 @@ export function ContactModal() {
             className="flex flex-col gap-4"
           >
             <div>
-              <Dialog.Title className="text-xl font-bold text-text">
+              <Dialog.Title className="sr-only">
                 {t.title}
               </Dialog.Title>
               <Dialog.Description className="mt-1 text-sm text-muted">
                 {t.description}
               </Dialog.Description>
-              <p className="mt-2 font-mono text-[11px] leading-relaxed text-muted/80">
+              <p className="mt-2 text-[11px] leading-relaxed text-muted/80">
                 {format(t.limits, { count: String(MAX_PER_WINDOW), seconds: String(MIN_GAP_MS / 1000), chars: String(MESSAGE_MAX) })}
               </p>
             </div>
 
-            <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
+            <label className="flex flex-col gap-1.5 text-xs text-muted">
               {t.nameLabel}
               <input
                 name="name"
@@ -483,7 +441,7 @@ export function ContactModal() {
                 className={fieldClass("name")}
               />
             </label>
-            <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
+            <label className="flex flex-col gap-1.5 text-xs text-muted">
               {t.emailLabel}
               <input
                 name="email"
@@ -495,7 +453,7 @@ export function ContactModal() {
                 className={fieldClass("email")}
               />
             </label>
-            <label className="flex flex-col gap-1.5 font-mono text-xs text-muted">
+            <label className="flex flex-col gap-1.5 text-xs text-muted">
               {t.messageLabel}
               <textarea
                 name="message"
@@ -507,7 +465,7 @@ export function ContactModal() {
               />
             </label>
             {canAttach && (
-              <div className="flex flex-col gap-1.5 font-mono text-xs text-muted">
+              <div className="flex flex-col gap-1.5 text-xs text-muted">
                 {t.attachLabel}
                 <div
                   role="button"
@@ -648,16 +606,16 @@ export function ContactModal() {
             <button
               type="submit"
               disabled={status === "sending" || done || check === "pending"}
-              className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-accent px-5 py-2.5 font-mono text-sm font-medium text-bg transition hover:brightness-110 disabled:opacity-60 ${done ? "disabled:opacity-100" : ""}`}
+              className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition hover:brightness-110 disabled:opacity-60 ${done ? "disabled:opacity-100" : ""}`}
             >
               {!done && (canSend ? <Send size={14} /> : <Mail size={14} />)}
-              {status === "sending" ? <ScrambleText text={t.sending} /> : done ? <SentTick label={t.successTitle} /> : canSend ? t.send : t.mailSend}
+              {status === "sending" ? t.sending : done ? <SentTick label={t.successTitle} /> : canSend ? t.send : t.mailSend}
             </button>
             {done && <CloseSoon onDone={close} />}
             {sentTimes.length > 0 && (
                 // A small panel of its own, with one dot for each message of the hour (filled once used), so it reads as a status and not as one more rule.
                 <p
-                  className={`-mt-1 inline-flex items-center gap-2.5 self-center rounded-md border bg-surface-2 px-3 py-1.5 font-mono text-xs ${
+                  className={`-mt-1 inline-flex items-center gap-2.5 self-center rounded-md border bg-surface-2 px-3 py-1.5 text-xs ${
                     sentTimes.length >= MAX_PER_WINDOW ? "border-accent/60 text-accent" : "border-border text-text"
                   }`}
                 >
@@ -675,7 +633,7 @@ export function ContactModal() {
               )}
           </form>
         </div>
-      </CodeWindow>
+      </Panel>
       )}
     </ViewModal>
     {sentNotice &&

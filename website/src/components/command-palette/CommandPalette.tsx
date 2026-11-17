@@ -7,14 +7,13 @@ import {
   FileText,
   FolderGit2,
   Globe,
-  Home as HomeIcon,
   Mail,
   Moon,
   Search,
   Sun,
 } from "lucide-react";
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
-import { createElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   GithubIcon,
@@ -23,16 +22,12 @@ import {
   StackOverflowIcon,
   TelegramIcon,
 } from "@/components/icons/BrandIcons";
-import { RESUME_HREF, useProjectRoute } from "@/hooks/useProjectRoute";
+import { resumeHref, useProjectRoute } from "@/hooks/useProjectRoute";
 import { useContent, useLocale } from "@/i18n/context";
 import { OPEN_COMMAND_PALETTE_EVENT } from "@/components/command-palette/openPalette";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
-import { format } from "@/lib/format";
 import { reportBugUrl } from "@/lib/githubIssue";
-import { scrollToTop } from "@/lib/scroll";
-import { useMotion } from "@/motion/context";
-import { MOTION_ICONS, useMotionLabel } from "@/motion/labels";
-import { useTheme } from "@/themes/shared/colour/context";
+import { useTheme } from "@/theme/context";
 
 interface PaletteItem {
   id: string;
@@ -60,9 +55,7 @@ export function CommandPalette() {
   const { profile, socials, navigation, about, experience, skills, projects, ui } = useContent();
   const { locale, setLocale } = useLocale();
   const { theme, toggleTheme } = useTheme();
-  const { motion, cycleMotion } = useMotion();
-  const motionName = useMotionLabel()(motion);
-  const { activeSlug, resumeOpen, openProject, closeProject } = useProjectRoute();
+  const { activeSlug, postSlug, resumeOpen, openProject, closeProject } = useProjectRoute();
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -106,7 +99,7 @@ export function CommandPalette() {
 
   const goToHref = useCallback(
     (href: string) => {
-      if (activeSlug || resumeOpen) {
+      if (activeSlug || postSlug || resumeOpen) {
         closeProject();
         window.setTimeout(() => {
           window.location.hash = href;
@@ -115,22 +108,17 @@ export function CommandPalette() {
         window.location.hash = href;
       }
     },
-    [activeSlug, resumeOpen, closeProject],
+    [activeSlug, postSlug, resumeOpen, closeProject],
   );
 
   const groups = useMemo<PaletteGroup[]>(() => {
     const navKeywords: Record<string, string> = {
-      "#about": about.highlights.map((item) => `${item.label} ${item.value}`).join(" "),
+      "#home": about.highlights.map((item) => `${item.label} ${item.value}`).join(" "),
+      "#about": about.paragraphs.join(" ").replace(/[*=]/g, ""),
       "#contact": `${profile.email} ${socials.github} ${socials.linkedin}`,
     };
 
     const navigationItems: PaletteItem[] = [
-      {
-        id: "nav-home",
-        label: ui.labels.home,
-        icon: <HomeIcon size={16} />,
-        onSelect: () => (activeSlug || resumeOpen ? closeProject() : scrollToTop()),
-      },
       ...navigation.map((item) => ({
         id: `nav-${item.href}`,
         label: item.label,
@@ -176,13 +164,6 @@ export function CommandPalette() {
         label: ui.commandPalette.actionToggleTheme,
         icon: theme === "dark" ? <Sun size={16} /> : <Moon size={16} />,
         onSelect: toggleTheme,
-      },
-      {
-        id: "action-motion",
-        label: format(ui.commandPalette.actionMotion, { level: motionName }),
-        icon: createElement(MOTION_ICONS[motion], { size: 16 }),
-        keepOpen: true,
-        onSelect: cycleMotion,
       },
       {
         id: "action-copy-email",
@@ -248,7 +229,7 @@ export function CommandPalette() {
         label: ui.commandPalette.actionOpenResume,
         keywords: "resume cv pdf",
         icon: <FileText size={16} />,
-        onSelect: () => goToHref(RESUME_HREF),
+        onSelect: () => goToHref(resumeHref()),
       });
     }
 
@@ -272,9 +253,6 @@ export function CommandPalette() {
     ];
   }, [
     about.highlights,
-    activeSlug,
-    resumeOpen,
-    closeProject,
     emailCopied,
     experience,
     goToHref,
@@ -293,11 +271,7 @@ export function CommandPalette() {
     socials.telegram,
     theme,
     toggleTheme,
-    motion,
-    motionName,
-    cycleMotion,
     ui.commandPalette,
-    ui.labels.home,
     ui.skillGroups,
   ]);
 
@@ -346,13 +320,13 @@ export function CommandPalette() {
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm command-dialog-overlay" />
+        <Dialog.Overlay className="fixed inset-0 z-[60] bg-bg/55 backdrop-blur-md command-dialog-overlay" />
         <Dialog.Content
           onOpenAutoFocus={(event) => {
             event.preventDefault();
             inputRef.current?.focus();
           }}
-          className="fixed left-1/2 top-24 z-[60] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 overflow-hidden rounded-xl border border-border bg-surface shadow-2xl shadow-black/40 command-dialog-content"
+          className="fixed left-1/2 top-24 z-[60] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 overflow-hidden rounded-xl border border-border bg-surface command-dialog-content"
         >
           <Dialog.Title className="sr-only">Command palette</Dialog.Title>
           <Dialog.Description className="sr-only">
@@ -367,20 +341,20 @@ export function CommandPalette() {
               onChange={(event) => handleQueryChange(event.target.value)}
               onKeyDown={handleInputKeyDown}
               placeholder={ui.commandPalette.placeholder}
-              className="w-full bg-transparent font-mono text-sm text-text placeholder:text-muted outline-none selectable"
+              className="w-full bg-transparent text-sm text-text placeholder:text-muted outline-none selectable"
             />
           </div>
 
           <div className="custom-scrollbar max-h-80 overflow-y-auto p-2">
             {flatItems.length === 0 && (
-              <p className="px-3 py-6 text-center font-mono text-sm text-muted">
+              <p className="px-3 py-6 text-center text-sm text-muted">
                 {ui.commandPalette.empty}
               </p>
             )}
 
             {filteredGroups.map((group) => (
               <div key={group.id} className="mb-2 last:mb-0">
-                <p className="px-3 pb-1 pt-2 font-mono text-[11px] uppercase tracking-wide text-muted/70">
+                <p className="px-3 pb-1 pt-2 text-[11px] uppercase tracking-wide text-muted/70">
                   {group.label}
                 </p>
                 {group.items.map((item) => {
@@ -392,7 +366,7 @@ export function CommandPalette() {
                       type="button"
                       onClick={() => runItem(item)}
                       onMouseEnter={() => setActiveIndex(rowCursor)}
-                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left font-mono text-sm transition-colors ${
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                         isActive ? "bg-surface-2 text-accent" : "text-text hover:bg-surface-2"
                       }`}
                     >
@@ -408,7 +382,7 @@ export function CommandPalette() {
             ))}
           </div>
 
-          <div className="flex items-center justify-end gap-4 border-t border-border px-4 py-2 font-mono text-[11px] text-muted">
+          <div className="flex items-center justify-end gap-4 border-t border-border px-4 py-2 text-[11px] text-muted">
             <span className="inline-flex items-center gap-1">
               <CornerDownLeft size={12} /> select
             </span>

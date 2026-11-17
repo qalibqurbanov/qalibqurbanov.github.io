@@ -1,95 +1,55 @@
-import type { ReactNode } from "react";
-
-import avatarUrl from "@/assets/avatar.webp";
-import { Container } from "@/components/ui/Container";
-import { CountUp } from "@/components/ui/CountUp";
-import { GlitchText } from "@/components/ui/GlitchText";
+import { renderEmphasis } from "@/components/ui/emphasis";
 import { Reveal } from "@/components/ui/Reveal";
-import { SectionClosing } from "@/components/ui/SectionClosing";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { Section } from "@/components/ui/SectionHeading";
 import { useContent } from "@/i18n/context";
 
-/**
- * Inline markup for About paragraphs: `**text**` renders as bright bold
- * display-font text (stats/achievements), `==text==` as an accent-colored
- * monospace "inline code" chip (tech/skill terms).
- */
-function renderEmphasis(text: string): ReactNode {
-  const parts = text.split(/(\*\*[^*]+\*\*|==[^=]+==)/g).filter(Boolean);
-  if (parts.length === 1) return parts[0];
-
-  return parts.map((part, index) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return (
-        <strong key={index} data-glitch-host className="font-display text-text font-bold">
-          <GlitchText text={part.slice(2, -2)} />
-        </strong>
-      );
-    }
-    if (part.startsWith("==") && part.endsWith("==")) {
-      return (
-        <code
-          key={index}
-          data-glitch-host
-          className="font-mono text-[0.88em] font-medium text-accent bg-accent/10 border border-accent/20 rounded-md px-1.5 py-0.5 [box-decoration-break:clone]"
-        >
-          <GlitchText text={part.slice(2, -2)} />
-        </code>
-      );
-    }
-    return <span key={index}>{part}</span>;
-  });
-}
-
+/** The About page: my story as three numbered chapters (what I build, the work around the code, and life away from
+ * the keyboard), then the six facts that matter most as ruled rows. */
 export function About() {
-  const { about, profile, ui } = useContent();
+  const { about, experience, ui } = useContent();
+  const [focus, years, projects, based, open] = about.highlights;
+  const job = experience.find((item) => item.current) ?? experience[0];
+
+  const rows: { label: string; value: string }[] = [
+    { label: focus.label, value: focus.value },
+    { label: years.label, value: years.value },
+    { label: projects.label, value: projects.value },
+    { label: based.label, value: based.value },
+    ...(job ? [{ label: ui.experienceLabels.currentlyAt, value: `${job.org} · ${job.role}` }] : []),
+    { label: open.label, value: ui.contact.openTo.join(" · ") },
+  ];
 
   return (
-    <section id="about" className="py-28">
-      <Container>
-        <SectionHeading id="about" index={ui.sections.about.index} title={ui.sections.about.title} />
+    <Section id="about" title={ui.sections.about.title}>
+      <ol className="timeline">
+        {about.paragraphs.map((paragraph, index) => (
+          <li key={paragraph} className="chapter">
+            <h3 className="mb-1.5 font-display text-[17px] font-semibold">
+              <span className="mr-3 text-[13px] font-normal text-accent-2" aria-hidden="true">
+                ✦
+              </span>
+              {ui.home.chapters[index]}
+            </h3>
+            <p className="text-[15px] leading-relaxed text-muted">{renderEmphasis(paragraph)}</p>
+          </li>
+        ))}
+      </ol>
 
-        <div className="space-y-10">
-          <Reveal>
-            <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6">
-              <div className="card-surface w-32 h-32 sm:h-auto rounded-2xl overflow-hidden shrink-0">
-                <img
-                  src={avatarUrl}
-                  alt={profile.name}
-                  className="h-full w-full object-cover"
-                  width={128}
-                  height={128}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <dl className="card-surface rounded-xl p-5 flex-1 flex flex-wrap gap-x-8 gap-y-4">
-                {about.highlights.map((highlight) => (
-                  <div key={highlight.label}>
-                    <dt className="font-mono text-xs text-accent uppercase tracking-wide">
-                      <span className="text-muted">{"> "}</span>
-                      {highlight.label}
-                    </dt>
-                    <dd className="font-display text-text text-lg font-bold mt-0.5">
-                      <CountUp value={highlight.value} />
-                    </dd>
-                  </div>
-                ))}
-              </dl>
+      <Reveal>
+        <dl className="mt-8 grid grid-cols-1 gap-x-8 border-t border-border sm:grid-cols-2">
+          {rows.map((row) => (
+            <div key={row.label} className="border-b border-border py-2.5">
+              <dt className="label">
+                <span className="mr-2 text-[13px] text-accent-2" aria-hidden="true">
+                  ✦
+                </span>
+                {row.label}
+              </dt>
+              <dd className="mt-0.5 text-sm font-medium">{row.value}</dd>
             </div>
-          </Reveal>
-
-          <Reveal delayMs={150} className="text-muted leading-relaxed">
-            <div className="space-y-5">
-              {about.paragraphs.map((paragraph) => (
-                <p key={paragraph}>{renderEmphasis(paragraph)}</p>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-
-        <SectionClosing />
-      </Container>
-    </section>
+          ))}
+        </dl>
+      </Reveal>
+    </Section>
   );
 }

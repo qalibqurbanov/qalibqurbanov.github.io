@@ -1,53 +1,18 @@
 <!doctype html>
-<html lang="en" data-style="cyber">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Galib Gurbanov — Full Stack, Backend, Frontend & Mobile Developer. Portfolio, projects, and experience." />
-    <meta name="theme-color" content="#07060d" />
+    <meta name="theme-color" content="#0a0a12" />
     <title>Galib Gurbanov | Software Developer</title>
     <script>
       (function () {
         try {
           var stored = localStorage.getItem("theme");
-          var theme =
-            stored === "light" || stored === "dark"
-              ? stored
-              : window.matchMedia("(prefers-color-scheme: light)").matches
-                ? "light"
-                : "dark";
+          var theme = stored === "light" || stored === "dark" ? stored : "dark";
           document.documentElement.setAttribute("data-theme", theme);
-        } catch (e) {}
-      })();
-    </script>
-    <script>
-      (function () {
-        try {
-          var palette = localStorage.getItem("palette");
-          if (["auto", "violet", "ocean", "forest", "sunset", "rose"].indexOf(palette) !== -1) {
-            document.documentElement.setAttribute("data-palette", palette);
-          }
-          var style = localStorage.getItem("style");
-          if (["cyber", "vaporwave", "synthwave", "monochrome", "chrome"].indexOf(style) !== -1) {
-            document.documentElement.setAttribute("data-style", style);
-          }
-        } catch (e) {}
-      })();
-    </script>
-    <script>
-      // The motion level (full, light or off) is set before the first paint, like the theme, so the
-      // page never starts in the wrong state: the saved choice, else the device's reduce-motion setting.
-      (function () {
-        try {
-          var stored = localStorage.getItem("motion");
-          var level =
-            stored === "full" || stored === "light" || stored === "off"
-              ? stored
-              : window.matchMedia("(prefers-reduced-motion: reduce)").matches
-                ? "light"
-                : "full";
-          document.documentElement.setAttribute("data-motion", level);
         } catch (e) {}
       })();
     </script>

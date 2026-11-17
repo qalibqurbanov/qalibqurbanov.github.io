@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { CodeWindow } from "@/components/ui/CodeWindow";
+import { Panel } from "@/components/ui/Panel";
 
 interface CodeBlockProps {
   filename: string;
@@ -29,10 +29,8 @@ function wordClass(word: string): string {
 const TOKEN_REGEX =
   /(\/\/[^\n]*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)/g;
 
-/** A small, dependency-free tokenizer for the common JS/TS syntax patterns —
- * enough to give code snippets the same hand-rolled highlighting the rest of
- * the site already uses (see Hero's manually-colored spans), without pulling
- * in a full syntax-highlighting library for a handful of blog snippets. */
+/** A small, dependency-free tokenizer for the common JS/TS syntax patterns: enough to highlight the
+ * code samples of the articles without a full syntax-highlighting library. */
 function highlightLine(line: string): ReactNode[] {
   const nodes: ReactNode[] = [];
   let lastIndex = 0;
@@ -88,7 +86,7 @@ export function CodeBlock({ filename, code }: CodeBlockProps) {
   const lines = code.split("\n");
 
   return (
-    <CodeWindow filename={filename} className="selectable">
+    <Panel title={filename} className="selectable">
       <div className="custom-scrollbar font-mono text-[13px] leading-6 py-4 overflow-x-auto">
         {lines.map((line, index) => (
           <div key={index} className="flex px-5">
@@ -97,6 +95,6 @@ export function CodeBlock({ filename, code }: CodeBlockProps) {
           </div>
         ))}
       </div>
-    </CodeWindow>
+    </Panel>
   );
 }

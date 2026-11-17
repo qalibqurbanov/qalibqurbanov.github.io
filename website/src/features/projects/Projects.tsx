@@ -1,35 +1,22 @@
 import { useMemo, useState } from "react";
 import { flushSync } from "react-dom";
 
-import { Container } from "@/components/ui/Container";
-import { SectionClosing } from "@/components/ui/SectionClosing";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { Section } from "@/components/ui/SectionHeading";
 import { useContent } from "@/i18n/context";
 
-import type { MoreVariant } from "./MoreProjects";
 import { MoreProjects } from "./MoreProjects";
 import { ProjectCard } from "./ProjectCard";
-import { prefersReducedMotion } from "@/hooks/glitch";
+import { prefersReducedMotion } from "@/lib/motion";
 
 const CHIP = "rounded-md border px-2.5 py-1 font-mono text-xs transition-colors [@media(pointer:coarse)]:py-2";
-const SEGMENT = "rounded px-2.5 py-1 transition-colors [@media(pointer:coarse)]:py-2";
+const SEGMENT = "transition-colors [@media(pointer:coarse)]:py-2";
 
 type MatchMode = "any" | "all";
-
-/** The closing "more on GitHub" design: variant A until one is picked.
- * `?more=b|c|d` previews another and `?more=all` shows all four side by side;
- * the preview goes away once a design is chosen. */
-function previewVariants(): MoreVariant[] {
-  const pick = new URLSearchParams(window.location.search).get("more");
-  if (pick === "all") return ["a", "b", "c", "d"];
-  return pick === "b" || pick === "c" || pick === "d" ? [pick] : ["a"];
-}
 
 export function Projects() {
   const { projects, ui } = useContent();
   const [selected, setSelected] = useState<string[]>([]);
   const [mode, setMode] = useState<MatchMode>("any");
-  const variants = useMemo(() => previewVariants(), []);
 
   // Every tag used by any project, in order of first appearance, after the
   // "all" chip that clears the filter.
@@ -66,12 +53,10 @@ export function Projects() {
   }
 
   return (
-    <section id="projects" className="py-28">
-      <Container>
-        <SectionHeading id="projects" index={ui.sections.projects.index} title={ui.sections.projects.title} />
+    <Section id="projects" title={ui.sections.projects.title}>
 
         {filterTags.length > 0 && (
-          <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-3">
+          <div className="mb-6 flex flex-wrap items-center gap-x-5 gap-y-3">
             <div role="group" aria-label={ui.projectList.filterLabel} className="flex flex-wrap items-center gap-2">
               {[null, ...filterTags].map((name) => {
                 // "all" is on exactly when no tag is.
@@ -84,8 +69,8 @@ export function Projects() {
                     onClick={() => (name === null ? update(() => []) : toggle(name))}
                     className={`${CHIP} ${
                       active
-                        ? "border-accent bg-accent/10 text-accent"
-                        : "border-muted/40 bg-surface-2/60 text-text/80 hover:border-accent hover:text-accent"
+                        ? "border-accent text-accent"
+                        : "border-border text-muted hover:text-text"
                     }`}
                   >
                     {name ?? ui.projectList.filterAll}
@@ -97,7 +82,7 @@ export function Projects() {
             <div
               role="group"
               aria-label={ui.projectList.matchLabel}
-              className={`inline-flex items-center gap-0.5 rounded-md border border-muted/40 bg-surface-2/60 p-0.5 font-mono text-xs transition-opacity sm:ml-auto ${
+              className={`inline-flex items-center gap-0.5 label gap-3 transition-opacity sm:ml-auto ${
                 selected.length > 1 ? "" : "opacity-80"
               }`}
             >
@@ -109,7 +94,7 @@ export function Projects() {
                   title={option === "any" ? ui.projectList.matchAnyHint : ui.projectList.matchAllHint}
                   onClick={() => animated(() => setMode(option))}
                   className={`${SEGMENT} ${
-                    mode === option ? "bg-accent/10 text-accent" : "text-text/70 hover:text-text"
+                    mode === option ? "!text-accent" : "hover:text-text"
                   }`}
                 >
                   {option === "any" ? ui.projectList.matchAny : ui.projectList.matchAll}
@@ -119,37 +104,22 @@ export function Projects() {
           </div>
         )}
 
-        <div className="grid sm:grid-cols-2 gap-6">
-          {visible.map((project, index) => (
-            <ProjectCard key={project.slug} project={project} index={index} delayMs={index * 75} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          {visible.map((project) => (
+            <ProjectCard key={project.slug} project={project} />
           ))}
           {visible.length === 0 && (
             <p
               role="status"
-              className="sm:col-span-2 rounded-xl border border-dashed border-border px-6 py-10 text-center font-mono text-sm text-muted"
+              className="border-t border-border px-6 py-10 text-center text-sm text-muted sm:col-span-2"
             >
               {ui.projectList.noMatch}
             </p>
           )}
         </div>
 
-        {selected.length === 0 && (
-          <div className="mt-6 flex flex-col gap-6">
-            {variants.map((variant) => (
-              <div key={variant}>
-                {variants.length > 1 && (
-                  <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-muted/70">
-                    Variant {variant.toUpperCase()}
-                  </p>
-                )}
-                <MoreProjects variant={variant} />
-              </div>
-            ))}
-          </div>
-        )}
+        {selected.length === 0 && <div className="mt-4"><MoreProjects /></div>}
 
-        <SectionClosing />
-      </Container>
-    </section>
+    </Section>
   );
 }

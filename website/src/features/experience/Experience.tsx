@@ -1,16 +1,11 @@
-import { ArrowUpRight, ChevronDown, Database, Container as DockerIcon, FolderGit2, Gauge, Layers, ServerCog } from "lucide-react";
-import { useState } from "react";
+import { ArrowUpRight } from "lucide-react";
 
-import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
-import { SectionClosing } from "@/components/ui/SectionClosing";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { Section } from "@/components/ui/SectionHeading";
 import { useClock } from "@/hooks/useClock";
 import { useContent, useLocale } from "@/i18n/context";
 import { formatDuration } from "@/lib/duration";
 import type { ExperienceItem, ExperienceLink } from "@/types/content";
-
-const HIGHLIGHT_ICONS = [ServerCog, Database, Gauge, DockerIcon];
 
 function hostOf(link: ExperienceLink): string {
   try {
@@ -20,163 +15,107 @@ function hostOf(link: ExperienceLink): string {
   }
 }
 
-function initialsOf(label: string): string {
-  return label
-    .split(/\s+/)
-    .map((word) => word[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
-
-/** A project that can be opened: initials square, name, domain, arrow. Looks nothing like the tech row. */
-function ProjectCard({ link }: { link: ExperienceLink }) {
+/** A public project of the role, as one ruled row: logo, name, what it is. */
+function ProjectLink({ link }: { link: ExperienceLink }) {
   return (
-    <a
-      href={link.url}
-      target="_blank"
-      rel="noreferrer"
-      className="group flex items-center gap-2.5 rounded-lg border border-border bg-surface-2/60 p-2 pr-3 transition-colors hover:border-accent/60"
-    >
+    <a href={link.url} target="_blank" rel="noreferrer" className="entry group flex items-center gap-3 border-t border-border py-2.5 first:border-t-0">
       {link.logo ? (
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white p-1">
-          <img src={link.logo} alt="" width={28} height={28} className="h-full w-full object-contain" />
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-border bg-white p-1">
+          <img src={link.logo} alt="" width={24} height={24} className="h-full w-full object-contain" />
         </span>
       ) : (
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-accent/40 to-accent-2/30 font-mono text-xs font-bold text-text">
-          {initialsOf(link.label)}
-        </span>
+        <span className="h-8 w-8 shrink-0 rounded border border-border" aria-hidden="true" />
       )}
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-text">{link.label}</span>
-        <span className="line-clamp-2 text-[11px] leading-snug text-muted">{link.description ?? hostOf(link)}</span>
+        <span className="entry-title block truncate text-sm font-medium transition-colors">{link.label}</span>
+        <span className="block truncate text-xs text-muted">{link.description ?? hostOf(link)}</span>
       </span>
-      <ArrowUpRight
-        size={15}
-        className="shrink-0 text-muted transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent"
-      />
+      <ArrowUpRight size={15} className="shrink-0 text-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
     </a>
   );
 }
 
-function Details({ item }: { item: ExperienceItem }) {
+function Job({ item }: { item: ExperienceItem }) {
   const { ui } = useContent();
+  const { locale } = useLocale();
+
   return (
-    <div className="space-y-4">
-      <p className="text-sm leading-relaxed text-muted">{item.description}</p>
-      {item.highlights && item.highlights.length > 0 && (
-        <ul className="grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
-          {item.highlights.map((highlight, index) => {
-            const Icon = HIGHLIGHT_ICONS[index % HIGHLIGHT_ICONS.length];
-            return (
-              <li key={highlight} className="flex gap-2.5 text-[13px] leading-snug text-muted">
-                <Icon size={15} className="mt-0.5 shrink-0 text-accent" />
-                {highlight}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      {item.projects && item.projects.length > 0 && (
-        <div>
-          <p className="mb-2 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-accent">
-            <FolderGit2 size={12} />
-            {ui.experienceLabels.publicProjects}
-          </p>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {item.projects.map((project) => (
-              <ProjectCard key={project.url} link={project} />
-            ))}
+    <Reveal className="grid gap-x-8 gap-y-3 border-t border-border py-7 first:border-t-0 first:pt-0 md:grid-cols-[11rem_1fr]">
+      <div>
+        <p className="font-mono text-xs text-muted">{item.period}</p>
+        <p className="mt-1 font-mono text-xs text-accent">{formatDuration(item.start, item.end, locale)}</p>
+      </div>
+
+      <div className="min-w-0 space-y-5">
+        <div className="flex items-center gap-3">
+          {item.logo && (
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-border bg-white p-1.5">
+              <img src={item.logo} alt="" width={28} height={28} className="h-full w-full object-contain" />
+            </span>
+          )}
+          <div>
+            <h3 className="text-base font-semibold leading-snug">{item.role}</h3>
+            <p className="flex items-center gap-2 text-sm text-muted">
+              {item.org}
+              {item.current && (
+                <span className="inline-flex items-center gap-1.5 font-mono text-xs text-accent-2">
+                  <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-accent-2" aria-hidden="true" />
+                  {ui.experienceLabels.now}
+                </span>
+              )}
+            </p>
           </div>
         </div>
-      )}
-      <div className="flex flex-wrap items-center gap-x-0.5 gap-y-1">
-        <span className="mr-1.5 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-muted">
-          <Layers size={12} />
-          {ui.experienceLabels.stack}
-        </span>
-        {item.tags.map((tag) => (
-          <span key={tag} className="inline-flex items-center gap-1.5 px-1.5 py-0.5 font-mono text-[11px] text-text/80">
-            <span className="h-1 w-1 rounded-full bg-accent-2" />
-            {tag}
-          </span>
-        ))}
+
+        <p className="text-[15px] leading-relaxed text-muted">{item.description}</p>
+
+        {item.highlights && item.highlights.length > 0 && (
+          <ul className="space-y-2">
+            {item.highlights.map((highlight) => (
+              <li key={highlight} className="flex gap-3 text-sm leading-snug text-muted">
+                <span className="mt-[0.5rem] h-px w-3 shrink-0 bg-accent" aria-hidden="true" />
+                {highlight}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {item.projects && item.projects.length > 0 && (
+          <div>
+            <p className="label mb-1.5">{ui.experienceLabels.publicProjects}</p>
+            <div className="rounded-lg border border-border bg-surface px-4">
+              {item.projects.map((project) => (
+                <ProjectLink key={project.url} link={project} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <span className="label mr-1">{ui.experienceLabels.stack}</span>
+          {item.tags.map((tag, index) => (
+            <span key={tag} className="font-mono text-xs text-muted">
+              {tag}
+              {index < item.tags.length - 1 ? "," : ""}
+            </span>
+          ))}
+        </p>
       </div>
-    </div>
+    </Reveal>
   );
 }
 
 export function Experience() {
   const { experience, ui } = useContent();
-  const { locale } = useLocale();
   useClock(); // so an ongoing job's length rolls over at the turn of a month, even in a tab left open
 
-  // The current job starts open; with no current job everything starts closed.
-  const [openIndex, setOpenIndex] = useState<number | null>(() => {
-    const current = experience.findIndex((item) => item.current);
-    return current === -1 ? null : current;
-  });
-
   return (
-    <section id="experience" className="py-28">
-      <Container>
-        <SectionHeading id="experience" index={ui.sections.experience.index} title={ui.sections.experience.title} />
-
-        <Reveal className="card-surface divide-y divide-border overflow-hidden rounded-2xl">
-          {experience.map((item, index) => {
-            const isOpen = openIndex === index;
-            return (
-              <div key={`${item.org}-${item.role}`} className={isOpen ? "bg-accent/[0.03]" : ""}>
-                <button
-                  type="button"
-                  onClick={() => setOpenIndex(isOpen ? null : index)}
-                  aria-expanded={isOpen}
-                  className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-accent/5"
-                >
-                  {item.logo ? (
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-white/[0.06] p-1.5">
-                      <img src={item.logo} alt="" width={28} height={28} className="h-full w-full object-contain" />
-                    </span>
-                  ) : (
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-2 text-base font-bold text-bg">
-                      {item.org[0]}
-                    </span>
-                  )}
-                  <span className="min-w-0 flex-1">
-                    <span className="flex flex-wrap items-center gap-x-2 text-[15px] font-semibold text-text">
-                      {item.role}
-                      <span className="font-normal text-muted">· {item.org}</span>
-                      {item.current && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2 py-px font-mono text-[10px] text-accent">
-                          <span className="relative inline-flex h-1.5 w-1.5" aria-hidden="true">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-                          </span>
-                          {ui.experienceLabels.now}
-                        </span>
-                      )}
-                    </span>
-                    <span className="mt-0.5 flex flex-wrap items-center gap-x-3 font-mono text-[11px] text-muted">
-                      <span>{item.period}</span>
-                      <span className="text-accent">{formatDuration(item.start, item.end, locale)}</span>
-                    </span>
-                  </span>
-                  <ChevronDown size={18} className={`shrink-0 text-accent transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
-                </button>
-                <div className={`grid transition-all duration-300 ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-                  <div className="overflow-hidden">
-                    <div className="px-4 pb-4 sm:pl-[4.25rem]">
-                      <Details item={item} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </Reveal>
-
-        <SectionClosing />
-      </Container>
-    </section>
+    <Section id="experience" title={ui.sections.experience.title}>
+      <div>
+        {experience.map((item) => (
+          <Job key={`${item.org}-${item.role}`} item={item} />
+        ))}
+      </div>
+    </Section>
   );
 }

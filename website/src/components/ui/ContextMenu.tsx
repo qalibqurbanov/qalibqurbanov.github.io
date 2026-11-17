@@ -9,7 +9,7 @@ import { useContent, useLocale } from "@/i18n/context";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
 import { scrollToTop } from "@/lib/scroll";
-import { useTheme } from "@/themes/shared/colour/context";
+import { useTheme } from "@/theme/context";
 
 /** How long the "Copied!" swap stays up before the menu auto-closes. */
 const COPY_FEEDBACK_MS = 900;
@@ -21,8 +21,7 @@ interface MenuState {
   y: number;
   /** Set when the right-click landed inside a project card. */
   projectSlug: string | null;
-  /** Nearest ancestor `<section id>` — used to build a link that opens
-   * focused on that block (see useHashSectionFocus). */
+  /** Nearest ancestor `<section id>`, used to build a link that opens focused on that block. */
   sectionId: string | null;
 }
 
@@ -31,59 +30,38 @@ interface MenuItemProps {
   label: string;
   /** Right-aligned keyboard hint, e.g. "Alt C". */
   hint?: string;
-  /** Red instead of the accent — reserved for "Report a bug". */
+  /** Red instead of cyan: reserved for "Report a bug". */
   danger?: boolean;
-  /** Lilac (accent-2) instead of the accent — reserved for "View source on GitHub",
-   * matching its footer badge. */
+  /** Magenta instead of cyan. */
   accent2?: boolean;
+  /** Green instead of cyan: reserved for "View source on GitHub". */
+  green?: boolean;
   onSelect: () => void;
 }
 
-function MenuItem({ icon: Icon, label, hint, danger, accent2, onSelect }: MenuItemProps) {
-  const hover = danger
-    ? "hover:bg-danger/10 focus-visible:bg-danger/10 hover:text-danger focus-visible:text-danger"
-    : accent2
-      ? "hover:bg-accent-2/10 focus-visible:bg-accent-2/10 hover:text-accent-2 focus-visible:text-accent-2"
-      : "hover:bg-accent/10 focus-visible:bg-accent/10 hover:text-accent focus-visible:text-accent";
-  const bar = danger ? "bg-danger" : accent2 ? "bg-accent-2" : "bg-accent";
-
+function MenuItem({ icon: Icon, label, hint, danger, accent2, green, onSelect }: MenuItemProps) {
+  const tone = danger ? "ctx-danger" : green ? "ctx-green" : accent2 ? "ctx-magenta" : "";
   return (
-    <button
-      type="button"
-      role="menuitem"
-      tabIndex={-1}
-      onClick={onSelect}
-      className={`group relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-text outline-none transition-colors ${hover}`}
-    >
-      <span
-        aria-hidden="true"
-        className={`pointer-events-none absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 ${bar}`}
-      />
+    <button type="button" role="menuitem" tabIndex={-1} onClick={onSelect} className={`ctx-item ${tone}`}>
       {Icon && (
-        <span className="text-muted transition-colors group-hover:text-current group-focus-visible:text-current">
+        <span className="ctx-icon">
           <Icon size={14} />
         </span>
       )}
       <span className="flex-1 truncate">{label}</span>
-      {hint && (
-        <kbd className="rounded border border-border bg-surface-2 px-1.5 py-px text-[10px] leading-4 text-muted">
-          {hint}
-        </kbd>
-      )}
+      {hint && <kbd className="ctx-kbd">{hint}</kbd>}
     </button>
   );
 }
 
 function MenuSeparator() {
-  return <div role="separator" className="mx-1 my-1.5 h-px bg-gradient-to-r from-transparent via-border to-transparent" />;
+  return <div role="separator" className="ctx-sep" />;
 }
 
-/** Right-click anywhere on the site opens this instead of the browser's
- * native menu — a small "editor command menu": a path-style header showing
- * where you clicked, project actions when the click landed on a project
- * card, site utilities (with shortcut hints and an inline language switcher),
- * the resume download as a highlighted action, and repo links last.
- * Arrow keys / Home / End move between items; Escape closes. */
+/** Right-click anywhere on the site opens this instead of the browser's own menu: a flat, sharp command list with a
+ * neon edge. A path-style header shows where you clicked, then project actions when the click landed on a project
+ * card, the site's utilities (with shortcut hints and a language switch), the résumé, and the repository links.
+ * Arrow keys, Home and End move between items; Escape closes. */
 export function ContextMenu() {
   const { ui, profile, projects } = useContent();
   const { theme, toggleTheme } = useTheme();
@@ -101,8 +79,10 @@ export function ContextMenu() {
 
   useEffect(() => {
     function handleContextMenu(event: MouseEvent) {
-      event.preventDefault();
       const target = event.target as HTMLElement;
+      // Text fields keep the browser's menu (paste, spell check).
+      if (target.closest('input, textarea, [contenteditable="true"]')) return;
+      event.preventDefault();
       setMenu({
         x: event.clientX,
         y: event.clientY,
@@ -115,9 +95,7 @@ export function ContextMenu() {
     return () => document.removeEventListener("contextmenu", handleContextMenu);
   }, []);
 
-  // Dismiss on an outside click, Escape, or the page moving under the menu
-  // (scroll/resize) — a stale menu floating over content that's scrolled
-  // away looks broken.
+  // Dismiss on an outside click, Escape, or the page moving under the menu.
   const menuOpen = menu !== null;
   useEffect(() => {
     if (!menuOpen) return;
@@ -148,9 +126,8 @@ export function ContextMenu() {
     return () => window.clearTimeout(closeTimeout.current);
   }, []);
 
-  // Keep the menu fully on-screen — measure it right after it mounts and
-  // flip it to the other side of the cursor when it would overflow, so it
-  // always grows away from the screen edge (and animates from that corner).
+  // Keep the menu fully on-screen: measure it right after it mounts and flip it to the other side of the pointer
+  // when it would overflow, so it always opens away from the screen edge.
   const [placement, setPlacement] = useState({ top: 0, left: 0, origin: "top left" });
   useLayoutEffect(() => {
     if (!menu || !menuRef.current) return;
@@ -201,6 +178,8 @@ export function ContextMenu() {
     items[next].focus();
   }
 
+  const hasResume = profile.resumeUrl && profile.resumeUrl !== "#";
+
   return (
     <div
       ref={menuRef}
@@ -208,10 +187,10 @@ export function ContextMenu() {
       tabIndex={-1}
       onKeyDown={handleMenuKeyDown}
       style={{ top: placement.top, left: placement.left, transformOrigin: placement.origin }}
-      className="context-menu fixed z-[70] w-72 overflow-hidden rounded-xl border border-border bg-surface/90 font-mono text-xs shadow-2xl shadow-black/40 outline-none backdrop-blur-xl"
+      className="ctx-menu"
     >
-      <div className="flex items-center gap-2 border-b border-border bg-surface-2/60 px-3.5 py-2.5 text-[11px] text-muted">
-        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_8px_var(--color-accent)]" />
+      <div className="ctx-head">
+        <span aria-hidden="true" className="ctx-dot" />
         <span className="truncate">
           <span className="text-accent-2">~/</span>
           {where}
@@ -258,7 +237,6 @@ export function ContextMenu() {
         <MenuItem
           icon={theme === "dark" ? Sun : Moon}
           label={ui.commandPalette.actionToggleTheme}
-          hint={isMac ? "⌥ T" : "Alt T"}
           onSelect={() => {
             toggleTheme();
             close();
@@ -286,7 +264,7 @@ export function ContextMenu() {
             <Languages size={14} />
           </span>
           <span className="flex-1 truncate text-text">{ui.commandPalette.groupLanguages}</span>
-          <div role="group" className="flex gap-0.5 rounded-md border border-border bg-surface-2 p-0.5">
+          <div role="group" className="flex gap-px border border-border bg-bg p-px">
             {SUPPORTED_LOCALES.map((meta) => (
               <button
                 key={meta.code}
@@ -299,10 +277,8 @@ export function ContextMenu() {
                   setLocale(meta.code);
                   close();
                 }}
-                className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase outline-none transition-colors ${
-                  locale === meta.code
-                    ? "bg-accent text-bg"
-                    : "text-muted hover:text-accent focus-visible:text-accent focus-visible:ring-1 focus-visible:ring-accent"
+                className={`px-1.5 py-0.5 text-[10px] font-semibold uppercase outline-none transition-colors ${
+                  locale === meta.code ? "bg-accent text-on-accent" : "text-muted hover:text-accent focus-visible:text-accent"
                 }`}
               >
                 {meta.code}
@@ -311,19 +287,16 @@ export function ContextMenu() {
           </div>
         </div>
 
-        <MenuSeparator />
-
-        <button
-          type="button"
-          role="menuitem"
-          tabIndex={-1}
-          onClick={downloadResume}
-          className="group relative flex w-full items-center gap-2.5 overflow-hidden rounded-md border border-accent/30 bg-gradient-to-r from-accent/15 to-accent-2/10 px-2.5 py-2 text-left font-medium text-accent outline-none transition-all hover:border-accent/60 hover:from-accent/25 hover:to-accent-2/20 focus-visible:border-accent"
-        >
-          <FileText size={14} />
-          <span className="flex-1 truncate">{ui.contextMenu.downloadResume}</span>
-          <ArrowUp size={12} className="rotate-180 transition-transform group-hover:translate-y-0.5" />
-        </button>
+        {hasResume && (
+          <>
+            <MenuSeparator />
+            <button type="button" role="menuitem" tabIndex={-1} onClick={downloadResume} className="ctx-primary">
+              <FileText size={14} />
+              <span className="flex-1 truncate">{ui.contextMenu.downloadResume}</span>
+              <ArrowUp size={12} className="rotate-180" />
+            </button>
+          </>
+        )}
 
         <MenuSeparator />
 
@@ -339,7 +312,7 @@ export function ContextMenu() {
         <MenuItem
           icon={GithubIcon}
           label={ui.contextMenu.viewSourceOnGithub}
-          accent2
+          green
           onSelect={() => {
             window.open(SITE_REPO_URL, "_blank", "noreferrer");
             close();

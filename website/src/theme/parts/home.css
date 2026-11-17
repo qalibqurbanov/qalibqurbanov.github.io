@@ -1,0 +1,370 @@
+/* The big figures of the Home page: outlined numerals that fill with colour when pointed at (cyan, magenta, cyan). */
+.stat-figure {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 7vw, 4.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--color-text);
+  transition:
+    color 0.4s ease,
+    -webkit-text-stroke-color 0.4s ease;
+}
+
+.stat:hover .stat-figure {
+  color: var(--color-accent);
+  -webkit-text-stroke-color: var(--color-accent);
+}
+
+.stat:nth-child(2):hover .stat-figure {
+  color: var(--color-accent-2);
+  -webkit-text-stroke-color: var(--color-accent-2);
+}
+
+/* The story as chapters on a line: the line runs from cyan to magenta, and a chapter's node lights up when it is pointed at. */
+.timeline {
+  position: relative;
+  margin: 0;
+  padding: 0 0 0 2rem;
+  list-style: none;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 6px;
+  bottom: 10px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(var(--color-accent), var(--color-accent-2));
+}
+
+.chapter {
+  position: relative;
+  padding-bottom: 1.6rem;
+}
+
+.chapter::before {
+  content: "";
+  position: absolute;
+  left: -2rem;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  border: 2px solid var(--color-accent);
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.chapter:hover::before {
+  background: var(--color-accent);
+  box-shadow: 0 0 14px var(--color-accent);
+}
+
+/* ---- Home status board ---- */
+
+/* The small glowing badge in front of each tile; the glow breathes, one tile after another. */
+.tile-icon {
+  display: inline-flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.6rem;
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+  animation: tile-glow 7s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -1.7s);
+}
+
+@keyframes tile-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 16px -2px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  }
+}
+
+/* The kinds of work: small chips with a cyan-to-magenta edge. */
+.kind-chip {
+  position: relative;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--color-accent) 7%, transparent);
+}
+
+.kind-chip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(120deg, var(--color-accent), var(--color-accent-2));
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile-icon {
+    animation: none;
+  }
+}
+
+/* ---- Figures that fill when pointed at ---- */
+
+/* A smaller figure, for the facts under the big ones. */
+.stat-figure-sm {
+  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  line-height: 1.1;
+  /* The colour is painted only inside the figure's own box, so a long word must wrap, not spill out of it. */
+  overflow-wrap: anywhere;
+}
+
+
+/* The figures are hollow. When the pointer is on the word itself (the figure is as wide as its word, not as wide
+   as its cell, so the empty space around it does nothing), a cyan-to-magenta colour rises into the letters from
+   below and then keeps sliding through them. */
+.stat-figure.fig-fill {
+  display: inline-block;
+  max-width: 100%;
+  padding-bottom: 0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--color-text);
+  background-image: linear-gradient(90deg, var(--color-accent), var(--color-accent-2), var(--color-accent));
+  background-repeat: repeat-x;
+  background-size: 200% 0%;
+  background-position: 0 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  cursor: default;
+  transition:
+    background-size 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    -webkit-text-stroke-color 0.4s ease;
+}
+
+/* Pointing at the cell, but not at the word, changes nothing (the page's other figures fill the whole cell). */
+.stat:hover .stat-figure.fig-fill:not(:hover),
+.stat:nth-child(2):hover .stat-figure.fig-fill:not(:hover) {
+  color: transparent;
+  -webkit-text-stroke-color: var(--color-text);
+}
+
+.stat-figure.fig-fill:hover {
+  color: transparent;
+  background-size: 200% 100%;
+  -webkit-text-stroke-color: transparent;
+  animation: fig-slide 6s linear infinite;
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--color-accent) 26%, transparent));
+}
+
+@keyframes fig-slide {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-figure.fig-fill:hover {
+    animation: none;
+  }
+}
+
+/* ---- Slow bands (Home) ---- */
+
+/* A band of items that runs sideways, slowly, and stops while it is pointed at. The edges fade out. */
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+}
+
+.marquee-reverse {
+  animation-direction: reverse;
+  animation-duration: 40s;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-set {
+  display: flex;
+  flex: none;
+  align-items: baseline;
+}
+
+.marquee-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding-right: 2.2rem;
+  white-space: nowrap;
+}
+
+.marquee-large {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  line-height: 1.5;
+  transition: color 0.3s ease;
+}
+
+.marquee-large:hover {
+  color: var(--color-accent);
+}
+
+.marquee-small {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-muted);
+  transition: color 0.3s ease;
+}
+
+.marquee-small:hover {
+  color: var(--color-accent-2);
+}
+
+.marquee-star {
+  font-size: 13px;
+  color: var(--color-accent-2);
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* With reduced motion nothing runs, so the items are laid out in rows to be read whole. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .marquee-track {
+    width: auto;
+    animation: none;
+  }
+
+  .marquee-set {
+    flex-wrap: wrap;
+    row-gap: 0.4rem;
+  }
+
+  .marquee-set[aria-hidden] {
+    display: none;
+  }
+}
+
+/* ---- Home bands ---- */
+
+.home-band {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+.home-band-track {
+  display: flex;
+  width: max-content;
+  animation: home-band var(--speed, 60s) linear infinite;
+}
+
+.home-band-track.is-reverse {
+  animation-direction: reverse;
+}
+
+/* Pointing at a band slows it a little (see Band in Home.tsx); it never stops. */
+
+.home-band-set {
+  display: flex;
+  flex: none;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-band-label {
+  padding-right: 1.4rem;
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+.home-band-item {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  padding-right: 1.4rem;
+  white-space: nowrap;
+}
+
+/* The divider between two words: a small four-point star in magenta. */
+.home-band-star {
+  flex: none;
+  font-size: 13px;
+  color: var(--color-accent-2);
+}
+
+.home-band-tag {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--color-muted);
+  transition: color 0.25s ease;
+}
+
+.home-band-tag:hover {
+  color: var(--color-accent);
+}
+
+@keyframes home-band {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Without motion the band is a plain wrapped row (the second copy is hidden). */
+@media (prefers-reduced-motion: reduce) {
+  .home-band {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .home-band-track {
+    animation: none;
+    width: auto;
+  }
+
+  .home-band-set {
+    flex-wrap: wrap;
+    row-gap: 0.4rem;
+  }
+
+  .home-band-set[aria-hidden="true"] {
+    display: none;
+  }
+}

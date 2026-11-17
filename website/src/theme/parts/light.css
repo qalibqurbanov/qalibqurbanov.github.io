@@ -1,0 +1,63 @@
+/* ---- The light theme gets the same colour and touches as the dark one ----
+   Same two accents, a little deeper so text stays readable on white; the same pools of cyan and magenta in the
+   background, the same glows, and the same lit edges, tuned for a pale page: colour is added with tints and soft
+   shadows (not light), and the glass card shows its colours. */
+
+[data-theme="light"] {
+  --color-green: #0a8f64;
+}
+
+/* The page: pale, but with real pools of colour, not a flat wash. */
+[data-theme="light"] body::before {
+  background:
+    radial-gradient(60% 52% at 90% -4%, color-mix(in srgb, var(--color-accent) 30%, transparent), transparent 72%),
+    radial-gradient(58% 58% at 4% 104%, color-mix(in srgb, var(--color-accent-2) 24%, transparent), transparent 72%),
+    radial-gradient(48% 44% at 62% 58%, color-mix(in srgb, #8b5cf6 13%, transparent), transparent 72%),
+    radial-gradient(40% 36% at 36% -6%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 74%),
+    linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 7%, #fbfaff) 0%, var(--color-bg) 42%, color-mix(in srgb, var(--color-accent-2) 8%, #fbfaff) 100%);
+}
+
+/* Film grain on a pale page is dark specks, not light ones, and finer. */
+[data-theme="light"] body::after {
+  filter: invert(1);
+  opacity: 0.07;
+}
+
+/* The glass card shows its colours: the drifting blobs are stronger, and a tint sits in the glass. */
+[data-theme="light"] .card-mesh i {
+  opacity: 0.62;
+}
+
+[data-theme="light"] .side-card {
+  border-color: color-mix(in srgb, var(--color-accent) 22%, rgb(255 255 255 / 0.7));
+}
+
+/* Glows: coloured shadows stand in for the light that a dark page lets the neon give off. */
+[data-theme="light"] .panel:hover,
+[data-theme="light"] .panel:focus-within {
+  box-shadow: 0 14px 34px -16px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+[data-theme="light"] .btn-solid {
+  box-shadow: 0 8px 22px -10px color-mix(in srgb, var(--color-accent) 70%, transparent);
+}
+
+[data-theme="light"] .tile-icon,
+[data-theme="light"] .stat-figure.fig-fill:hover {
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--color-accent) 40%, transparent));
+}
+
+[data-theme="light"] .kind-chip {
+  background: color-mix(in srgb, var(--color-accent) 11%, #fff);
+}
+
+/* The menu's lit edge: more colour, so they read on white. */
+[data-theme="light"] .aurora-r::before,
+[data-theme="light"] .aurora-r::after {
+  filter: saturate(1.35);
+}
+
+/* The scrollbar-less edge of the figures: outlines in the page's own ink keep their weight on white. */
+[data-theme="light"] .stat-figure {
+  -webkit-text-stroke-width: 1.6px;
+}

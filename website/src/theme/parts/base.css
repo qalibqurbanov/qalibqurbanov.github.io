@@ -1,0 +1,205 @@
+/* ---- Base ---- */
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Radix wraps open content in a scroll lock that adds a margin to <body>; with the gutter reserved
+   above that would shift the page, so the lock is moved to the root instead. */
+html body[data-scroll-locked] {
+  overflow: visible !important;
+  margin-right: 0 !important;
+}
+
+html:has(body[data-scroll-locked]) {
+  overflow: hidden;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+::selection {
+  background: var(--color-accent-2);
+  color: #fff;
+}
+
+/* Sections stop under the fixed header when reached through a link. */
+section[id] {
+  scroll-margin-top: 4rem;
+}
+
+/* ---- Scrollbar ---- */
+
+html,
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border)) transparent;
+}
+
+/* Scroll-in reveal: a short fade and rise, driven by Reveal. */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.6s ease var(--reveal-delay, 0ms),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Menus, dialogs and notices: a short fade, nothing more ---- */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.animate-popover-in,
+.context-menu,
+.command-dialog-overlay,
+.command-dialog-content,
+.notice-in {
+  animation: fade-in 0.12s ease-out both;
+}
+
+.notice-out {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.notice-bar {
+  animation: notice-bar linear both;
+}
+
+@keyframes notice-bar {
+  from {
+    transform: scaleX(var(--notice-from, 1));
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Dialogs: everything behind is dimmed and blurred, and the dialog rises in and sinks out. */
+.view-overlay {
+  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
+  backdrop-filter: blur(14px) saturate(1.1);
+}
+
+.view-overlay[data-state="open"] {
+  animation: overlay-in 0.3s ease-out both;
+}
+
+.view-overlay[data-state="closed"] {
+  animation: overlay-out 0.22s ease-in both;
+}
+
+/* The dialog's own box has no animation on closing, so this empty one only tells the library to wait for the child's. */
+.view-content[data-state="closed"] {
+  animation: content-hold 0.22s linear both;
+}
+
+.view-content[data-state="open"] > div > div {
+  animation: modal-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.view-content[data-state="closed"] > div > div {
+  animation: modal-out 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+}
+
+@keyframes overlay-out {
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+}
+
+@keyframes content-hold {
+  from,
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+}
+
+@keyframes modal-out {
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+/* The tick on the Send button once a message is sent. */
+.sent-tick path {
+  stroke-dasharray: 24;
+  animation: tick-draw 0.3s ease-out both;
+}
+
+@keyframes tick-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Touch: small controls stay as small as they look, but are hit anywhere within a 44px square. */
+@media (pointer: coarse) {
+  .tap {
+    position: relative;
+  }
+
+  .tap::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}

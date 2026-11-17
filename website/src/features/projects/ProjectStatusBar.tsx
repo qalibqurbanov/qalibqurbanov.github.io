@@ -5,7 +5,7 @@ import { getLocaleMeta } from "@/i18n/locale";
 import { formatDate } from "@/lib/date";
 import { repoStatsFor } from "@/lib/repoStats";
 
-/** The thin editor-style status bar along a project card's bottom edge: branch,
+/** The thin bar of repository figures along a project card's bottom edge: branch,
  * newest commit (hash and date), stars and downloads. The numbers are read from
  * GitHub once per build and the site is rebuilt every hour (see lib/repoStats.ts),
  * so every visitor sees the same values. A card whose repository could not be read
@@ -17,7 +17,7 @@ export function ProjectStatusBar({ repoUrl }: { repoUrl: string }) {
   if (!stats) return null;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-border bg-surface-2/70 px-4 py-1.5 font-mono text-[11px] text-muted transition-colors duration-300 group-hover:border-accent/40">
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-border bg-surface-2/70 px-4 py-1.5 text-xs text-muted transition-colors duration-300 group-hover:border-accent/40">
       <span className="inline-flex items-center gap-3">
         <span role="img" aria-label={ui.labels.statusData} className="block h-1.5 w-1.5 rounded-full bg-accent" />
         <span className="inline-flex items-center gap-1">

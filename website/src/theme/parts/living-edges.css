@@ -1,0 +1,204 @@
+/* ---- Living edges: one continuous line ----
+   The menu's edge, the top bar's line and the footer's line meet, so they are drawn as one line that runs
+   through the page: from the right end of the top bar's line towards the menu (the path's start), down the menu's
+   edge, then out along the footer's line to its right end. Everything that moves on it is placed by its distance
+   along that one path, not by the line it happens to be on, so colour and light pass each meeting point without
+   a step, and nothing fades out where two lines touch (they fade only at the free ends).
+
+   Three motions share this path:
+   - colour flow: cyan and magenta slowly slide along it, in the direction of the path;
+   - a white glint that travels the whole path, start to end, and starts again;
+   - a smaller, magenta-tinted glint that travels it the other way on a period that does not divide the first, so
+     the two keep meeting at different places;
+   - a slow sway of the layer's hue, so each lap is tinted a little differently.
+   The numbers below are the real sizes of the page (the top bar is 3.5rem, the footer 2.5rem, the menu column
+   30vw wide), which is what lets the three lines agree. */
+
+@property --ph {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --gs {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: -300px;
+}
+
+@property --gs2 {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: -300px;
+}
+
+@property --hue {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+:root {
+  --y1: 3.5rem;
+  --y2: 2.5rem;
+  --Lh: 70vw;
+  --Ls: calc(100dvh - var(--y1) - var(--y2));
+  --Lt: calc(var(--Lh) * 2 + var(--Ls));
+  --P: 1100px;
+  --G: 340px;
+  --G2: 220px;
+}
+
+/* On a desktop there is no top bar and no footer: the line is only the menu's edge, fading out 2rem from each end of the screen. */
+@media (min-width: 1024px) {
+  :root {
+    --y1: 2rem;
+    --y2: 2rem;
+    --Lh: 0px;
+  }
+}
+
+.neon-r::before,
+.neon-b::before,
+.neon-t::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  background-repeat: no-repeat, no-repeat, repeat;
+  filter: hue-rotate(var(--hue));
+  animation:
+    neon-hue 53s ease-in-out infinite alternate,
+    neon-phase 44s linear infinite,
+    neon-glint-a 28s linear infinite,
+    neon-glint-b 41s linear infinite;
+}
+
+/* The top bar: the path's first stretch, right to left. The line is flush with the menu's edge, so it meets it. */
+.neon-b::before {
+  left: -1px;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background-image:
+    linear-gradient(to right, transparent, rgb(255 255 255 / 0.3) 30%, rgb(255 255 255 / 0.95) 50%, rgb(255 255 255 / 0.3) 70%, transparent),
+    linear-gradient(to right, transparent, color-mix(in srgb, var(--color-accent-2) 40%, white) 50%, transparent),
+    linear-gradient(to right, var(--color-accent), var(--color-accent-2), var(--color-accent));
+  background-size: var(--G) 100%, var(--G2) 100%, var(--P) 100%;
+  background-position:
+    calc(var(--Lh) - var(--gs) - var(--G) / 2) 0,
+    calc(var(--Lh) - var(--Lt) + var(--gs2) - var(--G2) / 2) 0,
+    calc(var(--Lh) - var(--ph)) 0;
+  mask-image: linear-gradient(to right, #000, #000 82%, transparent);
+}
+
+/* The menu's edge: the middle of the path, top to bottom, running from the top bar's line to the footer's. */
+.neon-r::before {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background-image:
+    linear-gradient(to bottom, transparent, rgb(255 255 255 / 0.3) 30%, rgb(255 255 255 / 0.95) 50%, rgb(255 255 255 / 0.3) 70%, transparent),
+    linear-gradient(to bottom, transparent, color-mix(in srgb, var(--color-accent-2) 40%, white) 50%, transparent),
+    linear-gradient(to bottom, var(--color-accent), var(--color-accent-2), var(--color-accent));
+  background-size: 100% var(--G), 100% var(--G2), 100% var(--P);
+  background-position:
+    0 calc(var(--y1) + var(--gs) - var(--Lh) - var(--G) / 2),
+    0 calc(var(--y1) + var(--Lt) - var(--gs2) - var(--Lh) - var(--G2) / 2),
+    0 calc(var(--y1) - var(--Lh) + var(--ph));
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--y1), #000 calc(100% - var(--y2)), transparent);
+}
+
+/* The footer: the path's last stretch, left to right. */
+.neon-t::before {
+  left: -1px;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background-image:
+    linear-gradient(to right, transparent, rgb(255 255 255 / 0.3) 30%, rgb(255 255 255 / 0.95) 50%, rgb(255 255 255 / 0.3) 70%, transparent),
+    linear-gradient(to right, transparent, color-mix(in srgb, var(--color-accent-2) 40%, white) 50%, transparent),
+    linear-gradient(to right, var(--color-accent), var(--color-accent-2), var(--color-accent));
+  background-size: var(--G) 100%, var(--G2) 100%, var(--P) 100%;
+  background-position:
+    calc(var(--gs) - var(--Lh) - var(--Ls) - var(--G) / 2) 0,
+    calc(var(--Lt) - var(--gs2) - var(--Lh) - var(--Ls) - var(--G2) / 2) 0,
+    calc(var(--ph) - var(--Lh) - var(--Ls)) 0;
+  mask-image: linear-gradient(to right, #000, #000 82%, transparent);
+}
+
+/* The base lines are the same line when the live layer is off, and give it its glow when it is on. */
+.neon-r::after,
+.neon-b::after,
+.neon-t::after {
+  animation: neon-breathe 9s ease-in-out infinite;
+}
+
+@keyframes neon-phase {
+  to {
+    --ph: 1100px;
+  }
+}
+
+/* The glint's position is a distance along the path, from before its start to past its end. */
+@keyframes neon-glint-a {
+  from {
+    --gs: -300px;
+  }
+  to {
+    --gs: calc(var(--Lt) + 300px);
+  }
+}
+
+@keyframes neon-glint-b {
+  from {
+    --gs2: -300px;
+  }
+  to {
+    --gs2: calc(var(--Lt) + 300px);
+  }
+}
+
+@keyframes neon-hue {
+  from {
+    --hue: -38deg;
+  }
+  to {
+    --hue: 38deg;
+  }
+}
+
+@keyframes neon-breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neon-r::before,
+  .neon-b::before,
+  .neon-t::before {
+    display: none;
+  }
+
+  .neon-r::after,
+  .neon-b::after,
+  .neon-t::after {
+    animation: none;
+  }
+}
+
+/* Below the width where the menu column is shown, the three lines are not joined, so the live layer
+   (which assumes the joined path) stays off and the base lines are all there is. */
+@media (max-width: 1023px) {
+  .neon-r::before,
+  .neon-b::before,
+  .neon-t::before {
+    display: none;
+  }
+}

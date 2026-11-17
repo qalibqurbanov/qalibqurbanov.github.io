@@ -1,154 +1,80 @@
-import { ArrowLeft, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Bug, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import { CommandPaletteTrigger } from "@/components/command-palette/CommandPaletteTrigger";
-import { GlitchText } from "@/components/ui/GlitchText";
-import { Knockable } from "@/components/ui/Knockable";
+import { GithubIcon } from "@/components/icons/BrandIcons";
 import { SettingsMenu } from "@/components/ui/SettingsMenu";
-import { useViewBar } from "@/components/ui/viewBar";
-import { useContent, useLocale } from "@/i18n/context";
-import { pathForLocale } from "@/i18n/locale";
-import { isNotFoundPage } from "@/lib/notFound";
-import { useGlitchBar } from "@/hooks/useGlitch";
-import { useScrolledPast, useScrollProgress } from "@/hooks/useScrollPosition";
-import { scrollToTop } from "@/lib/scroll";
+import { usePage } from "@/hooks/usePage";
+import { useContent } from "@/i18n/context";
+import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
+import { useNotFound } from "@/lib/notFound";
 
-import { LanguageSwitcher } from "./LanguageSwitcher";
-
+/** The top bar, for phones only: the name, the settings and the menu, and in the open menu the pages and the links
+ * about the site. On a desktop the sidebar has all of it, so there is no bar. Its lower edge is a neon line. */
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const scrolled = useScrolledPast();
-  const progress = useScrollProgress();
   const { profile, navigation, ui } = useContent();
-  const { locale } = useLocale();
-  const notFound = isNotFoundPage();
-  const barRef = useGlitchBar<HTMLDivElement>();
-  const viewBar = useViewBar();
-  const inView = viewBar !== null;
-  // While a view is open the navbar morphs into its back-bar: the logo swaps
-  // for the back button and the rest of the menu fades out, in place.
-  const FADE = "transition-all duration-300 ease-out";
-  const hideInView = inView
-    ? "opacity-0 -translate-y-1 pointer-events-none"
-    : "";
+  const page = usePage();
+  const notFound = useNotFound();
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   return (
-    <header
-      className={`fixed top-0 inset-x-0 ${inView ? "z-[70]" : "z-50"} transition-all duration-300 ${
-        // The 404 page never scrolls, so its bar has the scrolled look from the start: the code under it shows through blurred.
-        scrolled || inView || notFound
-          ? "bg-bg/75 backdrop-blur-md border-b border-border shadow-lg shadow-black/10"
-          : "bg-transparent border-b border-transparent"
-      }`}
-    >
-      <div ref={barRef} className="glitch-bar">
-        <div className="glitch-bar-track">
-          <div
-            className="h-full bg-gradient-to-r from-accent to-accent-2 transition-[width] duration-150 ease-out"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
+    <header className={`neon-b fixed left-0 right-0 top-0 lg:hidden ${open ? "z-[70]" : "z-50"} bg-bg/70 backdrop-blur-md`}>
+      <nav className="flex h-14 items-center justify-between gap-4 px-5 sm:px-6">
+        <a
+          href="#"
+          onClick={(event) => {
+            setOpen(false);
+            event.preventDefault();
+            window.location.hash = "home";
+            window.scrollTo({ top: 0, behavior: "auto" });
+          }}
+          className="tap text-base font-semibold tracking-tight text-text"
+        >
+          {profile.name}
+        </a>
 
-      <nav className="max-w-6xl mx-auto flex items-center justify-between gap-2 px-4 py-4 sm:px-6">
-        <div className="relative">
-          <Knockable
-            seed={0}
-            className={`inline-flex items-center ${FADE} ${inView ? "opacity-0 -translate-x-3 pointer-events-none" : ""}`}
-          >
-            <a
-              href={notFound ? pathForLocale(locale) : "#"}
-              onClick={(event) => {
-                if (notFound) return;
-                event.preventDefault();
-                scrollToTop();
-              }}
-              className="tap font-mono text-sm text-text tracking-tight inline-flex items-center gap-2.5"
-            >
-              <span className="relative flex h-2 w-2" aria-hidden="true">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-              </span>
-              <span className="text-accent">&gt;</span>{" "}
-              <GlitchText text={profile.name} idle />
-            </a>
-          </Knockable>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <SettingsMenu />
           <button
             type="button"
-            onClick={viewBar?.onBack}
-            tabIndex={inView ? 0 : -1}
-            aria-hidden={!inView}
-            className={`absolute left-0 top-1/2 inline-flex -translate-y-1/2 cursor-pointer items-center gap-2 whitespace-nowrap font-mono text-sm text-muted hover:text-accent ${FADE} ${inView ? "pointer-events-auto opacity-100 translate-x-0" : "pointer-events-none opacity-0 translate-x-3"}`}
+            className="inline-flex h-9 cursor-pointer items-center rounded-md border border-border px-3.5 text-sm text-muted transition-colors hover:border-accent hover:text-text"
+            onClick={() => setOpen((value) => !value)}
+            aria-label={ui.nav.toggleMenu}
+            aria-expanded={open}
           >
-            <ArrowLeft size={16} />
-            {viewBar?.label}
+            {open ? <X size={15} /> : ui.nav.menu}
           </button>
-        </div>
-
-        <ul
-          className={`hidden md:flex items-center gap-8 font-mono text-sm text-muted ${FADE} ${hideInView}`}
-        >
-          {navigation.map((item, index) => (
-            <li key={item.href}>
-              <Knockable seed={index + 1} className="inline-flex items-center">
-                <a
-                  href={item.href}
-                  className="group relative py-1 hover:text-accent transition-colors"
-                >
-                  <span className="text-accent/70 mr-0.5">
-                    {String(index + 1).padStart(2, "0")}.
-                  </span>
-                  <GlitchText text={item.label} />
-                  <span className="absolute left-0 -bottom-0.5 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full" />
-                </a>
-              </Knockable>
-            </li>
-          ))}
-        </ul>
-
-        <div className={`flex items-center gap-1 sm:gap-4 ${FADE} ${hideInView}`}>
-          <Knockable seed={90} className="inline-flex items-center">
-            <CommandPaletteTrigger label={ui.nav.commandPaletteHint} />
-          </Knockable>
-
-          <Knockable seed={91} className="hidden md:inline-flex items-center">
-            <LanguageSwitcher />
-          </Knockable>
-
-          <Knockable seed={94} className="inline-flex items-center">
-            <SettingsMenu />
-          </Knockable>
-
-          <Knockable seed={93} className="md:hidden inline-flex items-center">
-            <button
-              type="button"
-              className="inline-flex h-10 w-10 items-center justify-center text-text"
-              onClick={() => setOpen((value) => !value)}
-              aria-label={ui.nav.toggleMenu}
-              aria-expanded={open}
-            >
-              {open ? <X size={22} /> : <Menu size={22} />}
-            </button>
-          </Knockable>
         </div>
       </nav>
 
       {open && (
-        <div className="md:hidden flex flex-col gap-4 px-4 pb-4 sm:px-6 bg-bg/95 border-b border-border">
-          <ul className="flex flex-col gap-1 font-mono text-sm text-muted">
-            {navigation.map((item) => (
-              <li key={item.href}>
-                <a
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className="block min-h-11 py-3 hover:text-accent transition-colors"
-                >
-                  {item.label}
+        <div className="menu-in h-[calc(100dvh-3.5rem)] overflow-y-auto bg-bg px-5 pb-10 pt-2 sm:px-6">
+          <ul>
+            {navigation.map((item, index) => (
+              <li key={item.href} className="border-b border-border first:border-t">
+                <a href={item.href} onClick={() => setOpen(false)} aria-current={!notFound && item.href === `#${page}` ? "page" : undefined} className="flex items-baseline gap-4 py-4">
+                  <span className="w-6 font-mono text-xs text-accent">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="text-xl font-medium">{item.label}</span>
                 </a>
               </li>
             ))}
           </ul>
-          <LanguageSwitcher />
+          <div className="mt-6 flex items-center gap-5 text-xs text-muted">
+            <a href={reportBugUrl()} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 hover:text-text">
+              <Bug size={14} aria-hidden="true" />
+              {ui.labels.reportBug}
+            </a>
+            <a href={SITE_REPO_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 hover:text-text">
+              <GithubIcon size={14} />
+              {ui.labels.viewSource}
+            </a>
+          </div>
         </div>
       )}
     </header>

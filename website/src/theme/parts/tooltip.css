@@ -1,0 +1,52 @@
+/* ---- Hover tags (tooltips): flat and sharp, a neon cyan-to-magenta line on the edge that faces the pointed-at thing. ---- */
+
+.tip-balloon {
+  position: fixed;
+  z-index: 100000;
+  max-width: min(20rem, calc(100vw - 1.5rem));
+  padding: 0.4rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 35%, var(--color-border));
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 8px 22px -10px rgb(0 0 0 / 0.5),
+    0 0 14px -6px var(--neon-glow);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(3px);
+  transition:
+    opacity 0.14s ease,
+    transform 0.14s ease;
+}
+
+.tip-balloon[data-side="bottom"] {
+  transform: translateY(-3px);
+}
+
+.tip-balloon.is-shown {
+  opacity: 1;
+  transform: none;
+}
+
+.tip-balloon::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  height: 1px;
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent-2));
+  box-shadow: 0 0 8px var(--neon-glow);
+}
+
+.tip-balloon[data-side="top"]::after {
+  bottom: -1px;
+}
+
+.tip-balloon[data-side="bottom"]::after {
+  top: -1px;
+}

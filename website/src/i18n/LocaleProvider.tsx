@@ -2,10 +2,8 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { loadContent } from "@/content";
-import { glitchScreen } from "@/hooks/glitch";
 import { useClock } from "@/hooks/useClock";
 import { careerYears, withLiveStats } from "@/lib/liveStats";
-import { isNotFoundPage } from "@/lib/notFound";
 import type { Content } from "@/types/content";
 
 import { LocaleContext, type LocaleContextValue } from "./context";
@@ -27,9 +25,7 @@ export function LocaleProvider({ initialLocale, initialContent, children }: Loca
 
   useEffect(() => {
     document.documentElement.lang = state.locale;
-    const { name, role } = state.content.profile;
-    document.title = isNotFoundPage() ? `404 | ${state.content.ui.notFound.title}` : `${name} | ${role}`;
-  }, [state]);
+  }, [state.locale]);
 
   const switchTo = useCallback(async (next: Locale) => {
     latestRequest.current = next;
@@ -38,7 +34,6 @@ export function LocaleProvider({ initialLocale, initialContent, children }: Loca
       // A newer switch (or Back/Forward) may have started while this loaded.
       if (latestRequest.current === next) {
         setState({ locale: next, content });
-        glitchScreen();
       }
     } catch {
       // Chunk failed to load: stay on the current language; the URL is
