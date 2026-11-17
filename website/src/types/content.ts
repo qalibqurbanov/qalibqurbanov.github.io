@@ -1,6 +1,8 @@
 export interface Profile {
   name: string;
   role: string;
+  /** The line under the name in the sidebar: the profession and the focus. */
+  headline: string;
   location: string;
   summary: string;
   email: string;
@@ -68,12 +70,6 @@ export interface ExperienceItem {
 export interface Project {
   /** Stable, untranslated identifier used in case-study URLs — keep it the same across locales. */
   slug: string;
-  /** Filename shown in the fake code-editor window chrome (card + case study).
-   * Falls back to a derived name from tags[0]/title when omitted — set this
-   * explicitly whenever that derivation would produce something misleading,
-   * e.g. a non-JS/TS project whose first tag doesn't slugify into anything
-   * readable (a "C#" tag alone becomes just "c"). */
-  filename?: string;
   /** The short line under the title on its card, e.g. "Windows desktop tool". */
   kind: string;
   title: string;
@@ -92,97 +88,47 @@ export type SkillCategory = "backend" | "tools";
 
 export type SkillGroups = Record<SkillCategory, string[]>;
 
+export interface BlogPost {
+  /** Stable id of the article; the same in every language. It forms the article's link. */
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  url: string;
+  /** Optional highlighted code snippet rendered under the excerpt. */
+  codeSnippet?: {
+    filename: string;
+    code: string;
+  };
+}
+
 export interface SectionHeadingText {
-  index: string;
   title: string;
 }
 
 /** Small UI microcopy that isn't "content" per se but still needs translating. */
 export interface UiStrings {
   hero: {
-    greeting: string;
     /** Contains the literal token "{highlight}", replaced with `highlightWord`. */
     tagline: string;
     highlightWord: string;
-    ctaViewWork: string;
-    ctaGetInTouch: string;
-    terminalTabLabel: string;
-    /** Label of the "+" button that opens a new terminal tab. */
-    newTerminal: string;
-    /** Label of the "x" button on a terminal tab. */
-    closeTerminal: string;
-    /** Callout under the "+" button until the first terminal has been opened. */
-    terminalHint: string;
-    /** Labels of the arrows that scroll the tab strip once the tabs no longer fit. */
-    scrollTabsLeft: string;
-    scrollTabsRight: string;
-    /** Label of the "x" button on the Developer.cs tab. */
-    closeFile: string;
-    /** Go-menu placeholder shown while no tab is open. */
-    noTabs: string;
-    /** Button inside the empty window that opens a terminal tab. */
-    emptyNewTab: string;
-    /** File-menu item that brings Developer.cs back. */
-    reopenCode: string;
-    /** The Developer.cs snippet's `Stack` array value — deliberately not a
-     * tech list, so it never looks outdated or narrow. */
-    stackValue: string;
-    minimized: {
-      title: string;
-      /** Contains the literal token "{name}", replaced with `profile.name` via `format()`. */
-      joke: string;
-      /** Contains the literal token "{seconds}", replaced with the live countdown via `format()`. */
-      restoreWarning: string;
-    };
-    closeAttempt: string;
-    /** Shown instead of `closeAttempt` once the FBI reveal has already been shown once. */
-    tinkerWarning: string;
-    /** The Notepad-style menu bar under the window's title row. */
-    menuBar: {
-      /** Accessible name of the bar. */
-      label: string;
-      file: string;
-      view: string;
-      go: string;
-      help: string;
-      closeTab: string;
-      closeAllTabs: string;
-      /** Heading above the Go menu's list of open tabs. */
-      openTabs: string;
-      /** Help item that opens a terminal and runs `help`. */
-      terminalCommands: string;
-      /** Help item that opens a terminal and runs `menu`. */
-      interactiveMenu: string;
-    };
-    /** The status bar along the window's bottom edge. */
-    statusBar: {
-      /** Accessible name of the bar. */
-      label: string;
-      ready: string;
-      /** Contains "{count}". */
-      tabs: string;
-      terminal: string;
-    };
   };
+  /** The Home page: its short introduction, the label of its third big figure (the ecosystem) and the titles of its three chapters. */
+  home: { intro: string; ecosystem: string; chapters: [string, string, string] };
+  /** The Links page, opened from the picture in the menu: every place I can be found, in one list. */
+  links: { title: string; intro: string; profiles: string; contact: string };
   sections: {
     about: SectionHeadingText;
     experience: SectionHeadingText;
     projects: SectionHeadingText;
     skills: SectionHeadingText;
+    blog: SectionHeadingText;
     contact: SectionHeadingText;
   };
   skillGroups: Record<SkillCategory, string>;
-  /** The box that stands in for the front-end and mobile skills: a title and a sentence, no list of tools. */
-  /** The button on a long row of skills on a phone: `{count}` is how many are hidden. */
-  skillsList: {
-    more: string;
-    less: string;
-  };
   skillsClient: { title: string; text: string };
-  /** The copy button beside a section's name: its tooltip, and the toast that names the copied link. */
-  sectionLink: { copy: string; copied: string };
   /** Labels in the experience list: the "current job" pill and the two detail captions. */
-  experienceLabels: { now: string; publicProjects: string; stack: string };
+  experienceLabels: { currentlyAt: string; now: string; publicProjects: string; stack: string };
   contact: {
     /** The big headline, in two parts: the second one gets the colour gradient. */
     headlineLead: string;
@@ -194,7 +140,6 @@ export interface UiStrings {
     send: string;
     copy: string;
     copied: string;
-    basedIn: string;
     emailLabel: string;
   };
   contactModal: {
@@ -243,9 +188,17 @@ export interface UiStrings {
   };
   nav: {
     toggleMenu: string;
-    scrollToAbout: string;
-    commandPaletteHint: string;
-    skipToContent: string;
+    menu: string;
+    primary: string;
+  };
+  blogList: {
+    readArticle: string;
+    backToWriting: string;
+    prev: string;
+    next: string;
+    published: string;
+    notFoundTitle: string;
+    notFoundBody: string;
   };
   backToTop: string;
   resumeView: {
@@ -254,18 +207,6 @@ export interface UiStrings {
     open: string;
     download: string;
     /** Shown instead of the embedded viewer on devices that open PDFs in their own viewer. */
-    mobileHint: string;
-  };
-  /** The roaming cyber butterfly easter egg. */
-  butterfly: {
-    /** Shown in the system-down window: type a command to bring the page back. */
-    hint: string;
-    /** The calmer variants (reduced motion) come back on any key. */
-    hintAny: string;
-    /** Short nags the butterflies say while they circle an idle cursor. */
-    idle: string[];
-    /** Said when the pointer touches a butterfly. */
-    hover: string[];
   };
   /** Hover tooltips and screen-reader labels for icon-only controls. Brand names (GitHub, LinkedIn…) stay literal in the components. */
   labels: {
@@ -273,39 +214,27 @@ export interface UiStrings {
     resume: string;
     reportBug: string;
     viewSource: string;
-    lastCommit: string;
     socialMedia: string;
     projectLinks: string;
     language: string;
-    switchToLight: string;
-    switchToDark: string;
     /** Contains "{shortcut}". */
     toggleTheme: string;
     /** The colour palette switcher: its title, and the name of each palette. */
     settings: string;
+    /** The link to the earlier, themed version of the site. */
+    themedVersion: string;
+    message: string;
+    appearance: string;
+    versions: string;
     palette: string;
     /** The label of the visual style switcher. */
     style: string;
-    paletteNames: Record<import("@/themes/shared/colour/palettes").Palette, string>;
-    /** The headings that group the colour schemes in the settings menu. */
-    paletteGroups: Record<import("@/themes/shared/colour/palettes").PaletteGroup, string>;
-    minimize: string;
     close: string;
     home: string;
-    /** Adjective forms fed into terminal.themeSwitched ("{mode}"). */
     modeLight: string;
     modeDark: string;
     /** Contains "{level}"; the three level names follow. */
     motion: string;
-    motionFull: string;
-    motionLight: string;
-    motionOff: string;
-    /** The title of the animation slider's popup, and one line describing each level. */
-    motionTitle: string;
-    motionHintFull: string;
-    motionHintLight: string;
-    motionHintOff: string;
-    terminalInput: string;
     /** Contains "{title}". */
     repository: string;
     /** Contains "{title}". */
@@ -316,16 +245,10 @@ export interface UiStrings {
     downloadButton: string;
     liveDemoButton: string;
     stars: string;
-    /** Hover texts of the project card status bar: the branch and the newest commit. */
-    /** The status bar's dot: where the numbers come from and how fresh they are. */
+    /** The status bar: where the numbers come from, the branch and the newest commit. */
     statusData: string;
     statusBranch: string;
-    statusCommit: string;
     downloads: string;
-    /** Tooltip of the dot beside a project's stats while they are being kept up to date from GitHub. */
-    liveData: string;
-    /** Tooltip of that dot while GitHub cannot be reached and a saved copy is shown. */
-    cachedData: string;
   };
   /** The 404 page. "message" contains "{path}", "back" contains "{home}", which becomes a link worded "home". */
   notFound: {
@@ -334,17 +257,6 @@ export interface UiStrings {
     message: string;
     back: string;
     home: string;
-  };
-  /** The /links page: every way to reach me, each with a button that copies its short address. */
-  links: {
-    title: string;
-    intro: string;
-    resume: string;
-    contact: string;
-    email: string;
-    copyShort: string;
-    copied: string;
-    back: string;
   };
   commandPalette: {
     placeholder: string;
@@ -356,8 +268,6 @@ export interface UiStrings {
     groupActions: string;
     groupLanguages: string;
     actionToggleTheme: string;
-    /** Contains "{level}". */
-    actionMotion: string;
     actionCopyEmail: string;
     actionEmailCopied: string;
     actionOpenResume: string;
@@ -380,6 +290,8 @@ export interface UiStrings {
     reportBug: string;
   };
   projectDetail: {
+    overviewTab: string;
+    caseTab: string;
     back: string;
     problemLabel: string;
     approachLabel: string;
@@ -401,8 +313,6 @@ export interface UiStrings {
     filterLabel: string;
     /** The "no filter" chip. */
     filterAll: string;
-    /** Filename in the closing "more projects" card's window bar. */
-    moreFile: string;
     moreTitle: string;
     moreBody: string;
     moreCta: string;
@@ -415,53 +325,6 @@ export interface UiStrings {
     /** Shown when the selected tags (in "all" mode) match no project. */
     noMatch: string;
     /** Contains "{count}". */
-    repoCount: string;
-  };
-  terminal: {
-    welcome: string;
-    /** Past-tense status lines the hero window prints while it boots, each after an "[ ok ]" marker. Tokens: {name}, {projects}, {skills}, {sections}. */
-    boot: string[];
-    /** Label of the progress row that ends the boot, shown as "[ finishing ]". */
-    finishing: string;
-    helpText: string;
-    /** Labels of the interactive `menu` command. */
-    menu: {
-      /** Key legend shown under the menu. */
-      hint: string;
-      back: string;
-      close: string;
-      groups: { profile: string; work: string; contact: string; settings: string; fun: string };
-      items: {
-        whoami: string;
-        about: string;
-        skills: string;
-        experience: string;
-        projects: string;
-        contactInfo: string;
-        resume: string;
-        theme: string;
-        motion: string;
-        language: string;
-        glitch: string;
-        matrix: string;
-        signal: string;
-      };
-    };
-    notFound: string;
-    permissionDenied: string;
-    glitchOn: string;
-    matrixOn: string;
-    signalOn: string;
-    /** Toast shown when the Konami code is entered anywhere on the page. */
-    konami: string;
-    openingProject: string;
-    projectNotFound: string;
-    themeSwitched: string;
-    /** Both contain "{level}". */
-    motionSwitched: string;
-    motionInvalid: string;
-    langSwitched: string;
-    langInvalid: string;
   };
 }
 
@@ -474,5 +337,6 @@ export interface Content {
   experience: ExperienceItem[];
   projects: Project[];
   skills: SkillGroups;
+  blogPosts: BlogPost[];
   ui: UiStrings;
 }

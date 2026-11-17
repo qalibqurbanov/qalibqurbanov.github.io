@@ -1,92 +1,83 @@
 import { isPaletteShortcut, OPEN_COMMAND_PALETTE_EVENT } from "@/components/command-palette/openPalette";
 import { OPEN_CONTACT_EVENT } from "@/components/contact/openContact";
-import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { AmbientBackground } from "@/components/ui/AmbientBackground";
+import { Sidebar } from "@/components/layout/Sidebar";
 import { BackToTop } from "@/components/ui/BackToTop";
-import { OnDemand } from "@/components/ui/OnDemand";
 import { ContextMenu } from "@/components/ui/ContextMenu";
-import { TooltipLayer } from "@/components/ui/TooltipLayer";
-import { CursorGlow } from "@/components/ui/CursorGlow";
 import { CustomCursor } from "@/components/ui/CustomCursor";
-import { CyberClickFx } from "@/components/ui/CyberClickFx";
-import { About } from "@/features/home-sections/about/About";
-import { Hero } from "@/features/home-sections/hero/Hero";
-import { CommandPalette, Contact, ContactModal, CyberButterfly, Experience, Fireflies, ProjectDetail, Projects, ResumeViewer, Skills } from "@/app/sections";
-import { useEasterEggs } from "@/hooks/useEasterEggs";
+import { TooltipLayer } from "@/components/ui/TooltipLayer";
+import { OnDemand } from "@/components/ui/OnDemand";
+import { About } from "@/features/about/About";
+import { Home } from "@/features/home/Home";
+import { Blog, BlogPost, CommandPalette, Contact, ContactModal, Experience, Links, ProjectDetail, Projects, ResumeViewer, Skills } from "@/app/sections";
 import { useHashSectionFocus } from "@/hooks/useHashSectionFocus";
+import { usePageSwitch } from "@/hooks/usePage";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
-import { useMotion } from "@/motion/context";
-import { LinksPage } from "@/features/pages-without-language/links/LinksPage";
-import { NotFound } from "@/features/pages-without-language/not-found/NotFound";
-import { useStandaloneRedirect } from "@/features/pages-without-language/useStandaloneRedirect";
-import { useContent, useLocale } from "@/i18n/context";
-import { isLinksPage, isNotFoundPage } from "@/lib/notFound";
-import { Suspense } from "react";
-import { ThemeScene } from "@/themes/shared/scene/ThemeScene";
-import { ThemeCursor } from "@/themes/shared/cursor/ThemeCursor";
-import { useStyle } from "@/themes/shared/style/context";
+import { NotFound } from "@/features/not-found/NotFound";
+import { useContent } from "@/i18n/context";
+import { useNotFound } from "@/lib/notFound";
+import type { CSSProperties } from "react";
+import { Suspense, useEffect } from "react";
 
 export function App() {
-  const { projects, ui } = useContent();
-  const { activeSlug, resumeOpen, closeProject } = useProjectRoute();
+  const { projects, blogPosts } = useContent();
+  const { activeSlug, postSlug, resumeOpen, closeProject } = useProjectRoute();
   const activeProject = activeSlug ? (projects.find((project) => project.slug === activeSlug) ?? null) : undefined;
-  // The heavy decoration only runs at the full level; it is taken off the page as soon as the level drops.
-  const { motion } = useMotion();
-  const decorated = motion === "full";
-  // The original style decorates the page with its own components; every other style has a scene.
-  const original = useStyle().style === "cyber";
-  const { locale } = useLocale();
-  const notFound = isNotFoundPage();
-  const linksPage = isLinksPage();
-  useStandaloneRedirect(locale);
+  const activePost = postSlug ? (blogPosts.find((post) => post.slug === postSlug) ?? null) : undefined;
+  const notFound = useNotFound();
+  const { profile, ui } = useContent();
+  const { shown: page, leaving, direction } = usePageSwitch();
   useHashSectionFocus();
-  useEasterEggs(ui.terminal.konami);
+
+  // The tab's title names what is open: the site, or the project or article over it.
+  const openTitle = activeProject?.title ?? activePost?.title;
+  useEffect(() => {
+    document.title = notFound
+      ? `404 | ${ui.notFound.title}`
+      : openTitle
+        ? `${openTitle} | ${profile.name}`
+        : `${profile.name} | ${profile.role}`;
+  }, [notFound, openTitle, profile, ui.notFound.title]);
 
   return (
-    <div className={notFound ? "nf-shell relative" : "relative min-h-screen"}>
-      {original ? <AmbientBackground /> : <ThemeScene />}
-      {decorated && original ? <CursorGlow /> : null}
-      {decorated && original ? <CustomCursor /> : null}
-      {decorated && original ? <CyberClickFx /> : null}
-      {!original && motion !== "off" ? <ThemeCursor /> : null}
+    <div className="relative min-h-screen">
       <OnDemand component={CommandPalette} event={OPEN_COMMAND_PALETTE_EVENT} shortcut={isPaletteShortcut} />
-      <ContextMenu />
-      <TooltipLayer />
       <OnDemand component={ContactModal} event={OPEN_CONTACT_EVENT} />
 
-      <a href="#main" className="skip-link">
-        {ui.nav.skipToContent}
-      </a>
+      <CustomCursor />
+      <TooltipLayer />
+      <ContextMenu />
+      <Sidebar />
       <Navbar />
-      <main id="main" tabIndex={-1}>
-        {linksPage ? (
-          <LinksPage />
-        ) : notFound ? (
+      <div className="shell-main">
+      <main className="min-h-dvh pb-14 pt-14 lg:pt-0">
+        {notFound ? (
           <NotFound />
         ) : (
-          <>
-            <Hero />
-            <About />
-            <Suspense fallback={null}>
-              <Experience />
-              <Projects />
-              <Skills />
-              <Contact />
-            </Suspense>
-          </>
+          <Suspense fallback={null}>
+            <div key={page} className={leaving ? "page-leave" : "page-enter"} style={{ "--dy": direction } as CSSProperties}>
+            {page === "home" && <Home />}
+            {page === "about" && <About />}
+            {page === "experience" && <Experience />}
+            {page === "projects" && <Projects />}
+            {page === "skills" && <Skills />}
+            {page === "blog" && <Blog />}
+            {page === "contact" && <Contact />}
+            {page === "links" && <Links />}
+            </div>
+          </Suspense>
+
         )}
       </main>
-      <Footer />
-      {notFound || linksPage ? null : <BackToTop />}
+      </div>
+      <BackToTop />
       <Suspense fallback={null}>
-        {decorated && original ? <CyberButterfly /> : null}
-        {decorated && original ? <Fireflies /> : null}
-
-        {notFound || linksPage ? null : resumeOpen ? (
+        {resumeOpen ? (
           <ResumeViewer onBack={closeProject} />
         ) : activeProject !== undefined ? (
           <ProjectDetail project={activeProject} onBack={closeProject} />
+        ) : activePost !== undefined ? (
+          <BlogPost post={activePost} onBack={closeProject} />
         ) : null}
       </Suspense>
     </div>

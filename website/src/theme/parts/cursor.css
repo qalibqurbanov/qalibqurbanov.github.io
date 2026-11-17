@@ -1,0 +1,152 @@
+/* ---- The site's cursor: a dot with a ribbon of cyan-and-magenta light behind it. The system cursor is hidden only
+   after a real mouse has moved (`has-cursor`), and unlayered + !important so it beats every utility. ---- */
+
+html.has-cursor,
+html.has-cursor * {
+  cursor: none !important;
+}
+
+.custom-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.custom-cursor.is-on {
+  opacity: 1;
+}
+
+.custom-cursor-pos {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
+
+.custom-cursor-dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--color-text);
+  box-shadow:
+    0 0 10px var(--neon-glow),
+    0 0 3px var(--color-accent);
+  transition:
+    opacity 0.18s ease,
+    scale 0.15s ease;
+}
+
+.custom-cursor.is-down .custom-cursor-dot {
+  scale: 0.8;
+}
+
+.custom-cursor-ribbon {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.custom-cursor:not([data-state="default"]) .custom-cursor-dot {
+  opacity: 0;
+  scale: 0.3;
+}
+
+.custom-cursor-glyph {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  width: 18px;
+  height: 18px;
+  color: var(--color-accent);
+  opacity: 0;
+  scale: 0.7;
+  pointer-events: none;
+  filter: drop-shadow(0 0 1px color-mix(in srgb, var(--color-bg) 75%, transparent)) drop-shadow(0 0 7px var(--neon-glow));
+  transition:
+    opacity 0.18s ease,
+    scale 0.32s cubic-bezier(0.2, 1.2, 0.3, 1);
+}
+
+.custom-cursor-glyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+.custom-cursor-glyph path {
+  vector-effect: non-scaling-stroke;
+}
+
+.custom-cursor-glyph[data-g="text"] {
+  width: 8px;
+  height: var(--caret-h, 18px);
+}
+
+.custom-cursor-glyph[data-g="grab"],
+.custom-cursor-glyph[data-g="help"] {
+  width: 20px;
+  height: 20px;
+}
+
+.custom-cursor-glyph[data-g="download"],
+.custom-cursor-glyph[data-g="help"] {
+  color: var(--color-accent-2);
+}
+
+.custom-cursor-glyph[data-g="no"] {
+  width: 16px;
+  height: 16px;
+  color: var(--color-danger);
+}
+
+.custom-cursor[data-state="link"] .custom-cursor-glyph[data-g="link"],
+.custom-cursor[data-state="field"] .custom-cursor-glyph[data-g="text"],
+.custom-cursor[data-state="code"] .custom-cursor-glyph[data-g="text"],
+.custom-cursor[data-state="grab"] .custom-cursor-glyph[data-g="grab"],
+.custom-cursor[data-state="no"] .custom-cursor-glyph[data-g="no"],
+.custom-cursor[data-state="help"] .custom-cursor-glyph[data-g="help"],
+.custom-cursor[data-state="download"] .custom-cursor-glyph[data-g="download"] {
+  opacity: 1;
+  scale: 1;
+}
+
+.custom-cursor.is-down .custom-cursor-glyph {
+  scale: 0.9;
+}
+
+.custom-cursor[data-state="link"] .custom-cursor-glyph[data-g="link"] svg {
+  animation: cursor-nudge 1.3s ease-in-out infinite;
+}
+
+.custom-cursor[data-state="download"] .custom-cursor-glyph[data-g="download"] svg {
+  animation: cursor-bob 1.3s ease-in-out infinite;
+}
+
+@keyframes cursor-nudge {
+  50% {
+    transform: translate(1.2px, -1.2px);
+  }
+}
+
+@keyframes cursor-bob {
+  50% {
+    transform: translateY(1.5px);
+  }
+}

@@ -1,11 +1,7 @@
-import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-import type { Plugin } from "vite";
-
-import { externalLinks, siteLinks } from "../src/features/pages-without-language/links/shortLinks.ts";
-import { loadContents, renderContent, renderProject } from "./prerender.ts";
+import { createServer, type Plugin } from "vite";
 
 // The site is a client-rendered SPA, but each language still needs its own
 // real HTML file at its own URL so crawlers and link previews see the right
@@ -15,8 +11,8 @@ import { loadContents, renderContent, renderProject } from "./prerender.ts";
 // is the x-default landing page: an English copy (canonical -> /en/) whose
 // script redirects visitors to their preferred language.
 //
-// Kept self-contained because it runs in Node at build time: the one import from src/ is the
-// short addresses, a plain data file with no imports of its own. When adding a locale, add it here and in src/i18n/locale.ts.
+// It runs in Node at
+// build time, and reads each language's content (through Vite) for the pages of the projects and articles. When adding a locale, add it here and in src/i18n/locale.ts.
 
 const SITE_URL = "https://qalibqurbanov.github.io";
 
@@ -97,56 +93,35 @@ const PROFILE_LINKS: Array<[label: string, url: string]> = [
   ["Medium", "https://medium.com/@qalibqurbanov"],
 ];
 
-// The same person is spelled differently in each language (and the handle is "qalibqurbanov"), so people
-// searching for any of these spellings can still land here. Listed as alternate names in the structured data.
-const NAME_VARIANTS = ["Qalib Qurbanov", "Galib Gurbanov", "Qalib Qurbanow", "Галиб Гурбанов"];
+/** Short addresses that send the visitor on to one of the profiles: /github/ and so on. Each is a tiny page
+ * (GitHub Pages has no server-side redirects) that leaves at once and stays out of search results. */
+const SHORTCUTS: Record<string, string> = {
+  github: "https://github.com/qalibqurbanov",
+  linkedin: "https://www.linkedin.com/in/qalibqurbanov/",
+  stackoverflow: "https://stackoverflow.com/users/13249741/qalibqurbanov",
+  medium: "https://medium.com/@qalibqurbanov",
+  telegram: "https://t.me/inde_irae",
+  resume: `${SITE_URL}/resume.pdf`,
+};
 
-// What the person works with, for the structured data's knowsAbout and the plain-text copy of the page.
-// Tech names are proper nouns and stay the same in every language.
-const SKILLS = [
-  "C#", ".NET", "ASP.NET Core", "ASP.NET Web API", "REST API", "EF Core", "Dapper", "PostgreSQL", "Microsoft SQL Server",
-  "Redis", "RabbitMQ", "SignalR", "Docker", "Linux", "Nginx", "Git", "GitHub Actions", "GitLab CI/CD", "CQRS",
-  "Domain-Driven Design", "Clean Architecture", "React", "TypeScript",
-];
-
-const PROJECTS: Array<[name: string, url: string]> = [
-  ["SoundCloud Artwork Downloader", "https://github.com/qalibqurbanov/SoundcloudArtworkDownloader"],
-  ["Imager", "https://github.com/qalibqurbanov/Imager"],
-];
-
-const SITE_NAME = "Qalib Qurbanov — Portfolio";
-
-/** The date of the newest commit (what the sitemap calls "last modified"), so it only moves when the site does
- * and not on every hourly rebuild. Falls back to today when git is not available. */
-function lastModified(): string {
-  try {
-    const date = execFileSync("git", ["log", "-1", "--format=%cs"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
-    if (/^d{4}-d{2}-d{2}$/.test(date)) return date;
-  } catch {
-    // Not a git checkout.
-  }
-  return new Date().toISOString().slice(0, 10);
+function redirectHtml(target: string): string {
+  const url = escapeAttr(target);
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting…</title>
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content="0; url=${url}" />
+    <link rel="canonical" href="${url}" />
+    <script>location.replace(${JSON.stringify(target).replace(/</g, "\\u003c")});</script>
+  </head>
+  <body><a href="${url}">${url}</a></body>
+</html>
+`;
 }
 
 const escapeAttr = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-
-/** The picture link previews show (public/og/<language>.jpg, 1200x630, with the name and title in that language),
- * and the card type that asks the big-image layout on X/Twitter. */
-function previewTags(code: string, alt: string, title: string, description: string): string[] {
-  const image = `${SITE_URL}/og/${code}.jpg`;
-  return [
-    `    <meta property="og:image" content="${image}" />`,
-    `    <meta property="og:image:type" content="image/jpeg" />`,
-    `    <meta property="og:image:width" content="1200" />`,
-    `    <meta property="og:image:height" content="630" />`,
-    `    <meta property="og:image:alt" content="${escapeAttr(alt)}" />`,
-    `    <meta name="twitter:card" content="summary_large_image" />`,
-    `    <meta name="twitter:title" content="${escapeAttr(title)}" />`,
-    `    <meta name="twitter:description" content="${escapeAttr(description)}" />`,
-    `    <meta name="twitter:image" content="${image}" />`,
-    `    <meta name="twitter:image:alt" content="${escapeAttr(alt)}" />`,
-  ];
-}
 
 /** The few font files the first screen needs, per language, so they start downloading with the HTML
  * instead of waiting for the CSS and the script. Names are matched in the build's hashed assets. */
@@ -163,184 +138,230 @@ function fontPreloads(assets: string[], code: string): string[] {
   });
 }
 
-/** A description cut at a word boundary to fit a search result's snippet. */
-function shorten(text: string, max: number): string {
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max - 1);
-  return cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:\s]+$/, "") + "…";
-}
-
-/** What a project's own page needs beyond the language it is in. */
-interface ProjectPage {
-  slug: string;
+/** Everything that differs from one built page to the next: a language's home page, or one project or article. */
+interface Head {
+  lang: string;
   title: string;
   description: string;
-  kind: string;
-  repoUrl: string;
-  stack: string[];
+  url: string;
+  ogType: "website" | "article";
+  ogLocale: string;
+  otherOgLocales: string[];
+  /** Every language this page exists in, for the hreflang links (the root page is added as the default). */
+  alternates: Array<{ code: string; url: string }>;
+  structuredData: object;
+  /** The plain-text copy of the page, one HTML line each. */
+  plainText: string[];
 }
 
-/** Where a project's page lives in a language: /en/projects/imager/ */
-const projectUrlPath = (code: string, slug: string) => `/${code}/projects/${encodeURIComponent(slug)}/`;
+function render(template: string, head: Head, assets: string[], fontCode: string): string {
+  const alternates = head.alternates.map((a) => `    <link rel="alternate" hreflang="${a.code}" href="${a.url}" />`);
+  alternates.push(`    <link rel="alternate" hreflang="x-default" href="${SITE_URL}/" />`);
 
-function localize(
-  template: string,
-  base: LocalePage,
-  assets: string[],
-  modified: string,
-  body: string,
-  project?: ProjectPage,
-): string {
-  // A project's page is the same page in its language with its own address, title and description.
-  const page: LocalePage = project
-    ? {
-        ...base,
-        path: projectUrlPath(base.code, project.slug),
-        title: `${project.title} — ${project.kind} | ${base.name}`,
-        description: project.description,
-      }
-    : base;
-  const url = SITE_URL + page.path;
-  const alternates = PAGES.map((p) => {
-    const path = project ? projectUrlPath(p.code, project.slug) : p.path;
-    return `    <link rel="alternate" hreflang="${p.code}" href="${SITE_URL + path}" />`;
-  });
-  const defaultHref = project ? SITE_URL + projectUrlPath("en", project.slug) : `${SITE_URL}/`;
-  alternates.push(`    <link rel="alternate" hreflang="x-default" href="${defaultHref}" />`);
-
-  const personId = `${SITE_URL}/#person`;
-  const websiteId = `${SITE_URL}/#website`;
-  const graph = [
-    {
-      "@type": "Person",
-      "@id": personId,
-      name: page.name,
-      alternateName: [...new Set(NAME_VARIANTS.filter((n) => n !== page.name))],
-      givenName: page.name.split(" ")[0],
-      familyName: page.name.split(" ")[1],
-      jobTitle: page.jobTitle,
-      description: page.description,
-      url,
-      image: `${SITE_URL}/og/${page.code}.jpg`,
-      homeLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: "Baku", addressCountry: "AZ" } },
-      address: { "@type": "PostalAddress", addressLocality: "Baku", addressCountry: "AZ" },
-      worksFor: { "@type": "Organization", name: "Crocusoft", url: "https://crocusoft.com" },
-      knowsAbout: SKILLS,
-      knowsLanguage: PAGES.map((p) => p.code),
-      sameAs: SAME_AS,
-    },
-    {
-      "@type": "WebSite",
-      "@id": websiteId,
-      url: SITE_URL + "/",
-      name: SITE_NAME,
-      inLanguage: PAGES.map((p) => p.code),
-      publisher: { "@id": personId },
-    },
-    ...(project
-      ? [
-          {
-            "@type": "WebPage",
-            "@id": `${url}#webpage`,
-            url,
-            name: page.title,
-            description: page.description,
-            inLanguage: page.code,
-            isPartOf: { "@id": websiteId },
-            about: { "@id": `${url}#project` },
-            primaryImageOfPage: { "@type": "ImageObject", url: `${SITE_URL}/og/${page.code}.jpg`, width: 1200, height: 630 },
-            dateModified: modified,
-            breadcrumb: { "@id": `${url}#breadcrumb` },
-          },
-          {
-            "@type": "SoftwareSourceCode",
-            "@id": `${url}#project`,
-            name: project.title,
-            description: project.description,
-            codeRepository: project.repoUrl,
-            programmingLanguage: project.stack,
-            inLanguage: page.code,
-            author: { "@id": personId },
-          },
-          {
-            "@type": "BreadcrumbList",
-            "@id": `${url}#breadcrumb`,
-            itemListElement: [
-              { "@type": "ListItem", position: 1, name: base.name, item: SITE_URL + base.path },
-              { "@type": "ListItem", position: 2, name: project.title, item: url },
-            ],
-          },
-        ]
-      : [
-          {
-            "@type": "ProfilePage",
-            "@id": `${url}#profilepage`,
-            url,
-            name: page.title,
-            description: page.description,
-            inLanguage: page.code,
-            isPartOf: { "@id": websiteId },
-            mainEntity: { "@id": personId },
-            primaryImageOfPage: { "@type": "ImageObject", url: `${SITE_URL}/og/${page.code}.jpg`, width: 1200, height: 630 },
-            dateModified: modified,
-          },
-          ...PROJECTS.map(([name, projectUrl]) => ({
-            "@type": "SoftwareSourceCode",
-            name,
-            codeRepository: projectUrl,
-            author: { "@id": personId },
-          })),
-        ]),
-  ];
   // "<" is escaped so no value can ever close the script tag early.
-  const structuredData = `    <script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }).replace(/</g, "\\u003c")}</script>`;
+  const structuredData = `    <script type="application/ld+json">${JSON.stringify(head.structuredData).replace(/</g, "<")}</script>`;
 
-  const head = [
-    ...fontPreloads(assets, page.code),
-    `    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />`,
-    `    <meta name="author" content="${escapeAttr(page.name)}" />`,
-    `    <link rel="canonical" href="${url}" />`,
+  const tags = [
+    ...fontPreloads(assets, fontCode),
+    `    <link rel="canonical" href="${head.url}" />`,
     ...alternates,
-    `    <meta property="og:type" content="${project ? "website" : "profile"}" />`,
-    `    <meta property="og:site_name" content="${SITE_NAME}" />`,
-    ...(project
-      ? []
-      : [
-          `    <meta property="profile:first_name" content="${escapeAttr(page.name.split(" ")[0])}" />`,
-          `    <meta property="profile:last_name" content="${escapeAttr(page.name.split(" ")[1])}" />`,
-          `    <meta property="profile:username" content="qalibqurbanov" />`,
-        ]),
-    `    <meta property="og:url" content="${url}" />`,
-    `    <meta property="og:title" content="${escapeAttr(page.title)}" />`,
-    `    <meta property="og:description" content="${escapeAttr(page.description)}" />`,
-    `    <meta property="og:locale" content="${page.ogLocale}" />`,
-    ...previewTags(page.code, `${page.name} — ${page.jobTitle}`, page.title, page.description),
-    ...PAGES.filter((p) => p !== page).map(
-      (p) => `    <meta property="og:locale:alternate" content="${p.ogLocale}" />`,
-    ),
+    `    <meta property="og:type" content="${head.ogType}" />`,
+    `    <meta property="og:url" content="${head.url}" />`,
+    `    <meta property="og:title" content="${escapeAttr(head.title)}" />`,
+    `    <meta property="og:description" content="${escapeAttr(head.description)}" />`,
+    `    <meta property="og:locale" content="${head.ogLocale}" />`,
+    ...head.otherOgLocales.map((code) => `    <meta property="og:locale:alternate" content="${code}" />`),
     structuredData,
   ].join("\n");
 
-  // The page itself is drawn by JavaScript, so a program that only reads the raw HTML (search and AI
-  // crawlers, link scanners, text-only browsers) would otherwise find it empty. The real text of the
-  // page goes inside the root, kept off screen; the site replaces it the moment it starts. Without
-  // JavaScript the noscript style shows it as an ordinary page.
-  const hidden = "position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap";
-  const prerenderStyle = [
-    `    <style>[data-prerender]{${hidden}}</style>`,
-    `    <noscript><style>[data-prerender]{position:static;width:auto;height:auto;margin:1rem;overflow:visible;clip:auto;white-space:normal;color:#ddd;font:16px/1.6 system-ui,sans-serif}[data-prerender] a{color:#b185ff}</style></noscript>`,
-  ].join("\n");
-  const root = `<div id="root"><div data-prerender>\n${body}\n</div></div>`;
+  // The page itself is drawn by JavaScript, so a program that only reads the raw HTML (some
+  // recruiter and job-site tools, link scanners, text-only browsers) would otherwise find it
+  // empty. This short copy gives it the essentials; visitors with JavaScript never see it.
+  const plainText = ["    <noscript>", ...head.plainText.map((line) => `      ${line}`), "    </noscript>"].join("\n");
 
   return template
-    .replace(/<html lang="[^"]*"/, `<html lang="${page.code}"`)
-    .replace(/<title>[^<]*<\/title>/, `<title>${page.title}</title>`)
+    .replace(/<html lang="[^"]*"/, `<html lang="${head.lang}"`)
+    .replace(/<title>[^<]*<\/title>/, `<title>${head.title}</title>`)
     .replace(
       /<meta name="description" content="[^"]*" \/>/,
-      `<meta name="description" content="${escapeAttr(page.description)}" />`,
+      `<meta name="description" content="${escapeAttr(head.description)}" />`,
     )
-    .replace("</head>", `${head}\n${prerenderStyle}\n  </head>`)
-    .replace('<div id="root"></div>', root);
+    .replace("</head>", `${tags}\n  </head>`)
+    .replace('<div id="root"></div>', `<div id="root"></div>\n${plainText}`);
+}
+
+function localize(template: string, page: LocalePage, assets: string[]): string {
+  const url = SITE_URL + page.path;
+  const person = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: page.name,
+    jobTitle: page.jobTitle,
+    url,
+    address: { "@type": "PostalAddress", addressLocality: "Baku", addressCountry: "AZ" },
+    sameAs: SAME_AS,
+  };
+  return render(
+    template,
+    {
+      lang: page.code,
+      title: page.title,
+      description: page.description,
+      url,
+      ogType: "website",
+      ogLocale: page.ogLocale,
+      otherOgLocales: PAGES.filter((p) => p !== page).map((p) => p.ogLocale),
+      alternates: PAGES.map((p) => ({ code: p.code, url: SITE_URL + p.path })),
+      structuredData: person,
+      plainText: [
+        `<h1>${page.name} — ${page.jobTitle}</h1>`,
+        `<p>${page.location}</p>`,
+        `<p>${page.summary}</p>`,
+        "<ul>",
+        `  <li><a href="${SITE_URL}/resume.pdf">${page.resumeLabel}</a></li>`,
+        ...PROFILE_LINKS.map(([label, href]) => `  <li><a href="${href}">${label}</a></li>`),
+        "</ul>",
+      ],
+    },
+    assets,
+    page.code,
+  );
+}
+
+// A project and an article each have their own address in every language, /<language>/projects/<slug>/ and
+// /<language>/blog/<slug>/, so each can be found, linked to and shown in a link preview on its own.
+// (The site reads the same addresses in the browser; see src/lib/viewPath.ts.)
+
+type ViewKind = "projects" | "blog";
+
+/** The parts of a language's content that the built pages of the projects and articles need. */
+interface ViewContent {
+  profile: { name: string };
+  projects: Array<{ slug: string; title: string; kind: string; description?: string; repoUrl?: string; tags: string[] }>;
+  blogPosts: Array<{ slug: string; title: string; excerpt: string; date: string }>;
+}
+
+interface ViewPage {
+  kind: ViewKind;
+  slug: string;
+  /** Address per language that has it. */
+  paths: Array<{ code: string; path: string }>;
+}
+
+const viewPath = (code: string, kind: ViewKind, slug: string) => `/${code}/${kind}/${encodeURIComponent(slug)}/`;
+
+function viewHtml(template: string, assets: string[], page: LocalePage, content: ViewContent, view: ViewPage): string {
+  const url = SITE_URL + viewPath(page.code, view.kind, view.slug);
+  const home = SITE_URL + page.path;
+  const author = { "@type": "Person", name: content.profile.name, url: home };
+  const alternates = view.paths.map((p) => ({ code: p.code, url: SITE_URL + p.path }));
+  const other = PAGES.filter((p) => p !== page && view.paths.some((v) => v.code === p.code)).map((p) => p.ogLocale);
+
+  if (view.kind === "projects") {
+    const project = content.projects.find((item) => item.slug === view.slug)!;
+    const description = project.description ?? `${project.title} — ${project.kind}`;
+    const code = {
+      "@context": "https://schema.org",
+      "@type": "SoftwareSourceCode",
+      name: project.title,
+      description,
+      url,
+      inLanguage: page.code,
+      author,
+      ...(project.repoUrl ? { codeRepository: project.repoUrl } : {}),
+    };
+    return render(
+      template,
+      {
+        lang: page.code,
+        title: `${project.title} | ${content.profile.name}`,
+        description,
+        url,
+        ogType: "website",
+        ogLocale: page.ogLocale,
+        otherOgLocales: other,
+        alternates,
+        structuredData: code,
+        plainText: [
+          `<h1>${project.title}</h1>`,
+          `<p>${project.kind}</p>`,
+          `<p>${description}</p>`,
+          `<p>${project.tags.join(", ")}</p>`,
+          ...(project.repoUrl ? [`<p><a href="${project.repoUrl}">GitHub</a></p>`] : []),
+          `<p><a href="${home}">${content.profile.name}</a></p>`,
+        ],
+      },
+      assets,
+      page.code,
+    );
+  }
+
+  const post = content.blogPosts.find((item) => item.slug === view.slug)!;
+  const article = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.date,
+    url,
+    mainEntityOfPage: url,
+    inLanguage: page.code,
+    author,
+  };
+  return render(
+    template,
+    {
+      lang: page.code,
+      title: `${post.title} | ${content.profile.name}`,
+      description: post.excerpt,
+      url,
+      ogType: "article",
+      ogLocale: page.ogLocale,
+      otherOgLocales: other,
+      alternates,
+      structuredData: article,
+      plainText: [
+        `<h1>${post.title}</h1>`,
+        `<p><time datetime="${post.date}">${post.date}</time></p>`,
+        `<p>${post.excerpt}</p>`,
+        `<p><a href="${home}">${content.profile.name}</a></p>`,
+      ],
+    },
+    assets,
+    page.code,
+  );
+}
+
+/** Reads each language's content the way the site does (through Vite, so its imports and aliases resolve). */
+async function loadContents(root: string): Promise<Record<string, ViewContent>> {
+  const server = await createServer({
+    configFile: false,
+    root,
+    logLevel: "silent",
+    appType: "custom",
+    server: { middlewareMode: true, hmr: false, watch: null },
+    optimizeDeps: { noDiscovery: true },
+    resolve: { alias: { "@": path.resolve(root, "src") } },
+  });
+  try {
+    const contents: Record<string, ViewContent> = {};
+    for (const page of PAGES) {
+      const module = (await server.ssrLoadModule(`/src/content/${page.code}.ts`)) as { default: ViewContent };
+      contents[page.code] = module.default;
+    }
+    return contents;
+  } finally {
+    await server.close();
+  }
+}
+
+const escapeXml = (value: string) => value.replace(/&/g, "&amp;");
+
+function sitemapEntry(url: string, alternates: Array<{ code: string; url: string }>): string {
+  const links = [...alternates, { code: "x-default", url: `${SITE_URL}/` }]
+    .map((a) => `      <xhtml:link rel="alternate" hreflang="${a.code}" href="${escapeXml(a.url)}" />`)
+    .join("\n");
+  return `  <url>\n    <loc>${escapeXml(url)}</loc>\n${links}\n  </url>`;
 }
 
 /** The 404 page: the same page as the rest of the site, marked so the app shows its not-found view
@@ -356,90 +377,16 @@ export function notFoundHtml(template: string): string {
     .replace('<div id="root"></div>', `<div id="root"></div>\n    ${message}`);
 }
 
-/** The /links page: the same site, marked so the app shows the list of links instead of the sections
- * (see src/features/links). It has no language path of its own; the app picks the visitor's language. */
-export function linksHtml(template: string): string {
-  const english = PAGES[0];
-  const url = `${SITE_URL}/links/`;
-  const title = `${english.name} | Links`;
-  const description = `${english.name} — GitHub, LinkedIn, Telegram, email and resume in one place.`;
-  const head = [
-    `    <meta name="robots" content="index, follow, max-image-preview:large" />`,
-    `    <meta name="author" content="${escapeAttr(english.name)}" />`,
-    `    <link rel="canonical" href="${url}" />`,
-    `    <meta property="og:type" content="website" />`,
-    `    <meta property="og:site_name" content="${SITE_NAME}" />`,
-    `    <meta property="og:url" content="${url}" />`,
-    `    <meta property="og:title" content="${escapeAttr(title)}" />`,
-    `    <meta property="og:description" content="${escapeAttr(description)}" />`,
-    ...previewTags(english.code, `${english.name} — ${english.jobTitle}`, title, description),
-  ].join("\n");
-  const plainText = [
-    "    <noscript>",
-    `      <h1>${english.name} — Links</h1>`,
-    "      <ul>",
-    `        <li><a href="${SITE_URL}/resume.pdf">${english.resumeLabel}</a></li>`,
-    ...PROFILE_LINKS.map(([label, href]) => `        <li><a href="${href}">${label}</a></li>`),
-    "      </ul>",
-    "    </noscript>",
-  ].join("\n");
-  return template
-    .replace(/<html lang="[^"]*"/, '<html lang="en" data-page="links"')
-    .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
-    .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${escapeAttr(description)}" />`)
-    .replace("</head>", `${head}\n  </head>`)
-    .replace('<div id="root"></div>', `<div id="root"></div>\n${plainText}`);
-}
-
-/** Every short address (/github, /cv, ...) with the page that sends the visitor on. These are plain
- * pages with no site in them, so a link preview or a crawler sees a short redirect, never the portfolio. */
-export function redirectPages(): Array<[slug: string, html: string]> {
-  const codes = JSON.stringify(PAGES.map((page) => page.code));
-  const page = (target: string, script: string, fallback: string) =>
-    [
-      "<!doctype html>",
-      '<html lang="en">',
-      "  <head>",
-      '    <meta charset="UTF-8" />',
-      '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
-      "    <title>Redirecting…</title>",
-      '    <meta name="robots" content="noindex" />',
-      fallback,
-      `    <script>${script.replace(/</g, "\\u003c")}</script>`,
-      "  </head>",
-      `  <body><p>Redirecting to <a href="${escapeAttr(target)}">${escapeAttr(target)}</a>…</p></body>`,
-      "</html>",
-      "",
-    ].join("\n");
-
-  const external = Object.entries(externalLinks).map(
-    ([slug, target]): [string, string] => [
-      slug,
-      page(target, `location.replace(${JSON.stringify(target)});`, `    <meta http-equiv="refresh" content="0;url=${escapeAttr(target)}" />`),
-    ],
-  );
-  // Inside the site: the language is the one the visitor chose there before, else their browser's, else English.
-  const inside = Object.entries(siteLinks).map(([slug, target]): [string, string] => {
-    const script =
-      `var t=${JSON.stringify(target)},c=${codes},l="en";` +
-      `try{l=localStorage.getItem("portfolio:locale")}catch(e){}` +
-      `if(c.indexOf(l)<0){l="en";var n=navigator.languages||[navigator.language];` +
-      `for(var i=0;i<n.length;i++){var p=String(n[i]).slice(0,2).toLowerCase();if(c.indexOf(p)>=0){l=p;break}}}` +
-      `location.replace(t.replace("{lang}",l));`;
-    const english = target.replace("{lang}", "en");
-    return [slug, page(english, script, `    <noscript><meta http-equiv="refresh" content="0;url=${escapeAttr(english)}" /></noscript>`)];
-  });
-  return [...external, ...inside];
-}
-
 export function localizedHtml(): Plugin {
   let outDir = "dist";
+  let root = process.cwd();
 
   return {
     name: "localized-html",
     apply: "build",
     configResolved(config) {
       outDir = path.resolve(config.root, config.build.outDir);
+      root = config.root;
     },
     async closeBundle() {
       const template = fs.readFileSync(path.join(outDir, "index.html"), "utf-8");
@@ -447,100 +394,62 @@ export function localizedHtml(): Plugin {
 
       fs.writeFileSync(path.join(outDir, "404.html"), notFoundHtml(template));
 
-      const contents = await loadContents(PAGES.map((page) => page.code));
-      const bodyOf = (page: LocalePage) => renderContent(contents[page.code], SITE_URL, page.code);
-      // Every project has the same slugs in every language (they are identifiers, not text).
-      const slugs = contents.en.projects.map((project) => project.slug);
+      for (const [name, target] of Object.entries(SHORTCUTS)) {
+        fs.mkdirSync(path.join(outDir, name), { recursive: true });
+        fs.writeFileSync(path.join(outDir, name, "index.html"), redirectHtml(target));
+      }
 
       const english = PAGES.find((page) => page.code === "en");
-      if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english, assets, lastModified(), bodyOf(english)));
-
-      const linksDir = path.join(outDir, "links");
-      fs.mkdirSync(linksDir, { recursive: true });
-      fs.writeFileSync(path.join(linksDir, "index.html"), linksHtml(template));
-      for (const [slug, html] of redirectPages()) {
-        fs.mkdirSync(path.join(outDir, slug), { recursive: true });
-        fs.writeFileSync(path.join(outDir, slug, "index.html"), html);
-      }
+      if (english) fs.writeFileSync(path.join(outDir, "index.html"), localize(template, english, assets));
 
       for (const page of PAGES) {
         const target = path.join(outDir, page.path, "index.html");
         fs.mkdirSync(path.dirname(target), { recursive: true });
-        fs.writeFileSync(target, localize(template, page, assets, lastModified(), bodyOf(page)));
+        fs.writeFileSync(target, localize(template, page, assets));
+      }
 
-        // Each project's own page: /<language>/projects/<slug>/
+      // One page per project and per article, in each language that has it.
+      const contents = await loadContents(root);
+      const itemsOf = (code: string, kind: ViewKind) => (kind === "projects" ? contents[code].projects : contents[code].blogPosts);
+      const views: ViewPage[] = [];
+      for (const kind of ["projects", "blog"] as const) {
+        const slugs = new Set(PAGES.flatMap((page) => itemsOf(page.code, kind).map((item) => item.slug)));
         for (const slug of slugs) {
-          const project = contents[page.code].projects.find((item) => item.slug === slug);
-          if (!project) throw new Error(`Project "${slug}" is missing in "${page.code}"`);
-          const projectPage: ProjectPage = {
-            slug,
-            title: project.title,
-            description: shorten(project.description, 158),
-            kind: project.kind,
-            repoUrl: project.repoUrl,
-            stack: project.stack ?? [],
-          };
-          const projectTarget = path.join(outDir, projectUrlPath(page.code, slug), "index.html");
-          fs.mkdirSync(path.dirname(projectTarget), { recursive: true });
-          fs.writeFileSync(
-            projectTarget,
-            localize(template, page, assets, lastModified(), renderProject(contents[page.code], slug, SITE_URL, page.code), projectPage),
-          );
+          const paths = PAGES.filter((page) => itemsOf(page.code, kind).some((item) => item.slug === slug)).map((page) => ({
+            code: page.code,
+            path: viewPath(page.code, kind, slug),
+          }));
+          views.push({ kind, slug, paths });
+        }
+      }
+      for (const view of views) {
+        for (const { code, path: viewUrl } of view.paths) {
+          const page = PAGES.find((p) => p.code === code)!;
+          const target = path.join(outDir, viewUrl, "index.html");
+          fs.mkdirSync(path.dirname(target), { recursive: true });
+          fs.writeFileSync(target, viewHtml(template, assets, page, contents[code], view));
         }
       }
 
-      const built = lastModified();
-      const urls = PAGES.map((page) => {
-        const links = [...PAGES, { code: "x-default", path: "/" }]
-          .map((p) => `      <xhtml:link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`)
-          .join("\n");
-        const image = `      <image:image>\n        <image:loc>${SITE_URL}/og/${page.code}.jpg</image:loc>\n        <image:title>${escapeAttr(page.title)}</image:title>\n      </image:image>`;
-        const priority = page.code === "en" ? "1.0" : "0.9";
-        return `  <url>\n    <loc>${SITE_URL + page.path}</loc>\n    <lastmod>${built}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>${priority}</priority>\n${links}\n${image}\n  </url>`;
-      }).join("\n");
-      const projectUrls = slugs
-        .flatMap((slug) =>
-          PAGES.map((page) => {
-            const links = [
-              ...PAGES.map((p) => ({ code: p.code, path: projectUrlPath(p.code, slug) })),
-              { code: "x-default", path: projectUrlPath("en", slug) },
-            ]
-              .map((p) => `      <xhtml:link rel="alternate" hreflang="${p.code}" href="${SITE_URL + p.path}" />`)
-              .join("\n");
-            return `  <url>\n    <loc>${SITE_URL + projectUrlPath(page.code, slug)}</loc>\n    <lastmod>${built}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n${links}\n  </url>`;
-          }),
-        )
-        .join("\n");
-      const linksUrl = `  <url>\n    <loc>${SITE_URL}/links/</loc>\n    <lastmod>${built}</lastmod>\n    <changefreq>yearly</changefreq>\n    <priority>0.5</priority>\n  </url>`;
+      const urls = [
+        ...PAGES.map((page) =>
+          sitemapEntry(
+            SITE_URL + page.path,
+            PAGES.map((p) => ({ code: p.code, url: SITE_URL + p.path })),
+          ),
+        ),
+        ...views.flatMap((view) => {
+          const alternates = view.paths.map((p) => ({ code: p.code, url: SITE_URL + p.path }));
+          return alternates.map((a) => sitemapEntry(a.url, alternates));
+        }),
+      ].join("\n");
       fs.writeFileSync(
         path.join(outDir, "sitemap.xml"),
-        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls}\n${projectUrls}\n${linksUrl}\n</urlset>\n`,
+        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`,
       );
-      fs.writeFileSync(path.join(outDir, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
-      // A short plain-text description of the site for AI assistants and other tools that read it (llmstxt.org).
-      const en = PAGES[0];
       fs.writeFileSync(
-        path.join(outDir, "llms.txt"),
-        [
-          `# ${SITE_NAME}`,
-          "",
-          `> ${en.name} (also written ${NAME_VARIANTS.filter((n) => n !== en.name).join(", ")}) — ${en.jobTitle} based in ${en.location}. ${en.summary}`,
-          "",
-          "## Pages",
-          ...PAGES.map((p) => `- [${p.title}](${SITE_URL + p.path}): ${p.description}`),
-          `- [Links](${SITE_URL}/links/): GitHub, LinkedIn, Telegram, email and resume in one place.`,
-          `- [${en.resumeLabel}](${SITE_URL}/resume.pdf): resume`,
-          "",
-          "## Profiles",
-          ...PROFILE_LINKS.map(([label, href]) => `- [${label}](${href})`),
-          "",
-          "## Projects",
-          ...contents.en.projects.map((project) => `- [${project.title}](${SITE_URL + projectUrlPath("en", project.slug)}): ${shorten(project.description, 158)}`),
-          "",
-          "## Skills",
-          SKILLS.join(", "),
-          "",
-        ].join("\n"),
+        path.join(outDir, "robots.txt"),
+        `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`,
       );
     },
   };

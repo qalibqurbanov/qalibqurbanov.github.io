@@ -1,14 +1,15 @@
 import { useEffect, useRef } from "react";
 
-import { idleProgress, idleShow, wake } from "@/lib/idle";
-import { FIELD, GRAB, LINK } from "@/lib/interactive";
-import { trackCursor } from "@/lib/cursorTracker";
-import { subscribeTick } from "@/lib/ticker";
-import { isNotFoundPage } from "@/lib/notFound";
+import { prefersReducedMotion } from "@/lib/motion";
 
 type CursorState = "default" | "link" | "field" | "code" | "grab" | "no" | "help" | "download";
 
-const CODE = 'pre, code, .terminal-scroll, .selectable, [data-cursor="code"]';
+const FIELD =
+  'input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="button"]):not([type="submit"]), textarea, [contenteditable="true"]';
+const LINK =
+  'a[href], button:not(:disabled), summary, select, label[for], [role="button"], [role="tab"], [role="option"], [role="menuitem"], [role="radio"], [role="checkbox"], .cursor-pointer';
+const GRAB = ".cursor-grab, .cursor-grabbing";
+const CODE = 'pre, code, .selectable, [data-cursor="code"]';
 const DISABLED = ':disabled, [aria-disabled="true"]';
 const HELP = '.cursor-help, [data-cursor="help"]';
 const DOWNLOAD = "a[download]";
@@ -18,7 +19,6 @@ const GLYPHS: { id: string; box: string; d: string; stretch?: boolean }[] = [
   { id: "link", box: "0 0 20 20", d: "M5.5 14.5 14.5 5.5M7 5.5h7.5V13" },
   { id: "text", box: "0 0 8 20", d: "M4 2v16M1.5 2h5M1.5 18h5", stretch: true },
   { id: "grab", box: "0 0 20 20", d: "M10 2.5v15M2.5 10h15M10 2.5 7.7 4.8M10 2.5l2.3 2.3M10 17.5l-2.3-2.3M10 17.5l2.3-2.3M2.5 10l2.3-2.3M2.5 10l2.3 2.3M17.5 10l-2.3-2.3M17.5 10l-2.3 2.3" },
-  { id: "hold", box: "0 0 20 20", d: "M10 6v8M6 10h8M10 6 8.3 7.7M10 6l1.7 1.7M10 14l-1.7-1.7M10 14l1.7-1.7M6 10l1.7-1.7M6 10l1.7 1.7M14 10l-1.7-1.7M14 10l-1.7 1.7" },
   { id: "no", box: "0 0 20 20", d: "M5.5 5.5l9 9M14.5 5.5l-9 9" },
   { id: "help", box: "0 0 20 20", d: "M7.4 7.8a2.8 2.8 0 1 1 4.1 2.5c-.9.5-1.5 1-1.5 2.2M10 15.4v.1" },
   { id: "download", box: "0 0 20 20", d: "M10 3.5v9M6.4 9 10 12.6 13.6 9M4 16.5h12" },
@@ -66,71 +66,34 @@ function readRgb(name: string, fallback: Rgb): Rgb {
   return rgb ? [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])] : fallback;
 }
 
-/** Replaces the system cursor on mouse-like pointers: a bright dot with a silk ribbon of light
- * trailing behind it, and over things the dot turns into a thin line glyph that says what the
- * thing does (an arrow over links, an I-beam in text, a move cross on the draggable window, a
- * cross when disabled, a question mark for help, a tray arrow for downloads). The idle countdown
- * (ring, radar and butterfly) and the signal-loss ERROR tag are drawn by the same element, see
- * the styles. Position goes straight to transforms (no React state). The system cursor is only
- * hidden once a real mouse has moved, so touch and keyboard users never lose it. */
+/** Replaces the system cursor on mouse-like pointers: a bright dot with a silk ribbon of light trailing behind it,
+ * in the site's cyan and magenta. Over things the dot turns into a thin line glyph that says what the thing does
+ * (an arrow over links, an I-beam in text, a move cross on what can be dragged, a cross when disabled, a question
+ * mark for help, a tray arrow for downloads). Position goes straight to transforms (no React state). The system
+ * cursor is only hidden once a real mouse has moved, so touch and keyboard users never lose it. */
 export function CustomCursor() {
   const rootRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLSpanElement>(null);
   const dotRef = useRef<HTMLSpanElement>(null);
   const ribbonRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
-    const ring = ringRef.current;
     const dot = dotRef.current;
     const canvas = ribbonRef.current;
     const g = canvas?.getContext("2d");
-    if (!root || !ring || !dot || !canvas || !g) return;
+    if (!root || !dot || !canvas || !g) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    // While the visitor is away, the ring fills and the dot turns into a butterfly:
-    // the countdown to the butterflies (see lib/idle). Only touched when it changes.
-    let stopIdle: (() => void) | null = null;
-    let lastP = -1;
-    let lastShow = -1;
-    // What is drawn eases toward what the clock says: it fades in with the
-    // countdown, and when the visitor moves again it fades out over about
-    // a fifth of a second instead of snapping away (the progress holds its
-    // last value while it fades).
-    let shown = 0;
-    let heldP = 0;
-    let tickAt = 0;
-    let wasBroken = false;
-    const idleTick = (now: number) => {
-      const dt = Math.min(0.05, (now - (tickAt || now)) / 1000);
-      tickAt = now;
-      // While the page is in ruins (the butterfly demolition) the idle cursor stays away;
-      // once the site is back the countdown starts afresh.
-      const broken = document.documentElement.classList.contains("demolishing");
-      if (wasBroken && !broken) wake();
-      wasBroken = broken;
-      // The 404 page never turns the cursor into the idle countdown.
-      const target = broken || isNotFoundPage() ? 0 : idleShow(now);
-      shown += (target - shown) * (1 - Math.exp(-(target > shown ? 14 : 12) * dt));
-      if (target === 0 && shown < 0.003) shown = 0;
-      if (target > 0.01) heldP = idleProgress(now);
-      else if (shown === 0) heldP = 0;
-      const p = heldP;
-      const show = shown;
-      if (Math.abs(p - lastP) > 0.002 || Math.abs(show - lastShow) > 0.004) {
-        lastP = p;
-        lastShow = show;
-        root.style.setProperty("--idle-p", p.toFixed(4));
-        root.style.setProperty("--idle-show", show.toFixed(3));
-        root.classList.toggle("is-idle", show > 0.01);
-        root.classList.toggle("is-idle-done", p >= 1);
-      }
-    };
+    if (prefersReducedMotion()) return;
 
-    // ---- The silk ribbon ----
+    let x = 0;
+    let y = 0;
+    let scrollFrame = 0;
+    let seen = false;
+    let state: CursorState = "default";
+
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    // The drawing is sized from the canvas as it is displayed (the fixed layer stops at the
-    // scrollbar, so it is narrower than the window), and scaled to fill it exactly; otherwise the
-    // ribbon would drift away from the dot toward the right edge.
+    // The drawing is sized from the canvas as it is displayed (the fixed layer stops at the scrollbar, so it is
+    // narrower than the window), and scaled to fill it exactly; otherwise the ribbon would drift from the dot.
     let W = 1;
     let H = 1;
     let scaleX = dpr;
@@ -145,19 +108,18 @@ export function CustomCursor() {
       scaleY = canvas.height / H;
     };
     resizeCanvas();
-    // The scrollbar can appear or go away without the window being resized (a modal locks scrolling).
     const sizeWatcher = new ResizeObserver(resizeCanvas);
     sizeWatcher.observe(canvas);
 
     const pts: { x: number; y: number; t: number }[] = [];
-    const colors: Record<Token, Rgb> = { accent: [177, 133, 255], accent2: [216, 180, 254], text: [235, 233, 245], danger: [248, 113, 113] };
+    const colors: Record<Token, Rgb> = { accent: [0, 229, 255], accent2: [255, 46, 151], text: [233, 233, 245], danger: [255, 77, 109] };
     let light = false;
     const readColors = () => {
       colors.accent = readRgb("--color-accent", colors.accent);
       colors.accent2 = readRgb("--color-accent-2", colors.accent2);
       colors.text = readRgb("--color-text", colors.text);
       colors.danger = readRgb("--color-danger", colors.danger);
-      const bg = readRgb("--color-bg", [7, 6, 13]);
+      const bg = readRgb("--color-bg", [10, 10, 18]);
       light = (bg[0] * 299 + bg[1] * 587 + bg[2] * 114) / 1000 > 140;
     };
     readColors();
@@ -174,7 +136,7 @@ export function CustomCursor() {
       if (++rFrames % 60 === 0) readColors();
       // Ease toward what the current state wants, quickly but softly.
       const k = 1 - Math.exp(-14 * dt);
-      const tgt = LOOK[(root.dataset.state as CursorState) ?? "default"];
+      const tgt = LOOK[state];
       look.life += (tgt.life - look.life) * k;
       look.width += (tgt.width - look.width) * k;
       for (let i = 0; i < 3; i++) {
@@ -220,7 +182,7 @@ export function CustomCursor() {
           gr.addColorStop(1, rgba(look.b, a1));
           return gr;
         };
-        // A soft glow under the silk band. Adding light only reads on a dark page.
+        // A soft glow under the band. Adding light only reads on a dark page.
         if (!light) {
           g.globalCompositeOperation = "lighter";
           polygon((i) => Math.pow(i / (n - 1), 1.3) * w * 2.4);
@@ -240,46 +202,82 @@ export function CustomCursor() {
       ribbonFrame = requestAnimationFrame(ribbonTick);
     };
 
-    const stopTracking = trackCursor({
-      root,
-      dot,
-      ring,
-      stateOf,
-      instant: true,
-      caret: { states: ["field", "code"], min: 12, max: 30, ratio: 1.15 },
-      onFirstMove: () => {
-        stopIdle ??= subscribeTick(idleTick);
-      },
-      onMove: (x, y) => {
-        const now = performance.now();
-        const last = pts[pts.length - 1];
-        if (last) speed += ((Math.hypot(x - last.x, y - last.y) / Math.max(1, now - last.t)) * 1000 - speed) * 0.3;
-        pts.push({ x, y, t: now });
-        if (pts.length > MAX_POINTS) pts.shift();
-        startRibbon();
-      },
-      onLeave: () => {
-        pts.length = 0;
-      },
-    });
+    /** The I-beam is as tall as the line of text it is over. */
+    const syncCaret = (target: EventTarget | null) => {
+      if (!(target instanceof Element) || (state !== "field" && state !== "code")) return;
+      const size = parseFloat(getComputedStyle(target).fontSize);
+      root.style.setProperty("--caret-h", `${Math.min(30, Math.max(12, (size || 16) * 1.15)).toFixed(1)}px`);
+    };
+
+    const setState = (next: CursorState) => {
+      if (next === state) return;
+      state = next;
+      root.dataset.state = next;
+    };
+
+    const handleMove = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
+      x = event.clientX;
+      y = event.clientY;
+      if (!seen) {
+        seen = true;
+        document.documentElement.classList.add("has-cursor");
+      }
+      root.classList.add("is-on");
+      dot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      setState(stateOf(event.target));
+      syncCaret(event.target);
+      const now = performance.now();
+      const last = pts[pts.length - 1];
+      if (last) speed += ((Math.hypot(x - last.x, y - last.y) / Math.max(1, now - last.t)) * 1000 - speed) * 0.3;
+      pts.push({ x, y, t: now });
+      if (pts.length > MAX_POINTS) pts.shift();
+      startRibbon();
+    };
+
+    // Scrolling moves content under a still pointer; re-check what is there.
+    const handleScroll = () => {
+      if (!seen || scrollFrame) return;
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = 0;
+        const under = document.elementFromPoint(x, y);
+        setState(stateOf(under));
+        syncCaret(under);
+      });
+    };
+
+    const handleDown = (event: PointerEvent) => {
+      if (event.pointerType === "mouse") root.classList.add("is-down");
+    };
+    const handleUp = () => root.classList.remove("is-down");
+    const handleLeave = () => {
+      root.classList.remove("is-on", "is-down");
+      pts.length = 0;
+    };
+
+    window.addEventListener("pointermove", handleMove, { passive: true });
+    window.addEventListener("pointerdown", handleDown, { passive: true });
+    window.addEventListener("pointerup", handleUp, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("blur", handleLeave);
+    document.documentElement.addEventListener("pointerleave", handleLeave);
     return () => {
-      stopTracking();
+      cancelAnimationFrame(scrollFrame);
       cancelAnimationFrame(ribbonFrame);
-      stopIdle?.();
       sizeWatcher.disconnect();
+      window.removeEventListener("pointermove", handleMove);
+      window.removeEventListener("pointerdown", handleDown);
+      window.removeEventListener("pointerup", handleUp);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("blur", handleLeave);
+      document.documentElement.removeEventListener("pointerleave", handleLeave);
+      document.documentElement.classList.remove("has-cursor");
     };
   }, []);
 
   return (
     <div ref={rootRef} className="custom-cursor" data-state="default" aria-hidden="true">
       <canvas ref={ribbonRef} className="custom-cursor-ribbon" />
-      <span ref={ringRef} className="custom-cursor-pos">
-        <span className="custom-cursor-ring">
-          <span className="custom-cursor-sweep" />
-          <span className="custom-cursor-arc" />
-          <span className="custom-cursor-ping" />
-        </span>
-      </span>
       <span ref={dotRef} className="custom-cursor-pos">
         <span className="custom-cursor-dot" />
         {GLYPHS.map((glyph) => (
@@ -289,22 +287,6 @@ export function CustomCursor() {
             </svg>
           </span>
         ))}
-        <span className="custom-cursor-error">ERROR</span>
-        <svg className="custom-cursor-bf" viewBox="0 0 120 120" focusable="false">
-          <g className="custom-cursor-bf-wings">
-            <g className="custom-cursor-bf-wing">
-              <path d="M60 58 C54 34 30 12 12 20 C2 26 8 48 28 56 C40 60 52 60 60 58Z" />
-              <path d="M60 64 C52 66 34 68 28 82 C22 98 40 108 51 94 C57 85 60 74 60 64Z" />
-            </g>
-            <g className="custom-cursor-bf-wing" transform="translate(120 0) scale(-1 1)">
-              <path d="M60 58 C54 34 30 12 12 20 C2 26 8 48 28 56 C40 60 52 60 60 58Z" />
-              <path d="M60 64 C52 66 34 68 28 82 C22 98 40 108 51 94 C57 85 60 74 60 64Z" />
-            </g>
-          </g>
-          <path className="custom-cursor-bf-body" d="M60 42 C63.5 58 62.5 76 60 91 C57.5 76 56.5 58 60 42Z" />
-          <circle className="custom-cursor-bf-head" cx="60" cy="37" r="4.2" />
-          <path className="custom-cursor-bf-ant" d="M58.6 34 C55 26 50 21 44 18 M61.4 34 C65 26 70 21 76 18" />
-        </svg>
       </span>
     </div>
   );

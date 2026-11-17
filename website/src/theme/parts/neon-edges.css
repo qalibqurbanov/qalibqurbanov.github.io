@@ -1,0 +1,64 @@
+/* Neon edges: a thin line fading from cyan to magenta, with a soft glow, on the edges that frame the page:
+   the right edge of the menu (-r), the bottom of the top bar (-b) and the top of the footer (-t). */
+.neon-r::after,
+.neon-b::after,
+.neon-t::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  box-shadow:
+    0 0 10px 0 var(--neon-glow),
+    0 0 2px 0 var(--neon-glow);
+}
+
+.neon-r::after {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--color-accent) var(--y1, 3.5rem), var(--color-accent-2) calc(100% - var(--y2, 2.5rem)), transparent);
+}
+
+.neon-b::after,
+.neon-t::after {
+  left: -1px;
+  right: 0;
+  height: 1px;
+}
+
+.neon-b::after {
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent-2) 60%, transparent);
+}
+
+.neon-t::after {
+  background: linear-gradient(to right, var(--color-accent-2), var(--color-accent) 60%, transparent);
+}
+
+.neon-b::after {
+  bottom: 0;
+}
+
+.neon-t::after {
+  top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .page-leave,
+  .page-enter,
+  .view-overlay[data-state],
+  .view-content[data-state],
+  .view-content[data-state] > div > div {
+    animation: none;
+  }
+
+  .panel:hover,
+  .panel:focus-within,
+  .pop:hover {
+    transform: none;
+  }
+
+  .btn-solid:hover::after {
+    transition: none;
+  }
+}

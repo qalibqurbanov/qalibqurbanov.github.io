@@ -1,0 +1,302 @@
+/* ---- The right-click menu: a flat, sharp command list. A neon cyan-to-magenta line on top, a glowing edge on the
+   row you point at, cyan for what you can do, magenta for the repository, red for a bug report. ---- */
+
+.ctx-menu {
+  position: fixed;
+  z-index: 70;
+  width: 18rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  outline: none;
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 18px 40px -12px rgb(0 0 0 / 0.6),
+    0 0 22px -8px var(--neon-glow);
+  animation: ctx-in 140ms cubic-bezier(0.2, 0.9, 0.3, 1.1);
+}
+
+.ctx-menu::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: -1px;
+  height: 1px;
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent-2) 60%, transparent);
+  box-shadow: 0 0 8px var(--neon-glow);
+}
+
+@keyframes ctx-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+.ctx-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface-2) 60%, transparent);
+  padding: 0.6rem 0.85rem;
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+.ctx-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-accent);
+}
+
+.ctx-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+  color: var(--color-text);
+  outline: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+  --tone: var(--color-accent);
+}
+
+.ctx-item.ctx-magenta {
+  --tone: var(--color-accent-2);
+}
+
+.ctx-item.ctx-danger {
+  --tone: var(--color-danger);
+}
+
+/* The mint green of the menu’s aurora, used for “View source” wherever it appears. */
+:root {
+  --color-green: #2ee6a6;
+}
+
+[data-theme="light"] {
+  --color-green: #0a8f64;
+}
+
+.ctx-item.ctx-green {
+  --tone: var(--color-green);
+}
+
+.ctx-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--tone);
+  box-shadow: 0 0 8px var(--tone);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.ctx-item:hover,
+.ctx-item:focus-visible {
+  background: color-mix(in srgb, var(--tone) 10%, transparent);
+  color: var(--tone);
+}
+
+.ctx-item:hover::before,
+.ctx-item:focus-visible::before {
+  opacity: 1;
+}
+
+.ctx-icon {
+  color: var(--color-muted);
+  transition: color 0.15s ease;
+}
+
+.ctx-item:hover .ctx-icon,
+.ctx-item:focus-visible .ctx-icon {
+  color: currentColor;
+}
+
+.ctx-kbd {
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  padding: 0 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.1rem;
+  color: var(--color-muted);
+}
+
+.ctx-sep {
+  height: 1px;
+  margin: 0.35rem 0.25rem;
+  background: linear-gradient(to right, transparent, var(--color-border), transparent);
+}
+
+.ctx-primary {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+  background: linear-gradient(to right, color-mix(in srgb, var(--color-accent) 14%, transparent), color-mix(in srgb, var(--color-accent-2) 10%, transparent));
+  color: var(--color-accent);
+  font-weight: 500;
+  text-align: left;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.ctx-primary:hover,
+.ctx-primary:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 14px -6px var(--neon-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctx-menu {
+    animation: none;
+  }
+}
+
+
+/* ---- The menu's right edge: an aurora. Three curtains of colour (cyan, violet and green, magenta) drift up and down
+   the line, each on its own animated position, at periods that do not divide each other, so the pattern never
+   repeats in a way the eye can follow. A wider, blurred copy glows beside it, and the whole thing slowly sways in
+   hue and breathes in strength. ---- */
+
+@property --pa {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --pb {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --pc {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.aurora-r::before,
+.aurora-r::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  background-repeat: repeat-y;
+  background-image:
+    linear-gradient(to bottom, transparent 0%, var(--color-accent) 22%, transparent 46%, var(--color-accent-2) 70%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #8b5cf6 30%, transparent 55%, #2ee6a6 80%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, var(--color-accent-2) 35%, transparent 60%, var(--color-accent) 85%, transparent 100%);
+  background-size:
+    100% 520px,
+    100% 760px,
+    100% 410px;
+  background-position-y: var(--pa), var(--pb), var(--pc);
+  mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+}
+
+.aurora-r::before {
+  right: 0;
+  width: 2px;
+  box-shadow: 0 0 6px var(--neon-glow);
+  animation:
+    aurora-pa 17s linear infinite,
+    aurora-pb 23s linear infinite reverse,
+    aurora-pc 31s linear infinite,
+    aurora-hue 41s ease-in-out infinite alternate;
+}
+
+.aurora-r::after {
+  right: -9px;
+  width: 20px;
+  opacity: 0.55;
+  filter: blur(9px);
+  animation:
+    aurora-pa 29s linear infinite reverse,
+    aurora-pb 19s linear infinite,
+    aurora-pc 37s linear infinite reverse,
+    aurora-glow 53s ease-in-out infinite alternate,
+    aurora-breathe 11s ease-in-out infinite;
+}
+
+@keyframes aurora-pa {
+  to {
+    --pa: 520px;
+  }
+}
+
+@keyframes aurora-pb {
+  to {
+    --pb: 760px;
+  }
+}
+
+@keyframes aurora-pc {
+  to {
+    --pc: 410px;
+  }
+}
+
+@keyframes aurora-hue {
+  from {
+    filter: hue-rotate(-35deg);
+  }
+  to {
+    filter: hue-rotate(55deg);
+  }
+}
+
+@keyframes aurora-glow {
+  from {
+    filter: blur(9px) hue-rotate(60deg);
+  }
+  to {
+    filter: blur(9px) hue-rotate(-40deg);
+  }
+}
+
+@keyframes aurora-breathe {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-r::before,
+  .aurora-r::after {
+    animation: none;
+  }
+}
+
+/* The two small links at the foot of the menu column take the colours of the same two items in the right-click menu:
+   red for "Report a bug" and green for "View source". */
+.tool-danger:hover,
+.tool-danger:focus-visible {
+  color: var(--color-danger);
+}
+
+.tool-green:hover,
+.tool-green:focus-visible {
+  color: var(--color-green);
+}

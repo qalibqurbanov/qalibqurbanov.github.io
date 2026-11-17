@@ -1,0 +1,139 @@
+/* ---- Page grain: a soft version of the sidebar card's film grain over the whole page. The sidebar sits above it, and its
+   frosted glass blurs the grain away underneath, so the card keeps only its own. ---- */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  z-index: 50;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1.6 0 0 0 -.62'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
+  background-size: 220px 220px;
+  opacity: 0.08;
+  animation: card-grain 0.9s steps(1) infinite;
+}
+
+[data-theme="light"] body::after {
+  filter: invert(1);
+  opacity: 0.1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    animation: none;
+  }
+}
+
+
+/* Grain gradient: soft blobs of colour that drift slowly inside the card, under its content and grain. */
+.card-mesh {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.card-mesh i {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  will-change: transform;
+}
+
+.card-mesh i:nth-child(1) {
+  left: -25%;
+  top: -12%;
+  width: 90%;
+  aspect-ratio: 1;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  animation: mesh-a 26s ease-in-out infinite alternate;
+}
+
+.card-mesh i:nth-child(2) {
+  right: -35%;
+  top: 34%;
+  width: 80%;
+  aspect-ratio: 1;
+  background: color-mix(in srgb, var(--color-accent) 40%, var(--color-accent-2) 60%);
+  opacity: 0.24;
+  animation: mesh-b 32s ease-in-out infinite alternate;
+}
+
+.card-mesh i:nth-child(3) {
+  left: -10%;
+  bottom: -22%;
+  width: 85%;
+  aspect-ratio: 1;
+  background: color-mix(in srgb, var(--color-accent-2) 14%, transparent);
+  animation: mesh-c 29s ease-in-out infinite alternate;
+}
+
+[data-theme="light"] .card-mesh i {
+  opacity: 0.5;
+}
+
+@keyframes mesh-a {
+  to {
+    transform: translate(18%, 22%) scale(1.12);
+  }
+}
+
+@keyframes mesh-b {
+  to {
+    transform: translate(-22%, -26%) scale(0.9);
+  }
+}
+
+@keyframes mesh-c {
+  to {
+    transform: translate(24%, -18%) scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-mesh i {
+    animation: none;
+  }
+}
+
+
+/* ---- The page background: a deep gradient with soft pools of cyan and magenta, instead of a flat colour. It is one fixed
+   layer behind everything, so it costs nothing while scrolling. ---- */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(1000px 700px at 92% -8%, color-mix(in srgb, var(--color-accent) 15%, transparent), transparent 70%),
+    radial-gradient(900px 800px at 6% 108%, color-mix(in srgb, var(--color-accent-2) 13%, transparent), transparent 70%),
+    radial-gradient(800px 600px at 58% 52%, color-mix(in srgb, color-mix(in srgb, var(--color-accent) 35%, var(--color-accent-2)) 8%, transparent), transparent 70%),
+    linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 6%, var(--color-bg)), var(--color-bg) 45%, color-mix(in srgb, var(--color-accent-2) 6%, var(--color-bg)));
+}
+
+[data-theme="light"] body::before {
+  background:
+    radial-gradient(1000px 700px at 92% -8%, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 70%),
+    radial-gradient(900px 800px at 6% 108%, color-mix(in srgb, var(--color-accent-2) 14%, transparent), transparent 70%),
+    linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 7%, #fff), var(--color-bg) 45%, color-mix(in srgb, var(--color-accent-2) 7%, #fff));
+}
+
+
+/* ---- Page background: a quiet gradient instead of flat colour, with a slow prism band of light across it. ---- */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 88% 0%, color-mix(in srgb, var(--color-accent) 13%, transparent), transparent 70%),
+    radial-gradient(55% 55% at 100% 100%, color-mix(in srgb, var(--color-accent-2) 11%, transparent), transparent 70%),
+    radial-gradient(50% 45% at 45% 110%, color-mix(in srgb, var(--color-accent) 7%, var(--color-accent-2) 7%), transparent 70%),
+    linear-gradient(160deg, color-mix(in srgb, var(--color-bg) 92%, var(--color-accent)) 0%, var(--color-bg) 38%, color-mix(in srgb, var(--color-bg) 93%, var(--color-accent-2)) 100%);
+}

@@ -1,0 +1,186 @@
+/* ---- The sidebar card: floating glass with film grain and a rim of light. ---- */
+
+@property --ang {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --hover {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+.side-card {
+  --mx: 50%;
+  --my: 30%;
+  position: relative;
+  isolation: isolate;
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+  /* A little depth, so the card reads as a separate slab lifted off the page: a lit top edge and a faint sheen above,
+     a shade toward the bottom, and the pointer's glow over both. */
+  background:
+    radial-gradient(190px circle at var(--mx) var(--my), color-mix(in srgb, var(--color-accent) calc(var(--hover) * 10%), transparent), transparent 70%),
+    linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 28%, transparent 70%, rgb(0 0 0 / 0.18)),
+    color-mix(in srgb, var(--color-surface) 58%, transparent);
+  backdrop-filter: blur(24px) saturate(1.1);
+  box-shadow:
+    /* the card's own edge: a lit rim on top, a dark one under it */
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    inset 0 -1px 0 rgb(0 0 0 / 0.4),
+    inset 1px 0 0 rgb(255 255 255 / 0.05),
+    /* the shadows it casts: tight and dark where it touches, then wider and softer as it lifts away */
+    0 0 0 1px rgb(0 0 0 / 0.32),
+    0 2px 3px rgb(0 0 0 / 0.4),
+    0 12px 22px -8px rgb(0 0 0 / 0.55),
+    0 34px 64px -22px rgb(0 0 0 / 0.7);
+  transition: --hover 0.45s ease;
+}
+
+[data-theme="light"] .side-card {
+  background:
+    radial-gradient(190px circle at var(--mx) var(--my), color-mix(in srgb, var(--color-accent) calc(var(--hover) * 10%), transparent), transparent 70%),
+    linear-gradient(180deg, rgb(255 255 255 / 0.7), transparent 30%, transparent 72%, rgb(30 30 80 / 0.06)),
+    color-mix(in srgb, var(--color-surface) 70%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.95),
+    inset 0 -1px 0 rgb(30 30 80 / 0.1),
+    0 0 0 1px rgb(30 30 80 / 0.08),
+    0 2px 3px rgb(30 30 80 / 0.1),
+    0 12px 22px -8px rgb(30 30 80 / 0.18),
+    0 34px 64px -22px rgb(30 30 80 / 0.3);
+}
+
+/* Film grain: fine noise over the card only (content included), flickering a few times a second. */
+.card-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.card-grain::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1.6 0 0 0 -.62'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
+  background-size: 220px 220px;
+  opacity: 0.11;
+  animation: card-grain 0.9s steps(1) infinite;
+}
+
+[data-theme="light"] .card-grain::before {
+  filter: invert(1);
+  opacity: 0.15;
+}
+
+@keyframes card-grain {
+  0% { transform: translate(0, 0); }
+  17% { transform: translate(-6%, 4%); }
+  33% { transform: translate(5%, -7%); }
+  50% { transform: translate(-3%, -4%); }
+  67% { transform: translate(7%, 5%); }
+  83% { transform: translate(-5%, 8%); }
+}
+
+/* The rim: a one-pixel ring round the card, painted with a gradient and cut out of the middle, so only the edge shows.
+   Each layer is one `data-rim` look; they can be stacked. */
+.card-rim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* A comet of light circles the card, slowly. */
+.card-rim[data-rim="comet"] {
+  background: conic-gradient(from var(--ang), transparent 0 56%, color-mix(in srgb, var(--color-accent) 40%, transparent) 78%, color-mix(in srgb, var(--color-accent) 60%, #fff) 93%, transparent) border-box;
+  animation: rim-spin 12s linear infinite;
+}
+
+/* One comet of each colour, opposite each other. */
+.card-rim[data-rim="twin"] {
+  background: conic-gradient(from var(--ang), transparent 0 24%, var(--color-accent) 36%, transparent 46%, transparent 74%, var(--color-accent-2) 86%, transparent 97%) border-box;
+  animation: rim-spin 18s linear infinite;
+}
+
+/* Short dashes of light running round the rim. */
+.card-rim[data-rim="dashes"] {
+  background: repeating-conic-gradient(from var(--ang), color-mix(in srgb, var(--color-accent) 80%, transparent) 0 3deg, transparent 3deg 10deg) border-box;
+  opacity: 0.55;
+  animation: rim-spin 40s linear infinite;
+}
+
+/* The whole rim in a smooth cyan, violet and magenta, turning and breathing. */
+.card-rim[data-rim="breathe"] {
+  background: conic-gradient(from var(--ang), var(--color-accent), color-mix(in srgb, var(--color-accent) 50%, var(--color-accent-2)), var(--color-accent-2), color-mix(in srgb, var(--color-accent) 50%, var(--color-accent-2)), var(--color-accent)) border-box;
+  animation:
+    rim-spin 36s linear infinite,
+    rim-breathe 6s ease-in-out infinite;
+}
+
+/* A second comet, magenta, that circles the other way. It fades in while the pointer is over the card and fades out when it
+   leaves (--hover eases between 0 and 1 on the card), so it only exists while you are there. */
+.card-rim[data-rim="comet2"] {
+  background: conic-gradient(from var(--ang), transparent 0 58%, color-mix(in srgb, var(--color-accent-2) 40%, transparent) 78%, color-mix(in srgb, var(--color-accent-2) 60%, #fff) 93%, transparent) border-box;
+  opacity: var(--hover);
+  animation: rim-spin 8s linear infinite reverse;
+}
+
+/* The rim lights up where the pointer is, and only while it is over the card. */
+.card-rim[data-rim="pointer"] {
+  background: radial-gradient(170px circle at var(--mx) var(--my), color-mix(in srgb, var(--color-accent) 92%, #fff), color-mix(in srgb, var(--color-accent-2) 45%, transparent) 45%, transparent 72%) border-box;
+  opacity: var(--hover);
+}
+
+/* A quick lap of light, played once each time the page changes (the element is replaced to play it again). */
+.card-rim[data-rim="pulse"] {
+  background: conic-gradient(from var(--ang), transparent 0 55%, var(--color-accent-2) 80%, #fff 95%, transparent) border-box;
+  filter: drop-shadow(0 0 5px var(--color-accent-2));
+  opacity: 0;
+  animation: rim-lap 1.5s cubic-bezier(0.45, 0, 0.2, 1) 1 both;
+}
+
+@keyframes rim-spin {
+  to {
+    --ang: 360deg;
+  }
+}
+
+@keyframes rim-breathe {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes rim-lap {
+  0% {
+    --ang: 0deg;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    --ang: 360deg;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-grain::before,
+  .card-rim {
+    animation: none !important;
+  }
+}

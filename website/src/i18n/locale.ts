@@ -1,5 +1,4 @@
-import { isStandalonePage } from "@/lib/notFound";
-import { notifyRouteChange, projectPath, projectSlugFromPath } from "@/lib/route";
+import { isNotFoundPage } from "@/lib/notFound";
 
 export type Locale = "en" | "az" | "ru";
 
@@ -90,17 +89,16 @@ export function localeFromUrl(): Locale {
  * replaceState for the initial redirect so Back doesn't bounce off it.
  */
 export function navigateToLocale(locale: Locale, mode: "push" | "replace"): void {
-  // The 404 and links pages change language in place: their address must stay as it is.
-  if (isStandalonePage()) return;
+  // The 404 page changes language in place: its address must stay the one that was not found.
+  if (isNotFoundPage()) return;
   const { pathname, search, hash } = window.location;
-  // A project's page stays on that project in the other language.
-  const slug = projectSlugFromPath(pathname);
-  const target = slug ? projectPath(slug, locale) : pathForLocale(locale);
+  // Keeps the rest of the address, so a project or an article opens in the other language.
+  const rest = localeFromPath(pathname) ? pathname.split("/").slice(2).join("/") : "";
+  const target = `${pathForLocale(locale)}${rest}`;
   if (pathname === target) return;
   const url = `${target}${search}${hash}`;
   if (mode === "push") window.history.pushState(null, "", url);
   else window.history.replaceState(null, "", url);
-  notifyRouteChange();
 }
 
 /**
@@ -111,7 +109,7 @@ export function navigateToLocale(locale: Locale, mode: "push" | "replace"): void
 export function resolveInitialLocale(): Locale {
   const fromPath = localeFromPath(window.location.pathname);
   if (fromPath) return fromPath;
-  if (isStandalonePage()) return detectInitialLocale();
+  if (isNotFoundPage()) return detectInitialLocale();
   if (window.location.pathname !== "/") return DEFAULT_LOCALE;
   const preferred = detectInitialLocale();
   navigateToLocale(preferred, "replace");

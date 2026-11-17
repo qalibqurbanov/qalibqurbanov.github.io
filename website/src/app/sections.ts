@@ -4,26 +4,28 @@ import { lazy } from "react";
  * fetched right after the page is up (see `preloadSections`), so by the time a
  * visitor scrolls they are already there. */
 const loaders = {
-  experience: () => import("@/features/home-sections/experience/Experience").then((m) => ({ default: m.Experience })),
-  projects: () => import("@/features/home-sections/projects/Projects").then((m) => ({ default: m.Projects })),
-  skills: () => import("@/features/home-sections/skills/Skills").then((m) => ({ default: m.Skills })),
-  contact: () => import("@/features/home-sections/contact/Contact").then((m) => ({ default: m.Contact })),
-  projectDetail: () => import("@/features/fullscreen-views/project-detail/ProjectDetail").then((m) => ({ default: m.ProjectDetail })),
-  resume: () => import("@/features/fullscreen-views/resume/ResumeViewer").then((m) => ({ default: m.ResumeViewer })),
-  butterfly: () => import("@/components/ui/CyberButterfly").then((m) => ({ default: m.CyberButterfly })),
+  experience: () => import("@/features/experience/Experience").then((m) => ({ default: m.Experience })),
+  projects: () => import("@/features/projects/Projects").then((m) => ({ default: m.Projects })),
+  skills: () => import("@/features/skills/Skills").then((m) => ({ default: m.Skills })),
+  blog: () => import("@/features/blog/Blog").then((m) => ({ default: m.Blog })),
+  blogPost: () => import("@/features/blog/BlogPost").then((m) => ({ default: m.BlogPost })),
+  contact: () => import("@/features/contact/Contact").then((m) => ({ default: m.Contact })),
+  links: () => import("@/features/links/Links").then((m) => ({ default: m.Links })),
+  projectDetail: () => import("@/features/projects/ProjectDetail").then((m) => ({ default: m.ProjectDetail })),
+  resume: () => import("@/features/resume/ResumeViewer").then((m) => ({ default: m.ResumeViewer })),
   commandPalette: () => import("@/components/command-palette/CommandPalette").then((m) => ({ default: m.CommandPalette })),
   contactModal: () => import("@/components/contact/ContactModal").then((m) => ({ default: m.ContactModal })),
-  fireflies: () => import("@/components/ui/Fireflies").then((m) => ({ default: m.Fireflies })),
 };
 
 export const Experience = lazy(loaders.experience);
 export const Projects = lazy(loaders.projects);
 export const Skills = lazy(loaders.skills);
+export const Blog = lazy(loaders.blog);
+export const BlogPost = lazy(loaders.blogPost);
 export const Contact = lazy(loaders.contact);
+export const Links = lazy(loaders.links);
 export const ProjectDetail = lazy(loaders.projectDetail);
 export const ResumeViewer = lazy(loaders.resume);
-export const CyberButterfly = lazy(loaders.butterfly);
-export const Fireflies = lazy(loaders.fireflies);
 export const CommandPalette = lazy(loaders.commandPalette);
 export const ContactModal = lazy(loaders.contactModal);
 
@@ -35,5 +37,5 @@ export function preloadDialogs(): Promise<unknown> {
 /** Fetches every section chunk. Awaited before the first render when the URL
  * points into the page (a hash or a project), so the target exists to scroll to. */
 export function preloadSections(): Promise<unknown> {
-  return Promise.all([loaders.experience(), loaders.projects(), loaders.skills(), loaders.contact()]);
+  return Promise.all([loaders.experience(), loaders.projects(), loaders.skills(), loaders.blog(), loaders.contact(), loaders.links()]);
 }

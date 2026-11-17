@@ -1,6 +1,6 @@
 /** Scrolls to the top of the page, clearing any hash/query from the URL. */
 
-import { prefersReducedMotion } from "@/hooks/glitch";
+import { prefersReducedMotion } from "@/lib/motion";
 export function scrollToTop(): void {
   const reduceMotion = prefersReducedMotion();
   window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
