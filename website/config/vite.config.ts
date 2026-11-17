@@ -150,6 +150,8 @@ function notFoundPage(): Plugin {
         (pathname.endsWith("/") && inPublic(`${pathname}index.html`)) ||
         (/\.[a-z0-9]+$/i.test(pathname) && (!isHtml || inPublic(pathname))) ||
         /^\/(@|src\/|node_modules\/)/.test(pathname);
+      // A folder with its own index page in public/ (like /test1/) is served from it, as Pages does.
+      if (pathname !== "/" && pathname.endsWith("/") && inPublic(`${pathname}index.html`)) req.url = `${pathname}index.html${(req.url ?? "").slice(pathname.length)}`;
       if (passthrough) return next();
       try {
         const html = await read(req.url ?? "/");

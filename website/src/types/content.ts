@@ -126,7 +126,8 @@ export interface UiStrings {
     contact: SectionHeadingText;
   };
   skillGroups: Record<SkillCategory, string>;
-  skillsClient: { title: string; text: string };
+  /** The note under the skills tabs: what is being learned right now. */
+  skillsLearning: string;
   /** Labels in the experience list: the "current job" pill and the two detail captions. */
   experienceLabels: { currentlyAt: string; now: string; results: string; publicProjects: string; stack: string };
   contact: {
