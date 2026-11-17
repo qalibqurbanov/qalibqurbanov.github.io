@@ -11,8 +11,8 @@
 .avatar-photo {
   position: relative;
   display: block;
-  width: 5.5rem;
-  height: 5.5rem;
+  width: 7.5rem;
+  height: 7.5rem;
 }
 
 .avatar-photo img {
@@ -22,7 +22,9 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--color-bg);
+  /* A thin frame of cyan-to-magenta light instead of a dark border: the gradient shows through the transparent border. */
+  border: 3px solid transparent;
+  background: conic-gradient(from 140deg, var(--color-accent), var(--color-accent-2), var(--color-accent)) border-box;
   transform: translate(var(--px, 0px), var(--py, 0px));
   will-change: transform;
 }

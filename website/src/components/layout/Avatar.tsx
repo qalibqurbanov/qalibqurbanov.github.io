@@ -97,7 +97,7 @@ export function Avatar({ src, alt }: { src: string; alt: string }) {
         <span className="avatar-aurora" aria-hidden="true" />
         <span className="avatar-ring avatar-ring-a" aria-hidden="true" />
         <span className="avatar-ring avatar-ring-b" aria-hidden="true" />
-        <img src={src} alt={alt} width={88} height={88} decoding="async" />
+        <img src={src} alt={alt} width={120} height={120} decoding="async" />
       </span>
     </span>
   );

@@ -301,6 +301,21 @@ export function CustomCursor() {
       root.dataset.state = next;
     };
 
+    // The dot moves the instant the pointer does (raw events arrive before the frame is built). Everything that
+    // needs style or layout reads (what is under the pointer, colour contrast) waits for the next frame, once.
+    let pendingTarget: EventTarget | null = null;
+    let detailFrame = 0;
+    const detailTick = () => {
+      detailFrame = 0;
+      setState(stateOf(pendingTarget));
+      syncCaret(pendingTarget);
+      syncColor(pendingTarget);
+    };
+    const handleRaw = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
+      dot.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
+    };
+
     const handleMove = (event: PointerEvent) => {
       if (event.pointerType !== "mouse") return;
       x = event.clientX;
@@ -311,9 +326,8 @@ export function CustomCursor() {
       }
       root.classList.add("is-on");
       dot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      setState(stateOf(event.target));
-      syncCaret(event.target);
-      syncColor(event.target);
+      pendingTarget = event.target;
+      if (!detailFrame) detailFrame = requestAnimationFrame(detailTick);
       const now = performance.now();
       const last = pts[pts.length - 1];
       if (last) speed += ((Math.hypot(x - last.x, y - last.y) / Math.max(1, now - last.t)) * 1000 - speed) * 0.3;
@@ -344,6 +358,7 @@ export function CustomCursor() {
     };
 
     window.addEventListener("pointermove", handleMove, { passive: true });
+    if ("onpointerrawupdate" in window) window.addEventListener("pointerrawupdate", handleRaw as EventListener, { passive: true });
     window.addEventListener("pointerdown", handleDown, { passive: true });
     window.addEventListener("pointerup", handleUp, { passive: true });
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -351,7 +366,9 @@ export function CustomCursor() {
     document.documentElement.addEventListener("pointerleave", handleLeave);
     return () => {
       cancelAnimationFrame(scrollFrame);
+      cancelAnimationFrame(detailFrame);
       cancelAnimationFrame(ribbonFrame);
+      window.removeEventListener("pointerrawupdate", handleRaw as EventListener);
       sizeWatcher.disconnect();
       window.removeEventListener("pointermove", handleMove);
       window.removeEventListener("pointerdown", handleDown);
