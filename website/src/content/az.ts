@@ -315,7 +315,6 @@ const az: Content = {
       send: "Mesaj göndər",
       copy: "E-poçtu kopyala",
       copied: "Kopyalandı",
-      emailLabel: "E-poçt",
       writeNote: "Sualınız varsa və ya sadəcə salam vermək istəyirsinizsə — qutum həmişə açıqdır.",
       resumeNote: "Hekayəmin qısa variantı",
     },

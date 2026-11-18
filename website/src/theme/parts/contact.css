@@ -1,25 +1,10 @@
-/* The Contact page: the colour in the second half of the sentence, and the soft glow behind everything. */
+/* The Contact page: the gradient on the headline. */
 
 .contact-grad {
   background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-
-.contact-orb {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 26rem;
-  height: 26rem;
-  max-width: 100%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 38%, transparent), color-mix(in srgb, var(--color-accent-2) 20%, transparent) 46%, transparent 70%);
-  filter: blur(46px);
-  opacity: 0.55;
-  pointer-events: none;
 }
 
 /* The ways to reach me as rows: a line of display type, a small note, an icon on the right. A colour wipes in from the left when pointed at. */
@@ -35,6 +20,11 @@
   border-bottom: 1px solid var(--color-border);
   text-align: left;
   cursor: pointer;
+}
+
+/* Nothing follows the last row, so it has no line under it. */
+.contact-row:last-child {
+  border-bottom: 0;
 }
 
 .contact-row::before {

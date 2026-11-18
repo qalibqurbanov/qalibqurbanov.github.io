@@ -314,7 +314,6 @@ const en: Content = {
       send: "Send a message",
       copy: "Copy email",
       copied: "Copied",
-      emailLabel: "Email",
       writeNote: "Whether you have a question or just want to say hi — my inbox is always open.",
       resumeNote: "The short version of my story",
     },
