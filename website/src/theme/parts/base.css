@@ -14,6 +14,15 @@ html {
   color-scheme: light;
 }
 
+/* The desktop layout (sidebar and content) is drawn in rem, so its text size follows the window: the same layout, in proportion, on a small
+   laptop, a large monitor and an ultrawide (16px at about 1430px wide). The width sets it, and the height keeps it from outgrowing a wide, short
+   window. Without this the content kept its size and only the empty space around it changed. Below the desktop layout the size stays 16px. */
+@media (min-width: 1024px) {
+  html {
+    font-size: clamp(13px, min(1.12vw, 2.3vh), 200px);
+  }
+}
+
 html[data-theme="dark"] {
   color-scheme: dark;
 }

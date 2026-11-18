@@ -24,13 +24,13 @@ export function About() {
       <ol className="timeline">
         {about.paragraphs.map((paragraph, index) => (
           <li key={paragraph} className="chapter">
-            <h3 className="mb-1.5 font-display text-[17px] font-semibold">
-              <span className="mr-3 text-[13px] font-normal text-accent-2" aria-hidden="true">
+            <h3 className="mb-1.5 font-display text-[1.0625rem] font-semibold">
+              <span className="mr-3 text-[0.8125rem] font-normal text-accent-2" aria-hidden="true">
                 ✦
               </span>
               {ui.home.chapters[index]}
             </h3>
-            <p className="text-[15px] leading-relaxed text-muted">{renderEmphasis(paragraph)}</p>
+            <p className="text-[0.9375rem] leading-relaxed text-muted">{renderEmphasis(paragraph)}</p>
           </li>
         ))}
       </ol>
@@ -40,7 +40,7 @@ export function About() {
           {rows.map((row) => (
             <div key={row.label} className="border-b border-border py-2.5">
               <dt className="label">
-                <span className="mr-2 text-[13px] text-accent-2" aria-hidden="true">
+                <span className="mr-2 text-[0.8125rem] text-accent-2" aria-hidden="true">
                   ✦
                 </span>
                 {row.label}

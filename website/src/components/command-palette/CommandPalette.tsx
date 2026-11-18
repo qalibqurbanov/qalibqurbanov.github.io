@@ -354,7 +354,7 @@ export function CommandPalette() {
 
             {filteredGroups.map((group) => (
               <div key={group.id} className="mb-2 last:mb-0">
-                <p className="px-3 pb-1 pt-2 text-[11px] uppercase tracking-wide text-muted/70">
+                <p className="px-3 pb-1 pt-2 text-[0.6875rem] uppercase tracking-wide text-muted/70">
                   {group.label}
                 </p>
                 {group.items.map((item) => {
@@ -382,7 +382,7 @@ export function CommandPalette() {
             ))}
           </div>
 
-          <div className="flex items-center justify-end gap-4 border-t border-border px-4 py-2 text-[11px] text-muted">
+          <div className="flex items-center justify-end gap-4 border-t border-border px-4 py-2 text-[0.6875rem] text-muted">
             <span className="inline-flex items-center gap-1">
               <CornerDownLeft size={12} /> select
             </span>

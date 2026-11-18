@@ -9,7 +9,7 @@
   background: color-mix(in srgb, var(--color-surface) 94%, transparent);
   color: var(--color-text);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 0.75rem;
   outline: none;
   backdrop-filter: blur(14px);
   box-shadow:
@@ -43,7 +43,7 @@
   border-bottom: 1px solid var(--color-border);
   background: color-mix(in srgb, var(--color-surface-2) 60%, transparent);
   padding: 0.6rem 0.85rem;
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--color-muted);
 }
 
@@ -131,7 +131,7 @@
   background: var(--color-bg);
   padding: 0 0.35rem;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 0.625rem;
   line-height: 1.1rem;
   color: var(--color-muted);
 }

@@ -23,7 +23,7 @@ function Figure({ index, label, figure, small, stack, children }: { index: numbe
   return (
     <div className="stat rise" style={{ "--i": index } as CSSProperties}>
       <dt className="label">
-        <span className="mr-2 text-[13px] text-accent-2" aria-hidden="true">
+        <span className="mr-2 text-[0.8125rem] text-accent-2" aria-hidden="true">
           ✦
         </span>
         {label}
@@ -144,7 +144,7 @@ export function Home() {
             ))}
           </dl>
 
-          <dl className="mt-7 grid grid-cols-3 gap-4">
+          <dl className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {/* Same three equal columns as the row above, so the columns line up in every language. */}
             <Figure index={3} label={focus.label} figure={focus.value} small stack />
             <Figure index={4} label={based.label} figure={city} small>

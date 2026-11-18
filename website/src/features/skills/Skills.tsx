@@ -223,13 +223,13 @@ export function Skills() {
         <div role="tabpanel" id="skills-panel" aria-labelledby={`skills-tab-${active}`} key={active}>
           {rows(active).map((group) => (
             <div key={group.label} className="grid gap-x-6 gap-y-0.5 border-t border-border py-1.5 first:border-t-0 md:grid-cols-[11rem_1fr]">
-              <h3 title={group.hint} className="text-[13px] font-medium leading-6">
-                <span className="mr-2 text-[13px] font-normal text-accent-2" aria-hidden="true">
+              <h3 title={group.hint} className="text-[0.8125rem] font-medium leading-6">
+                <span className="mr-2 text-[0.8125rem] font-normal text-accent-2" aria-hidden="true">
                   ✦
                 </span>
                 {group.label}
               </h3>
-              <ul className="text-[13px] leading-6">
+              <ul className="text-[0.8125rem] leading-6">
                 {group.lines.map((line) => (
                   <li key={line[0]} className="flex items-baseline gap-2">
                     <span aria-hidden="true" className="text-accent">
@@ -242,10 +242,10 @@ export function Skills() {
                           {run.members.map((skill, i) => (
                             <span key={skill}>
                               {i > 0 && ",  "}
-                              <b className="skill-item cursor-default font-mono text-[13px] font-medium text-text">{skill}</b>
+                              <b className="skill-item cursor-default font-mono text-[0.8125rem] font-medium text-text">{skill}</b>
                             </span>
                           ))}
-                          {run.kind && <em className="ml-1.5 text-[11px] not-italic text-muted/70">· {run.kind}</em>}
+                          {run.kind && <em className="ml-1.5 text-[0.6875rem] not-italic text-muted/70">· {run.kind}</em>}
                         </span>
                       ))}
                     </span>

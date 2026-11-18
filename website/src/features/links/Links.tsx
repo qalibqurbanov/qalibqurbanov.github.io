@@ -55,13 +55,13 @@ function Group({ title, rows, start, compact = false }: { title: string; rows: R
   const { ui } = useContent();
   return (
     <Reveal className="mt-9 first:mt-7">
-      <h3 className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">{title}</h3>
+      <h3 className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-muted">{title}</h3>
       <ul className={`mt-3 border-t border-border ${compact ? "grid sm:grid-cols-2 sm:gap-x-8" : ""}`}>
         {rows.map(({ label, hint, Icon, href, onClick, external, copy }, index) => {
           const inner = (
             <>
               <Icon size={compact ? 15 : 17} className="text-accent transition-transform duration-300 group-hover:scale-110" />
-              <span className={`flex-1 font-medium ${compact ? "text-sm" : "text-[15px]"}`}>{label}</span>
+              <span className={`flex-1 font-medium ${compact ? "text-sm" : "text-[0.9375rem]"}`}>{label}</span>
               {hint && !compact && <span className="hidden font-mono text-xs text-muted sm:inline">{hint}</span>}
               <ArrowUpRight size={compact ? 13 : 15} className="text-muted transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
             </>

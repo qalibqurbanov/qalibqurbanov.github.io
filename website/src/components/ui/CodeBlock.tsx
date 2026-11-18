@@ -87,7 +87,7 @@ export function CodeBlock({ filename, code }: CodeBlockProps) {
 
   return (
     <Panel title={filename} className="selectable">
-      <div className="custom-scrollbar font-mono text-[13px] leading-6 py-4 overflow-x-auto">
+      <div className="custom-scrollbar font-mono text-[0.8125rem] leading-6 py-4 overflow-x-auto">
         {lines.map((line, index) => (
           <div key={index} className="flex px-5">
             <span className="w-6 shrink-0 text-muted/50 select-none">{index + 1}</span>

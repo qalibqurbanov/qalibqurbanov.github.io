@@ -11,8 +11,8 @@
 .avatar-photo {
   position: relative;
   display: block;
-  width: 7.5rem;
-  height: 7.5rem;
+  width: calc(7.5rem * var(--s, 1));
+  height: calc(7.5rem * var(--s, 1));
 }
 
 .avatar-photo img {

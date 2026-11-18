@@ -20,7 +20,7 @@ export function Contact() {
         <h3 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
           {ui.contact.headlineLead} <span className="text-accent">{ui.contact.headlineAccent}</span>
         </h3>
-        <p className="mt-4 text-[15px] leading-relaxed text-muted">{ui.contact.body}</p>
+        <p className="mt-4 text-[0.9375rem] leading-relaxed text-muted">{ui.contact.body}</p>
 
         <p className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
           <span className="inline-flex items-center gap-2 text-accent">

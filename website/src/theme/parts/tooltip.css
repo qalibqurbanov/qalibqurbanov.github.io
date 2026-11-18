@@ -9,7 +9,7 @@
   background: color-mix(in srgb, var(--color-surface) 94%, transparent);
   color: var(--color-text);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 0.6875rem;
   line-height: 1.4;
   letter-spacing: 0.01em;
   backdrop-filter: blur(8px);

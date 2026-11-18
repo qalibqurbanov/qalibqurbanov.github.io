@@ -2,7 +2,8 @@
 
 .nf {
   display: flex;
-  min-height: calc(100dvh - 3.5rem);
+  /* The page already has a 3.5rem bar above it and 3.5rem of room below; the 404 fills what is left, so it never adds a scrollbar of its own. */
+  min-height: calc(100dvh - 7rem);
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -20,7 +21,7 @@
 
 @media (min-width: 1024px) {
   .nf {
-    min-height: 100dvh;
+    min-height: calc(100dvh - 3.5rem);
   }
 }
 
@@ -32,7 +33,7 @@
 
 .nf-eyebrow {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -47,14 +48,14 @@
 
 .nf-title {
   margin-top: 8px;
-  font-size: 22px;
+  font-size: 1.375rem;
   font-weight: 600;
 }
 
 .nf-text {
   max-width: 34rem;
   margin-top: 8px;
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.6;
   color: var(--color-muted);
 }
@@ -74,7 +75,7 @@
 
 .nf-back {
   margin-top: 20px;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--color-muted);
 }
 

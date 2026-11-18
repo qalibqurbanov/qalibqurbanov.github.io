@@ -277,7 +277,7 @@ export function ContextMenu() {
                   setLocale(meta.code);
                   close();
                 }}
-                className={`px-1.5 py-0.5 text-[10px] font-semibold uppercase outline-none transition-colors ${
+                className={`px-1.5 py-0.5 text-[0.625rem] font-semibold uppercase outline-none transition-colors ${
                   locale === meta.code ? "bg-accent text-on-accent" : "text-muted hover:text-accent focus-visible:text-accent"
                 }`}
               >

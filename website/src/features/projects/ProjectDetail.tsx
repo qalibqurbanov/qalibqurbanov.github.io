@@ -29,7 +29,7 @@ function DetailSection({ label, text }: { label: string; text: string }) {
   return (
     <div className="mt-6 first:mt-0">
       <h2 className="mb-1.5 text-sm font-semibold text-accent">{label}</h2>
-      <p className="text-[15px] leading-relaxed text-muted">{text}</p>
+      <p className="text-[0.9375rem] leading-relaxed text-muted">{text}</p>
     </div>
   );
 }
@@ -188,12 +188,12 @@ function ProjectPanel({ project, onClose }: { project: Project; onClose: () => v
                 </div>
               </div>
             </div>
-            <p className="mt-4 text-[15px] leading-relaxed text-muted">{project.description}</p>
+            <p className="mt-4 text-[0.9375rem] leading-relaxed text-muted">{project.description}</p>
 
             {project.stack && project.stack.length > 0 && (
               <div className="mt-6">
                 <h2 className="mb-2 text-sm font-semibold text-accent">{ui.projectDetail.stackLabel}</h2>
-                <p className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-[13px] text-muted">
+                <p className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-[0.8125rem] text-muted">
                   {project.stack.map((item) => (
                     <span key={item}>{item}</span>
                   ))}

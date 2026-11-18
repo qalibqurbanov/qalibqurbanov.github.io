@@ -37,8 +37,8 @@ function ProjectLink({ link }: { link: ExperienceLink }) {
         </span>
       )}
       <span className="min-w-0 flex-1">
-        <span className="entry-title block truncate text-[13px] font-medium leading-tight transition-colors">{link.label}</span>
-        <span className="flex items-center gap-1 font-mono text-[10.5px] leading-tight text-muted transition-colors group-hover:text-accent">
+        <span className="entry-title block truncate text-[0.8125rem] font-medium leading-tight transition-colors">{link.label}</span>
+        <span className="flex items-center gap-1 font-mono text-[0.6563rem] leading-tight text-muted transition-colors group-hover:text-accent">
           <Link2 size={9} className="shrink-0" aria-hidden="true" />
           <span className="truncate">{hostOf(link)}</span>
         </span>
@@ -52,7 +52,7 @@ function ProjectLink({ link }: { link: ExperienceLink }) {
 function Heading({ children }: { children: string }) {
   return (
     <h4 className="mb-3 flex items-baseline gap-2 font-display text-sm font-semibold tracking-tight">
-      <span className="text-[13px] font-normal text-accent-2" aria-hidden="true">
+      <span className="text-[0.8125rem] font-normal text-accent-2" aria-hidden="true">
         ✦
       </span>
       {children}
@@ -139,7 +139,7 @@ function Job({ item }: { item: ExperienceItem }) {
               <Heading>{ui.experienceLabels.results}</Heading>
               <ul className="space-y-2">
                 {item.highlights!.map((highlight) => (
-                  <li key={highlight} className="flex gap-3 text-[13px] leading-snug text-muted">
+                  <li key={highlight} className="flex gap-3 text-[0.8125rem] leading-snug text-muted">
                     <span className="mt-[0.45rem] h-px w-3 shrink-0 bg-accent" aria-hidden="true" />
                     {highlight}
                   </li>
@@ -164,7 +164,7 @@ function Job({ item }: { item: ExperienceItem }) {
       {/* The footer: the stack. */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-2 py-3.5">
         <h4 className="flex items-baseline gap-2 font-display text-sm font-semibold tracking-tight">
-          <span className="text-[13px] font-normal text-accent-2" aria-hidden="true">
+          <span className="text-[0.8125rem] font-normal text-accent-2" aria-hidden="true">
             ✦
           </span>
           {ui.experienceLabels.stack}

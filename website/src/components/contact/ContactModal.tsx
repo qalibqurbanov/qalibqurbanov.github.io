@@ -425,7 +425,7 @@ export function ContactModal() {
               <Dialog.Description className="mt-1 text-sm text-muted">
                 {t.description}
               </Dialog.Description>
-              <p className="mt-2 text-[11px] leading-relaxed text-muted/80">
+              <p className="mt-2 text-[0.6875rem] leading-relaxed text-muted/80">
                 {format(t.limits, { count: String(MAX_PER_WINDOW), seconds: String(MIN_GAP_MS / 1000), chars: String(MESSAGE_MAX) })}
               </p>
             </div>

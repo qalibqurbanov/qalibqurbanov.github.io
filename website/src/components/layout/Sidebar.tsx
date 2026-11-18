@@ -17,16 +17,16 @@ import { useNotFound } from "@/lib/notFound";
 
 import { Avatar } from "./Avatar";
 
-/** One menu row is this tall (px) and rows are this far apart. */
-const ROW = 42;
-const GAP = 6;
+/** One menu row is this tall (rem) and rows are this far apart. */
+const ROW = 2.25;
+const GAP = 0.25;
 
 const TOOL = "inline-flex h-7 w-7 cursor-pointer items-center justify-center text-muted transition-colors duration-200 hover:text-accent";
 
 /** The two buttons under the title: identical, flat and borderless. A faint tint of their colour (a soft blue resume, a soft violet message),
  * coloured text and icon, and a thin line under them that draws out to full width on hover. No frame, no glow, no lift. */
 const ACTION =
-  "tap group relative inline-flex h-10 cursor-pointer items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-md px-3 font-mono text-[11px] font-medium uppercase tracking-[0.14em] transition-colors duration-300 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-center after:scale-x-50 after:opacity-40 after:transition-all after:duration-500 after:ease-out hover:after:scale-x-100 hover:after:opacity-100";
+  "tap group relative inline-flex h-[max(1.7rem,calc(2.5rem*var(--s,1)))] cursor-pointer items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-md px-3 font-mono text-[0.6875rem] font-medium uppercase tracking-[0.14em] transition-colors duration-300 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-center after:scale-x-50 after:opacity-40 after:transition-all after:duration-500 after:ease-out hover:after:scale-x-100 hover:after:opacity-100";
 const TONE = "text-[var(--tone)] bg-[color-mix(in_srgb,var(--tone)_9%,transparent)] after:bg-[var(--tone)] hover:bg-[color-mix(in_srgb,var(--tone)_15%,transparent)]";
 const ACTION_BLUE = `${ACTION} tone-blue ${TONE}`;
 const ACTION_PURPLE = `${ACTION} tone-violet ${TONE}`;
@@ -54,6 +54,7 @@ export function Sidebar() {
   const hasResume = profile.resumeUrl && profile.resumeUrl !== "#";
   const now = useClock();
   const [lap, setLap] = useState(0);
+  const cardRef = useRef<HTMLDivElement>(null);
   useEffect(() => setLap((value) => value + 1), [page]);
 
   // The colour in the name, and in the title under it, is still until that line is pointed at. Then its blend slowly turns to a random
@@ -121,6 +122,24 @@ export function Sidebar() {
     return () => stops.forEach((stop) => stop());
   }, []);
 
+  // The whole card scales with the room it has: --s is 1 at the size it was drawn for (about 45rem tall and 24rem wide) and
+  // smaller on a short window or a narrow column, so on a laptop nothing overlaps; on a large screen it grows a little.
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+    const fit = () => {
+      const { width, height } = card.getBoundingClientRect();
+      // The page's own text size follows the window (see base.css), so the card is measured in those units: the same card at any screen size.
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const scale = Math.min(height / (45.3 * rem), width / (23.75 * rem));
+      card.style.setProperty("--s", Math.max(0.5, Math.min(1.1, scale)).toFixed(3));
+    };
+    fit();
+    const watcher = new ResizeObserver(fit);
+    watcher.observe(card);
+    return () => watcher.disconnect();
+  }, []);
+
   // The glow under the pointer follows the pointer, on the card's surface and on its rim (--mx, --my). The card itself
   // does not move: it stays flat whatever the pointer does.
   const follow = (event: PointerEvent<HTMLDivElement>) => {
@@ -143,7 +162,13 @@ export function Sidebar() {
 
   return (
     <aside className="shell-side hidden p-3 lg:block">
-    <div className="side-card flex h-full flex-col px-6 pb-4 pt-6 xl:px-8" onPointerMove={follow} onPointerLeave={unfollow}>
+    <div
+      ref={cardRef}
+      className="side-card flex h-full flex-col px-6 xl:px-8"
+      style={{ paddingTop: "calc(1.5rem * var(--s, 1))", paddingBottom: "calc(1rem * var(--s, 1))" }}
+      onPointerMove={follow}
+      onPointerLeave={unfollow}
+    >
       <span className="card-mesh" aria-hidden="true">
         <i />
         <i />
@@ -158,11 +183,16 @@ export function Sidebar() {
         <a href="#links" aria-label={ui.links.title} className="rounded-full">
           <Avatar src={avatarUrl} alt={profile.name} />
         </a>
-        <p ref={nameRef} aria-label={profile.name} className={`name-tone mt-3 font-display font-semibold text-3xl leading-tight tracking-tight`}>
+        <p
+          ref={nameRef}
+          aria-label={profile.name}
+          className="name-tone font-display font-semibold leading-tight tracking-tight"
+          style={{ marginTop: "calc(0.75rem * var(--s, 1))", fontSize: "calc(1.875rem * var(--s, 1))" }}
+        >
           <ScrambleText text={profile.name} playOnMount={false} duration={700} />
         </p>
-        <p ref={titleRef} className="title-tone mt-1.5 font-mono text-[11px] uppercase tracking-[0.18em]">{profile.headline}</p>
-        <div className="mt-5 grid w-full max-w-64 grid-cols-2 gap-2.5">
+        <p ref={titleRef} className="title-tone font-mono text-[0.6875rem] uppercase tracking-[0.18em]" style={{ marginTop: "calc(0.375rem * var(--s, 1))" }}>{profile.headline}</p>
+        <div className="grid w-full max-w-64 grid-cols-2 gap-2.5" style={{ marginTop: "calc(1.25rem * var(--s, 1))" }}>
           {hasResume && (
             <a href={resumeHref(page)} className={ACTION_BLUE}>
               <FileText size={14} strokeWidth={1.75} aria-hidden="true" />
@@ -177,9 +207,9 @@ export function Sidebar() {
       </div>
 
       {/* Middle: the menu, centred in the space between the top and the bottom. */}
-      <div className="flex min-h-0 flex-1 items-center justify-center py-4">
+      <div className="flex min-h-0 flex-1 items-center justify-center" style={{ paddingBlock: "calc(1rem * var(--s, 1))" }}>
       <nav aria-label={ui.nav.primary} className="w-full max-w-64">
-        <ul className="nav-rail mx-auto flex w-max flex-col" style={{ gap: GAP }}>
+        <ul className="nav-rail mx-auto flex w-max flex-col" style={{ gap: `calc(${GAP}rem * var(--s, 1))` }}>
           {navigation.map((item, index) => {
             const on = !notFound && item.href === `#${page}`;
             const PageIcon = PAGE_ICONS[item.href] ?? House;
@@ -188,8 +218,8 @@ export function Sidebar() {
                 <a
                   href={item.href}
                   aria-current={on ? "page" : undefined}
-                  style={{ height: ROW }}
-                  className={`group relative grid grid-cols-[1rem_1fr] items-center gap-3 rounded-lg pl-3 pr-3 font-display text-[16px] transition-colors duration-300 ${on ? "text-accent" : "text-muted hover:text-accent-2"}`}
+                  style={{ height: `max(1.5rem, calc(${ROW}rem * var(--s, 1)))` }}
+                  className={`group relative grid grid-cols-[1rem_1fr] items-center gap-3 rounded-lg pl-3 pr-3 font-display text-[1rem] transition-colors duration-300 ${on ? "text-accent" : "text-muted hover:text-accent-2"}`}
                 >
                   {/* A thin bar on the left edge (half height when pointed at, full and glowing on the open page, in the row’s own colour),
                       and the page icon that slides away to leave a chevron in its place only while the row is pointed at. */}
@@ -230,7 +260,7 @@ export function Sidebar() {
           aria-hidden="true"
         />
         <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-[11px] text-muted">
+          <p className="truncate text-[0.6875rem] text-muted">
             © {now.getFullYear()} {profile.name}
           </p>
           <div className="flex shrink-0 items-center">
