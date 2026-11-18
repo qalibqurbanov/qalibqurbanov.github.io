@@ -308,13 +308,15 @@ const en: Content = {
     contact: {
       headlineLead: "Let's build",
       headlineAccent: "something good.",
-      body: "I'm currently open to new opportunities and interesting projects — backend, frontend, or mobile. Whether you have a question or just want to say hi, my inbox is always open.",
+      body: "I'm currently open to **new opportunities** and **interesting projects**.",
       status: "Open to new work",
       openTo: ["Full-time","Freelance","Remote"],
       send: "Send a message",
       copy: "Copy email",
       copied: "Copied",
       emailLabel: "Email",
+      writeNote: "Whether you have a question or just want to say hi — my inbox is always open.",
+      resumeNote: "The short version of my story",
     },
     nav: {
       toggleMenu: "Toggle menu",

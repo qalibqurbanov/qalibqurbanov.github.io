@@ -309,13 +309,15 @@ const az: Content = {
     contact: {
       headlineLead: "Gəlin birlikdə",
       headlineAccent: "yaxşı bir şey quraq.",
-      body: "Hazırda yeni imkanlara və maraqlı layihələrə açığam — backend, frontend və ya mobil. Sualınız varsa və ya sadəcə salam vermək istəyirsinizsə, qutum həmişə açıqdır.",
+      body: "Hazırda **yeni imkanlara** və **maraqlı layihələrə** açığam.",
       status: "Yeni işə açığam",
       openTo: ["Tam ştat","Freelance","Uzaqdan"],
       send: "Mesaj göndər",
       copy: "E-poçtu kopyala",
       copied: "Kopyalandı",
       emailLabel: "E-poçt",
+      writeNote: "Sualınız varsa və ya sadəcə salam vermək istəyirsinizsə — qutum həmişə açıqdır.",
+      resumeNote: "Hekayəmin qısa variantı",
     },
     nav: {
       toggleMenu: "Menyunu aç/bağla",

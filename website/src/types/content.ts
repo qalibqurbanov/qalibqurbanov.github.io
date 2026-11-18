@@ -142,6 +142,9 @@ export interface UiStrings {
     copy: string;
     copied: string;
     emailLabel: string;
+    /** The small lines under the rows: under "Send a message" (a question or just hello, the inbox is open), and under the résumé. */
+    writeNote: string;
+    resumeNote: string;
   };
   contactModal: {
     title: string;

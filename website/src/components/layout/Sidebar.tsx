@@ -17,6 +17,10 @@ import { useNotFound } from "@/lib/notFound";
 
 import { Avatar } from "./Avatar";
 
+/** How big everything in the card is, as a fraction of the size it was first drawn at (the picture, the name, the title, the buttons,
+ * the menu and the spaces between them all follow it). Lower it to make the whole card's contents smaller. */
+const SIZE = 0.88;
+
 /** One menu row is this tall (rem) and rows are this far apart. */
 const ROW = 2.25;
 const GAP = 0.25;
@@ -131,8 +135,8 @@ export function Sidebar() {
       const { width, height } = card.getBoundingClientRect();
       // The page's own text size follows the window (see base.css), so the card is measured in those units: the same card at any screen size.
       const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-      const scale = Math.min(height / (45.3 * rem), width / (23.75 * rem));
-      card.style.setProperty("--s", Math.max(0.5, Math.min(1.1, scale)).toFixed(3));
+      const scale = Math.min(height / (45.3 * rem), width / (23.75 * rem)) * SIZE;
+      card.style.setProperty("--s", Math.max(0.45, Math.min(1.1 * SIZE, scale)).toFixed(3));
     };
     fit();
     const watcher = new ResizeObserver(fit);
@@ -218,7 +222,7 @@ export function Sidebar() {
                 <a
                   href={item.href}
                   aria-current={on ? "page" : undefined}
-                  style={{ height: `max(1.5rem, calc(${ROW}rem * var(--s, 1)))` }}
+                  style={{ height: `max(1.5rem, calc(${ROW}rem * var(--s, 1)))`, fontSize: "max(0.8rem, calc(1.04rem * var(--s, 1)))" }}
                   className={`group relative grid grid-cols-[1rem_1fr] items-center gap-3 rounded-lg pl-3 pr-3 font-display text-[1rem] transition-colors duration-300 ${on ? "text-accent" : "text-muted hover:text-accent-2"}`}
                 >
                   {/* A thin bar on the left edge (half height when pointed at, full and glowing on the open page, in the row’s own colour),
@@ -250,16 +254,7 @@ export function Sidebar() {
         </ul>
 
         {/* What used to be in the top bar and the footer: the copyright, the settings and the two links about the site itself. */}
-        <span
-          className="mt-1 block h-px w-full"
-          style={{
-            // The colours of the card’s own background pools (magenta low on the left, the violet where cyan meets magenta, a cool blue), kept as soft as the glass around the line so it reads as part of it.
-            backgroundImage:
-              "linear-gradient(90deg, color-mix(in srgb, var(--color-accent-2) 30%, transparent), color-mix(in srgb, var(--color-accent-2) 30%, transparent) 26%, color-mix(in srgb, color-mix(in srgb, var(--color-accent) 40%, var(--color-accent-2)) 32%, transparent) 58%, color-mix(in srgb, var(--color-accent) 26%, transparent) 84%, color-mix(in srgb, var(--color-accent) 26%, transparent))",
-          }}
-          aria-hidden="true"
-        />
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 mt-0.5 border-t border-border pt-1">
           <p className="truncate text-[0.6875rem] text-muted">
             © {now.getFullYear()} {profile.name}
           </p>

@@ -28,7 +28,8 @@
   margin: 0;
   padding: 0 0 0 1.75rem;
   list-style: none;
-  --node-y: 13px;
+  /* The middle of a chapter title's first line (half of its line: 1.0625rem at a line height of 1.5), in rem so it follows the text size. */
+  --node-y: 0.797rem;
 }
 
 .chapter {
@@ -36,12 +37,13 @@
   padding-bottom: 1.6rem;
 }
 
-/* The rail is the same hairline as on the Experience page: one thin segment per chapter, starting at the first node
+/* The rail and the nodes sit on whole pixels (the text size scales with the window, so in rem they landed between pixels and the 1px rail
+   and the 11px node drew a little off each other). The rail is the same hairline as on the Experience page: one thin segment per chapter, starting at the first node
    and ending at the last, with a small hollow node on it that lights up under the pointer. */
 .chapter::after {
   content: "";
   position: absolute;
-  left: calc(-1.75rem + 5px);
+  left: calc(round(nearest, -1.75rem, 1px) + 5px);
   top: 0;
   bottom: 0;
   width: 1px;
@@ -66,8 +68,8 @@
   content: "";
   position: absolute;
   z-index: 1;
-  left: -1.75rem;
-  top: calc(var(--node-y) - 5.5px);
+  left: round(nearest, -1.75rem, 1px);
+  top: round(nearest, calc(var(--node-y) - 5.5px), 1px);
   width: 11px;
   height: 11px;
   box-sizing: border-box;
