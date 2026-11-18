@@ -1,6 +1,6 @@
-import { Briefcase, Bug, Cpu, FileText, FolderGit2, House, Mail, PenLine, Send, User } from "lucide-react";
+import { Briefcase, Bug, ChevronRight, Cpu, FileText, FolderGit2, House, Mail, PenLine, Send, User } from "lucide-react";
 import type { ComponentType, CSSProperties, PointerEvent } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 
 import avatarUrl from "@/assets/avatar.webp";
@@ -16,7 +16,6 @@ import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
 import { useNotFound } from "@/lib/notFound";
 
 import { Avatar } from "./Avatar";
-import { NavInk } from "./NavInk";
 
 /** One menu row is this tall (px) and rows are this far apart. */
 const ROW = 42;
@@ -24,12 +23,13 @@ const GAP = 6;
 
 const TOOL = "inline-flex h-7 w-7 cursor-pointer items-center justify-center text-muted transition-colors duration-200 hover:text-accent";
 
-/** The two buttons under the title: identical, flat and borderless. A faint tint of their colour (blue resume, purple message),
+/** The two buttons under the title: identical, flat and borderless. A faint tint of their colour (a soft blue resume, a soft violet message),
  * coloured text and icon, and a thin line under them that draws out to full width on hover. No frame, no glow, no lift. */
 const ACTION =
   "tap group relative inline-flex h-10 cursor-pointer items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-md px-3 font-mono text-[11px] font-medium uppercase tracking-[0.14em] transition-colors duration-300 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-center after:scale-x-50 after:opacity-40 after:transition-all after:duration-500 after:ease-out hover:after:scale-x-100 hover:after:opacity-100";
-const ACTION_BLUE = `${ACTION} bg-accent/8 text-accent after:bg-accent hover:bg-accent/14`;
-const ACTION_PURPLE = `${ACTION} bg-accent-2/8 text-accent-2 after:bg-accent-2 hover:bg-accent-2/14`;
+const TONE = "text-[var(--tone)] bg-[color-mix(in_srgb,var(--tone)_9%,transparent)] after:bg-[var(--tone)] hover:bg-[color-mix(in_srgb,var(--tone)_15%,transparent)]";
+const ACTION_BLUE = `${ACTION} tone-blue ${TONE}`;
+const ACTION_PURPLE = `${ACTION} tone-violet ${TONE}`;
 type Icon = ComponentType<{ size?: number; className?: string }>;
 
 /** Each page has a small line icon of its own, in front of its name. */
@@ -46,7 +46,7 @@ const PAGE_ICONS: Record<string, Icon> = {
 /** The fixed identity column of the desktop layout: my picture, name and title with the two ways to reach me,
  * the numbered pages, and the social links, all on one centre line, on a floating glass card. The card has film
  * grain, a comet of light that circles its rim, a glow that follows the pointer (rim and surface), and a quick lap
- * of light each time the page changes. Each page has a small icon, and the open page is brighter; a pen line is written beside the open page and the page that is pointed at (see NavInk). */
+ * of light each time the page changes. Each page has a small icon, and the open page is brighter and has a blue circle on its right; a page that is pointed at gets a purple arrow there. */
 export function Sidebar() {
   const { profile, navigation, socials, ui } = useContent();
   const page = usePage();
@@ -55,6 +55,71 @@ export function Sidebar() {
   const now = useClock();
   const [lap, setLap] = useState(0);
   useEffect(() => setLap((value) => value + 1), [page]);
+
+  // The colour in the name, and in the title under it, is still until that line is pointed at. Then its blend slowly turns to a random
+  // direction and drifts along the line, and when the pointer leaves it settles back to rest. How far it has turned and drifted is eased in
+  // and out (about a second and a half each way), so it starts and ends softly and always comes to rest exactly where it began. The two
+  // lines move on their own, each in its own random direction.
+  const nameRef = useRef<HTMLParagraphElement>(null);
+  const titleRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const stops: (() => void)[] = [];
+    for (const el of [nameRef.current, titleRef.current]) {
+      if (!el) continue;
+      const measure = () => {
+        if (el.offsetWidth > 0) el.style.setProperty("--name-w", `${el.offsetWidth}px`);
+      };
+      measure();
+      const sizeWatcher = new ResizeObserver(measure);
+      sizeWatcher.observe(el);
+      const SPEED = 0.5;
+      let frame = 0;
+      let last = 0;
+      let amount = 0;
+      let target = 0;
+      let phase = 0;
+      let turn = 0;
+      const tick = (now: number) => {
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        amount += (target - amount) * (1 - Math.exp(-dt * 1.3));
+        phase += dt * SPEED;
+        if (target === 0 && amount < 0.002) {
+          el.style.setProperty("--flow-f", "0");
+          el.style.setProperty("--flow-ang", "90deg");
+          frame = 0;
+          return;
+        }
+        el.style.setProperty("--flow-f", (Math.sin(phase) * amount * 0.7).toFixed(4));
+        el.style.setProperty("--flow-ang", `${(90 + amount * (turn + 18 * Math.sin(phase * 0.6))).toFixed(2)}deg`);
+        frame = requestAnimationFrame(tick);
+      };
+      const enter = () => {
+        target = 1;
+        if (amount < 0.002) {
+          phase = Math.random() * Math.PI * 2;
+          turn = (Math.random() < 0.5 ? -1 : 1) * (45 + Math.random() * 75);
+        }
+        if (!frame) {
+          last = performance.now();
+          frame = requestAnimationFrame(tick);
+        }
+      };
+      const leave = () => {
+        target = 0;
+      };
+      el.addEventListener("pointerenter", enter);
+      el.addEventListener("pointerleave", leave);
+      stops.push(() => {
+        el.removeEventListener("pointerenter", enter);
+        el.removeEventListener("pointerleave", leave);
+        cancelAnimationFrame(frame);
+        sizeWatcher.disconnect();
+      });
+    }
+    return () => stops.forEach((stop) => stop());
+  }, []);
 
   // The glow under the pointer follows the pointer, on the card's surface and on its rim (--mx, --my). The card itself
   // does not move: it stays flat whatever the pointer does.
@@ -93,10 +158,10 @@ export function Sidebar() {
         <a href="#links" aria-label={ui.links.title} className="rounded-full">
           <Avatar src={avatarUrl} alt={profile.name} />
         </a>
-        <p aria-label={profile.name} className={`text-flow mt-3 font-display font-semibold text-3xl leading-tight tracking-tight`}>
+        <p ref={nameRef} aria-label={profile.name} className={`name-tone mt-3 font-display font-semibold text-3xl leading-tight tracking-tight`}>
           <ScrambleText text={profile.name} playOnMount={false} duration={700} />
         </p>
-        <p className="text-sweep mt-1.5 font-mono text-[11px] uppercase tracking-[0.18em]">{profile.headline}</p>
+        <p ref={titleRef} className="title-tone mt-1.5 font-mono text-[11px] uppercase tracking-[0.18em]">{profile.headline}</p>
         <div className="mt-5 grid w-full max-w-64 grid-cols-2 gap-2.5">
           {hasResume && (
             <a href={resumeHref(page)} className={ACTION_BLUE}>
@@ -114,11 +179,7 @@ export function Sidebar() {
       {/* Middle: the menu, centred in the space between the top and the bottom. */}
       <div className="flex min-h-0 flex-1 items-center justify-center py-4">
       <nav aria-label={ui.nav.primary} className="w-full max-w-64">
-        {/* A small caption over the list: just the word, centred. */}
-        <p className="mb-3 text-center font-mono text-[10px] uppercase tracking-[0.24em] text-muted" aria-hidden="true">
-          {ui.nav.menu}
-        </p>
-        <ul className="nav-rail flex flex-col" style={{ gap: GAP }}>
+        <ul className="nav-rail mx-auto flex w-max flex-col" style={{ gap: GAP }}>
           {navigation.map((item, index) => {
             const on = !notFound && item.href === `#${page}`;
             const PageIcon = PAGE_ICONS[item.href] ?? House;
@@ -128,14 +189,16 @@ export function Sidebar() {
                   href={item.href}
                   aria-current={on ? "page" : undefined}
                   style={{ height: ROW }}
-                  className={`group relative grid grid-cols-[1.25rem_1fr] items-center gap-3 rounded-lg pl-2 pr-2 font-display text-[16px] transition-colors duration-300 ${on ? "text-accent" : "text-muted hover:text-accent-2"}`}
+                  className={`group relative grid grid-cols-[1rem_1fr] items-center gap-3 rounded-lg pl-3 pr-3 font-display text-[16px] transition-colors duration-300 ${on ? "text-accent" : "text-muted hover:text-accent-2"}`}
                 >
-                  <PageIcon size={16} className={`transition-all duration-300 group-hover:scale-110 ${on ? "drop-shadow-[0_0_6px_var(--color-accent)]" : ""}`} />
-                  {/* The word, with the line that is written out beside it on the open page and on a page that is pointed at: one stroke that comes in from the right, goes round the word in a marker circle, runs on into a scribble, a loop and a tail, and ends in a small circle (open page) or an arrowhead (pointed at). */}
-                  <span className={`nav-text relative text-left ${on ? "font-semibold" : "font-medium"}`}>
-                    {item.label}
-                    <NavInk index={index} />
+                  {/* A thin bar on the left edge (half height when pointed at, full and glowing on the open page, in the row’s own colour),
+                      and the page icon that slides away to leave a chevron in its place only while the row is pointed at. */}
+                  <span className="nav-bar" aria-hidden="true" />
+                  <span className="nav-ico" aria-hidden="true">
+                    <PageIcon size={16} className="nav-ico-page" />
+                    <ChevronRight size={16} strokeWidth={1.75} className="nav-ico-arrow" />
                   </span>
+                  <span className={`text-left ${on ? "font-semibold" : "font-medium"}`}>{item.label}</span>
                 </a>
               </li>
             );
@@ -159,7 +222,11 @@ export function Sidebar() {
         {/* What used to be in the top bar and the footer: the copyright, the settings and the two links about the site itself. */}
         <span
           className="mt-1 block h-px w-full"
-          style={{ backgroundImage: "linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 60%, transparent), color-mix(in srgb, var(--color-accent-2) 60%, transparent))" }}
+          style={{
+            // The colours of the card’s own background pools (magenta low on the left, the violet where cyan meets magenta, a cool blue), kept as soft as the glass around the line so it reads as part of it.
+            backgroundImage:
+              "linear-gradient(90deg, color-mix(in srgb, var(--color-accent-2) 30%, transparent), color-mix(in srgb, var(--color-accent-2) 30%, transparent) 26%, color-mix(in srgb, color-mix(in srgb, var(--color-accent) 40%, var(--color-accent-2)) 32%, transparent) 58%, color-mix(in srgb, var(--color-accent) 26%, transparent) 84%, color-mix(in srgb, var(--color-accent) 26%, transparent))",
+          }}
           aria-hidden="true"
         />
         <div className="flex items-center justify-between gap-2">

@@ -70,37 +70,59 @@
   opacity: 1;
 }
 
-/* Text with colour moving through it. The name stays its own colour while a band of cyan and magenta slowly passes along it;
-   the title stays muted while a cyan highlight passes along. The tile is repeated, so the band comes round again without a seam. */
-.text-flow {
-  background: linear-gradient(90deg, var(--color-text) 0%, var(--color-text) 30%, var(--color-accent) 46%, var(--color-accent-2) 56%, var(--color-text) 72%, var(--color-text) 100%);
-  background-size: 340px 100%;
-  background-repeat: repeat-x;
+/* The name and the title under it share one blend: blue for the first quarter of the word, violet for the middle half, blue for the last quarter,
+   with eased, soft changes between them, and still when left alone. The name uses the card’s soft blue and soft violet (the same as the Resume and
+   Message buttons); the title uses quieter, lower versions of the same two (each mixed half and half with the muted grey). --name-w is the width of the word (set in Sidebar), so the blend always spans
+   exactly the word. When the name, or the title, is pointed at, its blend slowly turns to a random direction and drifts along the word (--flow-ang is the direction
+   and --flow-f how far it has drifted, as a fraction of the word; both are eased in and out in Sidebar), and when the pointer leaves it settles back, gently. */
+@property --flow-f {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --flow-ang {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 90deg;
+}
+
+.name-tone {
+  --tone-1: var(--soft-blue);
+  --tone-2: var(--soft-violet);
+}
+
+.title-tone {
+  --tone-1: color-mix(in srgb, var(--soft-blue) 52%, var(--color-muted));
+  --tone-2: color-mix(in srgb, var(--soft-violet) 52%, var(--color-muted));
+}
+
+.name-tone,
+.title-tone {
+  background-image: repeating-linear-gradient(
+    in oklab var(--flow-ang),
+    var(--tone-1) calc(var(--name-w, 240px) * (0 + var(--flow-f))),
+    var(--tone-1) calc(var(--name-w, 240px) * (0.125 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-2) 4%, var(--tone-1)) calc(var(--name-w, 240px) * (0.1563 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-2) 16%, var(--tone-1)) calc(var(--name-w, 240px) * (0.1875 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-2) 32%, var(--tone-1)) calc(var(--name-w, 240px) * (0.2188 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-2) 50%, var(--tone-1)) calc(var(--name-w, 240px) * (0.25 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-2) 68%, var(--tone-1)) calc(var(--name-w, 240px) * (0.2813 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-2) 84%, var(--tone-1)) calc(var(--name-w, 240px) * (0.3125 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-2) 96%, var(--tone-1)) calc(var(--name-w, 240px) * (0.3438 + var(--flow-f))),
+    var(--tone-2) calc(var(--name-w, 240px) * (0.375 + var(--flow-f))),
+    var(--tone-2) calc(var(--name-w, 240px) * (0.625 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-1) 4%, var(--tone-2)) calc(var(--name-w, 240px) * (0.6563 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-1) 16%, var(--tone-2)) calc(var(--name-w, 240px) * (0.6875 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-1) 32%, var(--tone-2)) calc(var(--name-w, 240px) * (0.7188 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-1) 50%, var(--tone-2)) calc(var(--name-w, 240px) * (0.75 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-1) 68%, var(--tone-2)) calc(var(--name-w, 240px) * (0.7813 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-1) 84%, var(--tone-2)) calc(var(--name-w, 240px) * (0.8125 + var(--flow-f))),
+    color-mix(in oklab, var(--tone-1) 96%, var(--tone-2)) calc(var(--name-w, 240px) * (0.8438 + var(--flow-f))),
+    var(--tone-1) calc(var(--name-w, 240px) * (0.875 + var(--flow-f))),
+    var(--tone-1) calc(var(--name-w, 240px) * (1 + var(--flow-f)))
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: text-pass 7s linear infinite;
-}
-
-.text-sweep {
-  background: linear-gradient(90deg, var(--color-muted) 0%, var(--color-muted) 38%, var(--color-accent) 50%, var(--color-muted) 62%, var(--color-muted) 100%);
-  background-size: 260px 100%;
-  background-repeat: repeat-x;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: text-pass 5s linear infinite;
-}
-
-@keyframes text-pass {
-  to {
-    background-position: 340px 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .text-flow,
-  .text-sweep {
-    animation: none;
-  }
 }

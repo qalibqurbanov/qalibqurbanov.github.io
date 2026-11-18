@@ -23,9 +23,32 @@
   opacity: 0.07;
 }
 
-/* The glass card shows its colours: the drifting blobs are stronger, and a tint sits in the glass. */
-[data-theme="light"] .card-mesh i {
-  opacity: 0.62;
+/* The glass card shows its colours the way it does in the dark theme (a teal glow high on the left, a violet one in the middle, a pink one low
+   down): the dark theme’s glows are faint tints on a dark glass, which would vanish on a white one, so here each is mixed in much stronger. */
+[data-theme="light"] .card-mesh i:nth-child(1) {
+  background: color-mix(in srgb, var(--color-accent) 46%, transparent);
+  opacity: 1;
+}
+
+[data-theme="light"] .card-mesh i:nth-child(2) {
+  background: color-mix(in srgb, #8b5cf6 55%, var(--color-accent-2) 45%);
+  opacity: 0.55;
+}
+
+[data-theme="light"] .card-mesh i:nth-child(3) {
+  background: color-mix(in srgb, var(--color-accent-2) 44%, transparent);
+  opacity: 1;
+}
+
+/* The two buttons under the title carry a stronger tint of their colour on white, like the dark theme’s. */
+[data-theme="light"] .tone-blue:not(:hover),
+[data-theme="light"] .tone-violet:not(:hover) {
+  background-color: color-mix(in srgb, var(--tone) 17%, transparent);
+}
+
+[data-theme="light"] .tone-blue:hover,
+[data-theme="light"] .tone-violet:hover {
+  background-color: color-mix(in srgb, var(--tone) 26%, transparent);
 }
 
 [data-theme="light"] .side-card {
@@ -60,4 +83,16 @@
 /* The scrollbar-less edge of the figures: outlines in the page's own ink keep their weight on white. */
 [data-theme="light"] .stat-figure {
   -webkit-text-stroke-width: 1.6px;
+}
+
+/* The name, the title and the two buttons use deeper versions of the same blue and violet on white, so their letters stay readable on the
+   coloured glass (the dark theme’s soft tones are light colours made for a dark page). */
+[data-theme="light"] .side-card {
+  --soft-blue: color-mix(in srgb, var(--color-accent) 74%, var(--color-text));
+  --soft-violet: color-mix(in srgb, #7c3aed 76%, var(--color-text));
+}
+
+[data-theme="light"] .title-tone {
+  --tone-1: color-mix(in srgb, var(--soft-blue) 82%, var(--color-muted));
+  --tone-2: color-mix(in srgb, var(--soft-violet) 82%, var(--color-muted));
 }

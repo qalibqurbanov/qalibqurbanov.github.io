@@ -19,40 +19,52 @@
   isolation: isolate;
   border-radius: 20px;
   border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
-  /* A little depth, so the card reads as a separate slab lifted off the page: a lit top edge and a faint sheen above,
-     a shade toward the bottom, and the pointer's glow over both. */
+  /* A real slab, clearly lifted off the page: a bright lit rim along the top and left, a light that falls off toward the bottom, a thick dark
+     lip under the edge (its thickness), a dark outline that cuts it from the background, and shadows that start tight and dark, then
+     stretch out wide and deep. Inside, the top glows and the bottom is shaded, so the face looks gently domed. */
   background:
     radial-gradient(190px circle at var(--mx) var(--my), color-mix(in srgb, var(--color-accent) calc(var(--hover) * 10%), transparent), transparent 70%),
-    linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 28%, transparent 70%, rgb(0 0 0 / 0.18)),
-    color-mix(in srgb, var(--color-surface) 58%, transparent);
+    linear-gradient(180deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.02) 26%, transparent 55%, rgb(0 0 0 / 0.3)),
+    color-mix(in srgb, var(--color-surface) 64%, transparent);
   backdrop-filter: blur(24px) saturate(1.1);
   box-shadow:
-    /* the card's own edge: a lit rim on top, a dark one under it */
-    inset 0 1px 0 rgb(255 255 255 / 0.16),
-    inset 0 -1px 0 rgb(0 0 0 / 0.4),
-    inset 1px 0 0 rgb(255 255 255 / 0.05),
-    /* the shadows it casts: tight and dark where it touches, then wider and softer as it lifts away */
-    0 0 0 1px rgb(0 0 0 / 0.32),
-    0 2px 3px rgb(0 0 0 / 0.4),
-    0 6px 0 -3px rgb(0 0 0 / 0.3),
-    0 18px 30px -10px rgb(0 0 0 / 0.6),
-    0 44px 80px -24px rgb(0 0 0 / 0.8),
-    0 70px 120px -40px rgb(0 0 0 / 0.55);
+    /* the card’s own edge */
+    inset 0 1.5px 0 rgb(255 255 255 / 0.26),
+    inset 1px 0 0 rgb(255 255 255 / 0.1),
+    inset -1px 0 0 rgb(255 255 255 / 0.03),
+    inset 0 -1.5px 0 rgb(0 0 0 / 0.55),
+    /* the face: lit at the top, shaded at the bottom */
+    inset 0 28px 44px -30px rgb(255 255 255 / 0.12),
+    inset 0 -36px 50px -26px rgb(0 0 0 / 0.4),
+    /* a dark outline and the thickness of the slab */
+    0 0 0 1px rgb(0 0 0 / 0.55),
+    0 1px 0 1px rgb(255 255 255 / 0.04),
+    0 4px 0 -1px rgb(0 0 0 / 0.55),
+    /* the shadows it casts, tight and dark first, then wide and deep */
+    0 3px 5px rgb(0 0 0 / 0.5),
+    0 12px 20px -6px rgb(0 0 0 / 0.65),
+    0 30px 48px -14px rgb(0 0 0 / 0.75),
+    0 64px 104px -26px rgb(0 0 0 / 0.9),
+    0 90px 150px -40px rgb(0 0 0 / 0.65);
   transition: --hover 0.45s ease;
 }
 
 [data-theme="light"] .side-card {
   background:
     radial-gradient(190px circle at var(--mx) var(--my), color-mix(in srgb, var(--color-accent) calc(var(--hover) * 10%), transparent), transparent 70%),
-    linear-gradient(180deg, rgb(255 255 255 / 0.7), transparent 30%, transparent 72%, rgb(30 30 80 / 0.06)),
-    color-mix(in srgb, var(--color-surface) 70%, transparent);
+    linear-gradient(180deg, rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.12) 30%, transparent 62%, rgb(30 30 80 / 0.1)),
+    color-mix(in srgb, var(--color-surface) 52%, transparent);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.95),
-    inset 0 -1px 0 rgb(30 30 80 / 0.1),
-    0 0 0 1px rgb(30 30 80 / 0.08),
-    0 2px 3px rgb(30 30 80 / 0.1),
-    0 12px 22px -8px rgb(30 30 80 / 0.18),
-    0 34px 64px -22px rgb(30 30 80 / 0.3);
+    inset 0 1.5px 0 rgb(255 255 255 / 1),
+    inset 1px 0 0 rgb(255 255 255 / 0.7),
+    inset 0 -1.5px 0 rgb(30 30 80 / 0.16),
+    inset 0 -30px 44px -28px rgb(30 30 80 / 0.1),
+    0 0 0 1px rgb(30 30 80 / 0.14),
+    0 4px 0 -1px rgb(30 30 80 / 0.12),
+    0 3px 5px rgb(30 30 80 / 0.14),
+    0 14px 26px -8px rgb(30 30 80 / 0.24),
+    0 40px 72px -22px rgb(30 30 80 / 0.38),
+    0 80px 120px -40px rgb(30 30 80 / 0.28);
 }
 
 /* Film grain: fine noise over the card only (content included), flickering a few times a second. */
@@ -220,132 +232,134 @@
   border-radius: 0;
 }
 
-/* The menu list: the pen lines (below) are positioned against its rows. */
-.nav-rail {
-  position: relative;
-}
-
-/* The ink: ONE stroke (see NavInk.tsx), written out on the open page and on a page that is pointed at. It comes in from
-   the right, goes round the word in a hand-drawn marker circle, runs on into a cursive scribble, a loop and a tail, and ends
-   in a small circle (open page) or an arrowhead (pointed at) that the pen draws too. It is all one path, drawn at one even pace, with one colour running along
-   it, so nothing in it is a separate piece. There are two versions of the path, one per ending; only the one that belongs
-   to the row's state is shown. */
-.nav-text {
-  /* Only as wide as the word itself (it is a grid cell, which would stretch it), so the circle fits the word. */
-  justify-self: start;
-  white-space: nowrap;
-}
-
-.nav-ink {
+/* The menu's markers, on the right of a row: a blue circle on the open page, and a purple arrow that slides in on a page that
+   is pointed at. Nothing is drawn along the row. */
+.nav-dot,
+.nav-arrow {
   position: absolute;
-  left: 0;
-  top: 0;
-  overflow: visible;
+  top: 50%;
   pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.nav-main,
-.nav-ghost {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.nav-dot {
+  right: 12px;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-accent);
   opacity: 0;
+  transform: scale(0);
 }
 
-.nav-main {
-  stroke-width: 1.4;
-  stroke-dasharray: var(--len, 0);
-  stroke-dashoffset: var(--len, 0);
+.nav-arrow {
+  right: 8px;
+  margin-top: -8px;
+  color: var(--color-accent-2);
+  opacity: 0;
+  transform: translateX(-8px);
 }
 
-/* The colour along the line: from --ink-a (cyan on the open page, magenta on a pointed-at one) to magenta, in five steps
-   mixed in a perceptual space, so the middle is a clean violet and not a muddy grey. These are fixed colours, not the row's
-   own text colour, which is still fading in when the line starts. */
-.nav-rail a[aria-current="page"] .nav-ink {
-  --gdur: var(--gdur-on);
-  --gdelay: var(--gdelay-on);
-  --ink-a: var(--color-accent);
-  --ink-op: 0.9;
+.nav-rail a[aria-current="page"] .nav-dot {
+  opacity: 1;
+  transform: scale(1);
 }
 
-.nav-rail a:not([aria-current="page"]):hover .nav-ink {
-  --gdur: var(--gdur-hv);
-  --gdelay: var(--gdelay-hv);
-  --ink-a: var(--color-accent-2);
-  --ink-op: 0.85;
-}
-
-.nav-stop-0 {
-  stop-color: var(--ink-a, var(--color-accent));
-}
-
-.nav-stop-25 {
-  stop-color: color-mix(in oklab, var(--ink-a, var(--color-accent)) 75%, var(--color-accent-2));
-}
-
-.nav-stop-50 {
-  stop-color: color-mix(in oklab, var(--ink-a, var(--color-accent)) 50%, var(--color-accent-2));
-}
-
-.nav-stop-75 {
-  stop-color: color-mix(in oklab, var(--ink-a, var(--color-accent)) 25%, var(--color-accent-2));
-}
-
-.nav-stop-100 {
-  stop-color: var(--color-accent-2);
-}
-
-/* How long the line takes to write: its length over a pace (set on each path), so a long line is not written faster than
-   a short one. */
-.nav-rail a[aria-current="page"] .nav-main-on,
-.nav-rail a:not([aria-current="page"]):hover .nav-main-hv {
-  opacity: var(--ink-op);
-  animation: nav-draw var(--dur) linear both;
-}
-
-/* The ghost: a short stretch of the scribble once more, a little lower, thin and faint, written just behind the main line. */
-.nav-ghost {
-  stroke: var(--color-accent-2);
-  stroke-width: 1;
-  stroke-dasharray: var(--glen, 0);
-  stroke-dashoffset: var(--glen, 0);
-}
-
-.nav-rail a[aria-current="page"] .nav-ghost,
-.nav-rail a:not([aria-current="page"]):hover .nav-ghost {
-  animation: nav-ghost var(--gdur) linear var(--gdelay) both;
-}
-
-.nav-rail a[aria-current="page"] .nav-ghost {
-  opacity: 0.55;
-}
-
-.nav-rail a:not([aria-current="page"]):hover .nav-ghost {
-  opacity: 0.4;
-}
-
-@keyframes nav-draw {
-  from {
-    stroke-dashoffset: var(--len);
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes nav-ghost {
-  from {
-    stroke-dashoffset: var(--glen);
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
+.nav-rail a:not([aria-current="page"]):hover .nav-arrow,
+.nav-rail a:not([aria-current="page"]):focus-visible .nav-arrow {
+  opacity: 1;
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav-rail .nav-main,
-  .nav-rail .nav-ghost {
-    animation-duration: 0.01ms !important;
-    animation-delay: 0s !important;
+  .nav-dot,
+  .nav-arrow {
+    transition: none;
   }
+}/* The menu rows. A thin bar on the left edge in the row’s own colour (blue on the open page, purple when pointed at): half height when
+   pointed at, full height with a glow on the open page. The page icon slides away to the left and a chevron slides in to take its place,
+   only while a row is pointed at (the open page keeps its own icon otherwise). */
+.nav-bar {
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: scaleY(0);
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.3s ease;
+  pointer-events: none;
+}
+
+.nav-ico {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+}
+
+.nav-ico-page,
+.nav-ico-arrow {
+  grid-area: 1 / 1;
+  transition:
+    opacity 0.3s ease,
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.nav-ico-arrow {
+  opacity: 0;
+  transform: translateX(14px);
+}
+
+.nav-rail a:hover .nav-bar,
+.nav-rail a:focus-visible .nav-bar {
+  transform: scaleY(0.5);
+}
+
+.nav-rail a[aria-current="page"] .nav-bar {
+  transform: scaleY(1);
+  box-shadow: 0 0 10px currentColor;
+}
+
+.nav-rail a:hover .nav-ico-page,
+.nav-rail a:focus-visible .nav-ico-page {
+  opacity: 0;
+  transform: translateX(-14px);
+}
+
+.nav-rail a:hover .nav-ico-arrow,
+.nav-rail a:focus-visible .nav-ico-arrow {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-bar,
+  .nav-ico-page,
+  .nav-ico-arrow {
+    transition: none;
+  }
+}
+
+/* The card’s two soft tones, used by the name and by the two buttons under it: the site’s blue (CV) and its violet (message), each mixed 70/30
+   with the muted grey, so they sit quietly in the glass. */
+.side-card {
+  --soft-blue: color-mix(in srgb, var(--color-accent) 70%, var(--color-muted));
+  --soft-violet: color-mix(in srgb, #8b5cf6 70%, var(--color-muted));
+}
+
+.tone-blue {
+  --tone: var(--soft-blue);
+}
+
+.tone-violet {
+  --tone: var(--soft-violet);
 }
