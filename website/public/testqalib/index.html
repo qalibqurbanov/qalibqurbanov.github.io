@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Qalib Qurbanov — film grain, with and without</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @property --ang { syntax: "<angle>"; inherits: true; initial-value: 115deg; }
+  @property --p   { syntax: "<length>"; inherits: true; initial-value: 0px; }
+
+  /* The site's own colours (tokens.css, dark theme) */
+  :root { color-scheme: dark;
+    --bg:#0a0a12; --surface:#11111c; --border:#2a2a40; --text:#e9e9f5; --muted:#9494b0;
+    --cyan:#00e5ff; --magenta:#ff2e97; --violet:#8b5cf6; --green:#2ee6a6; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; padding: 48px 16px 80px; }
+  header, #result { max-width: 1100px; margin: 0 auto; }
+  header { margin-bottom: 28px; }
+  h1 { font-size: clamp(22px, 3vw, 28px); font-weight: 500; }
+  header p { color: var(--muted); margin-top: 8px; font-size: 15px; max-width: 70ch; }
+  .rows { max-width: 1100px; margin: 0 auto; display: grid; gap: 22px; }
+  .row h2 { font: 500 12px "JetBrains Mono", monospace; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .row h2 i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .pair { grid-template-columns: 1fr; } }
+  .card { position: relative; min-height: 170px; display: grid; place-items: center; padding: 40px 12px 44px; background: var(--surface); border: 1px solid rgba(255,255,255,.07); border-radius: 20px; cursor: pointer; transition: border-color .25s; }
+  .card:hover { border-color: rgba(255,255,255,.2); }
+  .card.picked { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
+  .tag { position: absolute; top: 14px; left: 16px; font: 500 11px "JetBrains Mono", monospace; letter-spacing: .14em; color: var(--muted); }
+  #result { margin-top: 24px; color: var(--muted); font-size: 14px; min-height: 20px; } #result b { color: #fff; font-weight: 500; }
+
+  /* The name: exactly the sidebar's. Only the colour inside the letters moves. */
+  .nm { font-family: "Exo 2", Inter, sans-serif; font-weight: 600; font-size: 30px; line-height: 1.15; letter-spacing: -.025em; white-space: nowrap; text-align: center;
+        -webkit-background-clip: text; background-clip: text; color: transparent; animation: slide 12s linear infinite, rot 50s linear infinite; }
+  .nm.grain { animation: slide 12s linear infinite, rot 50s linear infinite, jit .9s steps(1) infinite; }
+  @media (prefers-reduced-motion: reduce) { .nm { animation: none !important; } }
+
+  @keyframes slide { from { --p: 0px; } to { --p: 360px; } }
+  @keyframes rot   { from { --ang: 0deg; } to { --ang: 360deg; } }
+  @keyframes jit   { 0% { background-position: 0 0, 0 0; } 20% { background-position: -37px 21px, 0 0; } 40% { background-position: 53px -44px, 0 0; } 60% { background-position: -18px -62px, 0 0; } 80% { background-position: 71px 33px, 0 0; } 100% { background-position: 0 0, 0 0; } }
+
+  /* grain layer (same as option 12 before) */
+  .nm.grain { background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1.4 -.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      var(--fill);
+    background-size: 160px 160px, auto; background-blend-mode: overlay, normal; }
+  .nm.clean { background-image: var(--fill); }
+
+  /* three palettes, built only from the site's colours; first stop = last stop so the loop has no seam */
+  .v1 { --fill: repeating-linear-gradient(var(--ang), #00e5ff calc(var(--p)), #8b5cf6 calc(var(--p) + 120px), #ff2e97 calc(var(--p) + 240px), #8b5cf6 calc(var(--p) + 300px), #00e5ff calc(var(--p) + 360px)); }
+  .v2 { --fill: repeating-linear-gradient(var(--ang), #8b5cf6 calc(var(--p)), #00e5ff calc(var(--p) + 90px), #8b5cf6 calc(var(--p) + 180px), #ff2e97 calc(var(--p) + 270px), #8b5cf6 calc(var(--p) + 360px)); }
+  .v3 { --fill: repeating-linear-gradient(var(--ang), #e9e9f5 calc(var(--p)), #00e5ff calc(var(--p) + 100px), #8b5cf6 calc(var(--p) + 190px), #ff2e97 calc(var(--p) + 270px), #e9e9f5 calc(var(--p) + 360px)); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Qalib Qurbanov — film grain, with and without</h1>
+  <p>Left is clean, right has live film grain. Colours are only the site's own: cyan, violet and magenta. Both sides in a row flow the same way so you can compare; direction and start are random on every reload. Click a card to pick it.</p>
+</header>
+
+<main class="rows">
+  <section class="row">
+    <h2>A · Neon spectrum <i style="background:#00e5ff"></i><i style="background:#8b5cf6"></i><i style="background:#ff2e97"></i></h2>
+    <div class="pair">
+      <div class="card" data-name="A clean"><span class="tag">A · no grain</span><div class="nm v1 clean">Qalib Qurbanov</div></div>
+      <div class="card" data-name="A grain"><span class="tag">A · grain</span><div class="nm v1 grain">Qalib Qurbanov</div></div>
+    </div>
+  </section>
+  <section class="row">
+    <h2>B · Violet night <i style="background:#8b5cf6"></i><i style="background:#00e5ff"></i><i style="background:#ff2e97"></i></h2>
+    <div class="pair">
+      <div class="card" data-name="B clean"><span class="tag">B · no grain</span><div class="nm v2 clean">Qalib Qurbanov</div></div>
+      <div class="card" data-name="B grain"><span class="tag">B · grain</span><div class="nm v2 grain">Qalib Qurbanov</div></div>
+    </div>
+  </section>
+  <section class="row">
+    <h2>C · Soft glass <i style="background:#e9e9f5"></i><i style="background:#00e5ff"></i><i style="background:#8b5cf6"></i><i style="background:#ff2e97"></i></h2>
+    <div class="pair">
+      <div class="card" data-name="C clean"><span class="tag">C · no grain</span><div class="nm v3 clean">Qalib Qurbanov</div></div>
+      <div class="card" data-name="C grain"><span class="tag">C · grain</span><div class="nm v3 grain">Qalib Qurbanov</div></div>
+    </div>
+  </section>
+</main>
+<p id="result"></p>
+
+<script>
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+  // One random start and direction per row, shared by both sides so they stay comparable.
+  document.querySelectorAll(".pair").forEach(function (pair) {
+    var d1 = -rnd(0, 12).toFixed(2) + "s", d2 = -rnd(0, 50).toFixed(2) + "s";
+    var dir1 = Math.random() < .5 ? "reverse" : "normal", dir2 = Math.random() < .5 ? "reverse" : "normal";
+    pair.querySelectorAll(".nm").forEach(function (el) {
+      var grain = el.classList.contains("grain");
+      el.style.animationDelay = d1 + "," + d2 + (grain ? ",0s" : "");
+      el.style.animationDirection = dir1 + "," + dir2 + (grain ? ",normal" : "");
+    });
+  });
+  var cards = document.querySelectorAll(".card"), out = document.getElementById("result");
+  cards.forEach(function (c) {
+    c.addEventListener("click", function () {
+      cards.forEach(function (x) { x.classList.remove("picked"); }); c.classList.add("picked");
+      out.innerHTML = "Selected: <b>" + c.dataset.name + "</b>";
+    });
+  });
+</script>
+</body>
+</html>
