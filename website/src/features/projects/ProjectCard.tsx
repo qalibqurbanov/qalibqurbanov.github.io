@@ -20,7 +20,7 @@ const ACTION = "tap relative z-10 inline-flex items-center gap-1.5 px-3 py-1.5 t
  * and the live repository figures along the bottom. The whole card opens the case study. */
 export function ProjectCard({ project }: ProjectCardProps) {
   const { ui } = useContent();
-  const download = isDownloadUrl(project.liveUrl);
+  const download = project.liveUrl ? isDownloadUrl(project.liveUrl) : false;
 
   return (
     <Reveal style={{ viewTransitionName: `project-${project.slug}` }} className="h-full">
@@ -43,17 +43,19 @@ export function ProjectCard({ project }: ProjectCardProps) {
           )}
 
           <div className="mt-auto flex flex-wrap gap-2 pt-5">
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={format(download ? ui.labels.download : ui.labels.liveDemo, { title: project.title })}
-              className={`${ACTION} btn-solid`}
-            >
-              {download ? <Download size={13} /> : <ExternalLink size={13} />}
-              {download ? ui.labels.downloadButton : ui.labels.liveDemoButton}
-            </a>
-            <a href={project.repoUrl} target="_blank" rel="noreferrer" aria-label={format(ui.labels.repository, { title: project.title })} className={`${ACTION} btn-line`}>
+            {project.liveUrl && (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={format(download ? ui.labels.download : ui.labels.liveDemo, { title: project.title })}
+                className={`${ACTION} btn-solid`}
+              >
+                {download ? <Download size={13} /> : <ExternalLink size={13} />}
+                {download ? ui.labels.downloadButton : ui.labels.liveDemoButton}
+              </a>
+            )}
+            <a href={project.repoUrl} target="_blank" rel="noreferrer" aria-label={format(ui.labels.repository, { title: project.title })} className={`${ACTION} ${project.liveUrl ? "btn-line" : "btn-solid"}`}>
               <GithubIcon size={13} />
               {ui.projectDetail.viewRepo}
             </a>

@@ -51,7 +51,7 @@ function ProjectPanel({ project, onClose }: { project: Project; onClose: () => v
   const next = count > 1 ? projects[(index + 1) % count] : null;
   const prevSlug = prev?.slug;
   const nextSlug = next?.slug;
-  const download = isDownloadUrl(project.liveUrl);
+  const download = project.liveUrl ? isDownloadUrl(project.liveUrl) : false;
 
   useEffect(() => () => window.clearTimeout(copyTimer.current), []);
 
@@ -156,14 +156,16 @@ function ProjectPanel({ project, onClose }: { project: Project; onClose: () => v
             <div className="mt-1 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <h1 className="min-w-0 flex-1 text-3xl font-semibold tracking-tight">{project.title}</h1>
               <div className="flex shrink-0 flex-wrap gap-3">
-                <a href={project.repoUrl} target="_blank" rel="noreferrer" className={`${BUTTON} btn-line`}>
+                <a href={project.repoUrl} target="_blank" rel="noreferrer" className={`${BUTTON} ${project.liveUrl ? "btn-line" : "btn-solid"}`}>
                   <GithubIcon size={16} />
                   {ui.projectDetail.viewRepo}
                 </a>
-                <a href={project.liveUrl} target="_blank" rel="noreferrer" className={`${BUTTON} btn-solid`}>
-                  {download ? <Download size={16} /> : <ExternalLink size={16} />}
-                  {download ? ui.projectDetail.viewDownload : ui.projectDetail.viewLive}
-                </a>
+                {project.liveUrl && (
+                  <a href={project.liveUrl} target="_blank" rel="noreferrer" className={`${BUTTON} btn-solid`}>
+                    {download ? <Download size={16} /> : <ExternalLink size={16} />}
+                    {download ? ui.projectDetail.viewDownload : ui.projectDetail.viewLive}
+                  </a>
+                )}
                 <div className="relative">
                   <button
                     type="button"

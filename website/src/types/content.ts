@@ -76,7 +76,8 @@ export interface Project {
   description: string;
   tags: string[];
   repoUrl: string;
-  liveUrl: string;
+  /** A live demo or a download page. Left out when the project has neither: the button is then not shown. */
+  liveUrl?: string;
   /** Optional case-study detail shown on the project's own page, if provided. */
   problem?: string;
   approach?: string;

@@ -115,6 +115,18 @@ const en: Content = {
         "A WinForms app where you drag and drop images (or whole folders) onto a drop zone. Each file is checked against the allowed extensions, uploaded to the ImgBB API in sequence, and the JSON response is parsed for its hosted URL — the finished links are copied to the clipboard in one pass. It also has a light/dark theme and can minimize to the system tray.",
       outcome: "Turns a multi-step manual upload-and-copy-link routine into a single drag-and-drop-and-go action.",
     },
+    {
+      ...projectFacts["always-open-tab-next"],
+      title: "Always Open Tab Next",
+      kind: "Chrome extension",
+      description: "A Chrome extension that opens every new tab right next to the one you're on, instead of at the end of the tab strip.",
+      problem:
+        "Chrome opens new tabs at the far end of the tab strip, even in the middle of a research session with twenty tabs open — so each new page lands far away from the one it came from.",
+      approach:
+        "A Manifest V3 extension with a single background service worker and no UI. It tracks the active tab and its position through the tab activation and move events, and when any tab is created — from Ctrl+T, the + button, a middle-click, or a link that opens in a new tab — it moves that tab to the position right after the active one. A short 50 ms retry covers the case where Chrome's + button puts the tab at the end before the extension can step in.",
+      outcome:
+        "New tabs always appear beside the tab they came from, with nothing to configure. The extension only asks for the tabs permission, collects no data, makes no network requests, and never reads page content.",
+    },
   ],
   // Tech/tool names are proper nouns and intentionally stay the same across locales.
   skills: {

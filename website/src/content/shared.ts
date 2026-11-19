@@ -33,7 +33,13 @@ export const projectFacts = {
     liveUrl: "https://github.com/qalibqurbanov/Imager/releases",
     stack: ["C#", ".NET Framework 4.7.2", "WinForms", "Newtonsoft.Json", "MaterialSkin"],
   },
-} satisfies Record<string, Pick<Project, "slug" | "tags" | "repoUrl" | "liveUrl" | "stack">>;
+  "always-open-tab-next": {
+    slug: "always-open-tab-next",
+    tags: ["JavaScript", "Chrome Extension", "Manifest V3"],
+    repoUrl: "https://github.com/qalibqurbanov/AlwaysOpenTabNext",
+    stack: ["JavaScript", "Chrome Extensions API", "Manifest V3", "Service Worker"],
+  },
+} satisfies Record<string, Pick<Project, "slug" | "tags" | "repoUrl" | "stack"> & { liveUrl?: string }>;
 
 /** The same for the Crocusoft job. */
 export const crocusoftFacts = {

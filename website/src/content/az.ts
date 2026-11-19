@@ -116,6 +116,18 @@ const az: Content = {
         "Şəkilləri (və ya bütöv qovluqları) drop zonasına sürükləyib buraxdığın WinForms tətbiqi. Hər fayl icazə verilən uzantılara görə yoxlanılır, ImgBB API-yə ardıcıl yüklənir və JSON cavabı parse edilərək yüklənmiş şəklin linki çıxarılır — hazır linklər bir keçiddə clipboard-a kopyalanır. Həmçinin açıq/tünd tema və sistem trayına yığılma dəstəyi var.",
       outcome: "Çoxaddımlı əl ilə yükləmə-linki-kopyala rutinini tək bir sürükləyib-burax əməliyyatına çevirir.",
     },
+    {
+      ...projectFacts["always-open-tab-next"],
+      title: "Always Open Tab Next",
+      kind: "Chrome genişlənməsi",
+      description: "Hər yeni vərəqi vərəq xəttinin sonunda yox, hazırda açıq olan vərəqin yanında açan Chrome genişlənməsi.",
+      problem:
+        "Chrome yeni vərəqləri ən sonda açır — hətta iyirmi vərəq açıq olan araşdırma zamanı da; nəticədə hər yeni səhifə, keçid etdiyiniz səhifədən uzaqda yerləşir.",
+      approach:
+        "Manifest V3 əsasında, yalnız bir fon service worker-i olan və interfeysi olmayan genişlənmə. O, vərəqin aktivləşməsi və yerinin dəyişməsi hadisələri vasitəsilə aktiv vərəqi və onun mövqeyini izləyir; istənilən vərəq — Ctrl+T, «+» düyməsi, orta klik və ya yeni vərəqdə açılan keçid ilə — yaradılanda onu aktiv vərəqdən dərhal sonrakı mövqeyə köçürür. 50 ms-lik qısa təkrar cəhd isə Chrome-un «+» düyməsinin vərəqi genişlənmə müdaxilə etməzdən əvvəl sona qoyduğu halı həll edir.",
+      outcome:
+        "Yeni vərəqlər həmişə keçid etdiyiniz vərəqin yanında görünür və heç nə ayarlamaq lazım deyil. Genişlənmə yalnız tabs icazəsini istəyir: məlumat toplamır, şəbəkə sorğusu göndərmir və səhifə məzmununu oxumur.",
+    },
   ],
   // Tech/tool names are proper nouns and intentionally stay the same across locales.
   skills: {
