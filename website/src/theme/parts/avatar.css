@@ -73,7 +73,7 @@
 /* The name and the title under it share one blend: blue for the first quarter of the word, violet for the middle half, blue for the last quarter,
    with eased, soft changes between them, and still when left alone. The name uses the card’s soft blue and soft violet (the same as the Resume and
    Message buttons); the title uses quieter, lower versions of the same two (each mixed half and half with the muted grey). --name-w is the width of the word (set in Sidebar), so the blend always spans
-   exactly the word. When the name, or the title, is pointed at, its blend slowly turns to a random direction and drifts along the word (--flow-ang is the direction
+   exactly the word. Two soft glows (the avatar rings’ cyan and magenta, --g1x/--g1y and --g2x/--g2y, moved in Sidebar) wander slowly through the letters in random directions. When the name, or the title, is pointed at, its blend slowly turns to a random direction and drifts along the word (--flow-ang is the direction
    and --flow-f how far it has drifted, as a fraction of the word; both are eased in and out in Sidebar), and when the pointer leaves it settles back, gently. */
 @property --flow-f {
   syntax: "<number>";
@@ -99,7 +99,10 @@
 
 .name-tone,
 .title-tone {
-  background-image: repeating-linear-gradient(
+  background-image:
+    radial-gradient(circle 1.5em at var(--g1x, -50%) var(--g1y, 50%), color-mix(in srgb, var(--color-accent) 90%, transparent), transparent),
+    radial-gradient(circle 1.7em at var(--g2x, -50%) var(--g2y, 50%), color-mix(in srgb, var(--color-accent-2) 90%, transparent), transparent),
+    repeating-linear-gradient(
     in oklab var(--flow-ang),
     var(--tone-1) calc(var(--name-w, 240px) * (0 + var(--flow-f))),
     var(--tone-1) calc(var(--name-w, 240px) * (0.125 + var(--flow-f))),
@@ -122,6 +125,7 @@
     var(--tone-1) calc(var(--name-w, 240px) * (0.875 + var(--flow-f))),
     var(--tone-1) calc(var(--name-w, 240px) * (1 + var(--flow-f)))
   );
+  background-repeat: no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

@@ -126,6 +126,38 @@ export function Sidebar() {
     return () => stops.forEach((stop) => stop());
   }, []);
 
+  // Two soft glows (cyan and magenta, the colours of the rings round my picture) wander through the letters of the name and of the title.
+  // Each glow follows a smooth curve made of two slow waves per direction, with its own random speeds and starting points, so it is always
+  // moving, never stops, never changes speed suddenly and never leaves the word; it drifts in a different direction every time, and the
+  // two glows and the two texts all move independently.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const wave = () => ({ f1: 0.34 + Math.random() * 0.4, f2: 0.7 + Math.random() * 0.5, p1: Math.random() * 6.28, p2: Math.random() * 6.28 });
+    const at = (w: { f1: number; f2: number; p1: number; p2: number }, t: number) => 0.5 + 0.5 * (0.65 * Math.sin(w.f1 * t + w.p1) + 0.35 * Math.sin(w.f2 * t + w.p2));
+    const stops: (() => void)[] = [];
+    for (const el of [nameRef.current, titleRef.current]) {
+      if (!el) continue;
+      const glows = ["--g1", "--g2"].map((name) => ({ name, x: wave(), y: wave() }));
+      let frame = 0;
+      let last = performance.now();
+      let t = 0;
+      const tick = (now: number) => {
+        t += Math.min(0.05, (now - last) / 1000);
+        last = now;
+        const w = el.offsetWidth;
+        const h = el.offsetHeight;
+        for (const g of glows) {
+          el.style.setProperty(`${g.name}x`, `${(w * (0.04 + 0.92 * at(g.x, t))).toFixed(1)}px`);
+          el.style.setProperty(`${g.name}y`, `${(h * (0.15 + 0.7 * at(g.y, t))).toFixed(1)}px`);
+        }
+        frame = requestAnimationFrame(tick);
+      };
+      frame = requestAnimationFrame(tick);
+      stops.push(() => cancelAnimationFrame(frame));
+    }
+    return () => stops.forEach((stop) => stop());
+  }, []);
+
   // The whole card scales with the room it has: --s is 1 at the size it was drawn for (about 45rem tall and 24rem wide) and
   // smaller on a short window or a narrow column, so on a laptop nothing overlaps; on a large screen it grows a little.
   useEffect(() => {
