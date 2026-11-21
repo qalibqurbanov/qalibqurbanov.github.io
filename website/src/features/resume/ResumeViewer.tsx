@@ -79,7 +79,7 @@ export function ResumeViewer({ onBack }: ResumeViewerProps) {
         <DownloadDrawIcon />
         <span className="hidden md:inline">{t.download}</span>
       </a>
-      <button type="button" onClick={() => print()} disabled={pages === 0} className={`${PILL_PURPLE} h-[1.625rem]! disabled:cursor-default disabled:opacity-40`} aria-label={t.print} title={t.print}>
+      <button type="button" onClick={() => print()} disabled={pages === 0} className={`${PILL_PURPLE} h-[1.625rem]! pointer-coarse:hidden! max-lg:hidden! disabled:cursor-default disabled:opacity-40`} aria-label={t.print} title={t.print}>
         <PrintDrawIcon />
         <span className="hidden md:inline">{t.print}</span>
       </button>

@@ -452,3 +452,73 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 38%, transparent);
   background: color-mix(in srgb, var(--tone) 8%, transparent);
 }
+
+/* An icon that is drawn in, stroke by stroke, as soon as it appears, and drawn again when its button is pointed at (the phone's menu button:
+   the three lines and the cross). Nothing else is added to the button. */
+.draw-in path {
+  stroke-dasharray: 1;
+  animation: icon-draw 0.55s cubic-bezier(0.5, 0, 0.2, 1) both;
+  animation-delay: calc(var(--d, 0) * 70ms);
+}
+
+.icon-redraw:hover .draw-in path,
+.icon-redraw:focus-visible .draw-in path {
+  animation: icon-redraw 0.55s cubic-bezier(0.5, 0, 0.2, 1) both;
+  animation-delay: calc(var(--d, 0) * 70ms);
+}
+
+@keyframes icon-redraw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draw-in path,
+  .icon-redraw:hover .draw-in path,
+  .icon-redraw:focus-visible .draw-in path {
+    animation: none;
+  }
+}
+
+/* The menu button's three lines turn into a cross and back: the top and bottom lines each turn about their own middle and slide to the centre,
+   and the middle line shrinks away. */
+.menu-icon path {
+  transition:
+    transform 0.45s cubic-bezier(0.65, 0, 0.25, 1),
+    opacity 0.25s ease;
+}
+
+.menu-icon path:nth-child(1) {
+  transform-origin: 12px 6px;
+}
+
+.menu-icon path:nth-child(2) {
+  transform-origin: 12px 12px;
+}
+
+.menu-icon path:nth-child(3) {
+  transform-origin: 12px 18px;
+}
+
+.menu-icon.is-open path:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.menu-icon.is-open path:nth-child(2) {
+  transform: scaleX(0);
+  opacity: 0;
+}
+
+.menu-icon.is-open path:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-icon path {
+    transition: none;
+  }
+}

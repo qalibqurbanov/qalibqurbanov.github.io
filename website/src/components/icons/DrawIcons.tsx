@@ -4,9 +4,9 @@ interface Props {
   size?: number;
 }
 
-function Frame({ size = 14, children }: Props & { children: React.ReactNode }) {
+function Frame({ size = 14, children, className }: Props & { children: React.ReactNode; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       {children}
     </svg>
   );
@@ -61,6 +61,19 @@ export function PrintDrawIcon({ size }: Props) {
       <path pathLength={1} style={delay(0)} d="M6 9V2h12v7" />
       <path pathLength={1} style={delay(2)} d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
       <path pathLength={1} style={delay(5)} d="M6 14h12v8H6z" />
+    </Frame>
+  );
+}
+
+/** The menu button's icon: three lines that turn into a cross when the menu opens, and back into three lines when it shuts (see `.menu-icon` in
+ * sidebar-card.css): the top and bottom lines swing into the two strokes of the cross while the middle one draws in on itself. It is the size and
+ * weight of the settings icon beside it, and each line is drawn again when the button is pointed at. */
+export function MenuDrawIcon({ open, size = 21 }: Props & { open: boolean }) {
+  return (
+    <Frame size={size} className={`draw-in menu-icon${open ? " is-open" : ""}`}>
+      <path pathLength={1} style={delay(0)} d="M3 6h18" />
+      <path pathLength={1} style={delay(2)} d="M3 12h18" />
+      <path pathLength={1} style={delay(4)} d="M3 18h18" />
     </Frame>
   );
 }

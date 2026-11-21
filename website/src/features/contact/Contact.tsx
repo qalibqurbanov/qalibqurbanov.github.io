@@ -61,7 +61,7 @@ export function Contact() {
               <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-accent-2" aria-hidden="true" />
               {c.status}
             </span>
-            <span className="inline-flex items-center divide-x divide-border rounded-full border border-border text-sm text-text">
+            <span className="inline-flex items-center divide-x divide-border rounded-full border border-border text-sm text-accent">
               {c.openTo.map((kind) => (
                 <span key={kind} className="px-4 py-1.5">
                   {kind}

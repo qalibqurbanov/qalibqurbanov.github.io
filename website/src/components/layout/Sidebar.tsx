@@ -1,5 +1,5 @@
-import { Briefcase, Bug, ChevronRight, Cpu, FolderGit2, House, Mail, PenLine, User } from "lucide-react";
-import type { ComponentType, CSSProperties, PointerEvent } from "react";
+import { Bug, ChevronRight, House } from "lucide-react";
+import type { CSSProperties, PointerEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
 
@@ -7,7 +7,7 @@ import avatarUrl from "@/assets/avatar.webp";
 import { PILL_BLUE, PILL_PURPLE } from "@/components/ui/pill";
 import { openContactModal } from "@/components/contact/openContact";
 import { FileDrawIcon, SendDrawIcon } from "@/components/icons/DrawIcons";
-import { GithubIcon, LinkedinIcon, MediumIcon, StackOverflowIcon, TelegramIcon } from "@/components/icons/BrandIcons";
+import { GithubIcon } from "@/components/icons/BrandIcons";
 import { ScrambleText } from "@/components/ui/ScrambleText";
 import { SettingsMenu } from "@/components/ui/SettingsMenu";
 import { useClock } from "@/hooks/useClock";
@@ -18,6 +18,7 @@ import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
 import { useNotFound } from "@/lib/notFound";
 
 import { Avatar } from "./Avatar";
+import { PAGE_ICONS, TOOL, useSocialLinks } from "./shared";
 
 /** How big everything in the card is, as a fraction of the size it was first drawn at (the picture, the name, the title, the buttons,
  * the menu and the spaces between them all follow it). Lower it to make the whole card's contents smaller. */
@@ -27,27 +28,12 @@ const SIZE = 0.88;
 const ROW = 2.25;
 const GAP = 0.25;
 
-const TOOL = "inline-flex h-7 w-7 cursor-pointer items-center justify-center text-muted transition-colors duration-200 hover:text-accent";
-
-type Icon = ComponentType<{ size?: number; className?: string }>;
-
-/** Each page has a small line icon of its own, in front of its name. */
-const PAGE_ICONS: Record<string, Icon> = {
-  "#home": House,
-  "#about": User,
-  "#experience": Briefcase,
-  "#projects": FolderGit2,
-  "#skills": Cpu,
-  "#blog": PenLine,
-  "#contact": Mail,
-};
-
 /** The fixed identity column of the desktop layout: my picture, name and title with the two ways to reach me,
  * the numbered pages, and the social links, all on one centre line, on a floating glass card. The card has film
  * grain, a comet of light that circles its rim, and a quick lap
  * of light each time the page changes. Each page has a small icon, and the open page is brighter and has a blue circle on its right; a page that is pointed at gets a purple arrow there. */
 export function Sidebar() {
-  const { profile, navigation, socials, ui } = useContent();
+  const { profile, navigation, ui } = useContent();
   const page = usePage();
   const notFound = useNotFound();
   const hasResume = profile.resumeUrl && profile.resumeUrl !== "#";
@@ -179,13 +165,7 @@ export function Sidebar() {
     event.currentTarget.style.setProperty("--hover", "0");
   };
 
-  const links: { label: string; href: string; Icon: Icon }[] = [
-    { label: "GitHub", href: socials.github, Icon: GithubIcon },
-    { label: "LinkedIn", href: socials.linkedin, Icon: LinkedinIcon },
-  ];
-  if (socials.stackoverflow) links.push({ label: "Stack Overflow", href: socials.stackoverflow, Icon: StackOverflowIcon });
-  if (socials.medium) links.push({ label: "Medium", href: socials.medium, Icon: MediumIcon });
-  if (socials.telegram) links.push({ label: "Telegram", href: socials.telegram, Icon: TelegramIcon });
+  const links = useSocialLinks();
 
   return (
     <aside className="shell-side hidden p-3 lg:block">

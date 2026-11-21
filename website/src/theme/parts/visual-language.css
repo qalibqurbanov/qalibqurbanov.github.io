@@ -164,8 +164,56 @@
   }
 }
 
-.menu-in {
-  animation: fade-in 0.2s ease-out both;
+/* The phone's menu sheet: it unrolls from the top bar downward as a curtain does and sinks back up when it closes; its rows rise in one after the
+   other (see .menu-row). */
+.menu-sheet[data-state="open"] {
+  animation: menu-open 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.menu-sheet[data-state="closed"] {
+  animation: menu-close 0.28s cubic-bezier(0.4, 0, 1, 1) both;
+  pointer-events: none;
+}
+
+.menu-sheet[data-state="open"] .menu-row {
+  animation: menu-row 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 55ms + 140ms);
+}
+
+@keyframes menu-open {
+  from {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0.4;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+@keyframes menu-close {
+  from {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  to {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0.4;
+  }
+}
+
+@keyframes menu-row {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-sheet[data-state],
+  .menu-sheet[data-state] .menu-row {
+    animation: none;
+  }
 }
 
 .skill-item {

@@ -1,0 +1,50 @@
+/* ---- Every icon of the site is drawn again, stroke by stroke, when it is pointed at, or the button, link or row it sits in is (or when it is focused
+   with the keyboard). The strokes are prepared in lib/drawIcons.ts (pathLength 1 and a start delay each). The icons of the two buttons under my
+   name and of the dialogs' buttons have their own, in DrawIcons.tsx. ---- */
+
+svg.lucide [pathLength] {
+  stroke-dasharray: 1;
+}
+
+:is(a, button, summary, label, [role="button"], [role="tab"], [role="menuitem"], [role="option"], [role="radio"], [role="checkbox"], .cursor-pointer):is(:hover, :focus-visible)
+  svg.lucide:not(.animate-spin)
+  [pathLength],
+svg.lucide:not(.animate-spin):hover [pathLength] {
+  animation: icon-redraw 0.55s cubic-bezier(0.5, 0, 0.2, 1) both;
+  animation-delay: calc(var(--d, 0) * 60ms);
+}
+
+/* The filled marks (GitHub, LinkedIn and the others): an outline is drawn, and then the mark fills in. */
+svg[data-draw="fill"] [pathLength] {
+  stroke: none;
+  stroke-dasharray: 1;
+}
+
+:is(a, button, summary, label, [role="button"], [role="menuitem"], .cursor-pointer):is(:hover, :focus-visible) svg[data-draw="fill"] [pathLength],
+svg[data-draw="fill"]:hover [pathLength] {
+  stroke: currentColor;
+  stroke-width: 0.7;
+  animation: mark-redraw 0.9s cubic-bezier(0.5, 0, 0.2, 1) both;
+}
+
+@keyframes mark-redraw {
+  0% {
+    stroke-dashoffset: 1;
+    fill-opacity: 0;
+  }
+  60% {
+    stroke-dashoffset: 0;
+    fill-opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    fill-opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  svg.lucide [pathLength],
+  svg[data-draw="fill"] [pathLength] {
+    animation: none !important;
+  }
+}

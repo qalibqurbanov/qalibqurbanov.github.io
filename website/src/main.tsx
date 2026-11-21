@@ -7,6 +7,7 @@ import { loadContent } from "@/content";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { resolveInitialLocale } from "@/i18n/locale";
 import { parseViewPath } from "@/lib/viewPath";
+import { installDrawIcons } from "@/lib/drawIcons";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 
 // Fonts are served from the site itself (no Google round trip); swap shows text at once in a fallback.
@@ -48,6 +49,7 @@ const initialLocale = resolveInitialLocale();
 // A link into the page (a section or a project) also waits for the section chunks, so its target exists.
 // The 404 page has none of the sections, so it loads none of them.
 const ready = Promise.all([loadContent(initialLocale), window.location.hash || parseViewPath(window.location.pathname) ? preloadSections().catch(() => null) : null]);
+installDrawIcons();
 void ready.then(([initialContent]) => {
   createRoot(rootElement).render(
     <StrictMode>

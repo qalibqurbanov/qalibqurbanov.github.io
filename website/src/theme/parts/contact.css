@@ -127,12 +127,3 @@
 .contact-row:hover .contact-row-star {
   transform: rotate(180deg) scale(1.3);
 }
-
-/* The two things I am open to, in the headline's gradient. */
-.contact-body strong {
-  background: linear-gradient(90deg, var(--color-accent), #8b5cf6 55%, var(--color-accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-weight: 600;
-}

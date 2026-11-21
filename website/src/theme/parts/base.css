@@ -63,12 +63,88 @@ section[id] {
   scroll-margin-top: 4rem;
 }
 
-/* ---- Scrollbar ---- */
+/* The canvas behind the page: only the strip of the page's scrollbar shows it. Cyan-tinted at the top and magenta-tinted at the bottom, like the
+   pools of colour in the page, with the page colour's own tint between, and a hairline on the inner edge of the strip. */
+html {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-text) 14%, transparent) 0 1px, transparent 1px calc(100% - 1px)) fixed,
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-accent) 26%, var(--color-surface-2)),
+        color-mix(in srgb, var(--color-text) 6%, var(--color-surface-2)) 50%,
+        color-mix(in srgb, var(--color-accent-2) 26%, var(--color-surface-2))
+      )
+      fixed;
+}
 
-html,
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border)) transparent;
+/* ---- Scrollbars ----
+   Every scrollbar on the site (the page, the dialogs, the code samples, the menu, the text fields) is the same slim, round thumb on no track, in
+   the site's own two colours: a line of light that runs from cyan to magenta, the way the neon edges of the page do. It is mixed from the accent
+   tokens, so it is bright on the dark theme and takes the deeper cyan and magenta of the light theme there. At rest it is soft; pointed at, it is
+   full strength; while it is dragged it turns magenta. Browsers that draw the bar from the standard properties only (Firefox) get a thin bar in
+   the cyan. (Chrome and Safari ignore the pieces below as soon as the standard properties are set, so those are set only where the pieces are
+   not understood.) */
+
+:root {
+  --scrollbar-thumb: linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 62%, transparent), color-mix(in srgb, var(--color-accent-2) 62%, transparent));
+  --scrollbar-thumb-hover: linear-gradient(180deg, var(--color-accent), var(--color-accent-2));
+  --scrollbar-thumb-active: var(--color-accent-2);
+  --scrollbar-track: color-mix(in srgb, var(--color-text) 4%, transparent);
+}
+
+@supports selector(::-webkit-scrollbar) {
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-track {
+    margin: 4px 0;
+    border: 4px solid transparent;
+    border-radius: 999px;
+    background-color: var(--scrollbar-track);
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* The scrollbar of the page itself sits on the canvas behind the page, which is nearly black in the dark theme and nearly white in the light
+     one (the page's own colour), while what you see of the page is a soft gradient with pools of cyan and magenta. So the canvas is painted as a
+     rail of the same glass (see html below) and the page's track is left clear to show it. */
+  html::-webkit-scrollbar-track {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    min-height: 2.5rem;
+    border: 4px solid transparent;
+    border-radius: 999px;
+    background-image: var(--scrollbar-thumb);
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-image: var(--scrollbar-thumb-hover);
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background-image: none;
+    background-color: var(--scrollbar-thumb-active);
+  }
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  html,
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-accent) 70%, transparent) transparent;
+  }
 }
 
 /* Scroll-in reveal: a short fade and rise, driven by Reveal. */

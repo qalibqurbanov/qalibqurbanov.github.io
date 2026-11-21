@@ -128,9 +128,11 @@ export function Home() {
     <section id="home" className="px-5 pt-8 sm:px-6 lg:px-10 lg:pt-14 xl:px-14">
       <div className="mx-auto max-w-4xl">
         <Reveal>
-          <h1 className="text-3xl font-semibold leading-snug tracking-tight sm:text-4xl">
+          {/* The same headline as the one that closes the site (Contact): display type in the cyan-to-magenta gradient. The room under the line
+              (padding) keeps the gradient clip from cutting the tails of letters like "g". */}
+          <h1 className="contact-grad w-fit max-w-full pb-[0.14em] font-display font-semibold leading-[1.18] tracking-tight" style={{ fontSize: "clamp(1.7rem, 4.6vw, 3.6rem)" }}>
             {taglineBefore}
-            <span className="text-accent">{ui.hero.highlightWord}</span>
+            {ui.hero.highlightWord}
             {taglineAfter}
           </h1>
 
