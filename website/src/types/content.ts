@@ -210,6 +210,7 @@ export interface UiStrings {
     fallback: string;
     open: string;
     download: string;
+    print: string;
     /** Shown instead of the embedded viewer on devices that open PDFs in their own viewer. */
   };
   /** Hover tooltips and screen-reader labels for icon-only controls. Brand names (GitHub, LinkedIn…) stay literal in the components. */

@@ -405,6 +405,7 @@ export function ContactModal() {
       {(close) => (
       <Panel
         title={t.title}
+        glass
         className="flex min-h-0 flex-col"
         onClose={close}
       >

@@ -350,6 +350,7 @@ const ru: Content = {
       fallback: "Ваш браузер не может показать PDF на этой странице.",
       open: "Открыть в новой вкладке",
       download: "Скачать PDF",
+      print: "Печать",
     },
     labels: {
       email: "Эл. почта",

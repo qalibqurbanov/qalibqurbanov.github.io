@@ -16,11 +16,13 @@ interface PdfPagesProps {
   failedText: string;
   /** The link that opens the file itself, offered with the failure text. */
   openText: string;
+  /** Called once with the number of pages when the file has been read. */
+  onLoaded?: (pages: number) => void;
 }
 
 /** The pages of a PDF, drawn one under another as plain white sheets, as wide as the column they sit in.
  * This is the site's own viewer: none of the browser's PDF controls (toolbar, thumbnails, menus) come with it. */
-export function PdfPages({ url, label, failedText, openText }: PdfPagesProps) {
+export function PdfPages({ url, label, failedText, openText, onLoaded }: PdfPagesProps) {
   const columnRef = useRef<HTMLDivElement>(null);
   const canvases = useRef<(HTMLCanvasElement | null)[]>([]);
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
@@ -32,13 +34,18 @@ export function PdfPages({ url, label, failedText, openText }: PdfPagesProps) {
     const task = pdfjs.getDocument({ url });
     // A task that was cancelled by this cleanup ends in an error too; only a task still wanted can fail.
     task.promise.then(
-      (loaded) => !cancelled && setDoc(loaded),
+      (loaded) => {
+        if (cancelled) return;
+        setDoc(loaded);
+        onLoaded?.(loaded.numPages);
+      },
       () => !cancelled && setFailed(true),
     );
     return () => {
       cancelled = true;
       void task.destroy();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
   useEffect(() => {
@@ -94,7 +101,7 @@ export function PdfPages({ url, label, failedText, openText }: PdfPagesProps) {
             ref={(node) => {
               canvases.current[index] = node;
             }}
-            className="block h-auto w-full rounded-sm bg-white shadow-lg shadow-black/30"
+            className="block h-auto w-full rounded-[3px] bg-white shadow-[0_10px_30px_-8px_rgb(0_0_0/0.55)] ring-1 ring-black/20"
           />
         ))
       ) : (

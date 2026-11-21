@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 
 import avatarUrl from "@/assets/avatar.webp";
+import { PILL_BLUE, PILL_PURPLE } from "@/components/ui/pill";
 import { openContactModal } from "@/components/contact/openContact";
 import { FileDrawIcon, SendDrawIcon } from "@/components/icons/DrawIcons";
 import { GithubIcon, LinkedinIcon, MediumIcon, StackOverflowIcon, TelegramIcon } from "@/components/icons/BrandIcons";
@@ -28,12 +29,6 @@ const GAP = 0.25;
 
 const TOOL = "inline-flex h-7 w-7 cursor-pointer items-center justify-center text-muted transition-colors duration-200 hover:text-accent";
 
-/** The two buttons under the title: minimal. A hairline pill with no fill, the label in the text colour and the icon in the button's own colour
- * (a soft blue resume, a soft violet message). Pointed at, the hairline takes the colour and the icon is drawn again, stroke by stroke. */
-const ACTION =
-  "btn-draw tap group relative isolate inline-flex h-[max(1.7rem,calc(2.5rem*var(--s,1)))] cursor-pointer items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full border border-[color-mix(in_srgb,var(--tone)_26%,transparent)] px-3 font-mono text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-text transition-colors duration-300 hover:border-[color-mix(in_srgb,var(--tone)_60%,transparent)] focus-visible:border-[var(--tone)]";
-const ACTION_BLUE = `${ACTION} tone-blue`;
-const ACTION_PURPLE = `${ACTION} tone-violet`;
 type Icon = ComponentType<{ size?: number; className?: string }>;
 
 /** Each page has a small line icon of its own, in front of its name. */
@@ -225,12 +220,12 @@ export function Sidebar() {
         <p ref={titleRef} className="title-tone font-mono text-[0.6875rem] uppercase tracking-[0.18em]" style={{ marginTop: "calc(0.375rem * var(--s, 1))" }}>{profile.headline}</p>
         <div className="grid w-full max-w-64 grid-cols-2 gap-2.5" style={{ marginTop: "calc(1.25rem * var(--s, 1))" }}>
           {hasResume && (
-            <a href={resumeHref(page)} className={ACTION_BLUE}>
+            <a href={resumeHref(page)} className={PILL_BLUE}>
               <FileDrawIcon />
               {ui.labels.resume}
             </a>
           )}
-          <button type="button" onClick={openContactModal} className={`${ACTION_PURPLE} ${hasResume ? "" : "col-span-2"}`}>
+          <button type="button" onClick={openContactModal} className={`${PILL_PURPLE} ${hasResume ? "" : "col-span-2"}`}>
             <SendDrawIcon />
             {ui.labels.message}
           </button>

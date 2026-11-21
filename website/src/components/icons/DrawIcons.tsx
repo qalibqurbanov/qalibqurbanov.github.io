@@ -34,3 +34,33 @@ export function SendDrawIcon({ size }: Props) {
     </Frame>
   );
 }
+
+export function DownloadDrawIcon({ size }: Props) {
+  return (
+    <Frame size={size}>
+      <path pathLength={1} style={delay(0)} d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <path pathLength={1} style={delay(3)} d="M12 15V3" />
+      <path pathLength={1} style={delay(4)} d="m7 10 5 5 5-5" />
+    </Frame>
+  );
+}
+
+export function OpenDrawIcon({ size }: Props) {
+  return (
+    <Frame size={size}>
+      <path pathLength={1} style={delay(0)} d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <path pathLength={1} style={delay(3)} d="M15 3h6v6" />
+      <path pathLength={1} style={delay(4)} d="M10 14 21 3" />
+    </Frame>
+  );
+}
+
+export function PrintDrawIcon({ size }: Props) {
+  return (
+    <Frame size={size}>
+      <path pathLength={1} style={delay(0)} d="M6 9V2h12v7" />
+      <path pathLength={1} style={delay(2)} d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <path pathLength={1} style={delay(5)} d="M6 14h12v8H6z" />
+    </Frame>
+  );
+}

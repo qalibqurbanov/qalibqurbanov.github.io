@@ -142,7 +142,7 @@ function ProjectPanel({ project, onClose }: { project: Project; onClose: () => v
     ) : undefined;
 
   return (
-    <Panel title={project.kind} tabs={tabs} footer={footer} className="flex max-h-full min-h-0 flex-col" onClose={onClose}>
+    <Panel title={project.kind} glass tabs={tabs} footer={footer} className="flex max-h-full min-h-0 flex-col" onClose={onClose}>
       <div
         ref={scrollRef}
         id="project-panel"
