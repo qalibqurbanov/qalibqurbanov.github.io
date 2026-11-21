@@ -1,10 +1,11 @@
-import { Briefcase, Bug, ChevronRight, Cpu, FileText, FolderGit2, House, Mail, PenLine, Send, User } from "lucide-react";
+import { Briefcase, Bug, ChevronRight, Cpu, FolderGit2, House, Mail, PenLine, User } from "lucide-react";
 import type { ComponentType, CSSProperties, PointerEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
 
 import avatarUrl from "@/assets/avatar.webp";
 import { openContactModal } from "@/components/contact/openContact";
+import { FileDrawIcon, SendDrawIcon } from "@/components/icons/DrawIcons";
 import { GithubIcon, LinkedinIcon, MediumIcon, StackOverflowIcon, TelegramIcon } from "@/components/icons/BrandIcons";
 import { ScrambleText } from "@/components/ui/ScrambleText";
 import { SettingsMenu } from "@/components/ui/SettingsMenu";
@@ -27,13 +28,12 @@ const GAP = 0.25;
 
 const TOOL = "inline-flex h-7 w-7 cursor-pointer items-center justify-center text-muted transition-colors duration-200 hover:text-accent";
 
-/** The two buttons under the title: identical, flat and borderless. A faint tint of their colour (a soft blue resume, a soft violet message),
- * coloured text and icon, and a thin line under them that draws out to full width on hover. No frame, no glow, no lift. */
+/** The two buttons under the title: minimal. A hairline pill with no fill, the label in the text colour and the icon in the button's own colour
+ * (a soft blue resume, a soft violet message). Pointed at, the hairline takes the colour and the icon is drawn again, stroke by stroke. */
 const ACTION =
-  "tap group relative inline-flex h-[max(1.7rem,calc(2.5rem*var(--s,1)))] cursor-pointer items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-md px-3 font-mono text-[0.6875rem] font-medium uppercase tracking-[0.14em] transition-colors duration-300 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-center after:scale-x-50 after:opacity-40 after:transition-all after:duration-500 after:ease-out hover:after:scale-x-100 hover:after:opacity-100";
-const TONE = "text-[var(--tone)] bg-[color-mix(in_srgb,var(--tone)_9%,transparent)] after:bg-[var(--tone)] hover:bg-[color-mix(in_srgb,var(--tone)_15%,transparent)]";
-const ACTION_BLUE = `${ACTION} tone-blue ${TONE}`;
-const ACTION_PURPLE = `${ACTION} tone-violet ${TONE}`;
+  "btn-draw tap group relative isolate inline-flex h-[max(1.7rem,calc(2.5rem*var(--s,1)))] cursor-pointer items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full border border-[color-mix(in_srgb,var(--tone)_26%,transparent)] px-3 font-mono text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-text transition-colors duration-300 hover:border-[color-mix(in_srgb,var(--tone)_60%,transparent)] focus-visible:border-[var(--tone)]";
+const ACTION_BLUE = `${ACTION} tone-blue`;
+const ACTION_PURPLE = `${ACTION} tone-violet`;
 type Icon = ComponentType<{ size?: number; className?: string }>;
 
 /** Each page has a small line icon of its own, in front of its name. */
@@ -49,7 +49,7 @@ const PAGE_ICONS: Record<string, Icon> = {
 
 /** The fixed identity column of the desktop layout: my picture, name and title with the two ways to reach me,
  * the numbered pages, and the social links, all on one centre line, on a floating glass card. The card has film
- * grain, a comet of light that circles its rim, a glow that follows the pointer (rim and surface), and a quick lap
+ * grain, a comet of light that circles its rim, and a quick lap
  * of light each time the page changes. Each page has a small icon, and the open page is brighter and has a blue circle on its right; a page that is pointed at gets a purple arrow there. */
 export function Sidebar() {
   const { profile, navigation, socials, ui } = useContent();
@@ -176,12 +176,8 @@ export function Sidebar() {
     return () => watcher.disconnect();
   }, []);
 
-  // The glow under the pointer follows the pointer, on the card's surface and on its rim (--mx, --my). The card itself
-  // does not move: it stays flat whatever the pointer does.
+  // While the pointer is over the card, the second comet on its rim fades in (--hover); it fades out when the pointer leaves.
   const follow = (event: PointerEvent<HTMLDivElement>) => {
-    const box = event.currentTarget.getBoundingClientRect();
-    event.currentTarget.style.setProperty("--mx", `${event.clientX - box.left}px`);
-    event.currentTarget.style.setProperty("--my", `${event.clientY - box.top}px`);
     event.currentTarget.style.setProperty("--hover", "1");
   };
   const unfollow = (event: PointerEvent<HTMLDivElement>) => {
@@ -212,7 +208,6 @@ export function Sidebar() {
       </span>
       <span className="card-rim" data-rim="comet" aria-hidden="true" />
       <span className="card-rim" data-rim="comet2" aria-hidden="true" />
-      <span className="card-rim" data-rim="pointer" aria-hidden="true" />
       <span key={lap} className="card-rim" data-rim="pulse" aria-hidden="true" />
       {/* Top: picture, name, title and the two buttons. */}
       <div className="flex flex-col items-center text-center">
@@ -231,12 +226,12 @@ export function Sidebar() {
         <div className="grid w-full max-w-64 grid-cols-2 gap-2.5" style={{ marginTop: "calc(1.25rem * var(--s, 1))" }}>
           {hasResume && (
             <a href={resumeHref(page)} className={ACTION_BLUE}>
-              <FileText size={14} strokeWidth={1.75} aria-hidden="true" />
+              <FileDrawIcon />
               {ui.labels.resume}
             </a>
           )}
           <button type="button" onClick={openContactModal} className={`${ACTION_PURPLE} ${hasResume ? "" : "col-span-2"}`}>
-            <Send size={14} strokeWidth={1.75} aria-hidden="true" />
+            <SendDrawIcon />
             {ui.labels.message}
           </button>
         </div>

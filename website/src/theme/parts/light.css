@@ -40,17 +40,6 @@
   opacity: 1;
 }
 
-/* The two buttons under the title carry a stronger tint of their colour on white, like the dark theme’s. */
-[data-theme="light"] .tone-blue:not(:hover),
-[data-theme="light"] .tone-violet:not(:hover) {
-  background-color: color-mix(in srgb, var(--tone) 17%, transparent);
-}
-
-[data-theme="light"] .tone-blue:hover,
-[data-theme="light"] .tone-violet:hover {
-  background-color: color-mix(in srgb, var(--tone) 26%, transparent);
-}
-
 [data-theme="light"] .side-card {
   border-color: color-mix(in srgb, var(--color-accent) 22%, rgb(255 255 255 / 0.7));
 }

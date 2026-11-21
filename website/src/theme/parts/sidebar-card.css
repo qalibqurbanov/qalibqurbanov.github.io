@@ -13,8 +13,6 @@
 }
 
 .side-card {
-  --mx: 50%;
-  --my: 30%;
   position: relative;
   isolation: isolate;
   border-radius: 20px;
@@ -23,7 +21,6 @@
      lip under the edge (its thickness), a dark outline that cuts it from the background, and shadows that start tight and dark, then
      stretch out wide and deep. Inside, the top glows and the bottom is shaded, so the face looks gently domed. */
   background:
-    radial-gradient(190px circle at var(--mx) var(--my), color-mix(in srgb, var(--color-accent) calc(var(--hover) * 10%), transparent), transparent 70%),
     linear-gradient(180deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.02) 26%, transparent 55%, rgb(0 0 0 / 0.3)),
     color-mix(in srgb, var(--color-surface) 64%, transparent);
   backdrop-filter: blur(24px) saturate(1.1);
@@ -51,7 +48,6 @@
 
 [data-theme="light"] .side-card {
   background:
-    radial-gradient(190px circle at var(--mx) var(--my), color-mix(in srgb, var(--color-accent) calc(var(--hover) * 10%), transparent), transparent 70%),
     linear-gradient(180deg, rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.12) 30%, transparent 62%, rgb(30 30 80 / 0.1)),
     color-mix(in srgb, var(--color-surface) 52%, transparent);
   box-shadow:
@@ -147,12 +143,6 @@
   background: conic-gradient(from var(--ang), transparent 0 58%, color-mix(in srgb, var(--color-accent-2) 40%, transparent) 78%, color-mix(in srgb, var(--color-accent-2) 60%, #fff) 93%, transparent) border-box;
   opacity: var(--hover);
   animation: rim-spin 8s linear infinite reverse;
-}
-
-/* The rim lights up where the pointer is, and only while it is over the card. */
-.card-rim[data-rim="pointer"] {
-  background: radial-gradient(170px circle at var(--mx) var(--my), color-mix(in srgb, var(--color-accent) 92%, #fff), color-mix(in srgb, var(--color-accent-2) 45%, transparent) 45%, transparent 72%) border-box;
-  opacity: var(--hover);
 }
 
 /* A quick lap of light, played once each time the page changes (the element is replaced to play it again). */
@@ -362,4 +352,80 @@
 
 .tone-violet {
   --tone: var(--soft-violet);
+}
+
+/* The icons of the two buttons under the title (Sidebar.tsx) are drawn again, one stroke after another, when the button is pointed at. */
+.btn-draw svg {
+  color: var(--tone);
+}
+
+.btn-draw path {
+  stroke-dasharray: 1;
+}
+
+.btn-draw:hover path,
+.btn-draw:focus-visible path {
+  animation: icon-draw 0.7s cubic-bezier(0.5, 0, 0.2, 1) both;
+  animation-delay: calc(var(--d, 0) * 90ms);
+}
+
+@keyframes icon-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-draw:hover path,
+  .btn-draw:focus-visible path {
+    animation: none;
+  }
+}
+
+/* Pointed at, the border of the two buttons under the title comes alive: a cyan light and a magenta one (the colours of the light behind my
+   picture) circle along the hairline on opposite sides, with the rest of the line softly tinted. The inside stays empty. It fades in and out gently. */
+@property --btn-ang {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.btn-draw::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 2px;
+  background:
+    conic-gradient(from var(--btn-ang), transparent 0 55%, var(--color-accent) 80%, transparent 100%),
+    conic-gradient(from calc(var(--btn-ang) + 180deg), transparent 0 55%, var(--color-accent-2) 80%, transparent 100%),
+    color-mix(in srgb, var(--color-accent) 22%, transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  animation: btn-lap 4s linear infinite;
+}
+
+.btn-draw:hover::before,
+.btn-draw:focus-visible::before {
+  opacity: 1;
+}
+
+@keyframes btn-lap {
+  to {
+    --btn-ang: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-draw::before {
+    animation: none;
+  }
 }
