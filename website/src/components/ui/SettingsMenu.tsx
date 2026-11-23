@@ -2,15 +2,17 @@ import { Moon, Settings, Sun } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { Panel } from "@/components/ui/Panel";
+import { Segmented } from "@/components/ui/Segmented";
 import { useContent, useLocale } from "@/i18n/context";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
 import { useTheme } from "@/theme/context";
 
-const MENU_WIDTH = 256;
+const MENU_WIDTH = 272;
 const EDGE = 8;
 const GAP = 12;
 
-/** The settings button: a small popup with the light/dark switch and the language. The popup is drawn on the page
+/** The settings button: a small glass card (the same one the dialogs use) with the light/dark switch and the language. The popup is drawn on the page
  * itself, at fixed coordinates under the button and above everything else (the menu column, the bars, the dialogs),
  * instead of inside whatever the button sits in, so nothing can cover it. */
 export function SettingsMenu({ up = false }: { up?: boolean }) {
@@ -84,43 +86,49 @@ export function SettingsMenu({ up = false }: { up?: boolean }) {
           role="group"
           aria-label={ui.labels.settings}
           style={{ left: place.left, top: place.top, bottom: place.bottom, width: MENU_WIDTH }}
-          className="settings-grain fixed z-[100001] rounded-xl divide-y divide-border border border-border bg-surface shadow-lg shadow-black/20"
+          className="fixed z-[100001]"
         >
-          <section className="p-3">
-            <h3 className="label mb-2">{ui.labels.appearance}</h3>
-            <div className="grid grid-cols-2 gap-1 rounded-md border border-border bg-bg p-1">
-              {modes.map(({ id, Icon, name }) => (
-                <button
-                  key={id}
-                  type="button"
-                  aria-pressed={theme === id}
-                  onClick={() => theme !== id && toggleTheme()}
-                  className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded px-2 py-1.5 text-xs capitalize transition-colors ${theme === id ? "bg-surface-2 text-text" : "text-muted hover:text-text"}`}
-                >
-                  <Icon size={14} aria-hidden="true" />
-                  {name}
-                </button>
-              ))}
-            </div>
-          </section>
+          <Panel title={ui.labels.settings} glass icon={<Settings size={14} />} onClose={() => setOpen(false)} className="shadow-2xl shadow-black/40">
+            <div className="flex flex-col gap-3 p-3">
+              <section>
+                <h3 className="label mb-1.5">
+                  <span className="mr-2 text-[0.8125rem] text-accent-2" aria-hidden="true">
+                    ✦
+                  </span>
+                  {ui.labels.appearance}
+                </h3>
+                <Segmented
+                  label={ui.labels.appearance}
+                  value={theme}
+                  onChange={() => toggleTheme()}
+                  options={modes.map(({ id, Icon, name }) => ({
+                    id,
+                    label: (
+                      <>
+                        <Icon size={13} aria-hidden="true" />
+                        {name}
+                      </>
+                    ),
+                  }))}
+                />
+              </section>
 
-          <section className="p-3">
-            <h3 className="label mb-2">{ui.labels.language}</h3>
-            <div role="group" aria-label={ui.labels.language} className="grid grid-cols-3 gap-1 rounded-md border border-border bg-bg p-1">
-              {SUPPORTED_LOCALES.map((meta) => (
-                <button
-                  key={meta.code}
-                  type="button"
-                  lang={meta.code}
-                  aria-pressed={locale === meta.code}
-                  onClick={() => locale !== meta.code && setLocale(meta.code)}
-                  className={`cursor-pointer rounded px-2 py-1.5 text-xs transition-colors ${locale === meta.code ? "bg-surface-2 text-text" : "text-muted hover:text-text"}`}
-                >
-                  {meta.nativeLabel}
-                </button>
-              ))}
+              <section>
+                <h3 className="label mb-1.5">
+                  <span className="mr-2 text-[0.8125rem] text-accent-2" aria-hidden="true">
+                    ✦
+                  </span>
+                  {ui.labels.language}
+                </h3>
+                <Segmented
+                  label={ui.labels.language}
+                  value={locale}
+                  onChange={setLocale}
+                  options={SUPPORTED_LOCALES.map((meta) => ({ id: meta.code, label: meta.nativeLabel, lang: meta.code }))}
+                />
+              </section>
             </div>
-          </section>
+          </Panel>
         </div>,
         document.body,
       )}

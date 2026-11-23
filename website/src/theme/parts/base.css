@@ -286,3 +286,62 @@ html {
     transform: translate(-50%, -50%);
   }
 }
+
+/* ---- The small round switches (Segmented.tsx): a track, a lit pill that glides behind the chosen option, and text that fades between muted and bright ---- */
+.seg {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n), 1fr);
+  padding: 2px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
+}
+
+.seg-pill {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: calc((100% - 4px) / var(--n));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 48%, transparent),
+    0 0 12px -2px color-mix(in srgb, var(--color-accent) 40%, transparent);
+  transform: translateX(calc(var(--i) * 100%));
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.seg-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  color: var(--color-muted);
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: color 0.4s ease;
+}
+
+.seg-btn:hover {
+  color: var(--color-text);
+}
+
+.seg-btn[aria-pressed="true"] {
+  color: var(--color-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seg-pill,
+  .seg-btn {
+    transition: none;
+  }
+}

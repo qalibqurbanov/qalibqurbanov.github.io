@@ -189,39 +189,6 @@
   }
 }
 
-/* A faint moving grain inside the settings popup only: the same noise as the card, clipped to the popup. */
-.settings-grain {
-  overflow: hidden;
-}
-
-.settings-grain::after {
-  content: "";
-  position: absolute;
-  inset: -50%;
-  z-index: 1;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1.6 0 0 0 -.62'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
-  background-size: 220px 220px;
-  opacity: 0.07;
-  animation: card-grain 0.9s steps(1) infinite;
-}
-
-[data-theme="light"] .settings-grain::after {
-  filter: invert(1);
-  opacity: 0.09;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .settings-grain::after {
-    animation: none;
-  }
-}
-
-/* The settings popup has square corners, so its rim does too. */
-.settings-pop .card-rim {
-  border-radius: 0;
-}
-
 /* The menu's markers, on the right of a row: a blue circle on the open page, and a purple arrow that slides in on a page that
    is pointed at. Nothing is drawn along the row. */
 .nav-dot,
