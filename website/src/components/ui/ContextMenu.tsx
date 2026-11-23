@@ -1,20 +1,13 @@
-import { ArrowUp, ArrowUpRight, Bug, Check, FileText, Languages, Link2, Moon, Search, Sun } from "lucide-react";
+import { ArrowUp, Bug, Check, FileText, Link2 } from "lucide-react";
 import type { ComponentType, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import { OPEN_COMMAND_PALETTE_EVENT } from "@/components/command-palette/openPalette";
 import { GithubIcon } from "@/components/icons/BrandIcons";
-import { useProjectRoute } from "@/hooks/useProjectRoute";
-import { useContent, useLocale } from "@/i18n/context";
-import { SUPPORTED_LOCALES } from "@/i18n/locale";
+import { useContent } from "@/i18n/context";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
-import { scrollToTop } from "@/lib/scroll";
-import { useTheme } from "@/theme/context";
 
 /** How long the "Copied!" swap stays up before the menu auto-closes. */
 const COPY_FEEDBACK_MS = 900;
-
-const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/i.test(navigator.platform);
 
 interface MenuState {
   x: number;
@@ -28,19 +21,15 @@ interface MenuState {
 interface MenuItemProps {
   icon?: ComponentType<{ size?: number }>;
   label: string;
-  /** Right-aligned keyboard hint, e.g. "Alt C". */
-  hint?: string;
   /** Red instead of cyan: reserved for "Report a bug". */
   danger?: boolean;
-  /** Magenta instead of cyan. */
-  accent2?: boolean;
   /** Green instead of cyan: reserved for "View source on GitHub". */
   green?: boolean;
   onSelect: () => void;
 }
 
-function MenuItem({ icon: Icon, label, hint, danger, accent2, green, onSelect }: MenuItemProps) {
-  const tone = danger ? "ctx-danger" : green ? "ctx-green" : accent2 ? "ctx-magenta" : "";
+function MenuItem({ icon: Icon, label, danger, green, onSelect }: MenuItemProps) {
+  const tone = danger ? "ctx-danger" : green ? "ctx-green" : "";
   return (
     <button type="button" role="menuitem" tabIndex={-1} onClick={onSelect} className={`ctx-item ${tone}`}>
       {Icon && (
@@ -49,7 +38,6 @@ function MenuItem({ icon: Icon, label, hint, danger, accent2, green, onSelect }:
         </span>
       )}
       <span className="flex-1 truncate">{label}</span>
-      {hint && <kbd className="ctx-kbd">{hint}</kbd>}
     </button>
   );
 }
@@ -58,18 +46,14 @@ function MenuSeparator() {
   return <div role="separator" className="ctx-sep" />;
 }
 
-/** Right-click anywhere on the site opens this instead of the browser's own menu: a flat, sharp command list with a
- * neon edge. A path-style header shows where you clicked, then project actions when the click landed on a project
- * card, the site's utilities (with shortcut hints and a language switch), the résumé, and the repository links.
- * Arrow keys, Home and End move between items; Escape closes. */
+/** Right-click anywhere on the site opens this instead of the browser's own menu: a flat, sharp list with a neon edge. A
+ * path-style header shows where you clicked, then four actions: copy the page link, download the résumé, report a bug, and
+ * view the source on GitHub. Arrow keys, Home and End move between items; Escape closes. */
 export function ContextMenu() {
   const { ui, profile, projects } = useContent();
-  const { theme, toggleTheme } = useTheme();
-  const { locale, setLocale } = useLocale();
-  const { openProject } = useProjectRoute();
 
   const [menu, setMenu] = useState<MenuState | null>(null);
-  const [copiedKind, setCopiedKind] = useState<"repo" | "page" | null>(null);
+  const [copied, setCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimeout = useRef<number | undefined>(undefined);
 
@@ -89,7 +73,7 @@ export function ContextMenu() {
         projectSlug: target.closest<HTMLElement>("[data-project-slug]")?.dataset.projectSlug ?? null,
         sectionId: target.closest<HTMLElement>("section[id]")?.id ?? null,
       });
-      setCopiedKind(null);
+      setCopied(false);
     }
     document.addEventListener("contextmenu", handleContextMenu);
     return () => document.removeEventListener("contextmenu", handleContextMenu);
@@ -148,9 +132,9 @@ export function ContextMenu() {
   const project = menu.projectSlug ? (projects.find((item) => item.slug === menu.projectSlug) ?? null) : null;
   const where = project ? `projects/${project.slug}` : (menu.sectionId ?? "home");
 
-  function copyThenClose(text: string, kind: "repo" | "page") {
+  function copyThenClose(text: string) {
     navigator.clipboard.writeText(text).catch(() => {});
-    setCopiedKind(kind);
+    setCopied(true);
     window.clearTimeout(closeTimeout.current);
     closeTimeout.current = window.setTimeout(close, COPY_FEEDBACK_MS);
   }
@@ -198,94 +182,14 @@ export function ContextMenu() {
       </div>
 
       <div className="p-1.5">
-        {project && (
-          <>
-            <MenuItem
-              icon={ArrowUpRight}
-              label={ui.commandPalette.openCaseStudy}
-              onSelect={() => {
-                openProject(project.slug);
-                close();
-              }}
-            />
-            <MenuItem
-              icon={GithubIcon}
-              label={ui.projectDetail.viewRepo}
-              onSelect={() => {
-                window.open(project.repoUrl, "_blank", "noreferrer");
-                close();
-              }}
-            />
-            <MenuItem
-              icon={copiedKind === "repo" ? Check : Link2}
-              label={copiedKind === "repo" ? ui.contextMenu.repoLinkCopied : ui.contextMenu.copyRepoLink}
-              onSelect={() => copyThenClose(project.repoUrl, "repo")}
-            />
-            <MenuSeparator />
-          </>
-        )}
-
         <MenuItem
-          icon={Search}
-          label={ui.contextMenu.openCommandPalette}
-          hint={isMac ? "⌥ C" : "Alt C"}
-          onSelect={() => {
-            window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE_EVENT));
-            close();
-          }}
-        />
-        <MenuItem
-          icon={theme === "dark" ? Sun : Moon}
-          label={ui.commandPalette.actionToggleTheme}
-          onSelect={() => {
-            toggleTheme();
-            close();
-          }}
-        />
-        <MenuItem
-          icon={ArrowUp}
-          label={ui.backToTop}
-          onSelect={() => {
-            scrollToTop();
-            close();
-          }}
-        />
-        <MenuItem
-          icon={copiedKind === "page" ? Check : Link2}
-          label={copiedKind === "page" ? ui.contextMenu.pageLinkCopied : ui.contextMenu.copyPageLink}
+          icon={copied ? Check : Link2}
+          label={copied ? ui.contextMenu.pageLinkCopied : ui.contextMenu.copyPageLink}
           onSelect={() => {
             const url = `${window.location.origin}${window.location.pathname}${menu.sectionId ? `#${menu.sectionId}` : ""}`;
-            copyThenClose(url, "page");
+            copyThenClose(url);
           }}
         />
-
-        <div className="flex items-center gap-2.5 px-2.5 py-1.5">
-          <span className="text-muted">
-            <Languages size={14} />
-          </span>
-          <span className="flex-1 truncate text-text">{ui.commandPalette.groupLanguages}</span>
-          <div role="group" className="flex gap-px border border-border bg-bg p-px">
-            {SUPPORTED_LOCALES.map((meta) => (
-              <button
-                key={meta.code}
-                type="button"
-                role="menuitem"
-                tabIndex={-1}
-                title={meta.nativeLabel}
-                aria-current={locale === meta.code}
-                onClick={() => {
-                  setLocale(meta.code);
-                  close();
-                }}
-                className={`px-1.5 py-0.5 text-[0.625rem] font-semibold uppercase outline-none transition-colors ${
-                  locale === meta.code ? "bg-accent text-on-accent" : "text-muted hover:text-accent focus-visible:text-accent"
-                }`}
-              >
-                {meta.code}
-              </button>
-            ))}
-          </div>
-        </div>
 
         {hasResume && (
           <>

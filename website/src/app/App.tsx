@@ -1,4 +1,3 @@
-import { isPaletteShortcut, OPEN_COMMAND_PALETTE_EVENT } from "@/components/command-palette/openPalette";
 import { OPEN_CONTACT_EVENT } from "@/components/contact/openContact";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -9,7 +8,7 @@ import { TooltipLayer } from "@/components/ui/TooltipLayer";
 import { OnDemand } from "@/components/ui/OnDemand";
 import { About } from "@/features/about/About";
 import { Home } from "@/features/home/Home";
-import { Blog, BlogPost, CommandPalette, Contact, ContactModal, Experience, Links, ProjectDetail, Projects, ResumeViewer, Skills } from "@/app/sections";
+import { Blog, BlogPost, Contact, ContactModal, Experience, Links, ProjectDetail, Projects, ResumeViewer, Skills } from "@/app/sections";
 import { useHashSectionFocus } from "@/hooks/useHashSectionFocus";
 import { usePageSwitch } from "@/hooks/usePage";
 import { useProjectRoute } from "@/hooks/useProjectRoute";
@@ -41,7 +40,6 @@ export function App() {
 
   return (
     <div className="relative min-h-screen">
-      <OnDemand component={CommandPalette} event={OPEN_COMMAND_PALETTE_EVENT} shortcut={isPaletteShortcut} />
       <OnDemand component={ContactModal} event={OPEN_CONTACT_EVENT} />
 
       <CustomCursor />

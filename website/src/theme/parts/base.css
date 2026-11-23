@@ -171,8 +171,6 @@ html {
 
 .animate-popover-in,
 .context-menu,
-.command-dialog-overlay,
-.command-dialog-content,
 .notice-in {
   animation: fade-in 0.12s ease-out both;
 }

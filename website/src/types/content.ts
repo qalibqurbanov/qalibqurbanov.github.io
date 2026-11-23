@@ -260,33 +260,9 @@ export interface UiStrings {
     back: string;
     home: string;
   };
-  commandPalette: {
-    placeholder: string;
-    empty: string;
-    groupNavigation: string;
-    groupExperience: string;
-    groupProjects: string;
-    groupSkills: string;
-    groupActions: string;
-    groupLanguages: string;
-    actionToggleTheme: string;
-    actionCopyEmail: string;
-    actionEmailCopied: string;
-    actionOpenResume: string;
-    actionOpenGithub: string;
-    actionOpenLinkedin: string;
-    actionOpenTelegram: string;
-    actionOpenMedium: string;
-    actionOpenStackOverflow: string;
-    actionReportBug: string;
-    openCaseStudy: string;
-  };
   contextMenu: {
-    copyRepoLink: string;
-    repoLinkCopied: string;
     copyPageLink: string;
     pageLinkCopied: string;
-    openCommandPalette: string;
     downloadResume: string;
     viewSourceOnGithub: string;
     reportBug: string;

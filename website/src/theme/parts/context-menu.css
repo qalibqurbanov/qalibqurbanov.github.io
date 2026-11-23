@@ -53,6 +53,28 @@
   flex: none;
   background: var(--color-accent);
   box-shadow: 0 0 8px var(--color-accent);
+  animation: ctx-ping 2s ease-out infinite;
+}
+
+/* The same soft ring as the live job's node on the Experience page: it spreads out from the dot and fades, on a slow beat. */
+@keyframes ctx-ping {
+  0% {
+    box-shadow:
+      0 0 8px var(--color-accent),
+      0 0 0 0 color-mix(in srgb, var(--color-accent) 60%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow:
+      0 0 8px var(--color-accent),
+      0 0 0 10px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctx-dot {
+    animation: none;
+  }
 }
 
 .ctx-item {
@@ -69,10 +91,6 @@
     background-color 0.15s ease,
     color 0.15s ease;
   --tone: var(--color-accent);
-}
-
-.ctx-item.ctx-magenta {
-  --tone: var(--color-accent-2);
 }
 
 .ctx-item.ctx-danger {
@@ -124,16 +142,6 @@
 .ctx-item:hover .ctx-icon,
 .ctx-item:focus-visible .ctx-icon {
   color: currentColor;
-}
-
-.ctx-kbd {
-  border: 1px solid var(--color-border);
-  background: var(--color-bg);
-  padding: 0 0.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  line-height: 1.1rem;
-  color: var(--color-muted);
 }
 
 .ctx-sep {
