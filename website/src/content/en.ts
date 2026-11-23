@@ -19,7 +19,7 @@ const en: Content = {
   about: {
     paragraphs: [
       "I'm a backend developer with **{years} years of experience**, working primarily within the ==.NET ecosystem==. Between my day-to-day work and freelance projects, I've been part of building **15+ projects**, from internal tools to client-facing platforms that businesses use in their everyday operations.",
-      "Alongside the backend work, I design and optimize ==databases==, automate builds and deployments through ==DevOps== pipelines, and handle basic administration tasks on ==Linux== servers. When a project needs it, I can also work on the ==frontend== and ==mobile== side.",
+      "Alongside backend development, I also spend time designing and optimizing ==databases==, setting up ==DevOps== pipelines for builds and deployments, and handling basic ==Linux== server administration. I also have some experience with the ==frontend==, and a little bit of experience on the ==mobile== side.",
       "Outside of work, I enjoy going for rides on my **road bike**. Sometimes I join group rides, and other times I take longer solo routes, which are a great way to explore new places, clear my head, and enjoy the journey. I also spend some of my free time creating things with ==[GoldSrc](https://en.wikipedia.org/wiki/GoldSrc)==, the engine behind classics like ==[Half-Life 1](https://en.wikipedia.org/wiki/Half-Life_(video_game))== and ==[Counter-Strike 1.6](https://en.wikipedia.org/wiki/Counter-Strike_(video_game))==. I **design levels** and develop server plugins, mainly to introduce new features and improve existing gameplay, making the experience more enjoyable for players.",
     ],
     highlights: [

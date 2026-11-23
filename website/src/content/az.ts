@@ -19,7 +19,7 @@ const az: Content = {
   about: {
     paragraphs: [
       "Mən **{years} illik təcrübəyə** malik backend developerəm və əsasən ==.NET== ekosistemində çalışıram. Gündəlik işim və freelance layihələrim arasında daxili alətlərdən tutmuş, bizneslərin gündəlik fəaliyyətində istifadə etdiyi müştəri platformalarına qədər **15+ layihənin** yaradılmasında iştirak etmişəm.",
-      "Backend işi ilə yanaşı ==verilənlər bazalarını== dizayn və optimallaşdırıram, ==DevOps== pipeline-ları ilə build və deploy proseslərini avtomatlaşdırıram, ==Linux== serverlərdə əsas administrasiya işlərini görürəm. Layihə tələb etdikdə ==frontend== və ==mobil== tərəfdə də işləyə bilərəm.",
+      "Backend inkişafı ilə yanaşı ==verilənlər bazalarının== dizaynı və optimallaşdırılması, build və deploy üçün ==DevOps== pipeline-larının qurulması və ==Linux== serverlərin əsas administrasiyası ilə də məşğul oluram. ==Frontend== sahəsində müəyyən təcrübəm, ==mobil== sahədə isə bir qədər təcrübəm var.",
       "İşdən kənarda **şosse velosipedimlə** gəzintiyə çıxmağı sevirəm. Bəzən qrup sürüşlərinə qoşuluram, bəzən isə uzun tək marşrutlara çıxıram — bu, yeni yerlər kəşf etmək, fikirləri dağıtmaq və yolun həzzini çıxarmaq üçün əla yoldur. Boş vaxtımın bir hissəsini ==[Half-Life 1](https://en.wikipedia.org/wiki/Half-Life_(video_game))== və ==[Counter-Strike 1.6](https://en.wikipedia.org/wiki/Counter-Strike_(video_game))== kimi klassiklərin əsasında duran ==[GoldSrc](https://en.wikipedia.org/wiki/GoldSrc)== engine ilə nəsə yaratmağa da ayırıram. **Level dizaynı** hazırlayır və server pluginləri yazıram, əsasən yeni funksiyalar əlavə etmək və mövcud oyun prosesini yaxşılaşdırmaq üçün, beləcə oyunçular üçün təcrübəni daha xoş edirəm.",
     ],
     highlights: [
