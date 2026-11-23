@@ -80,6 +80,12 @@ const az: Content = {
           logo: "/logos/sanat.png",
           description: "SANAT İncəsənət Mərkəzinin saytı.",
         },
+        {
+          label: "İƏT Əmək Mərkəzi",
+          url: "https://lc-oic.org",
+          logo: "/logos/oic-labour-centre.png",
+          description: "İƏT Əmək Mərkəzinin rəsmi veb saytı: onun fəaliyyəti, xəbərləri, nəşrləri və gələcək layihələri haqqında ictimaiyyəti məlumatlandırır.",
+        },
       ],
       highlightsIntro: "Bu layihələrdə aşağıdakılarla məşğul olmuşam:",
       highlights: [

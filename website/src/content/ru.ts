@@ -80,6 +80,12 @@ const ru: Content = {
           logo: "/logos/sanat.png",
           description: "Сайт арт-центра SANAT.",
         },
+        {
+          label: "Трудовой центр ОИС",
+          url: "https://lc-oic.org",
+          logo: "/logos/oic-labour-centre.png",
+          description: "Официальный сайт Трудового центра ОИС, который информирует публику о его деятельности, новостях, публикациях и будущих проектах.",
+        },
       ],
       highlightsIntro: "В этих проектах я занимался следующим:",
       highlights: [

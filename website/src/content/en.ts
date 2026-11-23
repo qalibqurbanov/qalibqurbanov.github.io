@@ -80,6 +80,12 @@ const en: Content = {
           logo: "/logos/sanat.png",
           description: "The website of SANAT Art Center.",
         },
+        {
+          label: "OIC Labour Centre",
+          url: "https://lc-oic.org",
+          logo: "/logos/oic-labour-centre.png",
+          description: "The official website of the OIC Labour Centre, which keeps the public informed about its activities, news, publications and future projects.",
+        },
       ],
       highlightsIntro: "In these projects, I worked with the following:",
       highlights: [
