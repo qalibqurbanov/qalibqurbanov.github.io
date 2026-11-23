@@ -2,12 +2,11 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Check, CheckCircle2, CircleAlert, Clock, Mail, Paperclip, Send, X } from "lucide-react";
 import type { DragEvent, FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+
 
 import { SendDrawIcon } from "@/components/icons/DrawIcons";
-
 import { Panel } from "@/components/ui/Panel";
-import { Notice, NOTICE_MS } from "@/components/ui/Notice";
+import { FormNote, NOTE_MS } from "./FormNote";
 import { ViewModal } from "@/components/ui/ViewModal";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
@@ -34,8 +33,6 @@ const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 /** Attachments need a plan that accepts files (the free tiers of the usual services do not): they are only offered when this is switched on. */
 const ATTACHMENTS = import.meta.env.VITE_CONTACT_ATTACHMENTS === "true";
 
-/** After a message is sent the tick stays on the button this long, then the window closes itself. */
-const TICK_MS = 1800;
 
 /** A plain check that an address has an @ and a dot after it; the mail service does the real one. */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -176,22 +173,6 @@ async function deliver(
   }
 }
 
-/** After a message is sent the window stays a moment, with a tick on its button, then `onDone` closes it. It draws nothing itself. */
-function CloseSoon({ onDone }: { onDone: () => void }) {
-  const doneRef = useRef(onDone);
-
-  useEffect(() => {
-    doneRef.current = onDone;
-  });
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => doneRef.current(), TICK_MS);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  return null;
-}
-
 /** What the Send button shows once the message is sent: a tick that pops in and draws itself (see .sent-tick). */
 function SentTick({ label }: { label: string }) {
   return <Check size={20} strokeWidth={3} role="img" aria-label={label} className="sent-tick" />;
@@ -262,6 +243,7 @@ export function ContactModal() {
       setFileError(false);
       setProblems([]);
       setInvalid([]);
+      setSentNotice(null);
       setSentTimes(recentSends(Date.now()));
       checkToken.current = null;
       setCheck(checked ? "pending" : "ready");
@@ -398,6 +380,16 @@ export function ContactModal() {
           count: String(waitKind === "server" ? SERVER_LIMIT : MAX_PER_WINDOW),
         })
       : null;
+  // A short line right under a field that failed the check; it goes away as soon as the visitor types in that field.
+  const hint = (field: Field) => {
+    const problem = invalid.includes(field) ? problems.find((p) => p.field === field) : undefined;
+    return problem ? (
+      <span role="alert" className="notice-in flex min-w-0 items-center gap-1 text-[0.6875rem] text-danger">
+        <CircleAlert size={12} className="shrink-0" />
+        {problem.text}
+      </span>
+    ) : null;
+  };
   const fieldClass = (field: Field, extra = "") => `${FIELD} ${extra} ${invalid.includes(field) ? "border-danger!" : ""}`;
 
   return (
@@ -426,15 +418,38 @@ export function ContactModal() {
                 {t.title}
               </Dialog.Title>
               <Dialog.Description className="mt-1 text-sm text-muted">
+                <span className="mr-2 text-[0.8125rem] text-accent-2" aria-hidden="true">
+                  ✦
+                </span>
                 {t.description}
               </Dialog.Description>
-              <p className="mt-2 text-[0.6875rem] leading-relaxed text-muted/80">
-                {format(t.limits, { count: String(MAX_PER_WINDOW), seconds: String(MIN_GAP_MS / 1000), chars: String(MESSAGE_MAX) })}
+              <p className="mt-2 flex items-baseline gap-2 text-[0.6875rem] leading-relaxed text-muted/80">
+                <span aria-hidden="true" className="text-accent">
+                  —
+                </span>
+                <span>
+                  {format(sentTimes.length > 0 ? t.limitsSent : t.limits, {
+                    count: String(MAX_PER_WINDOW),
+                    sent: String(sentTimes.length),
+                    left: String(Math.max(0, MAX_PER_WINDOW - sentTimes.length)),
+                    seconds: String(MIN_GAP_MS / 1000),
+                    chars: String(MESSAGE_MAX),
+                  })}
+                  {sentTimes.length >= MAX_PER_WINDOW && (
+                    <span className="text-accent">
+                      {" "}
+                      {format(t.sentAll, { count: String(MAX_PER_WINDOW), clock: formatClock([...sentTimes].sort((a, b) => a - b)[sentTimes.length - MAX_PER_WINDOW] + WINDOW_MS, bcp47) })}
+                    </span>
+                  )}
+                </span>
               </p>
             </div>
 
             <label className="flex flex-col gap-1.5 text-xs text-muted">
-              {t.nameLabel}
+              <span className="flex items-center justify-between gap-2">
+                {t.nameLabel}
+                {hint("name")}
+              </span>
               <input
                 name="name"
                 required
@@ -445,7 +460,10 @@ export function ContactModal() {
               />
             </label>
             <label className="flex flex-col gap-1.5 text-xs text-muted">
-              {t.emailLabel}
+              <span className="flex items-center justify-between gap-2">
+                {t.emailLabel}
+                {hint("email")}
+              </span>
               <input
                 name="email"
                 type="email"
@@ -457,7 +475,10 @@ export function ContactModal() {
               />
             </label>
             <label className="flex flex-col gap-1.5 text-xs text-muted">
-              {t.messageLabel}
+              <span className="flex items-center justify-between gap-2">
+                {t.messageLabel}
+                {hint("message")}
+              </span>
               <textarea
                 name="message"
                 required
@@ -567,45 +588,6 @@ export function ContactModal() {
               />
             )}
 
-            {problems.length > 0 ? (
-              <Notice key={`problems-${round}`} tone="danger" icon={<CircleAlert size={16} />} lifeMs={NOTICE_MS} onClose={() => setProblems([])}>
-                <ul className="flex flex-col gap-0.5">
-                  {problems.map((problem) => (
-                    <li key={problem.field}>{problem.text}</li>
-                  ))}
-                </ul>
-              </Notice>
-            ) : status === "error" ? (
-              <Notice key={`error-${round}`} tone="danger" icon={<CircleAlert size={16} />} lifeMs={NOTICE_MS} onClose={() => setStatus("idle")}>
-                {t.error}{" "}
-                <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
-                  {t.emailInstead}
-                </a>
-              </Notice>
-            ) : status === "tooMany" ? (
-              <Notice key={`toomany-${round}`} tone="info" icon={<Clock size={16} />} lifeMs={NOTICE_MS} onClose={() => setStatus("idle")}>
-                {format(t.tooMany, { count: String(SERVER_LIMIT) })}{" "}
-                <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
-                  {t.emailInstead}
-                </a>
-              </Notice>
-            ) : waitText ? (
-              <Notice
-                key={`wait-${round}`}
-                tone="info"
-                icon={<Clock size={16} />}
-                lifeMs={waitTotalMs}
-                from={waitFrom}
-                onClose={() => {
-                  clearWait();
-                  setStatus("idle");
-                  setWaitMs(0);
-                }}
-              >
-                {waitText}
-              </Notice>
-            ) : null}
-
             <button
               type="submit"
               disabled={status === "sending" || done || check === "pending"}
@@ -614,39 +596,46 @@ export function ContactModal() {
               {!done && (canSend ? <Send size={14} /> : <Mail size={14} />)}
               {status === "sending" ? t.sending : done ? <SentTick label={t.successTitle} /> : canSend ? t.send : t.mailSend}
             </button>
-            {done && <CloseSoon onDone={close} />}
-            {sentTimes.length > 0 && (
-                // A small panel of its own, with one dot for each message of the hour (filled once used), so it reads as a status and not as one more rule.
-                <p
-                  className={`-mt-1 inline-flex items-center gap-2.5 self-center rounded-md border bg-surface-2 px-3 py-1.5 text-xs ${
-                    sentTimes.length >= MAX_PER_WINDOW ? "border-accent/60 text-accent" : "border-border text-text"
-                  }`}
-                >
-                  <span className="flex shrink-0 gap-1" aria-hidden="true">
-                    {Array.from({ length: MAX_PER_WINDOW }, (_, i) => (
-                      <i key={i} className={`h-2 w-2 rounded-full border ${i < sentTimes.length ? "border-accent bg-accent" : "border-muted/60"}`} />
-                    ))}
-                  </span>
-                  <span className="text-left">
-                    {sentTimes.length >= MAX_PER_WINDOW
-                      ? format(t.sentAll, { count: String(MAX_PER_WINDOW), clock: formatClock([...sentTimes].sort((a, b) => a - b)[sentTimes.length - MAX_PER_WINDOW] + WINDOW_MS, bcp47) })
-                      : format(t.sentCount, { sent: String(sentTimes.length), count: String(MAX_PER_WINDOW) })}
-                  </span>
-                </p>
-              )}
+            {done && sentNotice ? (
+              <FormNote key={`sent-${sentNotice.id}`} tone="success" icon={<CheckCircle2 size={14} />}>
+                <p className="font-semibold">{sentNotice.title}</p>
+                <p className="mt-0.5 text-muted">{sentNotice.body}</p>
+              </FormNote>
+            ) : status === "error" ? (
+              <FormNote key={`error-${round}`} tone="danger" icon={<CircleAlert size={14} />} lifeMs={NOTE_MS} onClose={() => setStatus("idle")}>
+                {t.error}{" "}
+                <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
+                  {t.emailInstead}
+                </a>
+              </FormNote>
+            ) : status === "tooMany" ? (
+              <FormNote key={`toomany-${round}`} tone="info" icon={<Clock size={14} />} lifeMs={NOTE_MS} onClose={() => setStatus("idle")}>
+                {format(t.tooMany, { count: String(SERVER_LIMIT) })}{" "}
+                <a href={`mailto:${profile.email}`} className="underline underline-offset-2 hover:text-accent">
+                  {t.emailInstead}
+                </a>
+              </FormNote>
+            ) : waitText ? (
+              <FormNote
+                key={`wait-${round}`}
+                tone="info"
+                icon={<Clock size={14} />}
+                lifeMs={waitTotalMs}
+               
+                onClose={() => {
+                  clearWait();
+                  setStatus("idle");
+                  setWaitMs(0);
+                }}
+              >
+                {waitText}
+              </FormNote>
+            ) : null}
           </form>
         </div>
       </Panel>
       )}
     </ViewModal>
-    {sentNotice &&
-      createPortal(
-        <Notice key={sentNotice.id} tone="success" icon={<CheckCircle2 size={16} />} lifeMs={NOTICE_MS} onClose={() => setSentNotice(null)}>
-          <p className="font-semibold">{sentNotice.title}</p>
-          <p className="mt-0.5 text-muted">{sentNotice.body}</p>
-        </Notice>,
-        document.body,
-      )}
     </>
   );
 }
