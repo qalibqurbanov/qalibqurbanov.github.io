@@ -99,7 +99,7 @@ export function ResumeViewer({ onBack }: ResumeViewerProps) {
               <Panel
                 title={ui.labels.resume}
                 glass
-                icon={<FileDrawIcon size={15} />}
+                icon={<FileDrawIcon size={14} />}
                 meta={pages > 0 ? `PDF · ${page} / ${pages}` : "PDF"}
                 actions={actions}
                 className="flex h-full min-h-0 flex-col"
