@@ -18,14 +18,14 @@ const en: Content = {
   socials,
   about: {
     paragraphs: [
-      "I'm a backend developer with **{years} years of experience**, focused mainly on the ==.NET ecosystem==. Between my day job and freelance work I've delivered **20+ projects**, from small internal tools to client-facing platforms that businesses rely on every day.",
-      "Alongside the backend work, I design and optimize ==databases==, automate builds and deployments through ==DevOps== pipelines, and handle basic administration tasks on ==Linux== servers. When a project requires it, I also work on the ==frontend== and ==mobile== side.",
-      "When I'm away from the keyboard, I'm usually on my **road bike**. I join group rides when I can, and I save the long solo routes for finding new places and enjoying the ride itself. The other half of my free time goes into building worlds: I do **level design** for ==GoldSrc==, the engine behind games like ==Half-Life== and ==Counter-Strike==, and write server plugins that give players new mechanics to play with.",
+      "I'm a backend developer with **{years} years of experience**, focused mainly on the ==.NET ecosystem==. Across my day job and freelance work I've shipped **15+ projects**, ranging from internal tools to client-facing platforms of any size that businesses rely on every day.",
+      "Alongside the backend work, I design and optimize ==databases==, automate builds and deployments through ==DevOps== pipelines, and handle basic administration tasks on ==Linux== servers. When a project needs it, I can also work on the ==frontend== and ==mobile== side.",
+      "My free time splits between two things I love. One is my **road bike**: I join group rides when I can, and I save the long solo routes for finding new places and enjoying the ride itself. The other is building worlds: I do **level design** for ==[GoldSrc](https://en.wikipedia.org/wiki/GoldSrc)==, the engine behind classics like ==[Half-Life 1](https://en.wikipedia.org/wiki/Half-Life_(video_game))== and ==[Counter-Strike 1.6](https://en.wikipedia.org/wiki/Counter-Strike_(video_game))==, and write server plugins that enrich the gameplay and make servers better to play on.",
     ],
     highlights: [
       { label: "Focus areas", value: "Software Development" },
       { label: "Experience", value: "{years} years" },
-      { label: "Projects shipped", value: "20+" },
+      { label: "Projects shipped", value: "15+" },
       { label: "Based in", value: enProfile.location },
       { label: "Open to", value: "Full-time, freelance, remote" },
     ],
@@ -262,7 +262,7 @@ const en: Content = {
     home: {
       intro: "I build software **end-to-end** — from **backend APIs and databases** to polished **websites, mobile and desktop apps**. I like turning ideas into **fast, reliable, well-designed** products.",
       ecosystem: "Main ecosystem",
-      chapters: ["What I build","Beyond the code","Off the keyboard"],
+      chapters: ["Me, my work","Beyond the backend","Off the keyboard"],
     },
     links: {
       title: "Links",

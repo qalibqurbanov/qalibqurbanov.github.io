@@ -18,14 +18,14 @@ const az: Content = {
   socials,
   about: {
     paragraphs: [
-      "Mən **{years} illik təcrübəyə** malik backend developerəm və əsasən ==.NET== ekosistemində çalışıram. Əsas işim və freelance təcrübəm çərçivəsində kiçik daxili alətlərdən tutmuş biznesin hər gün istifadə etdiyi müştəri platformalarına qədər **20+ layihə** həyata keçirmişəm.",
-      "Backend işi ilə yanaşı ==verilənlər bazalarını== dizayn və optimallaşdırıram, ==DevOps== pipeline-ları ilə build və deploy proseslərini avtomatlaşdırıram, ==Linux== serverlərdə əsas administrasiya işlərini görürəm. Layihə tələb etdikdə ==frontend== və ==mobil== tərəfdə də işləyirəm.",
-      "Klaviaturadan uzaq olanda adətən **şosse velosipedimdə** oluram. Mümkün olduqda qrup sürüşlərinə qoşuluram, uzun tək marşrutları isə yeni yerlər kəşf etmək və yolun özündən zövq almaq üçün saxlayıram. Boş vaxtımın digər yarısı dünyalar yaratmağa gedir: ==Half-Life== və ==Counter-Strike== kimi oyunların əsasında duran ==GoldSrc== engine üçün **level dizaynı** ilə məşğul oluram və oyunçulara yeni mexanikalar təqdim edən server pluginləri yazıram.",
+      "Mən **{years} illik təcrübəyə** malik backend developerəm və əsasən ==.NET== ekosistemində çalışıram. Əsas işim və freelance təcrübəm çərçivəsində daxili alətlərdən tutmuş biznesin hər gün istifadə etdiyi, istənilən miqyasda müştəri platformalarına qədər **15+ layihə** həyata keçirmişəm.",
+      "Backend işi ilə yanaşı ==verilənlər bazalarını== dizayn və optimallaşdırıram, ==DevOps== pipeline-ları ilə build və deploy proseslərini avtomatlaşdırıram, ==Linux== serverlərdə əsas administrasiya işlərini görürəm. Layihə tələb etdikdə ==frontend== və ==mobil== tərəfdə də işləyə bilərəm.",
+      "Boş vaxtım mənim üçün əziz olan iki şey arasında bölünür. Biri **şosse velosipedimdir**: mümkün olduqda qrup sürüşlərinə qoşuluram, uzun tək marşrutları isə yeni yerlər kəşf etmək və yolun özündən zövq almaq üçün saxlayıram. Digəri dünyalar yaratmaqdır: ==[Half-Life 1](https://en.wikipedia.org/wiki/Half-Life_(video_game))== və ==[Counter-Strike 1.6](https://en.wikipedia.org/wiki/Counter-Strike_(video_game))== kimi klassiklərin əsasında duran ==[GoldSrc](https://en.wikipedia.org/wiki/GoldSrc)== engine üçün **level dizaynı** ilə məşğul oluram və oyun prosesini zənginləşdirən, serverləri oynamaq üçün daha yaxşı edən pluginlər yazıram.",
     ],
     highlights: [
       { label: "Fokus sahələri", value: "Proqram təminatı tərtibatı" },
       { label: "Təcrübə", value: "{years} il" },
-      { label: "Layihələr", value: "20+" },
+      { label: "Layihələr", value: "15+" },
       { label: "Yerləşdiyi yer", value: azProfile.location },
       { label: "Açığam", value: "Tam ştat, freelance, remote işlərə" },
     ],
@@ -263,7 +263,7 @@ const az: Content = {
     home: {
       intro: "Mən proqram təminatını **başdan-sona** qururam — **backend API-lərdən və verilənlər bazalarından** cilalanmış **veb saytlara, mobil və desktop tətbiqlərə** qədər. İdeyaları **sürətli, etibarlı və yaxşı dizayn olunmuş** məhsullara çevirməyi sevirəm.",
       ecosystem: "Əsas ekosistem",
-      chapters: ["Nə qururam","Kodun kənarında","Klaviaturadan uzaqda"],
+      chapters: ["Mən, işim","Backend-dən kənarda","Klaviaturadan uzaqda"],
     },
     links: {
       title: "Linklər",
