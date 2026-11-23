@@ -71,7 +71,7 @@ export function ViewModal({
             className="flex min-h-0 flex-1 flex-col items-center p-4 sm:p-8"
           >
             <div
-              className={`flex min-h-0 w-full flex-1 flex-col ${widthClass}`}
+              className={`flex min-h-0 w-full flex-1 flex-col justify-center ${widthClass}`}
             >
               {typeof children === "function"
                 ? children(requestClose)
