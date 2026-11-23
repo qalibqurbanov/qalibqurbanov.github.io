@@ -40,7 +40,8 @@ export function Panel({ title, tabs, footer, children, className = "", onClose, 
 
   const head = tabs ? (
     <div className={`flex shrink-0 items-center justify-between gap-4 px-3 py-2 ${glass ? "glass-head-line" : "border-b border-border"}`}>
-      <div className="flex min-w-0 items-center gap-1" role="tablist">
+      {glass && icon && <span className="glass-chip tone-blue ml-0.5 mr-1.5">{icon}</span>}
+      <div className="flex min-w-0 flex-1 items-center gap-1" role="tablist">
         {tabs}
       </div>
       <div className="flex shrink-0 items-center gap-2">

@@ -4,6 +4,7 @@ import type { DragEvent, FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { SendDrawIcon } from "@/components/icons/DrawIcons";
 
 import { Panel } from "@/components/ui/Panel";
 import { Notice, NOTICE_MS } from "@/components/ui/Notice";
@@ -406,7 +407,8 @@ export function ContactModal() {
       <Panel
         title={t.title}
         glass
-        className="flex min-h-0 flex-col"
+        icon={<SendDrawIcon size={15} />}
+        className="flex max-h-full min-h-0 flex-col"
         onClose={close}
       >
         <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-6">

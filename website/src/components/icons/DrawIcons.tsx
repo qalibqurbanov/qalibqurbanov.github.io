@@ -77,3 +77,24 @@ export function MenuDrawIcon({ open, size = 21 }: Props & { open: boolean }) {
     </Frame>
   );
 }
+
+/** An open book, for the article dialog. */
+export function BookDrawIcon({ size }: Props) {
+  return (
+    <Frame size={size}>
+      <path pathLength={1} style={delay(0)} d="M12 7v14" />
+      <path pathLength={1} style={delay(2)} d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+    </Frame>
+  );
+}
+
+/** Angle brackets with a slash, for the project dialog. */
+export function CodeDrawIcon({ size }: Props) {
+  return (
+    <Frame size={size}>
+      <path pathLength={1} style={delay(0)} d="m18 16 4-4-4-4" />
+      <path pathLength={1} style={delay(2)} d="m6 8-4 4 4 4" />
+      <path pathLength={1} style={delay(4)} d="m14.5 4-5 16" />
+    </Frame>
+  );
+}

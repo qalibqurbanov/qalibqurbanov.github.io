@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
+import { BookDrawIcon } from "@/components/icons/DrawIcons";
 import { CodeBlock } from "@/components/ui/CodeBlock";
 import { Panel } from "@/components/ui/Panel";
 import { Reveal } from "@/components/ui/Reveal";
@@ -44,7 +45,7 @@ export function BlogPost({ post, onBack }: BlogPostProps) {
           ) : (
             // Keyed by article, so stepping to the next one plays the entrance again.
             <Reveal key={post.slug} className="flex h-full min-h-0 flex-col">
-              <Panel title={t.backToWriting} glass className="flex min-h-0 flex-1 flex-col" onClose={close}>
+              <Panel title={t.backToWriting} glass icon={<BookDrawIcon size={15} />} className="flex min-h-0 flex-1 flex-col" onClose={close}>
                 <article className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-12 sm:py-14">
                   <p className="text-sm text-muted">
                     {t.published} <time dateTime={post.date}>{formatDate(post.date, getLocaleMeta(locale).bcp47)}</time>

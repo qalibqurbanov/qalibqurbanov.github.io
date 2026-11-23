@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, Check, Download, ExternalLink, Link2 } from "luc
 import { useEffect, useRef, useState } from "react";
 
 import { GithubIcon } from "@/components/icons/BrandIcons";
+import { CodeDrawIcon } from "@/components/icons/DrawIcons";
 import { Panel } from "@/components/ui/Panel";
 import { Reveal } from "@/components/ui/Reveal";
 import { ViewModal } from "@/components/ui/ViewModal";
@@ -142,7 +143,7 @@ function ProjectPanel({ project, onClose }: { project: Project; onClose: () => v
     ) : undefined;
 
   return (
-    <Panel title={project.kind} glass tabs={tabs} footer={footer} className="flex max-h-full min-h-0 flex-col" onClose={onClose}>
+    <Panel title={project.kind} glass icon={<CodeDrawIcon size={15} />} tabs={tabs} footer={footer} className="flex max-h-full min-h-0 flex-col" onClose={onClose}>
       <div
         ref={scrollRef}
         id="project-panel"
