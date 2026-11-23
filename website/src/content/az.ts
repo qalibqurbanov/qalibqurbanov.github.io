@@ -327,7 +327,7 @@ const az: Content = {
       tools: "Alətlər",
     },
     skillsLearning: "Hazırda öyrənirəm",
-    experienceLabels: { currentlyAt: "Hazırda", now: "indi", results: "Gördüyüm işlər", publicProjects: "Üzərində işlədiyim açıq layihələr", stack: "Texnologiyalar" },
+    experienceLabels: { currentlyAt: "Hazırda", now: "indi", results: "Gördüyüm işlər", publicProjects: "Üzərində işlədiyim açıq layihələrdən bəziləri", stack: "Texnologiyalar" },
     contact: {
       headlineLead: "Gəlin birlikdə",
       headlineAccent: "yaxşı bir şey quraq.",

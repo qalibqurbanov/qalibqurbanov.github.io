@@ -327,7 +327,7 @@ const ru: Content = {
       tools: "Инструменты",
     },
     skillsLearning: "Сейчас изучаю",
-    experienceLabels: { currentlyAt: "Сейчас", now: "сейчас", results: "Что я делал", publicProjects: "Публичные проекты, над которыми я работал", stack: "Стек" },
+    experienceLabels: { currentlyAt: "Сейчас", now: "сейчас", results: "Что я делал", publicProjects: "Некоторые из публичных проектов, над которыми я работал", stack: "Стек" },
     contact: {
       headlineLead: "Давайте создадим",
       headlineAccent: "что-нибудь хорошее.",

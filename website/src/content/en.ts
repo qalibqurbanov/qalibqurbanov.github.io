@@ -326,7 +326,7 @@ const en: Content = {
       tools: "Tools",
     },
     skillsLearning: "Currently learning",
-    experienceLabels: { currentlyAt: "Currently at", now: "now", results: "What I did", publicProjects: "Public projects I have worked on", stack: "Stack" },
+    experienceLabels: { currentlyAt: "Currently at", now: "now", results: "What I did", publicProjects: "Some of the public projects I have worked on", stack: "Stack" },
     contact: {
       headlineLead: "Let's build",
       headlineAccent: "something good.",
