@@ -331,7 +331,7 @@ const az: Content = {
       copy: "E-poçtu kopyala",
       copied: "Kopyalandı",
       writeNote: "Sualınız varsa və ya sadəcə salam vermək istəyirsinizsə — qutum həmişə açıqdır.",
-      resumeNote: "Hekayəmin qısa variantı",
+      resumeNote: "Peşəkar yolumun indiyədək qısa icmalı.",
     },
     nav: {
       toggleMenu: "Menyunu aç/bağla",

@@ -330,7 +330,7 @@ const en: Content = {
       copy: "Copy email",
       copied: "Copied",
       writeNote: "Whether you have a question or just want to say hi — my inbox is always open.",
-      resumeNote: "The short version of my story",
+      resumeNote: "A quick look at my professional journey so far.",
     },
     nav: {
       toggleMenu: "Toggle menu",
