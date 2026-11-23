@@ -184,7 +184,7 @@ type Field = "name" | "email" | "message";
 type Status = "idle" | "sending" | "sent" | "mail" | "error" | "limited" | "tooMany";
 
 const FIELD =
-  "w-full rounded-md border border-border bg-surface-2 px-3 py-2 font-sans text-sm text-text placeholder:text-muted/60 outline-none transition focus:border-accent selectable";
+  "w-full rounded-md border border-border bg-surface-2 px-3 py-1.5 font-sans text-sm text-text placeholder:text-muted/60 outline-none transition focus:border-accent selectable";
 
 export function ContactModal() {
   const { profile, ui } = useContent();
@@ -202,8 +202,6 @@ export function ContactModal() {
   // How long a "wait a moment" message still has to wait (ms): it counts the seconds down and goes away by itself.
   const [waitMs, setWaitMs] = useState(0);
   const [waitTotalMs, setWaitTotalMs] = useState(0);
-  // How full the wait popup's bar is when it shows: less than full when it comes back while the wait is half over.
-  const [waitFrom, setWaitFrom] = useState(1);
   // Why the form waits, and the time of day the wait ends (shown to the visitor).
   const [waitKind, setWaitKind] = useState<WaitKind>("pause");
   const [waitEndsAt, setWaitEndsAt] = useState(0);
@@ -230,7 +228,6 @@ export function ContactModal() {
         // A wait is still running: its popup comes back with the time that is left.
         setWaitMs(left);
         setWaitTotalMs(left);
-        setWaitFrom(Math.min(1, left / stored.total));
         setWaitKind(stored.kind);
         setWaitEndsAt(stored.until);
         setRound((count) => count + 1);
@@ -271,7 +268,6 @@ export function ContactModal() {
     writeWait(ms, kind);
     setWaitMs(ms);
     setWaitTotalMs(ms);
-    setWaitFrom(1);
     setWaitKind(kind);
     setWaitEndsAt(Date.now() + ms);
   }
@@ -399,11 +395,12 @@ export function ContactModal() {
       <Panel
         title={t.title}
         glass
-        icon={<SendDrawIcon size={15} />}
+        icon={<SendDrawIcon size={14} />}
+        tone="violet"
         className="flex max-h-full min-h-0 flex-col"
         onClose={close}
       >
-        <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-6">
+        <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
           <form
             noValidate
             onSubmit={handleSubmit}
@@ -411,7 +408,7 @@ export function ContactModal() {
               const field = (event.target as HTMLInputElement).name;
               setInvalid((list) => list.filter((name) => name !== field));
             }}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-3"
           >
             <div>
               <Dialog.Title className="sr-only">
@@ -445,51 +442,57 @@ export function ContactModal() {
               </p>
             </div>
 
-            <label className="flex flex-col gap-1.5 text-xs text-muted">
-              <span className="flex items-center justify-between gap-2">
-                {t.nameLabel}
-                {hint("name")}
-              </span>
-              <input
-                name="name"
-                required
-                maxLength={100}
-                autoComplete="name"
-                aria-invalid={invalid.includes("name")}
-                className={fieldClass("name")}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5 text-xs text-muted">
-              <span className="flex items-center justify-between gap-2">
-                {t.emailLabel}
-                {hint("email")}
-              </span>
-              <input
-                name="email"
-                type="email"
-                required
-                maxLength={200}
-                autoComplete="email"
-                aria-invalid={invalid.includes("email")}
-                className={fieldClass("email")}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5 text-xs text-muted">
+            {/* The name and the address side by side (one under the other on a phone). */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="flex min-w-0 flex-col gap-1 text-xs text-muted">
+                <span className="flex items-center justify-between gap-2">
+                  {t.nameLabel}
+                  {hint("name")}
+                </span>
+                <input
+                  name="name"
+                  placeholder={t.namePlaceholder}
+                  required
+                  maxLength={100}
+                  autoComplete="name"
+                  aria-invalid={invalid.includes("name")}
+                  className={fieldClass("name")}
+                />
+              </label>
+              <label className="flex min-w-0 flex-col gap-1 text-xs text-muted">
+                <span className="flex items-center justify-between gap-2">
+                  {t.emailLabel}
+                  {hint("email")}
+                </span>
+                <input
+                  name="email"
+                  placeholder={t.emailPlaceholder}
+                  type="email"
+                  required
+                  maxLength={200}
+                  autoComplete="email"
+                  aria-invalid={invalid.includes("email")}
+                  className={fieldClass("email")}
+                />
+              </label>
+            </div>
+            <label className="flex flex-col gap-1 text-xs text-muted">
               <span className="flex items-center justify-between gap-2">
                 {t.messageLabel}
                 {hint("message")}
               </span>
               <textarea
                 name="message"
+                placeholder={t.messagePlaceholder}
                 required
-                rows={5}
+                rows={4}
                 maxLength={MESSAGE_MAX}
                 aria-invalid={invalid.includes("message")}
                 className={fieldClass("message", "custom-scrollbar [--scrollbar-track:var(--color-surface-2)] resize-none")}
               />
             </label>
             {canAttach && (
-              <div className="flex flex-col gap-1.5 text-xs text-muted">
+              <div className="flex flex-col gap-1 text-xs text-muted">
                 {t.attachLabel}
                 <div
                   role="button"
@@ -507,7 +510,7 @@ export function ContactModal() {
                   }}
                   onDragLeave={() => setDragging(false)}
                   onDrop={handleDrop}
-                  className={`flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-4 text-center transition ${
+                  className={`flex min-h-9 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-2.5 text-center transition ${
                     dragging
                       ? "border-accent bg-accent/10 text-accent"
                       : "border-border bg-surface-2 hover:border-accent"
@@ -591,7 +594,7 @@ export function ContactModal() {
             <button
               type="submit"
               disabled={status === "sending" || done || check === "pending"}
-              className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition hover:brightness-110 disabled:opacity-60 ${done ? "disabled:opacity-100" : ""}`}
+              className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-accent px-5 py-2 text-sm font-medium text-on-accent transition hover:brightness-110 disabled:opacity-60 ${done ? "disabled:opacity-100" : ""}`}
             >
               {!done && (canSend ? <Send size={14} /> : <Mail size={14} />)}
               {status === "sending" ? t.sending : done ? <SentTick label={t.successTitle} /> : canSend ? t.send : t.mailSend}

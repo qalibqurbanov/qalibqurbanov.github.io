@@ -152,6 +152,10 @@ export interface UiStrings {
     nameLabel: string;
     emailLabel: string;
     messageLabel: string;
+    /** The grey hints inside the empty fields. */
+    namePlaceholder: string;
+    emailPlaceholder: string;
+    messagePlaceholder: string;
     attachLabel: string;
     dropHint: string;
     dropActive: string;
