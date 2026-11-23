@@ -72,12 +72,13 @@ const en: Content = {
         {
           label: "AnyPartz",
           url: "https://anypartz.com",
+          logo: "/logos/anypartz.png",
           description: "An online store that sells spare parts for all kinds of things.",
         },
         {
           label: "SANAT Art Center",
           url: "https://sanat.az",
-          logo: "/logos/sanat.png",
+          logo: "/logos/sanat.svg",
           description: "The website of SANAT Art Center.",
         },
         {
