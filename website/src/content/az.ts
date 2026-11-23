@@ -263,7 +263,7 @@ const az: Content = {
     home: {
       intro: "Mən proqram təminatını **başdan-sona** qururam — **backend API-lərdən və verilənlər bazalarından** cilalanmış **veb saytlara, mobil və desktop tətbiqlərə** qədər. İdeyaları **sürətli, etibarlı və yaxşı dizayn olunmuş** məhsullara çevirməyi sevirəm.",
       ecosystem: "Əsas ekosistem",
-      chapters: ["Mən, işim","Backend-dən kənarda","Klaviaturadan uzaqda"],
+      chapters: ["Mənim haqqımda bir az","Backend-dən kənarda","Klaviaturadan uzaqda"],
     },
     links: {
       title: "Linklər",

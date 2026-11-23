@@ -262,7 +262,7 @@ const en: Content = {
     home: {
       intro: "I build software **end-to-end** — from **backend APIs and databases** to polished **websites, mobile and desktop apps**. I like turning ideas into **fast, reliable, well-designed** products.",
       ecosystem: "Main ecosystem",
-      chapters: ["Me, my work","Beyond the backend","Off the keyboard"],
+      chapters: ["A bit about me","Beyond backend","Away from the keyboard"],
     },
     links: {
       title: "Links",
