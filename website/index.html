@@ -102,17 +102,16 @@
       })();
     </script>
     <script>
-      // The opening is skipped on the root redirect page, the 404 page, for crawlers, for visitors who prefer less motion, and after the first time in a visit.
+      // The opening plays once a week for each visitor, on every address of the site (the home page, every language, every project, the 404 page), and cannot be skipped. Only crawlers do not see it.
       (function () {
         var d = document.documentElement;
         var skip = false;
         try {
-          skip = window.matchMedia("(prefers-reduced-motion: reduce)").matches || sessionStorage.getItem("intro") === "1";
+          var seen = Number(localStorage.getItem("introSeen"));
+          skip = seen > 0 && Date.now() - seen >= 0 && Date.now() - seen < 7 * 24 * 60 * 60 * 1000;
         } catch (e) {}
         // Search engines, link scanners and speed tests see the page itself, not the opening.
         if (/bot|crawl|spider|lighthouse|prerender|headless/i.test(navigator.userAgent)) skip = true;
-        var path = location.pathname;
-        if (path === "/" || path === "/index.html" || d.getAttribute("data-page") === "not-found") skip = true;
         var api = { on: !skip, appReady: function () {}, open: null, _open: null };
         if (skip) {
           api.open = Promise.resolve();
@@ -588,7 +587,7 @@
             if (api._open) api._open();
           }, 650);
           try {
-            sessionStorage.setItem("intro", "1");
+            localStorage.setItem("introSeen", String(Date.now()));
           } catch (e) {}
           setTimeout(function () {
             d.classList.remove("intro-on", "intro-open");
