@@ -16,9 +16,11 @@
       html.intro-on { background: #0a0a12; overflow: hidden; }
       html.intro-on[data-theme="light"] { background: #f5f4fb; }
       #intro { display: none; --ib: #0a0a12; --ia: #00e5ff; --ib2: #ff2e97; --it: #e9e9f5; --im: #9494b0;
-        --s1: color-mix(in srgb, #00e5ff 70%, #9494b0); --s2: color-mix(in srgb, #8b5cf6 70%, #9494b0); }
+        --s1: color-mix(in srgb, #00e5ff 70%, #9494b0); --s2: color-mix(in srgb, #8b5cf6 70%, #9494b0);
+        --y1: #ffe08a; --y2: #ff6ad5; --y3: #8a6bff; }
       [data-theme="light"] #intro { --ib: #f5f4fb; --ia: #0096b8; --ib2: #d4007c; --it: #15151f; --im: #5d5b78;
-        --s1: color-mix(in srgb, #0096b8 74%, #15151f); --s2: color-mix(in srgb, #7c3aed 76%, #15151f); }
+        --s1: color-mix(in srgb, #0096b8 74%, #15151f); --s2: color-mix(in srgb, #7c3aed 76%, #15151f);
+        --y1: #e08a00; --y2: #d4007c; --y3: #5b3fd6; }
       html.intro-on #intro { position: fixed; inset: 0; z-index: 2147481000; display: block; overflow: hidden; pointer-events: all; font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; }
 
       /* The page's own background, split in two halves that part: the same gradient and pools, each half drawing the whole screen. */
@@ -60,6 +62,8 @@
 
       /* My name, written by hand: an italic pen line drawn stroke by stroke as the page loads, with a glowing pen tip that lifts between letters. */
       .intro-sign { width: clamp(18rem, 54vw, 36rem); margin: 0 auto; }
+      /* The lettering glows and has a hair of cyan misregistration. */
+      .intro-sign svg { filter: drop-shadow(-2px 1px 0 color-mix(in srgb, var(--ia) 50%, transparent)) drop-shadow(0 0 9px color-mix(in srgb, var(--ib2) 45%, transparent)); }
       .intro-sign svg { display: block; width: 100%; height: auto; overflow: visible; }
       /* The pen is this site's own cursor: the 8px bright dot and, on a canvas under it, the same ribbon of light. */
       .intro-cursor { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
@@ -146,14 +150,14 @@
         var d = document.documentElement;
         var el = document.getElementById("intro");
         var TEXT = {
-          en: { name: "Galib Gurbanov", role: "Software Developer", tag: "portfolio", lines: ["initializing", "compiling the portfolio", "ready"] },
+          en: { name: "Qalib Qurbanov", role: "Software Developer", tag: "portfolio", lines: ["initializing", "compiling the portfolio", "ready"] },
           az: { name: "Qalib Qurbanov", role: "Proqram təminatı tərtibatçısı", tag: "portfolio", lines: ["işə salınır", "portfolio tərtib olunur", "hazırdır"] },
           ru: { name: "Галиб Гурбанов", role: "Разработчик ПО", tag: "портфолио", lines: ["запуск", "сборка портфолио", "готово"] },
         };
         var seg = location.pathname.split("/")[1];
         var t = TEXT[seg] || TEXT[d.lang] || TEXT.en;
         document.getElementById("intro-name").textContent = t.name;
-        // The name and the job title, written by hand. The shapes are the real letters of a script font (Great Vibes, open licence); the pen's
+        // The name and the job title, written by hand. The shapes are the real letters of a script font (Overglow by Indieground); the pen's
         // centre line was found by thinning them, and the letters are revealed along it, so thick and thin strokes appear as a pen would make them.
         // The data (/intro/sign-<language>.json) is fetched while the screen comes in; the count waits for it, and a failure leaves the plain text.
         var write = null;
@@ -163,24 +167,57 @@
           var NS = "http://www.w3.org/2000/svg";
           var host = document.getElementById("intro-sign");
           var svg = document.createElementNS(NS, "svg");
-          svg.setAttribute("viewBox", sd.vb.join(" "));
+          // The writing climbs to the right, like a brush line on a poster, not along a level baseline: the whole drawing is turned by a few degrees
+          // about its centre, and the view box is the box of the turned drawing.
+          var ANG = -12;
+          var vcx = sd.vb[0] + sd.vb[2] / 2;
+          var vcy = sd.vb[1] + sd.vb[3] / 2;
+          var rc = Math.cos((ANG * Math.PI) / 180);
+          var rs = Math.sin((ANG * Math.PI) / 180);
+          var rx = [];
+          var ry = [];
+          [[sd.vb[0], sd.vb[1]], [sd.vb[0] + sd.vb[2], sd.vb[1]], [sd.vb[0], sd.vb[1] + sd.vb[3]], [sd.vb[0] + sd.vb[2], sd.vb[1] + sd.vb[3]]].forEach(function (c) {
+            var ox = c[0] - vcx;
+            var oy = c[1] - vcy;
+            rx.push(vcx + ox * rc - oy * rs);
+            ry.push(vcy + ox * rs + oy * rc);
+          });
+          var rminx = Math.min.apply(null, rx);
+          var rminy = Math.min.apply(null, ry);
+          var GH = Math.max.apply(null, ry) - rminy;
+          svg.setAttribute("viewBox", [rminx.toFixed(1), rminy.toFixed(1), (Math.max.apply(null, rx) - rminx).toFixed(1), (Math.max.apply(null, ry) - rminy).toFixed(1)].join(" "));
           svg.setAttribute("aria-hidden", "true");
           var vb = sd.vb;
           var html =
-            '<defs><linearGradient id="intro-ink" gradientUnits="userSpaceOnUse" x1="' + vb[0] + '" x2="' + (vb[0] + vb[2]) + '" y1="0" y2="0"><stop offset="0" style="stop-color:var(--ia)"/><stop offset="0.55" style="stop-color:var(--s2)"/><stop offset="1" style="stop-color:var(--ib2)"/></linearGradient>' +
+            '<defs><linearGradient id="intro-ink" gradientUnits="userSpaceOnUse" x1="' + vcx.toFixed(1) + '" x2="' + vcx.toFixed(1) + '" y1="' + (vcy - GH / 2).toFixed(1) + '" y2="' + (vcy + GH / 2).toFixed(1) + '" gradientTransform="rotate(' + -ANG + ' ' + vcx.toFixed(1) + ' ' + vcy.toFixed(1) + ')"><stop offset="0.1" style="stop-color:var(--y1)"/><stop offset="0.52" style="stop-color:var(--y2)"/><stop offset="1" style="stop-color:var(--y3)"/></linearGradient>' +
             '<mask id="intro-mask" maskUnits="userSpaceOnUse" x="' + (vb[0] - 40) + '" y="' + (vb[1] - 40) + '" width="' + (vb[2] + 80) + '" height="' + (vb[3] + 80) + '"><g id="intro-mask-g" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"></g></mask></defs>' +
-            '<g id="intro-skew" transform="skewX(-7)"><g id="intro-fill" mask="url(#intro-mask)"></g></g>';
+            '<g id="intro-skew" transform="rotate(' + ANG + ' ' + vcx.toFixed(1) + ' ' + vcy.toFixed(1) + ')"><g id="intro-fill" mask="url(#intro-mask)"></g></g>';
           svg.innerHTML = html;
           var maskG = svg.querySelector("#intro-mask-g");
           var fillG = svg.querySelector("#intro-fill");
           var skewG = svg.querySelector("#intro-skew");
           var paths = [];
           var lineOf = [];
-          sd.fills.forEach(function (fd) {
+          sd.fills.forEach(function (fd, fi) {
             var f = document.createElementNS(NS, "path");
             f.setAttribute("d", fd);
             f.setAttribute("fill", "url(#intro-ink)");
+            // The letters are one even line, so they are drawn a little thicker, like a tube of light.
+            f.setAttribute("stroke", "url(#intro-ink)");
+            f.setAttribute("stroke-width", (sd.sw && sd.sw[fi]) || 0);
+            f.setAttribute("stroke-linejoin", "round");
             fillG.appendChild(f);
+          });
+          // The curly tail after the last letter, a single even line like the letters.
+          (sd.fl || []).forEach(function (fd) {
+            var fp = document.createElementNS(NS, "path");
+            fp.setAttribute("d", fd);
+            fp.setAttribute("fill", "none");
+            fp.setAttribute("stroke", "url(#intro-ink)");
+            fp.setAttribute("stroke-width", sd.flw || 3.4);
+            fp.setAttribute("stroke-linecap", "round");
+            fp.setAttribute("stroke-linejoin", "round");
+            fillG.appendChild(fp);
           });
           sd.pen.forEach(function (line, li) {
             var lg = document.createElementNS(NS, "g");
@@ -464,7 +501,7 @@
           if (roleEl) roleEl.style.display = "none";
         }
         try {
-          fetch("/intro/sign-" + signLang + ".json")
+          fetch("/intro/sign.json?v=overglow")
             .then(function (r) {
               if (!r.ok) throw new Error("sign");
               return r.json();
