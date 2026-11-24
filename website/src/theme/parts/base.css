@@ -12,6 +12,8 @@
 html {
   scroll-behavior: smooth;
   color-scheme: light;
+  /* The scrollbar's strip stays when a dialog locks the page, so the content does not slide sideways as it opens and closes. */
+  scrollbar-gutter: stable;
 }
 
 /* The desktop layout (sidebar and content) is drawn in rem, so its text size follows the window: the same layout, in proportion, on a small
