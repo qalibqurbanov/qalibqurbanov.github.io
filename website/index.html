@@ -525,7 +525,7 @@
         var numF = document.getElementById("intro-num-f");
         // The count starts from nothing: the screen first settles at 000% (HOLD) while its parts come in, and only then climbs. The clock begins at the
         // first drawn frame (not when the script runs), and the number never jumps more than a few points in one frame, even if the page stalls.
-        var MIN = 4900;
+        var MIN = 4400;
         var HOLD = 400;
         var begin = 0;
         var shown = 0;
@@ -541,7 +541,7 @@
         var ready = false;
         var finished = false;
         // The pen runs on its own clock, so it moves evenly and gently (slow start, slow end) whatever the loading does, and always finishes before the screen opens.
-        var PEN_MS = 4400;
+        var PEN_MS = 3900;
         var penBegin = 0;
         var penDone = false;
         function penTick(now) {
