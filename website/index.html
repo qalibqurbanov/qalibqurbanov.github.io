@@ -435,10 +435,16 @@
             }
             if (pts.length) cframe = requestAnimationFrame(ribbonTick);
           }
-          function placeCursor(px, py, fade, q) {
+          function placeCursor(px, py, fade, q, flying) {
             var m = skewG.getScreenCTM();
             var sx = m.a * px + m.c * py + m.e;
             var sy = m.b * px + m.d * py + m.f;
+            // While it flies in or out it shows only well inside the window and once it is moving, never as a smudge at the edge.
+            if (flying) {
+              var ed = Math.min(sx, sy, window.innerWidth - sx, window.innerHeight - sy);
+              var vis = Math.max(0, Math.min(1, (ed - 30) / 130));
+              fade *= vis * vis * (3 - 2 * vis);
+            }
             calpha = fade;
             if (dotEl) {
               dotEl.style.transform = "translate3d(" + sx.toFixed(1) + "px," + sy.toFixed(1) + "px,0)";
@@ -457,20 +463,29 @@
             var pos = P0;
             var fade = 1;
             var past = false;
-            for (var k = 0; k < paths.length; k++) paths[k].style.strokeDashoffset = revs[k] * (lens[k] + 1);
+            var flying = false;
+            // A piece that has not been reached is switched off outright: a very short piece with round ends would otherwise leave a dot of the mask, and so a speck of the letter, before the pen comes.
+            for (var k = 0; k < paths.length; k++) {
+              paths[k].style.strokeDashoffset = revs[k] * (lens[k] + 1);
+              paths[k].style.opacity = 0;
+            }
             for (var n = 0; n < segs.length; n++) {
               var s = segs[n];
               if (left >= s.w) {
-                if (s.t === "d") paths[s.i].style.strokeDashoffset = 0;
+                if (s.t === "d") {
+                  paths[s.i].style.strokeDashoffset = 0;
+                  paths[s.i].style.opacity = 1;
+                }
                 left -= s.w;
                 pos = s.t === "d" ? ends[s.i] : s.b;
-                if (s.t === "x") { past = true; fade = 1; }
+                if (s.t === "x") { past = true; fade = 1; flying = true; }
                 continue;
               }
               var f2 = left / s.w;
               if (s.t === "a") {
                 var u = 0.5 * (f2 * f2 * (3 - 2 * f2)) + 0.5 * (1 - Math.pow(1 - f2, 3));
-                fade = Math.min(1, f2 * 4);
+                flying = true;
+                fade = Math.max(0, Math.min(1, (f2 - 0.3) / 0.45));
                 fade = fade * fade * (3 - 2 * fade);
                 var v = 1 - u;
                 pos = { x: v * v * s.a.x + 2 * v * u * s.c.x + u * u * s.b.x, y: v * v * s.a.y + 2 * v * u * s.c.y + u * u * s.b.y };
@@ -479,9 +494,11 @@
                 var ev = 1 - ex;
                 pos = { x: ev * ev * s.a.x + 2 * ev * ex * s.c.x + ex * ex * s.b.x, y: ev * ev * s.a.y + 2 * ev * ex * s.c.y + ex * ex * s.b.y };
                 past = true;
+                flying = true;
               } else if (s.t === "d") {
                 var fs2 = 0.35 * (f2 * f2 * (3 - 2 * f2)) + 0.65 * f2;
                 var lf = unwarp(s.i, fs2);
+                paths[s.i].style.opacity = f2 > 0 ? 1 : 0;
                 paths[s.i].style.strokeDashoffset = revs[s.i] * (lens[s.i] + 1) * (1 - lf);
                 pos = paths[s.i].getPointAtLength(lens[s.i] * (revs[s.i] < 0 ? 1 - lf : lf));
               } else {
@@ -493,7 +510,7 @@
             // When the writing is complete the mask is taken off, so every part of every letter (dots, flourishes) is shown whole.
             if (q >= 1 || past) fillG.removeAttribute("mask");
             else if (!fillG.getAttribute("mask")) fillG.setAttribute("mask", "url(#intro-mask)");
-            placeCursor(pos.x, pos.y, fade, q);
+            placeCursor(pos.x, pos.y, fade, q, flying);
           };
           write(0);
           var roleEl = document.getElementById("intro-role");
