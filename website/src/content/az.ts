@@ -359,8 +359,9 @@ const az: Content = {
       back: "Geri",
       fallback: "Brauzeriniz PDF-i bu səhifədə göstərə bilmir.",
       open: "Yeni tabda aç",
-      download: "PDF-i yüklə",
+      download: "Yüklə",
       print: "Çap et",
+      page: "Səhifə",
     },
     labels: {
       email: "E-poçt",

@@ -215,6 +215,8 @@ export interface UiStrings {
     open: string;
     download: string;
     print: string;
+    /** The word before the page counter in the résumé dialog (Page 1 / 2). */
+    page: string;
     /** Shown instead of the embedded viewer on devices that open PDFs in their own viewer. */
   };
   /** Hover tooltips and screen-reader labels for icon-only controls. Brand names (GitHub, LinkedIn…) stay literal in the components. */

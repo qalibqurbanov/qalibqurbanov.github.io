@@ -41,8 +41,8 @@ interface ResumeViewerProps {
   onBack: () => void;
 }
 
-/** The résumé in a dialog of the left menu card's glass: a title row with the file icon (drawn again when its button is pointed at), the page
- * you are on, and three buttons: download, print, and open in a tab. Below, its pages as white sheets on the dark page, drawn by
+/** The résumé in a dialog of the left menu card's glass: a title row with the file icon (drawn again when its button is pointed at), a small page counter,
+ * and three buttons: download, print, and open in a tab. Below, its pages as white sheets on the dark page, drawn by
  * the site's own viewer, so every browser and every phone shows it the same way, without the browser's PDF controls. */
 export function ResumeViewer({ onBack }: ResumeViewerProps) {
   const { profile, ui } = useContent();
@@ -75,6 +75,17 @@ export function ResumeViewer({ onBack }: ResumeViewerProps) {
 
   const actions = (
     <>
+      {pages > 0 && (
+        <span
+          className="inline-flex h-[1.625rem] shrink-0 items-center rounded-full border border-[color-mix(in_srgb,var(--color-text)_14%,transparent)] px-2.5 font-mono text-[0.6875rem] font-medium tabular-nums tracking-[0.14em] text-muted"
+          aria-label={`${t.page} ${page} / ${pages}`}
+        >
+          <span className="mr-1.5 uppercase">{t.page}</span>
+          <span className="text-text">{page}</span>
+          <span className="mx-1 opacity-60">/</span>
+          {pages}
+        </span>
+      )}
       <a href={profile.resumeUrl} download className={`${PILL_BLUE} h-[1.625rem]!`} aria-label={t.download} title={t.download}>
         <DownloadDrawIcon />
         <span className="hidden md:inline">{t.download}</span>
@@ -100,7 +111,6 @@ export function ResumeViewer({ onBack }: ResumeViewerProps) {
                 title={ui.labels.resume}
                 glass
                 icon={<FileDrawIcon size={14} />}
-                meta={pages > 0 ? `PDF · ${page} / ${pages}` : "PDF"}
                 actions={actions}
                 className="flex h-full min-h-0 flex-col"
                 onClose={close}

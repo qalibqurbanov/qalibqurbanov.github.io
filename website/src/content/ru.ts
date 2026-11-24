@@ -359,8 +359,9 @@ const ru: Content = {
       back: "Назад",
       fallback: "Ваш браузер не может показать PDF на этой странице.",
       open: "Открыть в новой вкладке",
-      download: "Скачать PDF",
+      download: "Скачать",
       print: "Печать",
+      page: "Стр.",
     },
     labels: {
       email: "Эл. почта",

@@ -358,8 +358,9 @@ const en: Content = {
       back: "Back",
       fallback: "Your browser can't display PDFs inline.",
       open: "Open in new tab",
-      download: "Download PDF",
+      download: "Download",
       print: "Print",
+      page: "Page",
     },
     labels: {
       email: "Email",
