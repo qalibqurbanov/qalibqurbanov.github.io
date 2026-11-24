@@ -28,7 +28,7 @@
           radial-gradient(55% 55% at 100% 100%, color-mix(in srgb, var(--ib2) 11%, transparent), transparent 70%),
           radial-gradient(50% 45% at 45% 110%, color-mix(in srgb, var(--ia) 7%, var(--ib2) 7%), transparent 70%),
           linear-gradient(160deg, color-mix(in srgb, var(--ib) 92%, var(--ia)) 0%, var(--ib) 38%, color-mix(in srgb, var(--ib) 93%, var(--ib2)) 100%);
-        transition: transform 0.95s cubic-bezier(0.7, 0, 0.2, 1) 1.5s, box-shadow 0.4s ease 1.5s; will-change: transform; }
+        transition: transform 0.95s cubic-bezier(0.7, 0, 0.2, 1) 0.85s, box-shadow 0.4s ease 0.85s; will-change: transform; }
       [data-theme="light"] .intro-half { background-image:
           radial-gradient(60% 50% at 88% 0%, color-mix(in srgb, var(--ia) 16%, transparent), transparent 70%),
           radial-gradient(55% 55% at 6% 108%, color-mix(in srgb, var(--ib2) 14%, transparent), transparent 70%),
@@ -73,20 +73,19 @@
 
       /* One thin line along the very bottom of the screen carries the progress, with a bright head. */
       .intro-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; margin-bottom: 0; background: color-mix(in srgb, var(--it) 8%, transparent); opacity: 0; animation: intro-up 0.5s ease 0.5s forwards;
-        transition: bottom 1s cubic-bezier(0.76, 0, 0.24, 1), margin-bottom 1s cubic-bezier(0.76, 0, 0.24, 1), height 1s ease, background-color 0.5s ease; }
+        transition: bottom 0.6s cubic-bezier(0.65, 0, 0.35, 1), margin-bottom 0.6s cubic-bezier(0.65, 0, 0.35, 1), height 0.6s ease, background-color 0.5s ease; }
       .intro-bar b { position: absolute; left: 0; top: 0; bottom: 0; width: var(--p, 0%); background: linear-gradient(90deg, transparent, var(--ia) 40%, var(--ib2)); box-shadow: 0 0 16px color-mix(in srgb, var(--ia) 55%, transparent); transition: box-shadow 0.8s ease; transform-origin: center; }
-      .intro-bar b::after { content: ""; position: absolute; right: -4px; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px var(--ib2), 0 0 24px var(--ia); transition: opacity 0.4s ease; }
+      .intro-bar b::after { content: ""; position: absolute; right: -4px; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; opacity: calc(1 - var(--hide, 0)); transform: scale(calc(1 - 0.5 * var(--hide, 0))); background: #fff; box-shadow: 0 0 12px var(--ib2), 0 0 24px var(--ia); transition: opacity 0.4s ease; }
       .intro-status { position: absolute; left: 1.5rem; bottom: 1.1rem; font-size: 0.7rem; letter-spacing: 0.1em; color: color-mix(in srgb, var(--ia) 85%, var(--im)); opacity: 0; animation: intro-up 0.5s ease 0.9s forwards; }
       .intro-status::after { content: "_"; margin-left: 2px; animation: intro-blink 0.9s steps(1) infinite; }
 
       html.intro-open .intro-status { animation: none; opacity: 0; transition: opacity 0.3s ease; }
-      html.intro-open .intro-bar { bottom: 50%; margin-bottom: -1px; height: 2px; background-color: transparent; animation: intro-fade 0.05s linear 1.5s both; }
-      html.intro-open .intro-bar b::after { opacity: 0; transition: opacity 0.7s ease 0.45s; }
+      html.intro-open .intro-bar { bottom: 50%; margin-bottom: -1px; height: 2px; background-color: transparent; animation: intro-fade 0.05s linear 0.85s both; }
       /* When the halves part, the middle line splits with them: each half carries one half of it as its own edge. */
       .intro-half::before { content: ""; position: absolute; left: 0; right: 0; height: 1px; opacity: 0; z-index: 1; background: linear-gradient(90deg, transparent, var(--ia) 40%, var(--ib2)); }
       .intro-half.top::before { bottom: 0.2vh; }
       .intro-half.bottom::before { top: 0.2vh; }
-      html.intro-open .intro-half::before { opacity: 1; transition: opacity 0.05s linear 1.5s; }
+      html.intro-open .intro-half::before { opacity: 1; transition: opacity 0.05s linear 0.85s; }
 
       @keyframes intro-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
       @keyframes intro-pop { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
@@ -525,6 +524,9 @@
         };
         function setProgress(p) {
           el.style.setProperty("--p", p.toFixed(2) + "%");
+          // Only the bright head dot melts away as the count nears the end, so by 100% it is already gone; the line itself stays.
+          var hk = Math.max(0, Math.min(1, (p - 84) / 14));
+          el.style.setProperty("--hide", (hk * hk * (3 - 2 * hk)).toFixed(3));
           var digits = ("000" + Math.round(p)).slice(-3);
           numO.textContent = digits;
           numF.textContent = digits;
@@ -538,14 +540,14 @@
           d.classList.add("intro-open");
           setTimeout(function () {
             if (api._open) api._open();
-          }, 1300);
+          }, 650);
           try {
             sessionStorage.setItem("intro", "1");
           } catch (e) {}
           setTimeout(function () {
             d.classList.remove("intro-on", "intro-open");
             if (el.parentNode) el.parentNode.removeChild(el);
-          }, 2700);
+          }, 2000);
         }
         function tick(now) {
           if (finished) return;
