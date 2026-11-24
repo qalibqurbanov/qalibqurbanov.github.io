@@ -126,9 +126,9 @@ const escapeAttr = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g,
 /** The few font files the first screen needs, per language, so they start downloading with the HTML
  * instead of waiting for the CSS and the script. Names are matched in the build's hashed assets. */
 const FIRST_SCREEN_FONTS: Record<string, string[]> = {
-  en: ["onest-latin-700", "inter-latin-400", "jetbrains-mono-latin-400"],
-  az: ["onest-latin-700", "inter-latin-400", "jetbrains-mono-latin-400"],
-  ru: ["onest-cyrillic-700", "inter-cyrillic-400", "jetbrains-mono-cyrillic-400", "jetbrains-mono-latin-400"],
+  en: ["exo-2-latin-700", "exo-2-latin-600", "inter-latin-400", "jetbrains-mono-latin-400"],
+  az: ["exo-2-latin-700", "exo-2-latin-600", "inter-latin-400", "jetbrains-mono-latin-400", "jetbrains-mono-latin-ext-400"],
+  ru: ["exo-2-cyrillic-700", "exo-2-cyrillic-600", "inter-cyrillic-400", "jetbrains-mono-cyrillic-400", "jetbrains-mono-latin-400"],
 };
 
 function fontPreloads(assets: string[], code: string): string[] {
