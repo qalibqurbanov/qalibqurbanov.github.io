@@ -9,6 +9,86 @@
     <meta name="description" content="Galib Gurbanov — Full Stack, Backend, Frontend & Mobile Developer. Portfolio, projects, and experience." />
     <meta name="theme-color" content="#0a0a12" />
     <title>Galib Gurbanov | Software Developer</title>
+    <style>
+      /* ---- The opening: shown once per visit, before the site. No box: it is typography on the site's own background (the page gradient with its pools
+         of cyan and magenta, and the film grain), led by one huge hollow counter in the style of the home page's big figures, which fills with light from
+         the bottom as the page loads. Then it parts like a shutter. Plain HTML and CSS, so it paints at once, before any script. ---- */
+      html.intro-on { background: #0a0a12; overflow: hidden; }
+      html.intro-on[data-theme="light"] { background: #f5f4fb; }
+      #intro { display: none; --ib: #0a0a12; --ia: #00e5ff; --ib2: #ff2e97; --it: #e9e9f5; --im: #9494b0;
+        --s1: color-mix(in srgb, #00e5ff 70%, #9494b0); --s2: color-mix(in srgb, #8b5cf6 70%, #9494b0); }
+      [data-theme="light"] #intro { --ib: #f5f4fb; --ia: #0096b8; --ib2: #d4007c; --it: #15151f; --im: #5d5b78;
+        --s1: color-mix(in srgb, #0096b8 74%, #15151f); --s2: color-mix(in srgb, #7c3aed 76%, #15151f); }
+      html.intro-on #intro { position: fixed; inset: 0; z-index: 2147481000; display: block; overflow: hidden; pointer-events: all; font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+
+      /* The page's own background, split in two halves that part: the same gradient and pools, each half drawing the whole screen. */
+      .intro-half { position: absolute; left: 0; right: 0; height: 50.2%; overflow: hidden; background-color: var(--ib); background-repeat: no-repeat; background-size: 100vw 100vh;
+        background-image:
+          radial-gradient(60% 50% at 88% 0%, color-mix(in srgb, var(--ia) 13%, transparent), transparent 70%),
+          radial-gradient(55% 55% at 100% 100%, color-mix(in srgb, var(--ib2) 11%, transparent), transparent 70%),
+          radial-gradient(50% 45% at 45% 110%, color-mix(in srgb, var(--ia) 7%, var(--ib2) 7%), transparent 70%),
+          linear-gradient(160deg, color-mix(in srgb, var(--ib) 92%, var(--ia)) 0%, var(--ib) 38%, color-mix(in srgb, var(--ib) 93%, var(--ib2)) 100%);
+        box-shadow: 0 0 0 0 transparent; transition: transform 0.75s cubic-bezier(0.7, 0, 0.2, 1) 1.05s, box-shadow 0.4s ease 1.05s; will-change: transform; }
+      [data-theme="light"] .intro-half { background-image:
+          radial-gradient(60% 50% at 88% 0%, color-mix(in srgb, var(--ia) 16%, transparent), transparent 70%),
+          radial-gradient(55% 55% at 6% 108%, color-mix(in srgb, var(--ib2) 14%, transparent), transparent 70%),
+          linear-gradient(160deg, color-mix(in srgb, var(--ia) 7%, #fff), var(--ib) 45%, color-mix(in srgb, var(--ib2) 7%, #fff)); }
+      .intro-half::after { content: ""; position: absolute; inset: 0; opacity: 0.08; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1.6 0 0 0 -.62'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>"); background-size: 220px 220px; pointer-events: none; }
+      [data-theme="light"] .intro-half::after { filter: invert(1); opacity: 0.1; }
+      .intro-half.top { top: 0; background-position: 0 0; }
+      .intro-half.bottom { bottom: 0; background-position: 0 -49.8vh; }
+      html.intro-open .intro-half.top { transform: translateY(calc(-101% - 90px)); box-shadow: 0 0 46px 2px color-mix(in srgb, var(--ia) 34%, transparent); }
+      html.intro-open .intro-half.bottom { transform: translateY(calc(101% + 90px)); box-shadow: 0 0 46px 2px color-mix(in srgb, var(--ib2) 30%, transparent); }
+
+      .intro-core { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.25rem 1.25rem 3rem; text-align: center; transition: opacity 0.35s ease, transform 0.55s ease, filter 0.55s ease; }
+      html.intro-open .intro-core { opacity: 0; transform: scale(1.08); filter: blur(10px); }
+
+      .intro-tag { display: inline-flex; align-items: center; gap: 0.7rem; padding-left: 0.28em; font-size: clamp(0.85rem, 1.6vw, 1.1rem); letter-spacing: 0.28em; text-transform: uppercase; color: var(--im); opacity: 0; animation: intro-up 0.6s ease 0.2s forwards; }
+      .intro-tag i { font-style: normal; color: var(--ib2); font-size: 1.05em; letter-spacing: 0; padding: 0; }
+
+      /* The counter: huge, hollow, in the display face; the same digits lie over it in a gradient that rises from the bottom as the number climbs. */
+      .intro-big { position: relative; display: inline-flex; align-items: baseline; margin: 0.4rem 0 0; font-family: "Exo 2", Inter, system-ui, sans-serif; font-weight: 700; font-size: clamp(7rem, 30vw, 17rem); line-height: 0.95; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; opacity: 0; animation: intro-pop 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards; }
+      .intro-big .o, .intro-big .f { display: inline-flex; align-items: baseline; }
+      .intro-big .o { color: transparent; -webkit-text-stroke: 1.5px color-mix(in srgb, var(--it) 78%, transparent); }
+      .intro-big .f { position: absolute; inset: 0; background: linear-gradient(180deg, var(--ia), var(--s2) 55%, var(--ib2)); -webkit-background-clip: text; background-clip: text; color: transparent;
+        -webkit-mask-image: linear-gradient(0deg, #000 var(--p, 0%), transparent calc(var(--p, 0%) + 9%)); mask-image: linear-gradient(0deg, #000 var(--p, 0%), transparent calc(var(--p, 0%) + 9%));
+        }
+      /* A soft pool of light behind the digits: a blurred ellipse, so nothing in it has an edge. */
+      .intro-big::before { content: ""; position: absolute; inset: -16% -24%; z-index: -1; border-radius: 50%; pointer-events: none; filter: blur(34px);
+        background: radial-gradient(closest-side, color-mix(in srgb, var(--ia) 24%, transparent), color-mix(in srgb, var(--ib2) 10%, transparent) 58%, transparent 100%); }
+      .intro-big small { position: absolute; left: 100%; top: 0.2em; margin-left: 0.1em; font-size: 0.26em; letter-spacing: 0; line-height: 1; }
+
+      .intro-who { margin-top: 1.5rem; opacity: 0; animation: intro-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.75s forwards; }
+      .intro-name { margin: 0; font-family: "Exo 2", Inter, system-ui, sans-serif; font-weight: 600; font-size: clamp(1.7rem, 5.6vw, 2.9rem); line-height: 1.15; letter-spacing: -0.015em; background: linear-gradient(90deg, var(--s1), var(--s2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .intro-role { margin: 0.6rem 0 0; padding-left: 0.26em; font-size: clamp(0.85rem, 1.7vw, 1.15rem); letter-spacing: 0.26em; text-transform: uppercase; color: var(--im); }
+
+      /* One thin line along the very bottom of the screen carries the progress, with a bright head. */
+      .intro-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; margin-bottom: 0; background: color-mix(in srgb, var(--it) 8%, transparent); opacity: 0; animation: intro-up 0.5s ease 0.5s forwards;
+        transition: bottom 1s cubic-bezier(0.76, 0, 0.24, 1), margin-bottom 1s cubic-bezier(0.76, 0, 0.24, 1), height 1s ease, background-color 0.5s ease; }
+      .intro-bar b { position: absolute; left: 0; top: 0; bottom: 0; width: var(--p, 0%); background: linear-gradient(90deg, transparent, var(--ia) 40%, var(--ib2)); box-shadow: 0 0 16px color-mix(in srgb, var(--ia) 55%, transparent); transition: box-shadow 0.8s ease; transform-origin: center; }
+      .intro-bar b::after { content: ""; position: absolute; right: -4px; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px var(--ib2), 0 0 24px var(--ia); transition: opacity 0.4s ease; }
+      .intro-status { position: absolute; left: 1.5rem; bottom: 1.1rem; font-size: 0.7rem; letter-spacing: 0.1em; color: color-mix(in srgb, var(--ia) 85%, var(--im)); opacity: 0; animation: intro-up 0.5s ease 0.9s forwards; }
+      .intro-status::after { content: "_"; margin-left: 2px; animation: intro-blink 0.9s steps(1) infinite; }
+
+      html.intro-open .intro-status { animation: none; opacity: 0; transition: opacity 0.3s ease; }
+      html.intro-open .intro-bar { bottom: 50%; margin-bottom: -1px; height: 2px; background-color: transparent; animation: intro-line-out 0.45s ease 1.4s both; }
+      html.intro-open .intro-bar b { box-shadow: 0 0 22px var(--ia), 0 0 42px color-mix(in srgb, var(--ib2) 60%, transparent); animation: intro-ignite 1s ease 1s both; }
+      .intro-bar::before { content: ""; position: absolute; top: -1px; bottom: -1px; left: -30%; width: 30%; opacity: 0; background: linear-gradient(90deg, transparent, #fff 60%, transparent); }
+      html.intro-open .intro-bar::before { animation: intro-streak 0.9s cubic-bezier(0.45, 0, 0.25, 1) 1s both; }
+      /* Light that leaks out of the seam as the halves part: a blurred band that opens with the gap and fades. */
+      .intro-bloom { position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; opacity: 0; pointer-events: none; filter: blur(18px);
+        background: radial-gradient(closest-side, color-mix(in srgb, var(--ia) 45%, var(--ib2) 55%), color-mix(in srgb, var(--ia) 25%, transparent) 55%, transparent 100%); }
+      html.intro-open .intro-bloom { animation: intro-bloom 1s cubic-bezier(0.22, 1, 0.36, 1) 1.05s both; }
+      html.intro-open .intro-bar b::after { opacity: 0; }
+
+      @keyframes intro-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+      @keyframes intro-pop { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
+      @keyframes intro-blink { 50% { opacity: 0; } }
+      @keyframes intro-line-out { from { opacity: 1; } to { opacity: 0; } }
+      @keyframes intro-ignite { 0% { transform: scaleY(1); filter: brightness(1); } 35% { transform: scaleY(1.9); filter: brightness(1.5); box-shadow: 0 0 36px var(--ia), 0 0 80px color-mix(in srgb, var(--ib2) 70%, transparent); } 100% { transform: scaleY(1); filter: brightness(1); } }
+      @keyframes intro-streak { 0% { left: -30%; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
+      @keyframes intro-bloom { 0% { opacity: 0; height: 2px; margin-top: -1px; } 22% { opacity: 0.55; } 100% { opacity: 0; height: 56vh; margin-top: -28vh; } }
+    </style>
     <script>
       (function () {
         try {
@@ -18,9 +98,130 @@
         } catch (e) {}
       })();
     </script>
+    <script>
+      // The opening is skipped on the root redirect page, the 404 page, for crawlers, for visitors who prefer less motion, and after the first time in a visit.
+      (function () {
+        var d = document.documentElement;
+        var skip = false;
+        try {
+          skip = window.matchMedia("(prefers-reduced-motion: reduce)").matches || sessionStorage.getItem("intro") === "1";
+        } catch (e) {}
+        // Search engines, link scanners and speed tests see the page itself, not the opening.
+        if (/bot|crawl|spider|lighthouse|prerender|headless/i.test(navigator.userAgent)) skip = true;
+        var path = location.pathname;
+        if (path === "/" || path === "/index.html" || d.getAttribute("data-page") === "not-found") skip = true;
+        var api = { on: !skip, appReady: function () {}, open: null, _open: null };
+        if (skip) {
+          api.open = Promise.resolve();
+        } else {
+          d.classList.add("intro-on");
+          api.open = new Promise(function (resolve) {
+            api._open = resolve;
+          });
+        }
+        window.__intro = api;
+      })();
+    </script>
   </head>
   <body>
+    <div id="intro" aria-hidden="true">
+      <span class="intro-bloom"></span>
+      <div class="intro-half top"></div>
+      <div class="intro-half bottom"></div>
+      <div class="intro-core">
+        <div class="intro-tag"><i>✦</i><span id="intro-tag">portfolio</span></div>
+        <div class="intro-big"><span class="o"><span id="intro-num-o">000</span><small>%</small></span><span class="f"><span id="intro-num-f">000</span><small>%</small></span></div>
+        <div class="intro-who">
+          <p class="intro-name" id="intro-name">Galib Gurbanov</p>
+          <p class="intro-role" id="intro-role">Software Developer</p>
+        </div>
+      </div>
+      <div class="intro-bar"><b></b></div>
+      <span class="intro-status" id="intro-status"></span>
+    </div>
     <div id="root"></div>
+    <script>
+      (function () {
+        var api = window.__intro;
+        if (!api || !api.on) return;
+        var d = document.documentElement;
+        var el = document.getElementById("intro");
+        var TEXT = {
+          en: { name: "Galib Gurbanov", role: "Software Developer", tag: "portfolio", lines: ["initializing", "compiling the portfolio", "ready"] },
+          az: { name: "Qalib Qurbanov", role: "Proqram təminatı tərtibatçısı", tag: "portfolio", lines: ["işə salınır", "portfolio tərtib olunur", "hazırdır"] },
+          ru: { name: "Галиб Гурбанов", role: "Разработчик ПО", tag: "портфолио", lines: ["запуск", "сборка портфолио", "готово"] },
+        };
+        var seg = location.pathname.split("/")[1];
+        var t = TEXT[seg] || TEXT[d.lang] || TEXT.en;
+        document.getElementById("intro-name").textContent = t.name;
+        document.getElementById("intro-role").textContent = t.role;
+        document.getElementById("intro-tag").textContent = t.tag;
+        var status = document.getElementById("intro-status");
+        var numO = document.getElementById("intro-num-o");
+        var numF = document.getElementById("intro-num-f");
+        // The count starts from nothing: the screen first settles at 000% (HOLD) while its parts come in, and only then climbs. The clock begins at the
+        // first drawn frame (not when the script runs), and the number never jumps more than a few points in one frame, even if the page stalls.
+        var MIN = 2000;
+        var HOLD = 250;
+        var begin = 0;
+        var shown = 0;
+        // The count waits until the counter has finished coming in (its own entrance animation), so it is seen at 000% first.
+        var go = false;
+        var failAt = performance.now() + 4000;
+        var big = document.querySelector(".intro-big");
+        if (big) {
+          big.addEventListener("animationend", function () {
+            go = true;
+          }, { once: true });
+        }
+        var ready = false;
+        var finished = false;
+        api.appReady = function () {
+          ready = true;
+        };
+        function setProgress(p) {
+          el.style.setProperty("--p", p.toFixed(2) + "%");
+          var digits = ("000" + Math.round(p)).slice(-3);
+          numO.textContent = digits;
+          numF.textContent = digits;
+          var i = p < 40 ? 0 : p < 90 ? 1 : 2;
+          if (status.textContent !== t.lines[i]) status.textContent = t.lines[i];
+        }
+        function open() {
+          if (finished) return;
+          finished = true;
+          setProgress(100);
+          d.classList.add("intro-open");
+          setTimeout(function () {
+            if (api._open) api._open();
+          }, 900);
+          try {
+            sessionStorage.setItem("intro", "1");
+          } catch (e) {}
+          setTimeout(function () {
+            d.classList.remove("intro-on", "intro-open");
+            if (el.parentNode) el.parentNode.removeChild(el);
+          }, 2500);
+        }
+        function tick(now) {
+          if (finished) return;
+          if (!go && performance.now() < failAt) {
+            requestAnimationFrame(tick);
+            return;
+          }
+          if (!begin) begin = now;
+          var time = now - begin - HOLD;
+          var eased = time <= 0 ? 0 : 1 - Math.pow(1 - Math.min(1, time / MIN), 2.4);
+          var target = Math.min(eased * 100, ready ? 100 : 92);
+          shown = Math.min(target, shown + 3);
+          setProgress(shown);
+          if ((ready && time >= MIN && shown >= 99.9) || now - begin > 10000) return open();
+          requestAnimationFrame(tick);
+        }
+        setProgress(0);
+        requestAnimationFrame(tick);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

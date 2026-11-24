@@ -50,7 +50,12 @@ const initialLocale = resolveInitialLocale();
 // The 404 page has none of the sections, so it loads none of them.
 const ready = Promise.all([loadContent(initialLocale), window.location.hash || parseViewPath(window.location.pathname) ? preloadSections().catch(() => null) : null]);
 installDrawIcons();
-void ready.then(([initialContent]) => {
+// The opening animation (see index.html) is told when the page is ready, and the page is drawn the moment the opening
+// starts to part, so the site's own entrance plays as the shutter opens.
+const intro = (window as Window & { __intro?: { appReady: () => void; open: Promise<void> } }).__intro;
+void ready.then(async ([initialContent]) => {
+  intro?.appReady();
+  await intro?.open;
   createRoot(rootElement).render(
     <StrictMode>
       <ThemeProvider>
