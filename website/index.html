@@ -28,7 +28,7 @@
           radial-gradient(55% 55% at 100% 100%, color-mix(in srgb, var(--ib2) 11%, transparent), transparent 70%),
           radial-gradient(50% 45% at 45% 110%, color-mix(in srgb, var(--ia) 7%, var(--ib2) 7%), transparent 70%),
           linear-gradient(160deg, color-mix(in srgb, var(--ib) 92%, var(--ia)) 0%, var(--ib) 38%, color-mix(in srgb, var(--ib) 93%, var(--ib2)) 100%);
-        box-shadow: 0 0 0 0 transparent; transition: transform 0.75s cubic-bezier(0.7, 0, 0.2, 1) 1.05s, box-shadow 0.4s ease 1.05s; will-change: transform; }
+        transition: transform 0.95s cubic-bezier(0.7, 0, 0.2, 1) 1.5s, box-shadow 0.4s ease 1.5s; will-change: transform; }
       [data-theme="light"] .intro-half { background-image:
           radial-gradient(60% 50% at 88% 0%, color-mix(in srgb, var(--ia) 16%, transparent), transparent 70%),
           radial-gradient(55% 55% at 6% 108%, color-mix(in srgb, var(--ib2) 14%, transparent), transparent 70%),
@@ -37,8 +37,8 @@
       [data-theme="light"] .intro-half::after { filter: invert(1); opacity: 0.1; }
       .intro-half.top { top: 0; background-position: 0 0; }
       .intro-half.bottom { bottom: 0; background-position: 0 -49.8vh; }
-      html.intro-open .intro-half.top { transform: translateY(calc(-101% - 90px)); box-shadow: 0 0 46px 2px color-mix(in srgb, var(--ia) 34%, transparent); }
-      html.intro-open .intro-half.bottom { transform: translateY(calc(101% + 90px)); box-shadow: 0 0 46px 2px color-mix(in srgb, var(--ib2) 30%, transparent); }
+      html.intro-open .intro-half.top { transform: translateY(calc(-101% - 90px)); box-shadow: 0 1px 18px color-mix(in srgb, var(--ia) 45%, transparent); }
+      html.intro-open .intro-half.bottom { transform: translateY(calc(101% + 90px)); box-shadow: 0 -1px 18px color-mix(in srgb, var(--ib2) 40%, transparent); }
 
       .intro-core { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.25rem 1.25rem 3rem; text-align: center; transition: opacity 0.35s ease, transform 0.55s ease, filter 0.55s ease; }
       html.intro-open .intro-core { opacity: 0; transform: scale(1.08); filter: blur(10px); }
@@ -47,7 +47,7 @@
       .intro-tag i { font-style: normal; color: var(--ib2); font-size: 1.05em; letter-spacing: 0; padding: 0; }
 
       /* The counter: huge, hollow, in the display face; the same digits lie over it in a gradient that rises from the bottom as the number climbs. */
-      .intro-big { position: relative; display: inline-flex; align-items: baseline; margin: 0.4rem 0 0; font-family: "Exo 2", Inter, system-ui, sans-serif; font-weight: 700; font-size: clamp(7rem, 30vw, 17rem); line-height: 0.95; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; opacity: 0; animation: intro-pop 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards; }
+      .intro-big { position: relative; display: inline-flex; align-items: baseline; margin: 0.4rem 0 0; font-family: "Exo 2", Inter, system-ui, sans-serif; font-weight: 700; font-size: clamp(7rem, min(30vw, 33vh), 17rem); line-height: 0.95; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; opacity: 0; animation: intro-pop 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards; }
       .intro-big .o, .intro-big .f { display: inline-flex; align-items: baseline; }
       .intro-big .o { color: transparent; -webkit-text-stroke: 1.5px color-mix(in srgb, var(--it) 78%, transparent); }
       .intro-big .f { position: absolute; inset: 0; background: linear-gradient(180deg, var(--ia), var(--s2) 55%, var(--ib2)); -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -58,6 +58,15 @@
         background: radial-gradient(closest-side, color-mix(in srgb, var(--ia) 24%, transparent), color-mix(in srgb, var(--ib2) 10%, transparent) 58%, transparent 100%); }
       .intro-big small { position: absolute; left: 100%; top: 0.2em; margin-left: 0.1em; font-size: 0.26em; letter-spacing: 0; line-height: 1; }
 
+      /* My name, written by hand: an italic pen line drawn stroke by stroke as the page loads, with a glowing pen tip that lifts between letters. */
+      .intro-sign { width: clamp(18rem, 54vw, 36rem); margin: 0 auto; }
+      .intro-sign svg { display: block; width: 100%; height: auto; overflow: visible; }
+      /* The pen is this site's own cursor: the 8px bright dot and, on a canvas under it, the same ribbon of light. */
+      .intro-cursor { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+      .intro-dot { position: absolute; left: 0; top: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 9999px; background: #fff; opacity: 0; z-index: 4; pointer-events: none; will-change: transform;
+        box-shadow: 0 0 10px color-mix(in srgb, var(--ia) 60%, transparent); }
+      [data-theme="light"] .intro-dot { background: #14102a; }
+      html.intro-open .intro-cursor, html.intro-open .intro-dot { opacity: 0 !important; }
       .intro-who { margin-top: 1.5rem; opacity: 0; animation: intro-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.75s forwards; }
       .intro-name { margin: 0; font-family: "Exo 2", Inter, system-ui, sans-serif; font-weight: 600; font-size: clamp(1.7rem, 5.6vw, 2.9rem); line-height: 1.15; letter-spacing: -0.015em; background: linear-gradient(90deg, var(--s1), var(--s2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
       .intro-role { margin: 0.6rem 0 0; padding-left: 0.26em; font-size: clamp(0.85rem, 1.7vw, 1.15rem); letter-spacing: 0.26em; text-transform: uppercase; color: var(--im); }
@@ -71,23 +80,18 @@
       .intro-status::after { content: "_"; margin-left: 2px; animation: intro-blink 0.9s steps(1) infinite; }
 
       html.intro-open .intro-status { animation: none; opacity: 0; transition: opacity 0.3s ease; }
-      html.intro-open .intro-bar { bottom: 50%; margin-bottom: -1px; height: 2px; background-color: transparent; animation: intro-line-out 0.45s ease 1.4s both; }
-      html.intro-open .intro-bar b { box-shadow: 0 0 22px var(--ia), 0 0 42px color-mix(in srgb, var(--ib2) 60%, transparent); animation: intro-ignite 1s ease 1s both; }
-      .intro-bar::before { content: ""; position: absolute; top: -1px; bottom: -1px; left: -30%; width: 30%; opacity: 0; background: linear-gradient(90deg, transparent, #fff 60%, transparent); }
-      html.intro-open .intro-bar::before { animation: intro-streak 0.9s cubic-bezier(0.45, 0, 0.25, 1) 1s both; }
-      /* Light that leaks out of the seam as the halves part: a blurred band that opens with the gap and fades. */
-      .intro-bloom { position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; opacity: 0; pointer-events: none; filter: blur(18px);
-        background: radial-gradient(closest-side, color-mix(in srgb, var(--ia) 45%, var(--ib2) 55%), color-mix(in srgb, var(--ia) 25%, transparent) 55%, transparent 100%); }
-      html.intro-open .intro-bloom { animation: intro-bloom 1s cubic-bezier(0.22, 1, 0.36, 1) 1.05s both; }
-      html.intro-open .intro-bar b::after { opacity: 0; }
+      html.intro-open .intro-bar { bottom: 50%; margin-bottom: -1px; height: 2px; background-color: transparent; animation: intro-fade 0.05s linear 1.5s both; }
+      html.intro-open .intro-bar b::after { opacity: 0; transition: opacity 0.7s ease 0.45s; }
+      /* When the halves part, the middle line splits with them: each half carries one half of it as its own edge. */
+      .intro-half::before { content: ""; position: absolute; left: 0; right: 0; height: 1px; opacity: 0; z-index: 1; background: linear-gradient(90deg, transparent, var(--ia) 40%, var(--ib2)); }
+      .intro-half.top::before { bottom: 0.2vh; }
+      .intro-half.bottom::before { top: 0.2vh; }
+      html.intro-open .intro-half::before { opacity: 1; transition: opacity 0.05s linear 1.5s; }
 
       @keyframes intro-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
       @keyframes intro-pop { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
+      @keyframes intro-fade { from { opacity: 1; } to { opacity: 0; } }
       @keyframes intro-blink { 50% { opacity: 0; } }
-      @keyframes intro-line-out { from { opacity: 1; } to { opacity: 0; } }
-      @keyframes intro-ignite { 0% { transform: scaleY(1); filter: brightness(1); } 35% { transform: scaleY(1.9); filter: brightness(1.5); box-shadow: 0 0 36px var(--ia), 0 0 80px color-mix(in srgb, var(--ib2) 70%, transparent); } 100% { transform: scaleY(1); filter: brightness(1); } }
-      @keyframes intro-streak { 0% { left: -30%; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
-      @keyframes intro-bloom { 0% { opacity: 0; height: 2px; margin-top: -1px; } 22% { opacity: 0.55; } 100% { opacity: 0; height: 56vh; margin-top: -28vh; } }
     </style>
     <script>
       (function () {
@@ -125,17 +129,18 @@
   </head>
   <body>
     <div id="intro" aria-hidden="true">
-      <span class="intro-bloom"></span>
       <div class="intro-half top"></div>
       <div class="intro-half bottom"></div>
       <div class="intro-core">
         <div class="intro-tag"><i>✦</i><span id="intro-tag">portfolio</span></div>
         <div class="intro-big"><span class="o"><span id="intro-num-o">000</span><small>%</small></span><span class="f"><span id="intro-num-f">000</span><small>%</small></span></div>
         <div class="intro-who">
-          <p class="intro-name" id="intro-name">Galib Gurbanov</p>
+          <div class="intro-sign" id="intro-sign"><p class="intro-name" id="intro-name">Galib Gurbanov</p></div>
           <p class="intro-role" id="intro-role">Software Developer</p>
         </div>
       </div>
+      <canvas class="intro-cursor" id="intro-cursor"></canvas>
+      <span class="intro-dot" id="intro-dot"></span>
       <div class="intro-bar"><b></b></div>
       <span class="intro-status" id="intro-status"></span>
     </div>
@@ -154,6 +159,319 @@
         var seg = location.pathname.split("/")[1];
         var t = TEXT[seg] || TEXT[d.lang] || TEXT.en;
         document.getElementById("intro-name").textContent = t.name;
+        // The name and the job title, written by hand. The shapes are the real letters of a script font (Great Vibes, open licence); the pen's
+        // centre line was found by thinning them, and the letters are revealed along it, so thick and thin strokes appear as a pen would make them.
+        // The data (/intro/sign-<language>.json) is fetched while the screen comes in; the count waits for it, and a failure leaves the plain text.
+        var write = null;
+        var signReady = false;
+        var signLang = TEXT[seg] ? seg : TEXT[d.lang] ? d.lang : "en";
+        function buildSign(sd) {
+          var NS = "http://www.w3.org/2000/svg";
+          var host = document.getElementById("intro-sign");
+          var svg = document.createElementNS(NS, "svg");
+          svg.setAttribute("viewBox", sd.vb.join(" "));
+          svg.setAttribute("aria-hidden", "true");
+          var vb = sd.vb;
+          var html =
+            '<defs><linearGradient id="intro-ink" gradientUnits="userSpaceOnUse" x1="' + vb[0] + '" x2="' + (vb[0] + vb[2]) + '" y1="0" y2="0"><stop offset="0" style="stop-color:var(--ia)"/><stop offset="0.55" style="stop-color:var(--s2)"/><stop offset="1" style="stop-color:var(--ib2)"/></linearGradient>' +
+            '<mask id="intro-mask" maskUnits="userSpaceOnUse" x="' + (vb[0] - 40) + '" y="' + (vb[1] - 40) + '" width="' + (vb[2] + 80) + '" height="' + (vb[3] + 80) + '"><g id="intro-mask-g" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"></g></mask></defs>' +
+            '<g id="intro-skew" transform="skewX(-7)"><g id="intro-fill" mask="url(#intro-mask)"></g></g>';
+          svg.innerHTML = html;
+          var maskG = svg.querySelector("#intro-mask-g");
+          var fillG = svg.querySelector("#intro-fill");
+          var skewG = svg.querySelector("#intro-skew");
+          var paths = [];
+          var lineOf = [];
+          sd.fills.forEach(function (fd) {
+            var f = document.createElementNS(NS, "path");
+            f.setAttribute("d", fd);
+            f.setAttribute("fill", "url(#intro-ink)");
+            fillG.appendChild(f);
+          });
+          sd.pen.forEach(function (line, li) {
+            var lg = document.createElementNS(NS, "g");
+            lg.setAttribute("stroke-width", sd.mw[li] || 20);
+            line.forEach(function (p) {
+              var el = document.createElementNS(NS, "path");
+              el.setAttribute("d", p);
+              lg.appendChild(el);
+              paths.push(el);
+              lineOf.push(li);
+            });
+            maskG.appendChild(lg);
+          });
+          var skewMask = document.createElementNS(NS, "g");
+          skewG.appendChild(skewMask);
+          host.innerHTML = "";
+          host.appendChild(svg);
+          // The mask strokes share the skew with the letters: the mask is applied inside the skewed group, so both are in the same space.
+          // The pen writes the way a hand does: left to right along the line, one small piece after another. Each piece is drawn from its left end
+          // to its right end, and the pieces are taken in order of where they begin, so the pen never jumps back into the middle of what it wrote.
+          var info = paths.map(function (p, i) {
+            var L = p.getTotalLength();
+            var a = p.getPointAtLength(0);
+            var b = p.getPointAtLength(L);
+            var rv = a.x - b.x > 2;
+            return { p: p, line: lineOf[i], len: L, rev: rv, s: rv ? b : a, e: rv ? a : b };
+          });
+          info.sort(function (x, y) { return x.line - y.line || x.s.x - y.s.x || x.e.x - y.e.x; });
+          paths = info.map(function (o) { return o.p; });
+          var lens = info.map(function (o) { return o.len; });
+          var starts = info.map(function (o) { return o.s; });
+          var ends = info.map(function (o) { return o.e; });
+          var revs = info.map(function (o) { return o.rev ? -1 : 1; });
+          // A hand slows down in curves and runs quicker on straight parts: each stroke gets a time map from its own curvature.
+          var warp = paths.map(function (p, i) {
+            var M = 56;
+            var pp = [];
+            for (var k = 0; k <= M; k++) pp.push(p.getPointAtLength(revs[i] < 0 ? lens[i] * (1 - k / M) : (lens[i] * k) / M));
+            var hd = [];
+            for (var k2 = 1; k2 <= M; k2++) hd.push(Math.atan2(pp[k2].y - pp[k2 - 1].y, pp[k2].x - pp[k2 - 1].x));
+            var cum = [0];
+            for (var k3 = 1; k3 <= M; k3++) {
+              var tn = 0;
+              for (var o = -2; o <= 2; o++) {
+                var a1 = hd[Math.max(0, Math.min(M - 1, k3 - 1 + o))];
+                var a0 = hd[Math.max(0, Math.min(M - 1, k3 - 2 + o))];
+                var dl = Math.abs(a1 - a0);
+                if (dl > Math.PI) dl = 2 * Math.PI - dl;
+                tn += dl;
+              }
+              var wt = 1 + 1.7 * Math.min(1, tn / 0.9);
+              cum.push(cum[k3 - 1] + wt * (lens[i] / M));
+            }
+            return { cum: cum, M: M, total: cum[M] };
+          });
+          function unwarp(i, f) {
+            var wp = warp[i];
+            var target = f * wp.total;
+            var k = 1;
+            while (k < wp.M && wp.cum[k] < target) k++;
+            var span = wp.cum[k] - wp.cum[k - 1] || 1;
+            return Math.max(0, Math.min(1, (k - 1 + (target - wp.cum[k - 1]) / span) / wp.M));
+          }
+          var segs = [];
+          var sum = 0;
+          paths.forEach(function (p, i) {
+            if (i > 0) {
+              var dist = Math.hypot(ends[i - 1].x - starts[i].x, ends[i - 1].y - starts[i].y);
+              var w = dist < 9 ? 3 : dist * 0.3 + 6;
+              segs.push({ t: "m", i: i, w: w, a: ends[i - 1], b: starts[i] });
+              sum += w;
+            }
+            segs.push({ t: "d", i: i, w: Math.max(warp[i].total, 2) });
+            sum += Math.max(warp[i].total, 2);
+            p.style.strokeDasharray = lens[i] + " " + (lens[i] + 1);
+            p.style.strokeDashoffset = revs[i] * (lens[i] + 1);
+          });
+          // Where the pen comes from: a random point just outside the window (a different side every time), mapped into the drawing's coordinates.
+          var P0;
+          try {
+            var side = Math.floor(Math.random() * 4);
+            var vw = window.innerWidth;
+            var vh = window.innerHeight;
+            var out = 100;
+            var pt = svg.createSVGPoint();
+            pt.x = side === 1 ? vw + out : side === 3 ? -out : Math.random() * vw;
+            pt.y = side === 0 ? -out : side === 2 ? vh + out : Math.random() * vh;
+            P0 = pt.matrixTransform(skewG.getScreenCTM().inverse());
+          } catch (e2) {
+            P0 = { x: starts[0].x - 420, y: starts[0].y - 220 };
+          }
+          var adx = starts[0].x - P0.x;
+          var ady = starts[0].y - P0.y;
+          var adist = Math.hypot(adx, ady) || 1;
+          var bend = (Math.random() < 0.5 ? -1 : 1) * (0.18 + Math.random() * 0.2) * adist;
+          var ctrl = { x: (P0.x + starts[0].x) / 2 - (ady / adist) * bend, y: (P0.y + starts[0].y) / 2 + (adx / adist) * bend };
+          var aw = Math.max(80, sum * 0.2);
+          segs.unshift({ t: "a", w: aw, a: P0, c: ctrl, b: starts[0] });
+          sum += aw;
+          // After the last stroke the pen does not vanish: it drifts on a little in the direction it was going, rises and fades.
+          var lastI = paths.length - 1;
+          var lp = paths[lastI].getPointAtLength(revs[lastI] < 0 ? Math.min(lens[lastI], 8) : Math.max(0, lens[lastI] - 8));
+          var tx = ends[lastI].x - lp.x;
+          var ty = ends[lastI].y - lp.y;
+          var tl = Math.hypot(tx, ty) || 1;
+          segs.push({ t: "x", w: 70, a: ends[lastI], b: { x: ends[lastI].x + (tx / tl) * 54, y: ends[lastI].y + (ty / tl) * 54 } });
+          sum += 70;
+          // The pen is the cursor of this site, exactly: a bright 8px dot with the same silk ribbon of cyan and magenta light behind it
+          // (same width, taper, glow, gradient and lifetime as the site cursor). It lives in screen space, on its own canvas above the name.
+          var cv = document.getElementById("intro-cursor");
+          var dotEl = document.getElementById("intro-dot");
+          var cg = cv ? cv.getContext("2d") : null;
+          var cdpr = Math.min(window.devicePixelRatio || 1, 2);
+          var CW = 1;
+          var CH = 1;
+          var csx = cdpr;
+          var csy = cdpr;
+          function sizeCv() {
+            if (!cv) return;
+            var bx = cv.getBoundingClientRect();
+            CW = Math.max(1, bx.width);
+            CH = Math.max(1, bx.height);
+            cv.width = Math.round(CW * cdpr);
+            cv.height = Math.round(CH * cdpr);
+            csx = cv.width / CW;
+            csy = cv.height / CH;
+          }
+          sizeCv();
+          window.addEventListener("resize", sizeCv);
+          function hexRgb(name, fb) {
+            var raw = getComputedStyle(el).getPropertyValue(name).trim();
+            var hx = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(raw);
+            if (!hx) return fb;
+            var h = hx[1].length === 3 ? hx[1].replace(/./g, "$&$&") : hx[1];
+            var nn = parseInt(h, 16);
+            return [(nn >> 16) & 255, (nn >> 8) & 255, nn & 255];
+          }
+          var light = d.getAttribute("data-theme") === "light";
+          var colA = hexRgb("--ia", [0, 229, 255]);
+          var colB = hexRgb("--ib2", [255, 46, 151]);
+          var rgba = function (c, a) { return "rgba(" + (c[0] | 0) + "," + (c[1] | 0) + "," + (c[2] | 0) + "," + Math.max(0, a) + ")"; };
+          var pts = [];
+          var cspeed = 0;
+          var calpha = 1;
+          var cframe = 0;
+          function ribbonTick(now) {
+            cframe = 0;
+            if (!cg) return;
+            var life = 340 + Math.min(480, cspeed * 0.8);
+            while (pts.length && now - pts[0].t > life) pts.shift();
+            cg.setTransform(csx, 0, 0, csy, 0, 0);
+            cg.clearRect(0, 0, CW, CH);
+            var n = pts.length;
+            if (n > 2) {
+              var nr = [];
+              for (var i = 0; i < n; i++) {
+                var pa = pts[Math.max(0, i - 1)];
+                var pb = pts[Math.min(n - 1, i + 1)];
+                var nx = -(pb.y - pa.y);
+                var ny = pb.x - pa.x;
+                var l = Math.hypot(nx, ny) || 1;
+                nr.push([nx / l, ny / l]);
+              }
+              var w = 8;
+              var polygon = function (widthAt) {
+                cg.beginPath();
+                for (var i2 = 0; i2 < n; i2++) {
+                  var half = widthAt(i2) * 0.5;
+                  var qx = pts[i2].x + nr[i2][0] * half;
+                  var qy = pts[i2].y + nr[i2][1] * half;
+                  if (i2 === 0) cg.moveTo(qx, qy);
+                  else cg.lineTo(qx, qy);
+                }
+                for (var i3 = n - 1; i3 >= 0; i3--) {
+                  var half2 = widthAt(i3) * 0.5;
+                  cg.lineTo(pts[i3].x - nr[i3][0] * half2, pts[i3].y - nr[i3][1] * half2);
+                }
+                cg.closePath();
+              };
+              var grad = function (a0, a1) {
+                var gr = cg.createLinearGradient(pts[0].x, pts[0].y, pts[n - 1].x, pts[n - 1].y);
+                gr.addColorStop(0, rgba(colA, 0));
+                gr.addColorStop(0.55, rgba(colA, a0));
+                gr.addColorStop(1, rgba(colB, a1));
+                return gr;
+              };
+              cg.globalAlpha = calpha;
+              if (!light) {
+                cg.globalCompositeOperation = "lighter";
+                polygon(function (i4) { return Math.pow(i4 / (n - 1), 1.3) * w * 2.4; });
+                cg.fillStyle = grad(0.12, 0.2);
+                cg.fill();
+                cg.globalCompositeOperation = "source-over";
+              }
+              polygon(function (i5) { return Math.pow(i5 / (n - 1), 1.3) * w; });
+              cg.fillStyle = grad(0.55, 0.95);
+              cg.fill();
+              cg.globalAlpha = 1;
+            }
+            if (pts.length) cframe = requestAnimationFrame(ribbonTick);
+          }
+          function placeCursor(px, py, fade, q) {
+            var m = skewG.getScreenCTM();
+            var sx = m.a * px + m.c * py + m.e;
+            var sy = m.b * px + m.d * py + m.f;
+            calpha = fade;
+            if (dotEl) {
+              dotEl.style.transform = "translate3d(" + sx.toFixed(1) + "px," + sy.toFixed(1) + "px,0)";
+              dotEl.style.opacity = q >= 1 ? 0 : fade.toFixed(3);
+            }
+            if (q <= 0 || q >= 1) return;
+            var nowT = performance.now();
+            var last = pts[pts.length - 1];
+            if (last) cspeed += ((Math.hypot(sx - last.x, sy - last.y) / Math.max(1, nowT - last.t)) * 1000 - cspeed) * 0.3;
+            pts.push({ x: sx, y: sy, t: nowT });
+            if (pts.length > 120) pts.shift();
+            if (!cframe) cframe = requestAnimationFrame(ribbonTick);
+          }
+          write = function (q) {
+            var left = Math.max(0, Math.min(1, q)) * sum;
+            var pos = P0;
+            var fade = 1;
+            var past = false;
+            for (var k = 0; k < paths.length; k++) paths[k].style.strokeDashoffset = revs[k] * (lens[k] + 1);
+            for (var n = 0; n < segs.length; n++) {
+              var s = segs[n];
+              if (left >= s.w) {
+                if (s.t === "d") paths[s.i].style.strokeDashoffset = 0;
+                left -= s.w;
+                pos = s.t === "d" ? ends[s.i] : s.b;
+                if (s.t === "x") { past = true; fade = 0; }
+                continue;
+              }
+              var f2 = left / s.w;
+              if (s.t === "a") {
+                var u = 0.5 * (f2 * f2 * (3 - 2 * f2)) + 0.5 * (1 - Math.pow(1 - f2, 3));
+                fade = Math.min(1, f2 * 4);
+                fade = fade * fade * (3 - 2 * fade);
+                var v = 1 - u;
+                pos = { x: v * v * s.a.x + 2 * v * u * s.c.x + u * u * s.b.x, y: v * v * s.a.y + 2 * v * u * s.c.y + u * u * s.b.y };
+              } else if (s.t === "x") {
+                var ex = 1 - Math.pow(1 - f2, 3);
+                pos = { x: s.a.x + (s.b.x - s.a.x) * ex, y: s.a.y + (s.b.y - s.a.y) * ex };
+                fade = 1 - f2 * f2 * (3 - 2 * f2);
+                past = true;
+              } else if (s.t === "d") {
+                var fs2 = 0.35 * (f2 * f2 * (3 - 2 * f2)) + 0.65 * f2;
+                var lf = unwarp(s.i, fs2);
+                paths[s.i].style.strokeDashoffset = revs[s.i] * (lens[s.i] + 1) * (1 - lf);
+                pos = paths[s.i].getPointAtLength(lens[s.i] * (revs[s.i] < 0 ? 1 - lf : lf));
+              } else {
+                var e = f2 < 0.5 ? 2 * f2 * f2 : 1 - Math.pow(-2 * f2 + 2, 2) / 2;
+                pos = { x: s.a.x + (s.b.x - s.a.x) * e, y: s.a.y + (s.b.y - s.a.y) * e };
+              }
+              break;
+            }
+            // When the writing is complete the mask is taken off, so every part of every letter (dots, flourishes) is shown whole.
+            if (q >= 1 || past) fillG.removeAttribute("mask");
+            else if (!fillG.getAttribute("mask")) fillG.setAttribute("mask", "url(#intro-mask)");
+            placeCursor(pos.x, pos.y, fade, q);
+          };
+          write(0);
+          var roleEl = document.getElementById("intro-role");
+          if (roleEl) roleEl.style.display = "none";
+        }
+        try {
+          fetch("/intro/sign-" + signLang + ".json")
+            .then(function (r) {
+              if (!r.ok) throw new Error("sign");
+              return r.json();
+            })
+            .then(function (sd) {
+              try {
+                buildSign(sd);
+              } catch (e3) {
+                write = null;
+              }
+              signReady = true;
+            })
+            .catch(function () {
+              signReady = true;
+            });
+        } catch (e4) {
+          signReady = true;
+        }
         document.getElementById("intro-role").textContent = t.role;
         document.getElementById("intro-tag").textContent = t.tag;
         var status = document.getElementById("intro-status");
@@ -161,8 +479,8 @@
         var numF = document.getElementById("intro-num-f");
         // The count starts from nothing: the screen first settles at 000% (HOLD) while its parts come in, and only then climbs. The clock begins at the
         // first drawn frame (not when the script runs), and the number never jumps more than a few points in one frame, even if the page stalls.
-        var MIN = 2000;
-        var HOLD = 250;
+        var MIN = 4900;
+        var HOLD = 400;
         var begin = 0;
         var shown = 0;
         // The count waits until the counter has finished coming in (its own entrance animation), so it is seen at 000% first.
@@ -176,6 +494,32 @@
         }
         var ready = false;
         var finished = false;
+        // The pen runs on its own clock, so it moves evenly and gently (slow start, slow end) whatever the loading does, and always finishes before the screen opens.
+        var PEN_MS = 4400;
+        var penBegin = 0;
+        var penDone = false;
+        function penTick(now) {
+          if (finished) return;
+          if (!write) {
+            if (signReady || performance.now() > failAt) penDone = true;
+            else requestAnimationFrame(penTick);
+            return;
+          }
+          if (!go) {
+            requestAnimationFrame(penTick);
+            return;
+          }
+          if (!penBegin) penBegin = now;
+          var q = Math.max(0, Math.min(1, (now - penBegin - 150) / PEN_MS));
+          write(0.5 * q + 0.5 * (0.5 - 0.5 * Math.cos(Math.PI * q)));
+          if (q >= 1) {
+            write(1);
+            penDone = true;
+            return;
+          }
+          requestAnimationFrame(penTick);
+        }
+        requestAnimationFrame(penTick);
         api.appReady = function () {
           ready = true;
         };
@@ -194,18 +538,18 @@
           d.classList.add("intro-open");
           setTimeout(function () {
             if (api._open) api._open();
-          }, 900);
+          }, 1300);
           try {
             sessionStorage.setItem("intro", "1");
           } catch (e) {}
           setTimeout(function () {
             d.classList.remove("intro-on", "intro-open");
             if (el.parentNode) el.parentNode.removeChild(el);
-          }, 2500);
+          }, 2700);
         }
         function tick(now) {
           if (finished) return;
-          if (!go && performance.now() < failAt) {
+          if (!(go && signReady) && performance.now() < failAt) {
             requestAnimationFrame(tick);
             return;
           }
@@ -215,7 +559,7 @@
           var target = Math.min(eased * 100, ready ? 100 : 92);
           shown = Math.min(target, shown + 3);
           setProgress(shown);
-          if ((ready && time >= MIN && shown >= 99.9) || now - begin > 10000) return open();
+          if ((ready && penDone && time >= MIN && shown >= 99.9) || now - begin > 10000) return open();
           requestAnimationFrame(tick);
         }
         setProgress(0);
