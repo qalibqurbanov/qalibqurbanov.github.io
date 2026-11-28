@@ -371,7 +371,7 @@
   }
 }
 
-/* ---- The dialogs (Panel with `glass`): the card's material, with a quiet hairline under a compact title row and a drawn icon in front of the title. ---- */
+/* ---- The dialogs (Panel with `glass`): the card's material, with a quiet hairline under a compact title row and an icon in front of the title. ---- */
 .glass-panel {
   overflow: hidden;
   border-radius: 20px;
@@ -388,28 +388,6 @@
   place-items: center;
   flex: none;
   color: var(--tone);
-}
-
-/* An icon that is drawn in, stroke by stroke, once, as soon as it appears (a dialog's title icon, the phone's menu button). */
-.draw-in path {
-  stroke-dasharray: 1;
-  animation: icon-draw 0.55s cubic-bezier(0.5, 0, 0.2, 1) both;
-  animation-delay: calc(var(--d, 0) * 70ms);
-}
-
-@keyframes icon-draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .draw-in path {
-    animation: none;
-  }
 }
 
 /* The menu button's three lines turn into a cross and back: the top and bottom lines each turn about their own middle and slide to the centre,

@@ -41,7 +41,7 @@ export function Panel({ title, tabs, footer, children, className = "", onClose, 
 
   const head = tabs ? (
     <div className={`flex shrink-0 items-center justify-between gap-2 pl-3.5 pr-2 py-1.5 ${glass ? "glass-head-line" : "border-b border-border"}`}>
-      {glass && icon && <span className={`glass-chip draw-in ${tone === "violet" ? "tone-violet" : "tone-blue"} mr-0.5`}>{icon}</span>}
+      {glass && icon && <span className={`glass-chip ${tone === "violet" ? "tone-violet" : "tone-blue"} mr-0.5`}>{icon}</span>}
       <div className="flex min-w-0 flex-1 items-center gap-1" role="tablist">
         {tabs}
       </div>
@@ -54,7 +54,7 @@ export function Panel({ title, tabs, footer, children, className = "", onClose, 
     <div className="glass-head-line flex shrink-0 items-center gap-2 py-1.5 pl-3.5 pr-2">
       <div className="min-w-0 flex-1">
         <p className="flex min-w-0 items-center gap-2 font-display text-[0.8125rem] font-semibold leading-tight tracking-tight text-text">
-          {icon && <span className={`glass-chip draw-in ${tone === "violet" ? "tone-violet" : "tone-blue"}`}>{icon}</span>}
+          {icon && <span className={`glass-chip ${tone === "violet" ? "tone-violet" : "tone-blue"}`}>{icon}</span>}
           <span className="truncate">{title}</span>
         </p>
         {meta && <p className={`truncate font-mono text-[0.5625rem] uppercase leading-tight tracking-[0.18em] text-muted ${icon ? "pl-[calc(14px+0.5rem)]" : ""}`}>{meta}</p>}
