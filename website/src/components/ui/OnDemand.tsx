@@ -1,10 +1,12 @@
 import type { ComponentType } from "react";
 import { Suspense, useEffect, useState } from "react";
 
-/** Fires `event` once, as soon as it mounts — after the component rendered before it has set up its listener. */
-function Replay({ event }: { event: string }) {
+/** Fires the request again once, as soon as it mounts — after the component rendered before it has set up its
+ * listener. A copy of the original event is sent, so anything it carried (such as a CustomEvent's detail) arrives too. */
+function Replay({ event }: { event: Event }) {
   useEffect(() => {
-    window.dispatchEvent(new Event(event));
+    const copy = event instanceof CustomEvent ? new CustomEvent(event.type, { detail: event.detail }) : new Event(event.type);
+    window.dispatchEvent(copy);
   }, [event]);
   return null;
 }
@@ -22,29 +24,29 @@ export function OnDemand({
   event: string;
   shortcut?: (event: KeyboardEvent) => boolean;
 }) {
-  const [wanted, setWanted] = useState(false);
+  const [request, setRequest] = useState<Event | null>(null);
 
   useEffect(() => {
-    if (wanted) return;
-    const request = () => setWanted(true);
+    if (request) return;
+    const onRequest = (requestEvent: Event) => setRequest(requestEvent);
     const onKey = (keyEvent: KeyboardEvent) => {
       if (!shortcut?.(keyEvent)) return;
       keyEvent.preventDefault();
-      request();
+      setRequest(new Event(event));
     };
-    window.addEventListener(event, request);
+    window.addEventListener(event, onRequest);
     window.addEventListener("keydown", onKey);
     return () => {
-      window.removeEventListener(event, request);
+      window.removeEventListener(event, onRequest);
       window.removeEventListener("keydown", onKey);
     };
-  }, [wanted, event, shortcut]);
+  }, [request, event, shortcut]);
 
-  if (!wanted) return null;
+  if (!request) return null;
   return (
     <Suspense fallback={null}>
       <Component />
-      <Replay event={event} />
+      <Replay event={request} />
     </Suspense>
   );
 }

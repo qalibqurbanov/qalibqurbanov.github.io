@@ -4,3 +4,13 @@ export const OPEN_CONTACT_EVENT = "open-contact-modal";
 export function openContactModal() {
   window.dispatchEvent(new Event(OPEN_CONTACT_EVENT));
 }
+
+/** Opens the contact form with the message already started: the given text, quoted, and an empty line under it to write in. */
+export function openContactModalWithQuote(text: string) {
+  const quote = text
+    .trim()
+    .split(/\r?\n/)
+    .map((line) => `> ${line}`)
+    .join("\n");
+  window.dispatchEvent(new CustomEvent<string>(OPEN_CONTACT_EVENT, { detail: `${quote}\n\n` }));
+}

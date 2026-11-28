@@ -220,8 +220,28 @@ export function ContactModal() {
   // When this browser sent its messages within the last hour: the counter under the Send button.
   const [sentTimes, setSentTimes] = useState<number[]>([]);
 
+  // What the message field starts with: empty, or a quote when the form is opened from selected text.
+  const [prefill, setPrefill] = useState("");
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+
+  // With a quote in the field, the cursor waits under it, ready to write. This runs after the dialog has
+  // placed its own focus, so it is not taken away again.
   useEffect(() => {
-    const onOpen = () => {
+    if (!open || !prefill) return;
+    const id = window.setTimeout(() => {
+      const field = messageRef.current;
+      if (!field) return;
+      field.focus({ preventScroll: true });
+      field.setSelectionRange(field.value.length, field.value.length);
+      field.scrollTop = field.scrollHeight;
+    }, 50);
+    return () => window.clearTimeout(id);
+  }, [open, prefill]);
+
+  useEffect(() => {
+    const onOpen = (event: Event) => {
+      const detail = event instanceof CustomEvent && typeof event.detail === "string" ? event.detail : "";
+      setPrefill(detail.slice(0, MESSAGE_MAX));
       const stored = readWait();
       const left = stored ? stored.until - Date.now() : 0;
       if (stored && left > 0) {
@@ -487,6 +507,8 @@ export function ContactModal() {
                 required
                 rows={4}
                 maxLength={MESSAGE_MAX}
+                defaultValue={prefill}
+                ref={messageRef}
                 aria-invalid={invalid.includes("message")}
                 className={fieldClass("message", "custom-scrollbar [--scrollbar-track:var(--color-surface-2)] resize-none")}
               />
