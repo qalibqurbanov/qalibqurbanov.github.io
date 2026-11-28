@@ -82,7 +82,8 @@ export function CustomCursor() {
     const top = topRef.current;
     const dot = dotRef.current;
     const canvas = ribbonRef.current;
-    const g = canvas?.getContext("2d");
+    // "desynchronized" lets the trail reach the screen without waiting on the page's own frame, so it keeps up with the pointer.
+    const g = canvas?.getContext("2d", { desynchronized: true });
     if (!root || !top || !dot || !canvas || !g) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     if (prefersReducedMotion()) return;
@@ -145,7 +146,8 @@ export function CustomCursor() {
         look.a[i] += (colors[tgt.a][i] - look.a[i]) * k;
         look.b[i] += (colors[tgt.b][i] - look.b[i]) * k;
       }
-      const life = (340 + Math.min(480, speed * 0.8)) * look.life;
+      // A short, tight tail that stays close behind the dot, so the cursor feels direct rather than floating.
+      const life = (90 + Math.min(110, speed * 0.12)) * look.life;
       while (pts.length && now - pts[0].t > life) pts.shift();
 
       g.setTransform(scaleX, 0, 0, scaleY, 0, 0);
