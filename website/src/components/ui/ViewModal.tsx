@@ -48,6 +48,12 @@ export function ViewModal({
 
   const requestClose = useCallback(() => setClosing(true), []);
 
+  // A click closes the view only when it both starts and ends on the empty space around the panel,
+  // so dragging a text selection out of the panel does not close it.
+  const pressedOutside = useRef(false);
+  const isBackdrop = (target: EventTarget) =>
+    target instanceof HTMLElement && target.dataset.viewBackdrop !== undefined;
+
   return (
     <Dialog.Root
       open={visible}
@@ -57,20 +63,24 @@ export function ViewModal({
         <Dialog.Overlay className="fixed inset-0 z-[60] view-overlay" />
         <Dialog.Content
           {...(title ? { "aria-describedby": undefined } : {})}
+          data-view-backdrop=""
+          onPointerDown={(event) => {
+            pressedOutside.current = isBackdrop(event.target);
+          }}
           onClick={(event) => {
-            if (event.target === event.currentTarget) requestClose();
+            if (pressedOutside.current && isBackdrop(event.target)) requestClose();
+            pressedOutside.current = false;
           }}
           className="fixed inset-0 z-[60] flex flex-col outline-none view-content"
         >
           {title && <Dialog.Title className="sr-only">{title}</Dialog.Title>}
 
           <div
-            onClick={(event) => {
-              if (event.target === event.currentTarget) requestClose();
-            }}
+            data-view-backdrop=""
             className="flex min-h-0 flex-1 flex-col items-center p-4 sm:p-8"
           >
             <div
+              data-view-backdrop=""
               className={`flex min-h-0 w-full flex-1 flex-col justify-center ${widthClass}`}
             >
               {typeof children === "function"
