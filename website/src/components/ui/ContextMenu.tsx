@@ -34,7 +34,7 @@ function MenuItem({ icon: Icon, label, danger, green, onSelect }: MenuItemProps)
     <button type="button" role="menuitem" tabIndex={-1} onClick={onSelect} className={`ctx-item ${tone}`}>
       {Icon && (
         <span className="ctx-icon">
-          <Icon size={14} />
+          <Icon size={13} />
         </span>
       )}
       <span className="flex-1 truncate">{label}</span>
@@ -181,7 +181,7 @@ export function ContextMenu() {
         </span>
       </div>
 
-      <div className="p-1.5">
+      <div className="p-1">
         <MenuItem
           icon={copied ? Check : Link2}
           label={copied ? ui.contextMenu.pageLinkCopied : ui.contextMenu.copyPageLink}
@@ -195,7 +195,7 @@ export function ContextMenu() {
           <>
             <MenuSeparator />
             <button type="button" role="menuitem" tabIndex={-1} onClick={downloadResume} className="ctx-primary">
-              <FileText size={14} />
+              <FileText size={13} />
               <span className="flex-1 truncate">{ui.contextMenu.downloadResume}</span>
               <ArrowUp size={12} className="rotate-180" />
             </button>
