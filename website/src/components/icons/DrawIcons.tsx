@@ -1,5 +1,5 @@
-/** The file and send icons of the two buttons under the title, drawn as separate strokes so each can be drawn again, one after another,
- * when the button is pointed at (see `.btn-draw` in sidebar-card.css). Each stroke has `pathLength="1"` and its own start delay (`--d`). */
+/** The icons drawn for the site's own buttons and dialogs, as separate strokes: in a dialog's title and on the phone's menu button they are
+ * drawn in once, stroke by stroke, when they appear (see `.draw-in` in sidebar-card.css). Each stroke has `pathLength="1"` and its own start delay (`--d`). */
 interface Props {
   size?: number;
 }
@@ -67,7 +67,7 @@ export function PrintDrawIcon({ size }: Props) {
 
 /** The menu button's icon: three lines that turn into a cross when the menu opens, and back into three lines when it shuts (see `.menu-icon` in
  * sidebar-card.css): the top and bottom lines swing into the two strokes of the cross while the middle one draws in on itself. It is the size and
- * weight of the settings icon beside it, and each line is drawn again when the button is pointed at. */
+ * weight of the settings icon beside it. */
 export function MenuDrawIcon({ open, size = 21 }: Props & { open: boolean }) {
   return (
     <Frame size={size} className={`draw-in menu-icon${open ? " is-open" : ""}`}>

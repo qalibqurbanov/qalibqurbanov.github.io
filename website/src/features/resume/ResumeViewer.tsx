@@ -41,7 +41,7 @@ interface ResumeViewerProps {
   onBack: () => void;
 }
 
-/** The résumé in a dialog of the left menu card's glass: a title row with the file icon (drawn again when its button is pointed at), a small page counter,
+/** The résumé in a dialog of the left menu card's glass: a title row with the file icon, a small page counter,
  * and three buttons: download, print, and open in a tab. Below, its pages as white sheets on the dark page, drawn by
  * the site's own viewer, so every browser and every phone shows it the same way, without the browser's PDF controls. */
 export function ResumeViewer({ onBack }: ResumeViewerProps) {

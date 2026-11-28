@@ -321,35 +321,9 @@
   --tone: var(--soft-violet);
 }
 
-/* The icons of the two buttons under the title (Sidebar.tsx) are drawn again, one stroke after another, when the button is pointed at. */
+/* The icons of the two buttons under the title (Sidebar.tsx) take the button's tone. */
 .btn-draw svg {
   color: var(--tone);
-}
-
-.btn-draw path {
-  stroke-dasharray: 1;
-}
-
-.btn-draw:hover path,
-.btn-draw:focus-visible path {
-  animation: icon-draw 0.7s cubic-bezier(0.5, 0, 0.2, 1) both;
-  animation-delay: calc(var(--d, 0) * 90ms);
-}
-
-@keyframes icon-draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .btn-draw:hover path,
-  .btn-draw:focus-visible path {
-    animation: none;
-  }
 }
 
 /* Pointed at, the border of the two buttons under the title comes alive: a cyan light and a magenta one (the colours of the light behind my
@@ -416,21 +390,14 @@
   color: var(--tone);
 }
 
-/* An icon that is drawn in, stroke by stroke, as soon as it appears, and drawn again when its button is pointed at (the phone's menu button:
-   the three lines and the cross). Nothing else is added to the button. */
+/* An icon that is drawn in, stroke by stroke, once, as soon as it appears (a dialog's title icon, the phone's menu button). */
 .draw-in path {
   stroke-dasharray: 1;
   animation: icon-draw 0.55s cubic-bezier(0.5, 0, 0.2, 1) both;
   animation-delay: calc(var(--d, 0) * 70ms);
 }
 
-.icon-redraw:hover .draw-in path,
-.icon-redraw:focus-visible .draw-in path {
-  animation: icon-redraw 0.55s cubic-bezier(0.5, 0, 0.2, 1) both;
-  animation-delay: calc(var(--d, 0) * 70ms);
-}
-
-@keyframes icon-redraw {
+@keyframes icon-draw {
   from {
     stroke-dashoffset: 1;
   }
@@ -440,9 +407,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .draw-in path,
-  .icon-redraw:hover .draw-in path,
-  .icon-redraw:focus-visible .draw-in path {
+  .draw-in path {
     animation: none;
   }
 }

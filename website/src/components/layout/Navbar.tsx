@@ -61,7 +61,7 @@ export function Navbar() {
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
-            className="tap icon-redraw inline-flex h-10 w-10 cursor-pointer items-center justify-center text-muted transition-colors hover:text-accent focus-visible:text-accent"
+            className="tap inline-flex h-10 w-10 cursor-pointer items-center justify-center text-muted transition-colors hover:text-accent focus-visible:text-accent"
             onClick={() => {
               setMounted(true);
               setOpen((value) => !value);
