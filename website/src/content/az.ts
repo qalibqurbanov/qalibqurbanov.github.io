@@ -402,6 +402,13 @@ const az: Content = {
       downloadResume: "Rezümeni yüklə",
       viewSourceOnGithub: "GitHub-da mənbə kodu",
       reportBug: "Xəta bildir",
+      openInNewTab: "Yeni tabda aç",
+      copyLinkAddress: "Linki kopyala",
+      linkAddressCopied: "Link kopyalandı",
+      copySelection: "Seçilmiş mətni kopyala",
+      selectionCopied: "Mətn kopyalandı",
+      searchGoogle: "Google-da axtar",
+      quoteInMessage: "Mesajda sitat gətir",
     },
     projectDetail: {
       overviewTab: "Ümumi baxış",

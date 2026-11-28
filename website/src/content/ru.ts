@@ -402,6 +402,13 @@ const ru: Content = {
       downloadResume: "Скачать резюме",
       viewSourceOnGithub: "Исходный код на GitHub",
       reportBug: "Сообщить об ошибке",
+      openInNewTab: "Открыть в новой вкладке",
+      copyLinkAddress: "Копировать адрес ссылки",
+      linkAddressCopied: "Адрес ссылки скопирован",
+      copySelection: "Копировать выделенный текст",
+      selectionCopied: "Текст скопирован",
+      searchGoogle: "Найти в Google",
+      quoteInMessage: "Процитировать в сообщении",
     },
     projectDetail: {
       overviewTab: "Обзор",

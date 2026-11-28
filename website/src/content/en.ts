@@ -401,6 +401,13 @@ const en: Content = {
       downloadResume: "Download Resume",
       viewSourceOnGithub: "View source on GitHub",
       reportBug: "Report a bug",
+      openInNewTab: "Open in new tab",
+      copyLinkAddress: "Copy link address",
+      linkAddressCopied: "Link address copied",
+      copySelection: "Copy selected text",
+      selectionCopied: "Text copied",
+      searchGoogle: "Search on Google",
+      quoteInMessage: "Quote in a message",
     },
     projectDetail: {
       overviewTab: "Overview",

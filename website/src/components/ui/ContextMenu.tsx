@@ -1,7 +1,8 @@
-import { ArrowUp, Bug, Check, FileText, Link2 } from "lucide-react";
+import { ArrowUp, Bug, Check, Copy, ExternalLink, FileText, Link2, Quote, Search } from "lucide-react";
 import type { ComponentType, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
+import { openContactModalWithQuote } from "@/components/contact/openContact";
 import { GithubIcon } from "@/components/icons/BrandIcons";
 import { useContent } from "@/i18n/context";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
@@ -16,7 +17,17 @@ interface MenuState {
   projectSlug: string | null;
   /** Nearest ancestor `<section id>`, used to build a link that opens focused on that block. */
   sectionId: string | null;
+  /** The address of the link under the pointer, if the right-click landed on one. */
+  linkHref: string | null;
+  /** The text the visitor had selected when they right-clicked. */
+  selection: string;
 }
+
+/** Which copy action was just done, so only that item shows the tick. */
+type Copied = "page" | "link" | "selection" | null;
+
+/** A search query longer than this is cut, so the address stays reasonable. */
+const SEARCH_MAX = 200;
 
 interface MenuItemProps {
   icon?: ComponentType<{ size?: number }>;
@@ -53,7 +64,7 @@ export function ContextMenu() {
   const { ui, profile, projects } = useContent();
 
   const [menu, setMenu] = useState<MenuState | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<Copied>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimeout = useRef<number | undefined>(undefined);
 
@@ -72,8 +83,10 @@ export function ContextMenu() {
         y: event.clientY,
         projectSlug: target.closest<HTMLElement>("[data-project-slug]")?.dataset.projectSlug ?? null,
         sectionId: target.closest<HTMLElement>("section[id]")?.id ?? null,
+        linkHref: target.closest<HTMLAnchorElement>("a[href]")?.href ?? null,
+        selection: window.getSelection()?.toString().trim() ?? "",
       });
-      setCopied(false);
+      setCopied(null);
     }
     document.addEventListener("contextmenu", handleContextMenu);
     return () => document.removeEventListener("contextmenu", handleContextMenu);
@@ -132,9 +145,9 @@ export function ContextMenu() {
   const project = menu.projectSlug ? (projects.find((item) => item.slug === menu.projectSlug) ?? null) : null;
   const where = project ? `projects/${project.slug}` : (menu.sectionId ?? "home");
 
-  function copyThenClose(text: string) {
+  function copyThenClose(text: string, what: Exclude<Copied, null>) {
     navigator.clipboard.writeText(text).catch(() => {});
-    setCopied(true);
+    setCopied(what);
     window.clearTimeout(closeTimeout.current);
     closeTimeout.current = window.setTimeout(close, COPY_FEEDBACK_MS);
   }
@@ -163,6 +176,16 @@ export function ContextMenu() {
   }
 
   const hasResume = profile.resumeUrl && profile.resumeUrl !== "#";
+  const { selection, linkHref } = menu;
+  // A web address can open in a new tab; an email or phone link only offers its address to copy.
+  const linkIsWeb = linkHref ? /^https?:/i.test(linkHref) : false;
+  const linkText = linkHref?.replace(/^(mailto|tel):/i, "").split("?")[0] ?? "";
+  const linkLabel = linkHref ? (linkIsWeb ? linkHref : decodeURIComponent(linkText)) : "";
+
+  function openInNewTab(url: string) {
+    window.open(url, "_blank", "noopener,noreferrer");
+    close();
+  }
 
   return (
     <div
@@ -182,12 +205,51 @@ export function ContextMenu() {
       </div>
 
       <div className="p-1">
+        {selection && (
+          <>
+            <MenuItem
+              icon={copied === "selection" ? Check : Copy}
+              label={copied === "selection" ? ui.contextMenu.selectionCopied : ui.contextMenu.copySelection}
+              onSelect={() => copyThenClose(selection, "selection")}
+            />
+            <MenuItem
+              icon={Search}
+              label={ui.contextMenu.searchGoogle}
+              onSelect={() => openInNewTab(`https://www.google.com/search?q=${encodeURIComponent(selection.slice(0, SEARCH_MAX))}`)}
+            />
+            <MenuItem
+              icon={Quote}
+              label={ui.contextMenu.quoteInMessage}
+              onSelect={() => {
+                openContactModalWithQuote(selection);
+                close();
+              }}
+            />
+            <MenuSeparator />
+          </>
+        )}
+
+        {linkHref && (
+          <>
+            <div className="ctx-note truncate" title={linkLabel}>
+              {linkLabel}
+            </div>
+            {linkIsWeb && <MenuItem icon={ExternalLink} label={ui.contextMenu.openInNewTab} onSelect={() => openInNewTab(linkHref)} />}
+            <MenuItem
+              icon={copied === "link" ? Check : Copy}
+              label={copied === "link" ? ui.contextMenu.linkAddressCopied : ui.contextMenu.copyLinkAddress}
+              onSelect={() => copyThenClose(linkIsWeb ? linkHref : decodeURIComponent(linkText), "link")}
+            />
+            <MenuSeparator />
+          </>
+        )}
+
         <MenuItem
-          icon={copied ? Check : Link2}
-          label={copied ? ui.contextMenu.pageLinkCopied : ui.contextMenu.copyPageLink}
+          icon={copied === "page" ? Check : Link2}
+          label={copied === "page" ? ui.contextMenu.pageLinkCopied : ui.contextMenu.copyPageLink}
           onSelect={() => {
             const url = `${window.location.origin}${window.location.pathname}${menu.sectionId ? `#${menu.sectionId}` : ""}`;
-            copyThenClose(url);
+            copyThenClose(url, "page");
           }}
         />
 

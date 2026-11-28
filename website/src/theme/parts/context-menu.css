@@ -146,6 +146,13 @@
   color: currentColor;
 }
 
+/* The address of the right-clicked link, small and dim above its actions, so it is clear which link they act on. */
+.ctx-note {
+  padding: 0.2rem 0.55rem 0.15rem;
+  font-size: 0.625rem;
+  color: var(--color-muted);
+}
+
 .ctx-sep {
   height: 1px;
   margin: 0.2rem 0.25rem;

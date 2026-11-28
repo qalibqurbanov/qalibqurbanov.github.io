@@ -272,6 +272,15 @@ export interface UiStrings {
     downloadResume: string;
     viewSourceOnGithub: string;
     reportBug: string;
+    /** Shown when the right-click lands on a link. */
+    openInNewTab: string;
+    copyLinkAddress: string;
+    linkAddressCopied: string;
+    /** Shown when text is selected. */
+    copySelection: string;
+    selectionCopied: string;
+    searchGoogle: string;
+    quoteInMessage: string;
   };
   projectDetail: {
     overviewTab: string;
