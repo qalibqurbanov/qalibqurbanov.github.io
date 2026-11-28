@@ -5,7 +5,8 @@ import { createPortal } from "react-dom";
 
 import { openContactModalWithQuote } from "@/components/contact/openContact";
 import { GithubIcon } from "@/components/icons/BrandIcons";
-import { useContent } from "@/i18n/context";
+import { useContent, useLocale } from "@/i18n/context";
+import type { Locale } from "@/i18n/locale";
 import { reportBugUrl, SITE_REPO_URL } from "@/lib/githubIssue";
 
 /** How long the "Copied!" swap stays up before the menu auto-closes. */
@@ -33,6 +34,18 @@ type Copied = "page" | "link" | "selection" | null;
 
 /** A search query longer than this is cut, so the address stays reasonable. */
 const SEARCH_MAX = 200;
+
+/** "Search on Google" opens Google's own site for the page's language, with its interface in that language. */
+const GOOGLE: Record<Locale, { domain: string; hl: string }> = {
+  en: { domain: "www.google.com", hl: "en" },
+  az: { domain: "www.google.az", hl: "az" },
+  ru: { domain: "www.google.ru", hl: "ru" },
+};
+
+function googleSearchUrl(text: string, locale: Locale): string {
+  const { domain, hl } = GOOGLE[locale];
+  return `https://${domain}/search?q=${encodeURIComponent(text.slice(0, SEARCH_MAX))}&hl=${hl}`;
+}
 
 interface MenuItemProps {
   icon?: ComponentType<{ size?: number }>;
@@ -67,6 +80,7 @@ function MenuSeparator() {
  * view the source on GitHub. Arrow keys, Home and End move between items; Escape closes. */
 export function ContextMenu() {
   const { ui, profile, projects } = useContent();
+  const { locale } = useLocale();
 
   const [menu, setMenu] = useState<MenuState | null>(null);
   const [copied, setCopied] = useState<Copied>(null);
@@ -224,7 +238,7 @@ export function ContextMenu() {
             <MenuItem
               icon={Search}
               label={ui.contextMenu.searchGoogle}
-              onSelect={() => openInNewTab(`https://www.google.com/search?q=${encodeURIComponent(selection.slice(0, SEARCH_MAX))}`)}
+              onSelect={() => openInNewTab(googleSearchUrl(selection, locale))}
             />
             <MenuItem
               icon={Quote}
