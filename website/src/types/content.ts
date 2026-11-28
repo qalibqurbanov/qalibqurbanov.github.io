@@ -156,6 +156,11 @@ export interface UiStrings {
     namePlaceholder: string;
     emailPlaceholder: string;
     messagePlaceholder: string;
+    /** Above a quote brought from the page (selected text, then "Quote in a message"), and its remove button. */
+    quoteLabel: string;
+    removeQuote: string;
+    /** The message placeholder when a quote is attached. */
+    quoteReplyPlaceholder: string;
     attachLabel: string;
     dropHint: string;
     dropActive: string;

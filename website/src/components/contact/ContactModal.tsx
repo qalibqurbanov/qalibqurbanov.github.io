@@ -1,5 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { Check, CheckCircle2, CircleAlert, Clock, Mail, Paperclip, Send, X } from "lucide-react";
+import { Check, CheckCircle2, CircleAlert, Clock, Mail, Paperclip, Quote, Send, X } from "lucide-react";
 import type { DragEvent, FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
@@ -10,7 +10,7 @@ import { FormNote, NOTE_MS } from "./FormNote";
 import { ViewModal } from "@/components/ui/ViewModal";
 import { useContent, useLocale } from "@/i18n/context";
 import { getLocaleMeta } from "@/i18n/locale";
-import { OPEN_CONTACT_EVENT } from "@/components/contact/openContact";
+import { OPEN_CONTACT_EVENT, quoteAsText } from "@/components/contact/openContact";
 import { Turnstile } from "@/components/contact/Turnstile";
 import { format } from "@/lib/format";
 
@@ -40,6 +40,10 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /** The most characters a message can have (the form stops typing there). */
 const MESSAGE_MAX = 4000;
+/** The most characters of a quote brought from the page. */
+const QUOTE_MAX = 1000;
+/** How long a removed quote takes to fold shut; keep it equal to the .quote-fold transition in contact.css. */
+const QUOTE_FOLD_MS = 320;
 
 const MAX_FILES = 5;
 const MAX_TOTAL_BYTES = 10 * 1024 * 1024;
@@ -178,6 +182,17 @@ function SentTick({ label }: { label: string }) {
   return <Check size={20} strokeWidth={3} role="img" aria-label={label} className="sent-tick" />;
 }
 
+/** The quote's remove button icon: a closing quotation mark whose two strokes, when pointed at, swing and stretch
+ * into the two arms of an X (the shapes are set in .qx-left and .qx-right, so CSS can move between them). */
+function QuoteToX() {
+  return (
+    <svg viewBox="0 0 48 48" aria-hidden="true" className="quote-to-x">
+      <path className="qx-left" d="M12 11 L23 11 L15 37 L9 37 Z" />
+      <path className="qx-right" d="M27 11 L38 11 L30 37 L24 37 Z" />
+    </svg>
+  );
+}
+
 type Field = "name" | "email" | "message";
 
 
@@ -220,28 +235,20 @@ export function ContactModal() {
   // When this browser sent its messages within the last hour: the counter under the Send button.
   const [sentTimes, setSentTimes] = useState<number[]>([]);
 
-  // What the message field starts with: empty, or a quote when the form is opened from selected text.
-  const [prefill, setPrefill] = useState("");
+  // Text quoted from the page (selected text, then "Quote in a message"): shown above the message field and sent with it.
+  const [quote, setQuote] = useState("");
+  // True while a removed quote folds shut; it leaves the form once the fold has played.
+  const [quoteClosing, setQuoteClosing] = useState(false);
   const messageRef = useRef<HTMLTextAreaElement>(null);
-
-  // With a quote in the field, the cursor waits under it, ready to write. This runs after the dialog has
-  // placed its own focus, so it is not taken away again.
-  useEffect(() => {
-    if (!open || !prefill) return;
-    const id = window.setTimeout(() => {
-      const field = messageRef.current;
-      if (!field) return;
-      field.focus({ preventScroll: true });
-      field.setSelectionRange(field.value.length, field.value.length);
-      field.scrollTop = field.scrollHeight;
-    }, 50);
-    return () => window.clearTimeout(id);
-  }, [open, prefill]);
 
   useEffect(() => {
     const onOpen = (event: Event) => {
       const detail = event instanceof CustomEvent && typeof event.detail === "string" ? event.detail : "";
-      setPrefill(detail.slice(0, MESSAGE_MAX));
+      setQuote(detail.slice(0, QUOTE_MAX));
+      setQuoteClosing(false);
+      // With a quote attached, the cursor waits in the message field, ready to write. The wait lets the dialog
+      // place its own focus first, so it is not taken away again.
+      if (detail) window.setTimeout(() => messageRef.current?.focus({ preventScroll: true }), 50);
       const stored = readWait();
       const left = stored ? stored.until - Date.now() : 0;
       if (stored && left > 0) {
@@ -323,6 +330,8 @@ export function ContactModal() {
     if (form.get("hp_field")) return;
     const name = String(form.get("name") ?? "");
     const message = String(form.get("message") ?? "");
+    // A quote brought from the page goes first, marked the way mail apps mark a quote, then what the visitor wrote.
+    const withQuote = quote ? `${quoteAsText(quote)}\n\n${message}` : message;
     const email = String(form.get("email") ?? "");
     const found: { field: Field; text: string }[] = [];
     if (!name.trim()) found.push({ field: "name", text: t.needName });
@@ -353,7 +362,7 @@ export function ContactModal() {
     }
     if (!ENDPOINT) {
       // No form service behind this site: the visitor's own email app sends it.
-      const body = `${message}\n\n— ${name} <${email}>`;
+      const body = `${withQuote}\n\n— ${name} <${email}>`;
       const clipped = body.length > MAILTO_BODY_MAX ? `${body.slice(0, MAILTO_BODY_MAX)}…` : body;
       rememberSend(now);
       setSentTimes(recentSends(now));
@@ -364,7 +373,7 @@ export function ContactModal() {
     }
 
     setStatus("sending");
-    const fields = { name, email, message };
+    const fields = { name, email, message: withQuote };
     let { outcome, retryAfter } = await deliver(ENDPOINT, ACCESS_KEY, fields, canAttach ? files : [], checkToken.current);
     // Only a mail service that is down hands over to the backup. A refusal (spam check, too many messages) is final, or the backup would let spam around it.
     if (outcome === "failed" && FALLBACK_ENDPOINT) ({ outcome, retryAfter } = await deliver(FALLBACK_ENDPOINT, ACCESS_KEY, fields, [], null));
@@ -496,22 +505,67 @@ export function ContactModal() {
                 />
               </label>
             </div>
-            <label className="flex flex-col gap-1 text-xs text-muted">
+            {/* Tied to the text box by id: without it the label would belong to the first control inside it, the quote's remove button, and pointing at or clicking anywhere on the field would act on that button. */}
+            <label htmlFor="contact-message" className="flex flex-col gap-1 text-xs text-muted">
               <span className="flex items-center justify-between gap-2">
                 {t.messageLabel}
                 {hint("message")}
               </span>
-              <textarea
-                name="message"
-                placeholder={t.messagePlaceholder}
-                required
-                rows={4}
-                maxLength={MESSAGE_MAX}
-                defaultValue={prefill}
-                ref={messageRef}
-                aria-invalid={invalid.includes("message")}
-                className={fieldClass("message", "custom-scrollbar [--scrollbar-track:var(--color-surface-2)] resize-none")}
-              />
+              {/* With a quote, the field's frame holds both: the quote at the top, as in a mail reply, and the
+                  visitor's own text under it. The frame takes the field's border, focus colour and error edge. */}
+              <div className={quote ? `quote-field ${invalid.includes("message") ? "border-danger!" : ""}` : "contents"}>
+                {quote && (
+                  // Removing the quote folds it shut (its height eases to nothing while it fades), so the field
+                  // and the window around it shrink smoothly instead of jumping.
+                  <div className="quote-fold" data-closing={quoteClosing || undefined}>
+                  <div className="min-h-0 overflow-hidden">
+                  <figure className="quote-card notice-in">
+                    <figcaption className="flex min-h-5 items-center">
+                      <span className="flex items-center gap-1.5">
+                        <Quote size={11} aria-hidden="true" />
+                        {t.quoteLabel}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label={t.removeQuote}
+                        title={t.removeQuote}
+                        onClick={(event) => {
+                          // Inside the label: keep the click from also landing on the text field.
+                          event.preventDefault();
+                          if (quoteClosing) return;
+                          setQuoteClosing(true);
+                          window.setTimeout(() => {
+                            setQuote("");
+                            setQuoteClosing(false);
+                          }, QUOTE_FOLD_MS);
+                          messageRef.current?.focus();
+                        }}
+                        className="quote-remove"
+                      >
+                        <QuoteToX />
+                      </button>
+                    </figcaption>
+                    <blockquote className="quote-text custom-scrollbar selectable">{quote}</blockquote>
+                  </figure>
+                  </div>
+                  </div>
+                )}
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  placeholder={quote ? t.quoteReplyPlaceholder : t.messagePlaceholder}
+                  required
+                  rows={4}
+                  maxLength={MESSAGE_MAX}
+                  ref={messageRef}
+                  aria-invalid={invalid.includes("message")}
+                  className={
+                    quote
+                      ? "custom-scrollbar [--scrollbar-track:var(--color-surface-2)] block w-full resize-none bg-transparent px-3 py-1.5 font-sans text-sm text-text outline-none placeholder:text-muted/60 selectable"
+                      : fieldClass("message", "custom-scrollbar [--scrollbar-track:var(--color-surface-2)] resize-none")
+                  }
+                />
+              </div>
             </label>
             {canAttach && (
               <div className="flex flex-col gap-1 text-xs text-muted">
