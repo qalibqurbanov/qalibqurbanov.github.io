@@ -17,7 +17,7 @@ function hostOf(link: ExperienceLink): string {
   }
 }
 
-/** A public project of the role, as one compact row: logo, name, address. */
+/** A public project of the role, as one compact row: logo, name (wrapping onto a second line when it is long), address. */
 function ProjectLink({ link }: { link: ExperienceLink }) {
   return (
     <a
@@ -37,7 +37,7 @@ function ProjectLink({ link }: { link: ExperienceLink }) {
         </span>
       )}
       <span className="min-w-0 flex-1">
-        <span className="entry-title block truncate text-[0.8125rem] font-medium leading-tight transition-colors">{link.label}</span>
+        <span className="entry-title block text-pretty text-[0.8125rem] font-medium leading-tight transition-colors">{link.label}</span>
         <span className="flex items-center gap-1 font-mono text-[0.6563rem] leading-tight text-muted transition-colors group-hover:text-accent">
           <Link2 size={9} className="shrink-0" aria-hidden="true" />
           <span className="truncate">{hostOf(link)}</span>
