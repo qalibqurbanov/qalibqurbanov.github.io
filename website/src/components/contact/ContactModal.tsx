@@ -515,11 +515,12 @@ export function ContactModal() {
                   visitor's own text under it. The frame takes the field's border, focus colour and error edge. */}
               <div className={quote ? `quote-field ${invalid.includes("message") ? "border-danger!" : ""}` : "contents"}>
                 {quote && (
-                  // Removing the quote folds it shut (its height eases to nothing while it fades), so the field
-                  // and the window around it shrink smoothly instead of jumping.
-                  <div className="quote-fold" data-closing={quoteClosing || undefined}>
+                  // A quote unfolds when it arrives and folds shut when removed (its height eases while it fades),
+                  // so the field and the window around it grow and shrink smoothly instead of jumping. The key
+                  // replays the unfold when a new quote replaces the one shown.
+                  <div key={quote} className="quote-fold" data-closing={quoteClosing || undefined}>
                   <div className="min-h-0 overflow-hidden">
-                  <figure className="quote-card notice-in">
+                  <figure className="quote-card">
                     <figcaption className="flex min-h-5 items-center">
                       <span className="flex items-center gap-1.5">
                         <Quote size={11} aria-hidden="true" />

@@ -302,3 +302,63 @@
     transition-duration: 0.01s;
   }
 }
+
+/* A quote arriving (also while the window is already open, or replacing another) comes in as a short sequence, a
+   little slower than the fold that removes it, so it is easy to follow:
+   1. its space opens (the field and the window grow);
+   2. the card drifts down into that space, from a soft blur to sharp;
+   3. its cyan to pink strip draws down the left edge;
+   4. the closing quotation mark settles in last.
+   No fill mode after the end, so once played everything is left to the fold's own transitions. */
+@keyframes quote-unfold {
+  from {
+    grid-template-rows: 0fr;
+  }
+}
+
+@keyframes quote-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+    filter: blur(4px);
+  }
+}
+
+@keyframes quote-strip-in {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes quote-mark-in {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+
+.quote-fold {
+  animation: quote-unfold 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.quote-fold .quote-card {
+  animation: quote-card-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.08s backwards;
+}
+
+.quote-fold .quote-card::before {
+  transform-origin: top;
+  animation: quote-strip-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+}
+
+.quote-fold .quote-remove {
+  animation: quote-mark-in 0.35s cubic-bezier(0.34, 1.4, 0.64, 1) 0.3s backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quote-fold,
+  .quote-fold .quote-card,
+  .quote-fold .quote-card::before,
+  .quote-fold .quote-remove {
+    animation: none;
+  }
+}
