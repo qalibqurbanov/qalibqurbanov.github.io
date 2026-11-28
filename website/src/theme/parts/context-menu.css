@@ -38,15 +38,115 @@
   }
 }
 
+/* The header says where the menu was opened: the place on the site, and on a link, a second line with where that link
+   leads. Both sit in the header's own band, apart from the actions below. */
 .ctx-head {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.2rem;
   border-bottom: 1px solid var(--color-border);
   background: color-mix(in srgb, var(--color-surface-2) 60%, transparent);
   padding: 0.4rem 0.65rem;
   font-size: 0.6875rem;
   color: var(--color-muted);
+}
+
+.ctx-where {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* The link's target, under the place, set in from the left: a thin arrow in the header's pink (the same as its "~/")
+   runs down from the place's dot and then along to the address, so the address clearly hangs off the place. Then the
+   site's name in the text colour and the rest of the address dimmer. */
+.ctx-target {
+  --ctx-indent: 2rem;
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  padding-left: var(--ctx-indent);
+  font-size: 0.625rem;
+}
+
+/* The arrow's line: down from under the dot's middle, round a small corner, then along to just before the address. */
+.ctx-target::before {
+  content: "";
+  position: absolute;
+  left: 2.5px;
+  top: -0.4rem;
+  width: calc(var(--ctx-indent) - 2.5px - 0.35rem - 5px);
+  height: calc(50% + 0.4rem);
+  border-left: 1px solid var(--color-accent-2);
+  border-bottom: 1px solid var(--color-accent-2);
+  border-bottom-left-radius: 4px;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* The arrow's head: a small solid triangle where the line ends, pointing at the address. */
+.ctx-target::after {
+  content: "";
+  position: absolute;
+  left: calc(var(--ctx-indent) - 0.35rem - 5px);
+  top: 50%;
+  width: 5px;
+  height: 7px;
+  background: var(--color-accent-2);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  translate: 0 calc(-50% - 0.5px);
+  opacity: 0.85;
+  pointer-events: none;
+}
+/* The address itself. A long one runs along like a ticker (LinkTicker in ContextMenu.tsx): copies one after the other,
+   each followed by a small pink diamond, moved left by exactly one copy and its diamond so the loop has no seam. Both
+   edges fade softly, and it starts after a short pause so the beginning can be read, then keeps running. */
+.ctx-ticker {
+  display: block;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ctx-ticker-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9em;
+}
+
+/* The diamond between two copies of a long address: small, in the header's pink, like the arrow that points at it. */
+.ctx-ticker-sep {
+  flex: none;
+  font-size: 0.75em;
+  color: var(--color-accent-2);
+  opacity: 0.85;
+}
+
+.ctx-ticker[data-running] {
+  mask-image: linear-gradient(to right, transparent, #000 0.5rem, #000 calc(100% - 1rem), transparent);
+}
+
+.ctx-ticker[data-running] .ctx-ticker-track[data-ready] {
+  animation: ctx-ticker var(--ticker-time) linear 0.8s infinite;
+}
+
+@keyframes ctx-ticker {
+  to {
+    transform: translateX(calc(-1 * var(--ticker-distance)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctx-ticker[data-running] .ctx-ticker-track {
+    animation: none;
+  }
+}
+
+.ctx-target-host {
+  color: var(--color-text);
 }
 
 .ctx-dot {
@@ -144,13 +244,6 @@
 .ctx-item:hover .ctx-icon,
 .ctx-item:focus-visible .ctx-icon {
   color: currentColor;
-}
-
-/* The address of the right-clicked link, small and dim above its actions, so it is clear which link they act on. */
-.ctx-note {
-  padding: 0.2rem 0.55rem 0.15rem;
-  font-size: 0.625rem;
-  color: var(--color-muted);
 }
 
 .ctx-sep {

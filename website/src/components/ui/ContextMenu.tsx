@@ -42,6 +42,19 @@ const GOOGLE: Record<Locale, { domain: string; hl: string }> = {
   ru: { domain: "www.google.ru", hl: "ru" },
 };
 
+/** A link's address for the header: the site's name (without "www.") and the rest of the address after it. An
+ * email or phone link is shown whole, as its address. */
+function splitAddress(href: string, isWeb: boolean, label: string): { host: string; rest: string } {
+  if (!isWeb) return { host: label, rest: "" };
+  try {
+    const url = new URL(href);
+    const rest = `${url.pathname}${url.search}${url.hash}`.replace(/\/$/, "");
+    return { host: url.host.replace(/^www\./, ""), rest: decodeURI(rest) };
+  } catch {
+    return { host: label, rest: "" };
+  }
+}
+
 function googleSearchUrl(text: string, locale: Locale): string {
   const { domain, hl } = GOOGLE[locale];
   return `https://${domain}/search?q=${encodeURIComponent(text.slice(0, SEARCH_MAX))}&hl=${hl}`;
@@ -68,6 +81,74 @@ function MenuItem({ icon: Icon, label, danger, green, onSelect }: MenuItemProps)
       )}
       <span className="flex-1 truncate">{label}</span>
     </button>
+  );
+}
+
+/** How fast a long link address runs along, in pixels a second. */
+const TICKER_SPEED = 35;
+
+/** The right-clicked link's address in the header. When it is too long for the menu it runs along like a ticker:
+ * copies follow each other in a seamless loop, each followed by a small pink diamond, softly faded at both edges.
+ * A short address simply sits still. */
+function LinkTicker({ host, rest }: { host: string; rest: string }) {
+  const boxRef = useRef<HTMLSpanElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const copyRef = useRef<HTMLSpanElement>(null);
+  const [running, setRunning] = useState(false);
+  const [distance, setDistance] = useState(0);
+
+  // Runs only when the address does not fit.
+  useLayoutEffect(() => {
+    const box = boxRef.current;
+    const text = textRef.current;
+    if (!box || !text) return;
+    setRunning(text.offsetWidth > box.clientWidth);
+  }, [host, rest]);
+
+  // One loop moves by exactly the distance from the address to its copy (the address, the diamond and the gaps
+  // around it), measured once both are laid out, so the loop has no seam.
+  useLayoutEffect(() => {
+    if (!running || !textRef.current || !copyRef.current) return;
+    setDistance(copyRef.current.offsetLeft - textRef.current.offsetLeft);
+  }, [running, host, rest]);
+
+  const address = (
+    <>
+      <span className="ctx-target-host">{host}</span>
+      {rest}
+    </>
+  );
+  const separator = (
+    <span className="ctx-ticker-sep" aria-hidden="true">
+      ◆
+    </span>
+  );
+
+  return (
+    <span ref={boxRef} className="ctx-ticker" data-running={running ? "" : undefined}>
+      <span
+        className="ctx-ticker-track"
+        style={
+          distance
+            ? ({ "--ticker-distance": `${distance}px`, "--ticker-time": `${Math.max(4, distance / TICKER_SPEED)}s` } as React.CSSProperties)
+            : undefined
+        }
+        data-ready={distance ? "" : undefined}
+      >
+        <span ref={textRef} className="ctx-ticker-text">
+          {address}
+        </span>
+        {running && (
+          <>
+            {separator}
+            <span ref={copyRef} className="ctx-ticker-text" aria-hidden="true">
+              {address}
+            </span>
+            {separator}
+          </>
+        )}
+      </span>
+    </span>
   );
 }
 
@@ -201,6 +282,8 @@ export function ContextMenu() {
   const linkIsWeb = linkHref ? /^https?:/i.test(linkHref) : false;
   const linkText = linkHref?.replace(/^(mailto|tel):/i, "").split("?")[0] ?? "";
   const linkLabel = linkHref ? (linkIsWeb ? linkHref : decodeURIComponent(linkText)) : "";
+  // Shown in the header as the link's target: the site's name stands out, the rest of the address is dimmer.
+  const linkParts = linkHref ? splitAddress(linkHref, linkIsWeb, linkLabel) : null;
 
   function openInNewTab(url: string) {
     window.open(url, "_blank", "noopener,noreferrer");
@@ -220,11 +303,19 @@ export function ContextMenu() {
       className="ctx-menu"
     >
       <div className="ctx-head">
-        <span aria-hidden="true" className="ctx-dot" />
-        <span className="truncate">
-          <span className="text-accent-2">~/</span>
-          {where}
-        </span>
+        <div className="ctx-where">
+          <span aria-hidden="true" className="ctx-dot" />
+          <span className="truncate">
+            <span className="text-accent-2">~/</span>
+            {where}
+          </span>
+        </div>
+        {/* On a link, the header goes on to where the link leads, so its two actions below clearly act on it. */}
+        {linkParts && (
+          <div className="ctx-target" title={linkLabel}>
+            <LinkTicker host={linkParts.host} rest={linkParts.rest} />
+          </div>
+        )}
       </div>
 
       <div className="p-1">
@@ -254,9 +345,6 @@ export function ContextMenu() {
 
         {linkHref && (
           <>
-            <div className="ctx-note truncate" title={linkLabel}>
-              {linkLabel}
-            </div>
             {linkIsWeb && <MenuItem icon={ExternalLink} label={ui.contextMenu.openInNewTab} onSelect={() => openInNewTab(linkHref)} />}
             <MenuItem
               icon={copied === "link" ? Check : Copy}
