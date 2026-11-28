@@ -1,6 +1,7 @@
 import { ArrowUp, Bug, Check, Copy, ExternalLink, FileText, Link2, Quote, Search } from "lucide-react";
 import type { ComponentType, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { openContactModalWithQuote } from "@/components/contact/openContact";
 import { GithubIcon } from "@/components/icons/BrandIcons";
@@ -21,6 +22,10 @@ interface MenuState {
   linkHref: string | null;
   /** The text the visitor had selected when they right-clicked. */
   selection: string;
+  /** The open window (dialog) the right-click landed in, if any. The menu is placed inside it: an open window
+   * ignores the pointer everywhere outside itself, closes when clicked outside and keeps focus within, so a
+   * menu left outside it could not be used. */
+  host: HTMLElement | null;
 }
 
 /** Which copy action was just done, so only that item shows the tick. */
@@ -85,6 +90,7 @@ export function ContextMenu() {
         sectionId: target.closest<HTMLElement>("section[id]")?.id ?? null,
         linkHref: target.closest<HTMLAnchorElement>("a[href]")?.href ?? null,
         selection: window.getSelection()?.toString().trim() ?? "",
+        host: target.closest<HTMLElement>('[role="dialog"]'),
       });
       setCopied(null);
     }
@@ -187,7 +193,10 @@ export function ContextMenu() {
     close();
   }
 
-  return (
+  // A window that has closed since the right-click takes the menu with it.
+  if (menu.host && !menu.host.isConnected) return null;
+
+  const content = (
     <div
       ref={menuRef}
       role="menu"
@@ -287,4 +296,6 @@ export function ContextMenu() {
       </div>
     </div>
   );
+
+  return menu.host ? createPortal(content, menu.host) : content;
 }

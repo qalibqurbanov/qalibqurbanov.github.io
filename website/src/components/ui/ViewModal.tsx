@@ -64,6 +64,10 @@ export function ViewModal({
         <Dialog.Content
           {...(title ? { "aria-describedby": undefined } : {})}
           data-view-backdrop=""
+          // With the right-click menu open (it is placed inside this window), Esc closes only the menu.
+          onEscapeKeyDown={(event) => {
+            if (document.querySelector(".ctx-menu")) event.preventDefault();
+          }}
           onPointerDown={(event) => {
             pressedOutside.current = isBackdrop(event.target);
           }}
