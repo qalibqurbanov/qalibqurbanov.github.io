@@ -306,8 +306,8 @@ export function ContextMenu() {
         <div className="ctx-where">
           <span aria-hidden="true" className="ctx-dot" />
           <span className="truncate">
-            <span className="text-accent-2">~/</span>
-            {where}
+            <span className="text-accent">~/</span>
+            <span className="text-accent">{where}</span>
           </span>
         </div>
         {/* On a link, the header goes on to where the link leads, so its two actions below clearly act on it. */}
